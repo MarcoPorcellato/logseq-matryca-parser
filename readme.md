@@ -12,6 +12,9 @@ Standard RAG parsers destroy the semantic structure of Logseq. **Logseq Sovereig
 We guarantee that artificial intelligence understands spatial hierarchy, not just flat text.
 
 ## 🏗️ System Architecture
+
+*Want to understand why standard parsing fails on Logseq? Read our [Logseq AST Primer](docs/logseq_ast_primer.md).*
+
 * **LOGOS (Core):** Finite state parsing engine for indentation reconstruction.
 * **SYNAPSE (Adapters):** Connectors for LangChain and LlamaIndex to power RAG systems.
 * **FORGE (Exporters):** Transformation forge for optimized JSON and Markdown output.

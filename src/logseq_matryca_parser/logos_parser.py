@@ -9,9 +9,12 @@ l'estrazione deterministica dell'Abstract Syntax Tree (AST) da Logseq.
 """
 import re
 import uuid
+import logging
 from pathlib import Path
 from typing import List, Optional
 from .logos_core import LogosNode
+
+logger = logging.getLogger(__name__)
 
 class LogosParser:
     """Motore di parsing FSM per il Protocollo Logos."""
@@ -37,7 +40,15 @@ class LogosParser:
             raise FileNotFoundError(f"Pergamena non trovata: {path}")
 
         content = path.read_text(encoding="utf-8")
+        if not content.strip():
+            logger.warning(f"Il file {path} è vuoto.")
+            return []
+
         lines = content.splitlines()
+        
+        # Rilevamento automatico dell'indentazione a tab
+        uses_tabs = any(line.startswith('\t') for line in lines if line.strip())
+        current_tab_size = 1 if uses_tabs else self.tab_size
         
         stack: List[LogosNode] = []
         roots: List[LogosNode] = []
@@ -50,8 +61,9 @@ class LogosParser:
             match = self.bullet_regex.match(line)
             if match:
                 # 1. Calcolo livello topologico
-                indent_spaces = len(match.group(1))
-                level = indent_spaces // self.tab_size
+                indentation = match.group(1)
+                indent_count = indentation.count('\t') if uses_tabs else len(indentation)
+                level = indent_count // current_tab_size
                 raw_text = match.group(2)
                 
                 # 2. Generazione o Estrazione ID

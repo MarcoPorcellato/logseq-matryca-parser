@@ -59,3 +59,43 @@ def test_property_extraction(mock_logseq_file: Path):
     assert "custom_prop" in figlio_b1.properties
     assert figlio_b1.properties["custom_prop"] == "value123"
     assert "custom_prop::" not in figlio_b1.content
+
+def test_empty_file(tmp_path: Path, caplog: pytest.LogCaptureFixture):
+    """Verifica che un file vuoto restituisca lista vuota e generi un warning."""
+    import logging
+    file_path = tmp_path / "empty.md"
+    file_path.write_text("   \n\n  ", encoding="utf-8")
+    
+    parser = LogosParser()
+    with caplog.at_level(logging.WARNING):
+        roots = parser.parse_file(file_path)
+        
+    assert len(roots) == 0
+    assert "vuoto" in caplog.text
+
+def test_tab_indentation(tmp_path: Path):
+    """Verifica che l'indentazione a tab venga rilevata e processata dinamicamente."""
+    content = "- Nodo Radice\n\t- Figlio 1\n\t\t- Nipote 1.1\n\t- Figlio 2\n"
+    file_path = tmp_path / "tabs.md"
+    file_path.write_text(content, encoding="utf-8")
+    
+    # Inizializziamo il parser col default spazi=2, ma dovrà adattarsi ai tab
+    parser = LogosParser(tab_size=2)
+    roots = parser.parse_file(file_path)
+    
+    assert len(roots) == 1
+    radice = roots[0]
+    assert radice.content == "Nodo Radice"
+    
+    assert len(radice.children) == 2
+    figlio1 = radice.children[0]
+    assert figlio1.content == "Figlio 1"
+    assert figlio1.indent_level == 1
+    
+    nipote = figlio1.children[0]
+    assert nipote.content == "Nipote 1.1"
+    assert nipote.indent_level == 2
+    
+    figlio2 = radice.children[1]
+    assert figlio2.content == "Figlio 2"
+    assert figlio2.indent_level == 1

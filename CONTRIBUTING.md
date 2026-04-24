@@ -71,7 +71,21 @@ git checkout -b feat/add-html-exporter
 
 ### 4. Code Quality & Linting (Mandatory)
 
-We run a strict CI pipeline. Before committing, you must ensure your code passes static analysis:
+We run a strict CI pipeline. Before committing, you must ensure your code passes static analysis and tests.
+
+We provide a `Makefile` to simplify running these commands. You can execute them individually or all at once:
+
+```bash
+# Run all checks (linting, static typing, and tests)
+make all
+
+# Or run them individually:
+make lint   # Check formatting and linting with Ruff
+make check  # Check static typing with Mypy
+make test   # Run unit tests with Pytest
+```
+
+Alternatively, you can run the commands directly:
 
 ```bash
 # Check formatting and linting
