@@ -7,12 +7,12 @@ License: Apache 2.0
 Descrizione: Il modulo Synapse funge da ponte (sinapsi) tra l'AST Logos 
 e gli ecosistemi AI standard come LangChain.
 """
-from typing import List, Dict, Any
+from typing import List, Any
 from pathlib import Path
 
 # Nota: Queste dipendenze sono standard nel mondo RAG
 try:
-    from langchain_core.documents import Document
+    from langchain_core.documents import Document  # type: ignore
 except ImportError:
     # Fallback se LangChain non è installato (per mantenere il core leggero)
     Document = None
@@ -24,7 +24,7 @@ class SynapseAdapter:
     """Trasforma la gerarchia Logos in oggetti pronti per i framework AI."""
 
     @staticmethod
-    def to_langchain_documents(nodes: List[LogosNode], source_name: str) -> List['Document']:
+    def to_langchain_documents(nodes: List[LogosNode], source_name: str) -> List[Any]:
         """
         Converte ricorsivamente i nodi Logos in una lista di LangChain Documents.
         Ogni blocco Logseq diventa un'unità atomica arricchita da metadati gerarchici.
@@ -60,7 +60,7 @@ class SynapseAdapter:
         return documents
 
     @classmethod
-    def load_and_convert(cls, file_path: Path) -> List['Document']:
+    def load_and_convert(cls, file_path: Path) -> List[Any]:
         """
         Utility high-level: legge un file via LogosParser e lo sputa fuori 
         direttamente come lista di Documenti LangChain.

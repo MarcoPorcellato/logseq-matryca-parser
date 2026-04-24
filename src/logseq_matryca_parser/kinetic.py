@@ -7,12 +7,12 @@ License: Apache 2.0
 Descrizione: Interfaccia a riga di comando (CLI) ad alte prestazioni.
 POSIX-compliant: telemetria su stderr, output dati puro su stdout.
 """
-import typer
+import typer  # type: ignore
 from pathlib import Path
-from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.panel import Panel
-from rich.table import Table
+from rich.console import Console  # type: ignore
+from rich.progress import Progress, SpinnerColumn, TextColumn  # type: ignore
+from rich.panel import Panel  # type: ignore
+from rich.table import Table  # type: ignore
 from typing import Optional, List
 
 # Importiamo il motore e la fucina
