@@ -1,0 +1,22 @@
+[project]
+name = "logseq-matryca-parser"
+version = "0.1.0"
+description = "The Logos Protocol: Deterministic Logseq AST parsing for Matryca.ai."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Marco Porcellato", email = "marco@matryca.ai" }
+]
+dependencies = [
+    "pydantic>=2.7.0",
+    "typer>=0.12.0",
+    "rich>=13.7.1"
+]
+
+[project.scripts]
+matryca-parse = "logseq_matryca_parser.kinetic:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
