@@ -27,3 +27,69 @@ To set up your local environment:
    ```bash
    git clone [https://github.com/YOUR-USERNAME/logseq-matryca-parser.git](https://github.com/YOUR-USERNAME/logseq-matryca-parser.git)
    cd logseq-matryca-parser
+
+Create an Isolated Environment:
+
+Bash
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+Install the Project in Editable Mode (with dev dependencies):
+
+Bash
+pip install -e .
+pip install pytest mypy ruff
+
+🚦 The Contribution Workflow
+
+1. Find or Create an Issue
+Whether it's a bug fix or a new feature (like a new exporter in forge.py), check the Issues tab first. If it's a new idea, open an Issue to discuss it with the maintainers before investing hours of work.
+
+2. Branch Naming Convention
+Create a branch from main using the following naming format:
+
+feat/your-feature-name (for new features)
+
+bugfix/issue-number-description (for bug fixes)
+
+docs/update-readme (for documentation)
+
+Bash
+git checkout -b feat/add-html-exporter
+
+3. Write Code & Tests
+If you fix a bug, write a unit test in tests/ that fails without your patch and passes with it.
+
+If you add a feature, ensure it is covered by a test.
+
+4. Code Quality & Linting (Mandatory)
+We run a strict CI pipeline. Before committing, you must ensure your code passes static analysis:
+
+Bash
+# Check formatting and linting
+ruff check .
+
+# Check static typing (Strict Mode)
+mypy src/
+
+5. Commit Standards
+We follow Conventional Commits. Your commit messages should be structured like this:
+
+feat(forge): add XML export functionality
+
+fix(parser): resolve stack overflow on deep indentation
+
+docs: update setup instructions
+
+6. Submit a Pull Request (PR)
+Push your branch and open a PR against the main branch.
+
+Describe why the change is needed.
+
+Link the relevant Issue (Fixes #123).
+
+Ensure all GitHub Actions (CI) pass.
+
+🤝 Code of Conduct
+We expect all contributors to maintain a professional, respectful, and constructive tone. We are building the future of sovereign knowledge management together.
+
+By contributing to this project, you agree that your contributions will be licensed under its Apache 2.0 License.
