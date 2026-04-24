@@ -81,11 +81,18 @@ class LogosParser:
             else:
                 # 5. Gestione Multi-linea e Properties
                 if current_node:
-                    current_node.content += f"\n{line}"
-                    
                     prop_match = self.prop_regex.match(line.strip())
                     if prop_match:
                         key, val = prop_match.groups()
                         current_node.properties[key] = val
+                        
+                        # Se la property è un ID di Logseq, sovrascriviamo l'UUID generato a caso
+                        if key == "id":
+                            current_node.uuid = val
+                        
+                        # IMPORTANTE: Non accodiamo questa riga a current_node.content!
+                    else:
+                        # È testo multi-linea normale, lo accodiamo
+                        current_node.content += f"\n{line}"
 
         return roots
