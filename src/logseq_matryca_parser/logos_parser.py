@@ -15,8 +15,10 @@ from .logos_core import LogseqNode, LogseqPage
 LOGSEQ_PATTERNS: dict[str, re.Pattern[str]] = {
     "property": re.compile(r"^([\w-]+)::\s*(.*)$"),
     "wikilink": re.compile(r"\[\[(.*?)\]\]"),
-    "tag": re.compile(r"#(?:\[\[)?([^\]\s]+)(?:\]\])?"),
-    "block_ref": re.compile(r"\(\(([a-f0-9\-]{36})\)\)"),
+    "tag": re.compile(r"#\[\[([^\]]+)\]\]|#([^\s#\]]+)"),
+    "block_ref": re.compile(
+        r"(?:\[[^\]]+\])?\(\(\(([a-f0-9\-]{36})\)\)\)|\(\(([a-f0-9\-]{36})\)\)"
+    ),
     "uuid_prop": re.compile(r"^id::\s*([a-f0-9\-]{36})$"),
 }
 TASK_STATUSES: tuple[str, ...] = (
@@ -30,6 +32,7 @@ TASK_STATUSES: tuple[str, ...] = (
 )
 TIME_PATTERN: re.Pattern[str] = re.compile(r"\b(SCHEDULED|DEADLINE):\s*(<[^>]+>)")
 MACRO_PATTERN: re.Pattern[str] = re.compile(r"\{\{.*?\}\}")
+HEADING_PATTERN: re.Pattern[str] = re.compile(r"^(#{1,6})\s+(.+)$")
 
 SYSTEM_BLOCK_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"^\s*:(?:LOGBOOK|PROPERTIES):", re.IGNORECASE),
@@ -103,6 +106,15 @@ def _extract_time_properties(raw_content: str) -> dict[str, str]:
     return properties
 
 
+def _extract_tags(raw_content: str) -> list[str]:
+    tags: list[str] = []
+    for bracketed, simple in LOGSEQ_PATTERNS["tag"].findall(raw_content):
+        tag = bracketed or simple
+        if tag:
+            tags.append(tag)
+    return tags
+
+
 def _extract_block_refs(raw_content: str) -> list[str]:
     refs: list[str] = []
     in_code_block = False
@@ -114,8 +126,19 @@ def _extract_block_refs(raw_content: str) -> list[str]:
         if in_code_block:
             continue
         safe_line = MACRO_PATTERN.sub("", line)
-        refs.extend(LOGSEQ_PATTERNS["block_ref"].findall(safe_line))
+        for alias_ref, plain_ref in LOGSEQ_PATTERNS["block_ref"].findall(safe_line):
+            block_ref = alias_ref or plain_ref
+            if block_ref:
+                refs.append(block_ref)
     return refs
+
+
+def _extract_heading_level(content: str) -> int | None:
+    first_line = content.splitlines()[0].strip() if content.splitlines() else ""
+    match = HEADING_PATTERN.match(first_line)
+    if match:
+        return len(match.group(1))
+    return None
 
 
 class PageRegistry:
@@ -148,6 +171,7 @@ class StackMachineParser:
         frontmatter_active = True
         property_list_indent_level: int | None = None
         in_code_block = False
+        in_drawer = False
 
         for raw_line in text.splitlines():
             stripped_line = raw_line.strip()
@@ -163,6 +187,24 @@ class StackMachineParser:
                 property_list_indent_level = None
                 continue
 
+            if in_drawer:
+                if stripped_line.upper() == ":END:":
+                    in_drawer = False
+                    continue
+                if BULLET_PATTERN.match(raw_line):
+                    in_drawer = False
+                else:
+                    continue
+
+            if stripped_line.upper() == ":LOGBOOK:" and current_node is not None:
+                in_drawer = True
+                properties = dict(current_node.properties)
+                properties.setdefault("logbook", [])
+                updated = self._refresh_node(current_node, current_node.content, properties_override=properties)
+                self._replace_stack_tail_node(stack, root_nodes, updated)
+                current_node = updated
+                continue
+
             if not stripped_line or is_system_block(raw_line):
                 continue
 
@@ -173,11 +215,6 @@ class StackMachineParser:
                     indent_level -= 1
                 else:
                     property_list_indent_level = None
-
-                if stack and indent_level > (stack[-1].indent_level + 1):
-                    raise LogseqIndentationError(
-                        "Invalid indentation jump detected while parsing page."
-                    )
 
                 node = self._build_node(
                     block_text=bullet_match.group(2),
@@ -291,6 +328,9 @@ class StackMachineParser:
         if time_properties:
             properties.update(time_properties)
         task_status, _ = _extract_task_status(stripped_text)
+        heading_level = _extract_heading_level(stripped_text)
+        if heading_level is not None:
+            properties["heading_level"] = heading_level
 
         return LogseqNode(
             uuid=node_uuid,
@@ -299,7 +339,7 @@ class StackMachineParser:
             indent_level=indent_level,
             properties=properties,
             wikilinks=LOGSEQ_PATTERNS["wikilink"].findall(stripped_text),
-            tags=LOGSEQ_PATTERNS["tag"].findall(stripped_text),
+            tags=_extract_tags(stripped_text),
             block_refs=_extract_block_refs(stripped_text),
             task_status=task_status,
             parent_id=None,
@@ -349,11 +389,19 @@ class StackMachineParser:
                     raise BlockReferenceError(f"Unresolved block reference: {block_ref}")
             stack.extend(node.children)
 
-    def _refresh_node(self, node: LogseqNode, content: str) -> LogseqNode:
-        properties = dict(node.properties)
+    def _refresh_node(
+        self,
+        node: LogseqNode,
+        content: str,
+        properties_override: dict[str, Any] | None = None,
+    ) -> LogseqNode:
+        properties = dict(node.properties) if properties_override is None else dict(properties_override)
         time_properties = _extract_time_properties(content)
         if time_properties:
             properties.update(time_properties)
+        heading_level = _extract_heading_level(content)
+        if heading_level is not None:
+            properties["heading_level"] = heading_level
         task_status, _ = _extract_task_status(content.splitlines()[0].strip())
         return node.model_copy(
             update={
@@ -362,7 +410,7 @@ class StackMachineParser:
                 "clean_text": clean_node_content(content, properties),
                 "task_status": task_status,
                 "wikilinks": LOGSEQ_PATTERNS["wikilink"].findall(content),
-                "tags": LOGSEQ_PATTERNS["tag"].findall(content),
+                "tags": _extract_tags(content),
                 "block_refs": _extract_block_refs(content),
             }
         )

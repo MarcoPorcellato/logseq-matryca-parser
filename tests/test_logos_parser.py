@@ -35,19 +35,20 @@ def test_is_system_block_detection(line: str, expected: bool) -> None:
     assert is_system_block(line) is expected
 
 
-@pytest.mark.parametrize(
-    "content",
-    [
-        "- Root\n      - Impossible jump to level 3",
-        "- Root\n   - Misaligned indentation",
-    ],
-)
-def test_indentation_impossibilities_raise(
-    parser: StackMachineParser, content: str
-) -> None:
-    """Parser rejects impossible or malformed indentation transitions."""
+def test_zero_to_four_space_fracture_binds_to_root(parser: StackMachineParser) -> None:
+    """A direct 0->4 space jump is legal and binds to root."""
+    content = "- Root\n    - Four space child"
+    page = parser.parse(content, page_title="space-fracture")
+
+    assert len(page.root_nodes) == 1
+    assert len(page.root_nodes[0].children) == 1
+    assert page.root_nodes[0].children[0].content == "Four space child"
+
+
+def test_misaligned_indentation_still_raises(parser: StackMachineParser) -> None:
+    """Non-tab-size aligned indentation remains invalid."""
     with pytest.raises(LogseqIndentationError):
-        parser.parse(content, page_title="invalid-indentation")
+        parser.parse("- Root\n   - Misaligned indentation", page_title="invalid-indentation")
 
 
 @pytest.mark.parametrize(
@@ -253,3 +254,57 @@ def test_macros_are_handled_as_content_without_crash(
     child = root.children[0]
 
     assert "{{" in child.content and "}}" in child.content
+
+
+def test_absolute_indentation_overrides_heading_semantics(parser: StackMachineParser) -> None:
+    """Indented headings become children by whitespace, not heading depth."""
+    content = "- Parent\n  - ### Child Heading"
+    page = parser.parse(content, page_title="heading-indent")
+
+    parent = page.root_nodes[0]
+    child = parent.children[0]
+    assert child.content == "### Child Heading"
+    assert child.properties["heading_level"] == 3
+
+
+def test_empty_logbook_drawer_tolerance(parser: StackMachineParser) -> None:
+    """An empty :LOGBOOK: drawer does not swallow following blocks."""
+    content = "- Root\n  :LOGBOOK:\n  :END:\n  - Child after drawer"
+    page = parser.parse(content, page_title="drawer")
+
+    root = page.root_nodes[0]
+    assert root.properties["logbook"] == []
+    assert len(root.children) == 1
+    assert root.children[0].content == "Child after drawer"
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_tags", "expected_ref"),
+    [
+        (
+            "- Root #[[Complex Tag]]",
+            ["Complex Tag"],
+            None,
+        ),
+        (
+            "- Root [My Alias](((12345678-1234-1234-1234-1234567890ab)))\n"
+            "  - Target\n"
+            "    id:: 12345678-1234-1234-1234-1234567890ab",
+            [],
+            "12345678-1234-1234-1234-1234567890ab",
+        ),
+    ],
+)
+def test_complex_tag_aliasing_patterns(
+    parser: StackMachineParser,
+    content: str,
+    expected_tags: list[str],
+    expected_ref: str | None,
+) -> None:
+    """Complex tags and aliased block refs are parsed with official patterns."""
+    page = parser.parse(content, page_title="complex-alias")
+    root = page.root_nodes[0]
+
+    assert root.tags == expected_tags
+    if expected_ref is not None:
+        assert expected_ref in root.block_refs
