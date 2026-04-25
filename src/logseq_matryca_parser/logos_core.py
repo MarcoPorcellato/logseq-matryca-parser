@@ -33,6 +33,7 @@ class LogseqNode(BaseModel):
     wikilinks: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     block_refs: list[str] = Field(default_factory=list)
+    task_status: str | None = None
     parent_id: str | None = None
     children: list["LogseqNode"] = Field(default_factory=list)
 

@@ -19,6 +19,17 @@ LOGSEQ_PATTERNS: dict[str, re.Pattern[str]] = {
     "block_ref": re.compile(r"\(\(([a-f0-9\-]{36})\)\)"),
     "uuid_prop": re.compile(r"^id::\s*([a-f0-9\-]{36})$"),
 }
+TASK_STATUSES: tuple[str, ...] = (
+    "TODO",
+    "DOING",
+    "DONE",
+    "LATER",
+    "NOW",
+    "WAITING",
+    "CANCELED",
+)
+TIME_PATTERN: re.Pattern[str] = re.compile(r"\b(SCHEDULED|DEADLINE):\s*(<[^>]+>)")
+MACRO_PATTERN: re.Pattern[str] = re.compile(r"\{\{.*?\}\}")
 
 SYSTEM_BLOCK_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"^\s*:(?:LOGBOOK|PROPERTIES):", re.IGNORECASE),
@@ -40,15 +51,71 @@ def clean_node_content(raw_content: str, properties: dict[str, Any]) -> str:
     """Strip Logseq properties and bullet syntax from block text."""
     cleaned_lines: list[str] = []
     property_keys = tuple(properties.keys())
+    in_code_block = False
 
-    for line in raw_content.splitlines():
+    for line_index, line in enumerate(raw_content.splitlines()):
         stripped = line.strip()
+        if _is_code_fence_line(stripped):
+            in_code_block = not in_code_block
+            cleaned_lines.append(stripped)
+            continue
+        if in_code_block:
+            cleaned_lines.append(line)
+            continue
         if property_keys and any(stripped.startswith(f"{key}::") for key in property_keys):
             continue
-        cleaned_line = re.sub(r"^\s*-\s+", "", line).strip()
+        cleaned_line = TIME_PATTERN.sub("", line)
+        cleaned_line = re.sub(r"^\s*-\s+", "", cleaned_line).strip()
+        if line_index == 0:
+            _, cleaned_line = _extract_task_status(cleaned_line)
+        cleaned_line = re.sub(r"\s{2,}", " ", cleaned_line).strip()
+        if not cleaned_line:
+            continue
         cleaned_lines.append(cleaned_line)
 
     return "\n".join(cleaned_lines).strip()
+
+
+def _is_code_fence_line(stripped_line: str) -> bool:
+    return stripped_line.startswith("```")
+
+
+def _extract_task_status(first_line: str) -> tuple[str | None, str]:
+    for status in TASK_STATUSES:
+        prefix = f"{status} "
+        if first_line.startswith(prefix):
+            return status, first_line[len(prefix) :].strip()
+    return None, first_line
+
+
+def _extract_time_properties(raw_content: str) -> dict[str, str]:
+    properties: dict[str, str] = {}
+    in_code_block = False
+    for line in raw_content.splitlines():
+        stripped = line.strip()
+        if _is_code_fence_line(stripped):
+            in_code_block = not in_code_block
+            continue
+        if in_code_block:
+            continue
+        for key, value in TIME_PATTERN.findall(line):
+            properties[key.lower()] = value
+    return properties
+
+
+def _extract_block_refs(raw_content: str) -> list[str]:
+    refs: list[str] = []
+    in_code_block = False
+    for line in raw_content.splitlines():
+        stripped = line.strip()
+        if _is_code_fence_line(stripped):
+            in_code_block = not in_code_block
+            continue
+        if in_code_block:
+            continue
+        safe_line = MACRO_PATTERN.sub("", line)
+        refs.extend(LOGSEQ_PATTERNS["block_ref"].findall(safe_line))
+    return refs
 
 
 class PageRegistry:
@@ -80,9 +147,23 @@ class StackMachineParser:
         current_node: LogseqNode | None = None
         frontmatter_active = True
         property_list_indent_level: int | None = None
+        in_code_block = False
 
         for raw_line in text.splitlines():
-            if not raw_line.strip() or is_system_block(raw_line):
+            stripped_line = raw_line.strip()
+
+            if in_code_block and current_node is not None:
+                merged_content = f"{current_node.content}\n{raw_line}"
+                updated = self._refresh_node(current_node, merged_content)
+                self._replace_stack_tail_node(stack, root_nodes, updated)
+                current_node = updated
+                if _is_code_fence_line(stripped_line):
+                    in_code_block = False
+                frontmatter_active = False
+                property_list_indent_level = None
+                continue
+
+            if not stripped_line or is_system_block(raw_line):
                 continue
 
             bullet_match = BULLET_PATTERN.match(raw_line)
@@ -169,14 +250,13 @@ class StackMachineParser:
                 continue
 
             merged_content = f"{current_node.content}\n{raw_line}"
-            updated = current_node.model_copy(update={"content": merged_content})
-            updated = updated.model_copy(
-                update={"clean_text": clean_node_content(updated.content, dict(updated.properties))}
-            )
+            updated = self._refresh_node(current_node, merged_content)
             self._replace_stack_tail_node(stack, root_nodes, updated)
             current_node = updated
             frontmatter_active = False
             property_list_indent_level = None
+            if _is_code_fence_line(stripped_line):
+                in_code_block = True
 
         self._validate_references(root_nodes)
         return LogseqPage(
@@ -207,6 +287,10 @@ class StackMachineParser:
 
         uuid_match = LOGSEQ_PATTERNS["uuid_prop"].match(stripped_text)
         node_uuid = uuid_match.group(1) if uuid_match else self._deterministic_uuid(page_title, stripped_text)
+        time_properties = _extract_time_properties(stripped_text)
+        if time_properties:
+            properties.update(time_properties)
+        task_status, _ = _extract_task_status(stripped_text)
 
         return LogseqNode(
             uuid=node_uuid,
@@ -216,7 +300,8 @@ class StackMachineParser:
             properties=properties,
             wikilinks=LOGSEQ_PATTERNS["wikilink"].findall(stripped_text),
             tags=LOGSEQ_PATTERNS["tag"].findall(stripped_text),
-            block_refs=LOGSEQ_PATTERNS["block_ref"].findall(stripped_text),
+            block_refs=_extract_block_refs(stripped_text),
+            task_status=task_status,
             parent_id=None,
             children=[],
         )
@@ -263,6 +348,24 @@ class StackMachineParser:
                 if self.registry.resolve(block_ref) is None:
                     raise BlockReferenceError(f"Unresolved block reference: {block_ref}")
             stack.extend(node.children)
+
+    def _refresh_node(self, node: LogseqNode, content: str) -> LogseqNode:
+        properties = dict(node.properties)
+        time_properties = _extract_time_properties(content)
+        if time_properties:
+            properties.update(time_properties)
+        task_status, _ = _extract_task_status(content.splitlines()[0].strip())
+        return node.model_copy(
+            update={
+                "content": content,
+                "properties": properties,
+                "clean_text": clean_node_content(content, properties),
+                "task_status": task_status,
+                "wikilinks": LOGSEQ_PATTERNS["wikilink"].findall(content),
+                "tags": LOGSEQ_PATTERNS["tag"].findall(content),
+                "block_refs": _extract_block_refs(content),
+            }
+        )
 
 
 # Backward-compatible alias.

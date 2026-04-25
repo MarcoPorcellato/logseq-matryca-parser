@@ -166,3 +166,90 @@ def test_list_properties_do_not_crash_and_keep_children(
     root = page.root_nodes[0]
 
     assert len(root.children) >= 1
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        "- Code sample\n  ```python\n  id:: 11111111-1111-1111-1111-111111111111\n  CLOCK: [2026-04-25 Sat 10:12]\n  print('hi')\n  ```",
+        "- Query\n  ```sql\n  collapsed:: true\n  SELECT * FROM table;\n  ```",
+    ],
+)
+def test_code_block_immunity_preserves_literal_lines(
+    parser: StackMachineParser, content: str
+) -> None:
+    """Lines inside fenced code blocks remain literal parser-immune content."""
+    page = parser.parse(content, page_title="code-fence")
+    root = page.root_nodes[0]
+
+    assert "```" in root.content
+    assert "id::" in root.content or "collapsed::" in root.content
+    assert "CLOCK:" in root.content or "SELECT * FROM table;" in root.content
+    assert root.properties == {}
+
+
+@pytest.mark.parametrize(
+    ("raw_block", "expected_status", "expected_clean"),
+    [
+        ("TODO Write parser", "TODO", "Write parser"),
+        ("DOING Mid task", "DOING", "Mid task"),
+        ("DONE Finish docs", "DONE", "Finish docs"),
+        ("LATER revisit", "LATER", "revisit"),
+        ("NOW ship", "NOW", "ship"),
+        ("WAITING review", "WAITING", "review"),
+        ("CANCELED old idea", "CANCELED", "old idea"),
+    ],
+)
+def test_task_marker_extraction(
+    parser: StackMachineParser, raw_block: str, expected_status: str, expected_clean: str
+) -> None:
+    """Known task markers are extracted and removed from clean text."""
+    page = parser.parse(f"- {raw_block}", page_title="tasks")
+    root = page.root_nodes[0]
+
+    assert root.task_status == expected_status
+    assert root.clean_text == expected_clean
+
+
+@pytest.mark.parametrize(
+    ("content", "expected"),
+    [
+        (
+            "- TODO Plan launch SCHEDULED: <2026-04-30 Thu>\n  Details",
+            {"scheduled": "<2026-04-30 Thu>"},
+        ),
+        (
+            "- DONE Finish draft DEADLINE: <2026-05-01 Fri>",
+            {"deadline": "<2026-05-01 Fri>"},
+        ),
+    ],
+)
+def test_time_topology_is_extracted_and_stripped(
+    parser: StackMachineParser, content: str, expected: dict[str, str]
+) -> None:
+    """SCHEDULED/DEADLINE tokens are moved to properties and removed from clean_text."""
+    page = parser.parse(content, page_title="timeline")
+    root = page.root_nodes[0]
+
+    for key, value in expected.items():
+        assert root.properties[key] == value
+    assert "SCHEDULED:" not in root.clean_text
+    assert "DEADLINE:" not in root.clean_text
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        "- Root\n  - {{cloze hidden answer}}",
+        "- Root\n  - {{embed ((22222222-2222-2222-2222-222222222222))}}",
+    ],
+)
+def test_macros_are_handled_as_content_without_crash(
+    parser: StackMachineParser, content: str
+) -> None:
+    """Macros remain valid block content and do not break AST building."""
+    page = parser.parse(content, page_title="macro")
+    root = page.root_nodes[0]
+    child = root.children[0]
+
+    assert "{{" in child.content and "}}" in child.content
