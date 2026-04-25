@@ -9,18 +9,18 @@ ottimizzati per l'ingestione in sistemi RAG e AI.
 """
 import json
 from typing import List, Dict, Any
-from .logos_core import LogosNode
+from .logos_core import LogseqNode
 
 class ForgeExporter:
     """Trasforma i nodi Logos in artefatti pronti per il consumo AI."""
 
     @staticmethod
-    def to_json(nodes: List[LogosNode], indent: int = 2) -> str:
+    def to_json(nodes: List[LogseqNode], indent: int = 2) -> str:
         """Esporta l'intero albero in un JSON strutturato."""
         return json.dumps([node.model_dump() for node in nodes], indent=indent)
 
     @staticmethod
-    def to_flat_list(nodes: List[LogosNode]) -> List[Dict[str, Any]]:
+    def to_flat_list(nodes: List[LogseqNode]) -> List[Dict[str, Any]]:
         """
         Appiattisce l'albero in una lista di blocchi.
         Ogni blocco mantiene i metadati del genitore (parent_id) 
@@ -28,7 +28,7 @@ class ForgeExporter:
         """
         flat_list = []
 
-        def _flatten(node_list: List[LogosNode]):
+        def _flatten(node_list: List[LogseqNode]) -> None:
             for node in node_list:
                 # Creiamo un dizionario con i dati del blocco escludendo i figli ricorsivi
                 block_data = node.model_dump(exclude={'children'})
@@ -40,7 +40,7 @@ class ForgeExporter:
         return flat_list
 
     @staticmethod
-    def to_clean_markdown(nodes: List[LogosNode], depth: int = 0) -> str:
+    def to_clean_markdown(nodes: List[LogseqNode], depth: int = 0) -> str:
         """
         Genera un Markdown ottimizzato per RAG ("Clean-RAG").
         Preserva l'indentazione visiva ma pulisce il rumore sintattico

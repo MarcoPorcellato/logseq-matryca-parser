@@ -17,14 +17,14 @@ except ImportError:
     # Fallback se LangChain non è installato (per mantenere il core leggero)
     Document = None
 
-from .logos_core import LogosNode
+from .logos_core import LogseqNode
 from .logos_parser import LogosParser
 
 class SynapseAdapter:
     """Trasforma la gerarchia Logos in oggetti pronti per i framework AI."""
 
     @staticmethod
-    def to_langchain_documents(nodes: List[LogosNode], source_name: str) -> List[Any]:
+    def to_langchain_documents(nodes: List[LogseqNode], source_name: str) -> List[Any]:
         """
         Converte ricorsivamente i nodi Logos in una lista di LangChain Documents.
         Ogni blocco Logseq diventa un'unità atomica arricchita da metadati gerarchici.
@@ -34,7 +34,7 @@ class SynapseAdapter:
 
         documents = []
 
-        def _traverse(node_list: List[LogosNode]):
+        def _traverse(node_list: List[LogseqNode]) -> None:
             for node in node_list:
                 # Costruzione dei metadati: l'anima del RAG avanzato
                 metadata = {
