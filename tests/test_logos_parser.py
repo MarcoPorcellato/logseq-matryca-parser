@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -716,3 +717,44 @@ def test_properties_order_preserves_source_sequence(parser: StackMachineParser) 
     root = page.root_nodes[0]
 
     assert root.properties_order == ["zeta", "alpha", "beta"]
+
+
+def test_resolve_asset_path_nested_namespace_page(tmp_path: Path) -> None:
+    """Nested namespace pages resolve ../assets links from graph root."""
+    graph_root = tmp_path / "graph"
+    page_path = graph_root / "pages" / "Projects" / "AI" / "Logos.md"
+    asset_path = graph_root / "assets" / "pic.png"
+    page_path.parent.mkdir(parents=True, exist_ok=True)
+    asset_path.parent.mkdir(parents=True, exist_ok=True)
+    page_path.write_text("- ![img](../assets/pic.png)\n", encoding="utf-8")
+    asset_path.write_text("binary-placeholder", encoding="utf-8")
+
+    parser = LogosParser()
+    page = parser.parse_page_file(page_path)
+
+    assert page.namespace_chain == ["Projects", "AI"]
+    assert page.resolve_asset_path("../assets/pic.png") == str(asset_path.resolve())
+
+
+def test_page_temporal_properties_are_normalized(parser: StackMachineParser) -> None:
+    """Page timestamps normalize millis and ISO date strings to epoch seconds."""
+    content = "created_at:: 1714065600000\nupdated_at:: 2026-04-25T17:00:00Z\n- Root"
+    page = parser.parse(content, page_title="Projects/AI/Logos")
+    expected_updated_at = int(datetime(2026, 4, 25, 17, 0, 0, tzinfo=timezone.utc).timestamp())
+
+    assert page.created_at == 1714065600
+    assert page.updated_at == expected_updated_at
+    assert page.namespace_chain == ["Projects", "AI"]
+
+
+def test_parse_page_file_uses_filesystem_times_when_missing(tmp_path: Path) -> None:
+    """Filesystem ctime/mtime are used when page properties omit timestamps."""
+    page_path = tmp_path / "graph" / "pages" / "temporal.md"
+    page_path.parent.mkdir(parents=True, exist_ok=True)
+    page_path.write_text("- Root block\n", encoding="utf-8")
+    parser = LogosParser()
+
+    page = parser.parse_page_file(page_path)
+
+    assert page.created_at == int(page_path.stat().st_ctime)
+    assert page.updated_at == int(page_path.stat().st_mtime)

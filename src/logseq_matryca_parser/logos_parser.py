@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import os
 import re
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -49,6 +51,8 @@ SYSTEM_BLOCK_PATTERNS: tuple[re.Pattern[str], ...] = (
 BULLET_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)[-*]\s+(.*)$")
 HEADING_BLOCK_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)(#{1,6}\s+.+)$")
 logger = logging.getLogger(__name__)
+CREATED_AT_KEYS: tuple[str, ...] = ("created_at", "created-at", "createdat")
+UPDATED_AT_KEYS: tuple[str, ...] = ("updated_at", "updated-at", "updatedat")
 
 
 def is_system_block(line: str) -> bool:
@@ -151,6 +155,55 @@ def _extract_heading_level(content: str) -> int | None:
     match = HEADING_PATTERN.match(first_line)
     if match:
         return len(match.group(1))
+    return None
+
+
+def normalize_logseq_timestamp(value: Any) -> int | None:
+    """Normalize Logseq-style timestamp values to unix epoch seconds."""
+    if value is None:
+        return None
+
+    if isinstance(value, bool):
+        return None
+
+    if isinstance(value, (int, float)):
+        timestamp = int(value)
+        return timestamp // 1000 if timestamp >= 10**12 else timestamp
+
+    if isinstance(value, str):
+        candidate = value.strip()
+        if not candidate:
+            return None
+        if candidate.isdigit():
+            parsed = int(candidate)
+            return parsed // 1000 if parsed >= 10**12 else parsed
+
+        iso_candidate = candidate.replace("Z", "+00:00")
+        try:
+            parsed_datetime = datetime.fromisoformat(iso_candidate)
+            if parsed_datetime.tzinfo is None:
+                parsed_datetime = parsed_datetime.replace(tzinfo=timezone.utc)
+            return int(parsed_datetime.timestamp())
+        except ValueError:
+            pass
+
+        date_formats = ("%Y-%m-%d", "%Y/%m/%d", "%Y%m%d")
+        for fmt in date_formats:
+            try:
+                parsed_date = datetime.strptime(candidate, fmt).replace(tzinfo=timezone.utc)
+                return int(parsed_date.timestamp())
+            except ValueError:
+                continue
+
+    return None
+
+
+def _first_normalized_timestamp(properties: dict[str, Any], keys: tuple[str, ...]) -> int | None:
+    for key in keys:
+        if key in properties:
+            normalized = normalize_logseq_timestamp(properties[key])
+            if normalized is not None:
+                return normalized
     return None
 
 
@@ -401,22 +454,77 @@ class StackMachineParser:
         self._validate_references(root_nodes)
         root_nodes = self._normalize_indent_levels(root_nodes)
         page_refs = self._collect_page_refs(root_nodes)
+        created_at = _first_normalized_timestamp(page_properties, CREATED_AT_KEYS)
+        updated_at = _first_normalized_timestamp(page_properties, UPDATED_AT_KEYS)
+        title_segments = [segment for segment in page_title.split("/") if segment]
+        namespace_chain = title_segments[:-1] if len(title_segments) > 1 else []
         return LogseqPage(
             title=page_title,
             raw_content=text,
             properties=page_properties,
             refs=page_refs,
+            created_at=created_at,
+            updated_at=updated_at,
+            namespace_chain=namespace_chain,
             root_nodes=root_nodes,
         )
 
     def parse_file(self, path: Path) -> list[LogseqNode]:
         """Compatibility API: parse file and return root nodes."""
+        page = self.parse_page_file(path)
+        return page.root_nodes
+
+    def parse_page_file(self, path: Path) -> LogseqPage:
+        """Parse a markdown file and return a graph-native page model."""
         content = path.read_text(encoding="utf-8")
         if not content.strip():
             logger.warning("Il file %s è vuoto.", path)
-            return []
-        page = self.parse(content, page_title=path.stem)
-        return page.root_nodes
+            return LogseqPage(
+                title=path.stem,
+                raw_content=content,
+                namespace_chain=[],
+                source_path=str(path.resolve()),
+                graph_root=str(path.resolve().parent),
+            )
+
+        page_title = self._derive_page_title(path)
+        page = self.parse(content, page_title=page_title)
+        graph_root = self._derive_graph_root(path)
+        created_at = page.created_at
+        updated_at = page.updated_at
+        if created_at is None:
+            created_at = int(os.path.getctime(path))
+        if updated_at is None:
+            updated_at = int(os.path.getmtime(path))
+        return page.model_copy(
+            update={
+                "source_path": str(path.resolve()),
+                "graph_root": str(graph_root),
+                "created_at": created_at,
+                "updated_at": updated_at,
+            }
+        )
+
+    def _derive_page_title(self, path: Path) -> str:
+        resolved_path = path.resolve()
+        if resolved_path.suffix == ".md":
+            resolved_path = resolved_path.with_suffix("")
+        parts = list(resolved_path.parts)
+        if "pages" in parts:
+            page_index = parts.index("pages")
+            return "/".join(parts[page_index + 1 :])
+        if "journals" in parts:
+            journal_index = parts.index("journals")
+            return "/".join(parts[journal_index + 1 :])
+        return path.stem
+
+    def _derive_graph_root(self, path: Path) -> Path:
+        resolved_path = path.resolve()
+        marker_dirs = {"pages", "journals", "assets", "logseq"}
+        for parent in resolved_path.parents:
+            if parent.name in marker_dirs:
+                return parent.parent.resolve()
+        return resolved_path.parent.resolve()
 
     def _compute_indent_level(self, indentation: str) -> int:
         spaces = indentation.count(" ") + (indentation.count("\t") * self.tab_size)
@@ -468,6 +576,8 @@ class StackMachineParser:
             block_refs=[*_extract_block_refs(stripped_text), *property_block_refs],
             task_status=task_status,
             parent_id=None,
+            created_at=_first_normalized_timestamp(properties, CREATED_AT_KEYS),
+            updated_at=_first_normalized_timestamp(properties, UPDATED_AT_KEYS),
             children=[],
         )
 
@@ -604,6 +714,8 @@ class StackMachineParser:
                 "tags": tags,
                 "refs": _merge_refs(wikilinks, tags),
                 "block_refs": [*_extract_block_refs(content), *property_block_refs],
+                "created_at": _first_normalized_timestamp(properties, CREATED_AT_KEYS),
+                "updated_at": _first_normalized_timestamp(properties, UPDATED_AT_KEYS),
             }
         )
 
