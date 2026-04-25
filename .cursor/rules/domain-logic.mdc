@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+---
+---
+description: Core domain logic and architectural constraints for Matryca.ai
+globs: *
+---
+- Core Objective: Develop a high-performance, deterministic Logseq Markdown parser and AST generator in Python.
+- Architectural Focus: Emphasize regex robustness (avoid catastrophic backtracking), safe state management, and strict memory efficiency.
+- Concurrency & State: When handling file parsing or block processing, ensure thread-safety and avoid race conditions (particularly concerning UUID generation and block state tracking).

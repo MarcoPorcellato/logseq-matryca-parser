@@ -1,0 +1,5 @@
+# General Engineering Rules
+- Always use absolute imports from `logseq_matryca_parser`.
+- Every new function must have a Python type hint.
+- Use `logger.debug` for tracing the Stack-Machine state.
+- Before considering a task finished, run `make lint` via terminal.
