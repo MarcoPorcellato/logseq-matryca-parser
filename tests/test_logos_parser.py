@@ -116,3 +116,53 @@ def test_parse_file_empty_returns_no_nodes(tmp_path: Path, caplog: pytest.LogCap
 
     assert roots == []
     assert "vuoto" in caplog.text
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_properties"),
+    [
+        (
+            "title:: Resilient Page\ntags:: parser,logseq\n- Root block",
+            {"title": "Resilient Page", "tags": "parser,logseq"},
+        ),
+        (
+            "  title:: Indented Frontmatter\n\n- Root block",
+            {"title": "Indented Frontmatter"},
+        ),
+    ],
+)
+def test_frontmatter_properties_are_stored_at_page_level(
+    parser: StackMachineParser, content: str, expected_properties: dict[str, str]
+) -> None:
+    """Leading key::value metadata is parsed as page properties, not block nodes."""
+    page = parser.parse(content, page_title="frontmatter")
+    assert page.properties == expected_properties
+    assert len(page.root_nodes) == 1
+    assert page.root_nodes[0].content == "Root block"
+
+
+def test_multiline_clean_text_strips_property_lines_only(parser: StackMachineParser) -> None:
+    """Shift+Enter style multiline content drops property lines but keeps text newlines."""
+    content = "- First line\n  body:: hidden metadata\n  Third line"
+    page = parser.parse(content, page_title="multiline")
+    root = page.root_nodes[0]
+
+    assert root.properties["body"] == "hidden metadata"
+    assert root.clean_text == "First line\nThird line"
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        "- Root\n  tags::\n    - Alpha\n    - Beta",
+        "- Root\n  aliases::\n    - One",
+    ],
+)
+def test_list_properties_do_not_crash_and_keep_children(
+    parser: StackMachineParser, content: str
+) -> None:
+    """Property keys followed by bullet lists remain parseable and keep child blocks."""
+    page = parser.parse(content, page_title="list-property")
+    root = page.root_nodes[0]
+
+    assert len(root.children) >= 1

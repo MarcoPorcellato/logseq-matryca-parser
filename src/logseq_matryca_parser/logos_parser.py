@@ -45,7 +45,7 @@ def clean_node_content(raw_content: str, properties: dict[str, Any]) -> str:
         stripped = line.strip()
         if property_keys and any(stripped.startswith(f"{key}::") for key in property_keys):
             continue
-        cleaned_line = re.sub(r"^\s*-\s+", "", line)
+        cleaned_line = re.sub(r"^\s*-\s+", "", line).strip()
         cleaned_lines.append(cleaned_line)
 
     return "\n".join(cleaned_lines).strip()
@@ -76,7 +76,10 @@ class StackMachineParser:
         """Parse Logseq markdown text into a `LogseqPage`."""
         stack: list[LogseqNode] = []
         root_nodes: list[LogseqNode] = []
+        page_properties: dict[str, Any] = {}
         current_node: LogseqNode | None = None
+        frontmatter_active = True
+        property_list_indent_level: int | None = None
 
         for raw_line in text.splitlines():
             if not raw_line.strip() or is_system_block(raw_line):
@@ -85,6 +88,11 @@ class StackMachineParser:
             bullet_match = BULLET_PATTERN.match(raw_line)
             if bullet_match:
                 indent_level = self._compute_indent_level(bullet_match.group(1))
+                if property_list_indent_level is not None and indent_level > property_list_indent_level:
+                    indent_level -= 1
+                else:
+                    property_list_indent_level = None
+
                 if stack and indent_level > (stack[-1].indent_level + 1):
                     raise LogseqIndentationError(
                         "Invalid indentation jump detected while parsing page."
@@ -119,14 +127,21 @@ class StackMachineParser:
                 stack.append(node)
                 current_node = node
                 self.registry.register(node)
-                continue
-
-            if current_node is None:
+                frontmatter_active = False
                 continue
 
             property_match = LOGSEQ_PATTERNS["property"].match(raw_line.strip())
             if property_match:
                 key, value = property_match.groups()
+
+                if current_node is None and frontmatter_active:
+                    page_properties[key] = value
+                    continue
+
+                if current_node is None:
+                    frontmatter_active = False
+                    continue
+
                 properties = dict(current_node.properties)
                 properties[key] = value
 
@@ -141,6 +156,16 @@ class StackMachineParser:
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
                 self.registry.register(updated)
+
+                raw_indent = raw_line[: len(raw_line) - len(raw_line.lstrip(" \t"))]
+                property_list_indent_level = (
+                    self._compute_indent_level(raw_indent) if value.strip() == "" else None
+                )
+                frontmatter_active = False
+                continue
+
+            if current_node is None:
+                frontmatter_active = False
                 continue
 
             merged_content = f"{current_node.content}\n{raw_line}"
@@ -150,9 +175,16 @@ class StackMachineParser:
             )
             self._replace_stack_tail_node(stack, root_nodes, updated)
             current_node = updated
+            frontmatter_active = False
+            property_list_indent_level = None
 
         self._validate_references(root_nodes)
-        return LogseqPage(title=page_title, raw_content=text, root_nodes=root_nodes)
+        return LogseqPage(
+            title=page_title,
+            raw_content=text,
+            properties=page_properties,
+            root_nodes=root_nodes,
+        )
 
     def parse_file(self, path: Path) -> list[LogseqNode]:
         """Compatibility API: parse file and return root nodes."""

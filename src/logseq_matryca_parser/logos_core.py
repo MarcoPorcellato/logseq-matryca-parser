@@ -64,6 +64,7 @@ class LogseqPage(BaseModel):
 
     title: str
     raw_content: str
+    properties: dict[str, Any] = Field(default_factory=dict)
     root_nodes: list[LogseqNode] = Field(default_factory=list)
 
 
