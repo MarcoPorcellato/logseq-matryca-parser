@@ -1,5 +1,6 @@
 # 🔱 Logseq Sovereign Parser (English Translation)
 
+![CI/CD Status](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/workflows/ci.yml/badge.svg)
 ![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange?style=for-the-badge)
 ![Author: Marco Porcellato](https://img.shields.io/badge/Author-Marco_Porcellato-purple?style=for-the-badge)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
@@ -35,6 +36,7 @@ Building the future of Sovereign Knowledge Management.
 
 # 🔱 Logseq Sovereign Parser
 
+![CI/CD Status](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/workflows/ci.yml/badge.svg)
 ![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange?style=for-the-badge)
 ![Author: Marco Porcellato](https://img.shields.io/badge/Author-Marco_Porcellato-purple?style=for-the-badge)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
