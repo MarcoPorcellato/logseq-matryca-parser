@@ -553,6 +553,94 @@ def test_official_cloze_latex_boundary_preserved(
     assert expected_fragment in root.clean_text
 
 
+@pytest.mark.parametrize(
+    ("content", "expected_inline_fragment", "expected_property_key", "expected_property_value"),
+    [
+        (
+            "- This is a standard sentence that contains a weird string like key:: value inside it.\n"
+            "  actual-prop:: true",
+            "key:: value inside it.",
+            "actual-prop",
+            "true",
+        ),
+    ],
+)
+def test_official_property_vs_inline_text_ambiguity(
+    parser: StackMachineParser,
+    content: str,
+    expected_inline_fragment: str,
+    expected_property_key: str,
+    expected_property_value: str,
+) -> None:
+    """Official spec: inline key::value in prose stays text, trailing property line is extracted."""
+    page = parser.parse(content, page_title="official-property-ambiguity")
+    root = page.root_nodes[0]
+    assert expected_inline_fragment in root.clean_text
+    assert root.properties[expected_property_key] == expected_property_value
+    assert "actual-prop:: true" not in root.clean_text
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_tag"),
+    [
+        ("- An analysis of quantum mechanics via #[[Quantum Physics]].", "Quantum Physics"),
+    ],
+)
+def test_official_complex_tag_aliasing_multiword(
+    parser: StackMachineParser, content: str, expected_tag: str
+) -> None:
+    """Official spec: #[[Multi Word]] is treated as a tag-like indexed token."""
+    page = parser.parse(content, page_title="official-multiword-tag")
+    root = page.root_nodes[0]
+    assert expected_tag in root.tags
+    assert expected_tag in root.wikilinks
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_ref", "expected_alias_fragment"),
+    [
+        (
+            "- Check [My Alias](((64c752b0-d33b-4448-a261-e4dc2bbe12d3))) for context.",
+            "64c752b0-d33b-4448-a261-e4dc2bbe12d3",
+            "[My Alias]",
+        ),
+    ],
+)
+def test_official_nested_link_alias_block_reference(
+    parser: StackMachineParser,
+    content: str,
+    expected_ref: str,
+    expected_alias_fragment: str,
+) -> None:
+    """Official spec: alias text survives and aliased block UUID is extracted."""
+    page = parser.parse(content, page_title="official-aliased-block-link")
+    root = page.root_nodes[0]
+    assert expected_ref in root.block_refs
+    assert expected_alias_fragment in root.clean_text
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_scheduled"),
+    [
+        (
+            "- TODO Clean SCHEDULED: <2022-01-08 Sat.+2d>\n"
+            "  :LOGBOOK:\n"
+            "  :END:",
+            "<2022-01-08 Sat.+2d>",
+        ),
+    ],
+)
+def test_official_empty_logbook_with_scheduled_tolerance(
+    parser: StackMachineParser, content: str, expected_scheduled: str
+) -> None:
+    """Official spec: empty LOGBOOK remains valid and keeps adjacent scheduling metadata."""
+    page = parser.parse(content, page_title="official-empty-logbook")
+    root = page.root_nodes[0]
+    assert root.task_status == "TODO"
+    assert root.properties["scheduled"] == expected_scheduled
+    assert root.properties["logbook"] == []
+
+
 def test_empty_logbook_drawer_tolerance(parser: StackMachineParser) -> None:
     """An empty :LOGBOOK: drawer does not swallow following blocks."""
     content = "- Root\n  :LOGBOOK:\n  :END:\n  - Child after drawer"

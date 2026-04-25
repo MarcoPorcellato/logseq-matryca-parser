@@ -34,6 +34,10 @@ TASK_STATUSES: tuple[str, ...] = (
 TIME_PATTERN: re.Pattern[str] = re.compile(r"\b(SCHEDULED|DEADLINE):\s*(<[^>]+>)")
 MACRO_PATTERN: re.Pattern[str] = re.compile(r"\{\{.*?\}\}")
 HEADING_PATTERN: re.Pattern[str] = re.compile(r"^(#{1,6})\s+(.+)$")
+ALIASED_BLOCK_REF_PATTERN: re.Pattern[str] = re.compile(
+    r"(\[[^\]]+\])\(\(\([a-f0-9\-]{36}\)\)\)"
+)
+PLAIN_BLOCK_REF_PATTERN: re.Pattern[str] = re.compile(r"\(\(([a-f0-9\-]{36})\)\)")
 
 SYSTEM_BLOCK_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"^\s*:(?:LOGBOOK|PROPERTIES):", re.IGNORECASE),
@@ -71,7 +75,8 @@ def clean_node_content(raw_content: str, properties: dict[str, Any]) -> str:
             continue
         cleaned_line = TIME_PATTERN.sub("", line)
         cleaned_line = LOGSEQ_PATTERNS["inline_uuid_prop"].sub("", cleaned_line)
-        cleaned_line = LOGSEQ_PATTERNS["block_ref"].sub("", cleaned_line)
+        cleaned_line = ALIASED_BLOCK_REF_PATTERN.sub(r"\1", cleaned_line)
+        cleaned_line = PLAIN_BLOCK_REF_PATTERN.sub("", cleaned_line)
         cleaned_line = re.sub(r"^\*\*(.+?)\s\*\*$", r"\1", cleaned_line.strip())
         cleaned_line = re.sub(r"^\s*-\s+", "", cleaned_line).strip()
         heading_match = HEADING_PATTERN.match(cleaned_line)
