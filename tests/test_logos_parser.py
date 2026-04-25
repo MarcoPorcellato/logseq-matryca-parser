@@ -682,3 +682,37 @@ def test_complex_tag_aliasing_patterns(
     assert root.tags == expected_tags
     if expected_ref is not None:
         assert expected_ref in root.block_refs
+
+
+def test_sibling_left_id_integrity(parser: StackMachineParser) -> None:
+    """Sibling chain points to immediate left sibling UUID at each level."""
+    content = "- Root\n  - Child A\n  - Child B\n  - Child C"
+    page = parser.parse(content, page_title="left-id")
+    root = page.root_nodes[0]
+    child_a, child_b, child_c = root.children
+
+    assert child_a.left_id is None
+    assert child_b.left_id == child_a.uuid
+    assert child_c.left_id == child_b.uuid
+
+
+def test_leaf_path_resolution(parser: StackMachineParser) -> None:
+    """Leaf path tracks UUID chain from root to current node."""
+    content = "- Root\n  - Child\n    - Leaf"
+    page = parser.parse(content, page_title="path")
+    root = page.root_nodes[0]
+    child = root.children[0]
+    leaf = child.children[0]
+
+    assert root.path == [root.uuid]
+    assert child.path == [root.uuid, child.uuid]
+    assert leaf.path == [root.uuid, child.uuid, leaf.uuid]
+
+
+def test_properties_order_preserves_source_sequence(parser: StackMachineParser) -> None:
+    """Properties order mirrors original key::value appearance."""
+    content = "- Node\n  zeta:: 1\n  alpha:: 2\n  beta:: 3"
+    page = parser.parse(content, page_title="properties-order")
+    root = page.root_nodes[0]
+
+    assert root.properties_order == ["zeta", "alpha", "beta"]
