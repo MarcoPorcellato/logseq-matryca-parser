@@ -20,6 +20,7 @@ LOGSEQ_PATTERNS: dict[str, re.Pattern[str]] = {
         r"(?:\[[^\]]+\])?\(\(\(([a-f0-9\-]{36})\)\)\)|\(\(([a-f0-9\-]{36})\)\)"
     ),
     "uuid_prop": re.compile(r"^id::\s*([a-f0-9\-]{36})$"),
+    "inline_uuid_prop": re.compile(r"\bid::\s*([a-f0-9\-]{36})\b"),
 }
 TASK_STATUSES: tuple[str, ...] = (
     "TODO",
@@ -42,6 +43,7 @@ SYSTEM_BLOCK_PATTERNS: tuple[re.Pattern[str], ...] = (
 )
 
 BULLET_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)[-*]\s+(.*)$")
+HEADING_BLOCK_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)(#{1,6}\s+.+)$")
 logger = logging.getLogger(__name__)
 
 
@@ -68,6 +70,7 @@ def clean_node_content(raw_content: str, properties: dict[str, Any]) -> str:
         if property_keys and any(stripped.startswith(f"{key}::") for key in property_keys):
             continue
         cleaned_line = TIME_PATTERN.sub("", line)
+        cleaned_line = LOGSEQ_PATTERNS["inline_uuid_prop"].sub("", cleaned_line)
         cleaned_line = re.sub(r"^\s*-\s+", "", cleaned_line).strip()
         if line_index == 0:
             _, cleaned_line = _extract_task_status(cleaned_line)
@@ -111,7 +114,7 @@ def _extract_tags(raw_content: str) -> list[str]:
     for bracketed, simple in LOGSEQ_PATTERNS["tag"].findall(raw_content):
         tag = bracketed or simple
         if tag:
-            tags.append(tag)
+            tags.append(tag.rstrip(".,;:"))
     return tags
 
 
@@ -141,6 +144,21 @@ def _extract_heading_level(content: str) -> int | None:
     return None
 
 
+def _extract_property_graph_tokens(
+    properties: dict[str, Any],
+) -> tuple[list[str], list[str], list[str]]:
+    property_wikilinks: list[str] = []
+    property_tags: list[str] = []
+    property_block_refs: list[str] = []
+    for value in properties.values():
+        if not isinstance(value, str):
+            continue
+        property_wikilinks.extend(LOGSEQ_PATTERNS["wikilink"].findall(value))
+        property_tags.extend(_extract_tags(value))
+        property_block_refs.extend(_extract_block_refs(value))
+    return property_wikilinks, property_tags, property_block_refs
+
+
 class PageRegistry:
     """Track all nodes by uuid for local block-reference resolution."""
 
@@ -165,6 +183,8 @@ class StackMachineParser:
     def parse(self, text: str, page_title: str = "untitled") -> LogseqPage:
         """Parse Logseq markdown text into a `LogseqPage`."""
         stack: list[LogseqNode] = []
+        stack_columns: list[int] = []
+        stack_indents: list[str] = []
         root_nodes: list[LogseqNode] = []
         page_properties: dict[str, Any] = {}
         current_node: LogseqNode | None = None
@@ -194,6 +214,18 @@ class StackMachineParser:
                 if BULLET_PATTERN.match(raw_line):
                     in_drawer = False
                 else:
+                    if current_node is not None:
+                        properties = dict(current_node.properties)
+                        logbook_entries = list(properties.get("logbook", []))
+                        logbook_entries.append(stripped_line)
+                        properties["logbook"] = logbook_entries
+                        updated = self._refresh_node(
+                            current_node,
+                            current_node.content,
+                            properties_override=properties,
+                        )
+                        self._replace_stack_tail_node(stack, root_nodes, updated)
+                        current_node = updated
                     continue
 
             if stripped_line.upper() == ":LOGBOOK:" and current_node is not None:
@@ -201,6 +233,20 @@ class StackMachineParser:
                 properties = dict(current_node.properties)
                 properties.setdefault("logbook", [])
                 updated = self._refresh_node(current_node, current_node.content, properties_override=properties)
+                self._replace_stack_tail_node(stack, root_nodes, updated)
+                current_node = updated
+                continue
+
+            collapsed_match = re.match(r"^\s*collapsed::\s*(\S+)\s*$", raw_line, re.IGNORECASE)
+            if collapsed_match and current_node is not None:
+                collapsed_value = collapsed_match.group(1).lower() == "true"
+                properties = dict(current_node.properties)
+                properties["collapsed"] = collapsed_value
+                updated = self._refresh_node(
+                    current_node,
+                    current_node.content,
+                    properties_override=properties,
+                )
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
                 continue
@@ -221,28 +267,60 @@ class StackMachineParser:
                     indent_level=indent_level,
                     page_title=page_title,
                 )
+                raw_indent = bullet_match.group(1)
+                if (
+                    stack_columns
+                    and "\t" in stack_indents[-1]
+                    and raw_indent
+                    and "\t" not in raw_indent
+                    and indent_level == stack_columns[-1] + 1
+                ):
+                    indent_level = stack_columns[-1]
+                    node = node.model_copy(update={"indent_level": indent_level})
 
-                while stack and stack[-1].indent_level >= indent_level:
+                while stack_columns and stack_columns[-1] >= indent_level:
                     stack.pop()
+                    stack_columns.pop()
+                    stack_indents.pop()
 
                 if stack:
-                    parent = stack[-1]
-                    node = node.model_copy(update={"parent_id": parent.uuid})
-                    updated_parent = parent.model_copy(update={"children": [*parent.children, node]})
-                    if len(stack) >= 2:
-                        grand_parent = stack[-2]
-                        grand_parent_children = list(grand_parent.children)
-                        grand_parent_children[-1] = updated_parent
-                        stack[-2] = grand_parent.model_copy(
-                            update={"children": grand_parent_children}
-                        )
-                    else:
-                        root_nodes[-1] = updated_parent
-                    stack[-1] = updated_parent
+                    node = self._attach_node_to_parent(stack, root_nodes, node)
                 else:
                     root_nodes.append(node)
 
                 stack.append(node)
+                stack_columns.append(indent_level)
+                stack_indents.append(raw_indent)
+                current_node = node
+                self.registry.register(node)
+                frontmatter_active = False
+                continue
+
+            heading_match = HEADING_BLOCK_PATTERN.match(raw_line)
+            if heading_match:
+                indent_level = self._compute_indent_level(heading_match.group(1))
+                property_list_indent_level = None
+
+                node = self._build_node(
+                    block_text=heading_match.group(2),
+                    indent_level=indent_level,
+                    page_title=page_title,
+                )
+                raw_indent = heading_match.group(1)
+
+                while stack_columns and stack_columns[-1] >= indent_level:
+                    stack.pop()
+                    stack_columns.pop()
+                    stack_indents.pop()
+
+                if stack:
+                    node = self._attach_node_to_parent(stack, root_nodes, node)
+                else:
+                    root_nodes.append(node)
+
+                stack.append(node)
+                stack_columns.append(indent_level)
+                stack_indents.append(raw_indent)
                 current_node = node
                 self.registry.register(node)
                 frontmatter_active = False
@@ -263,14 +341,13 @@ class StackMachineParser:
                 properties = dict(current_node.properties)
                 properties[key] = value
 
-                node_uuid = current_node.uuid
-                if key == "id":
-                    node_uuid = value
-
-                updated = current_node.model_copy(update={"properties": properties, "uuid": node_uuid})
-                updated = updated.model_copy(
-                    update={"clean_text": clean_node_content(updated.content, properties)}
+                updated = self._refresh_node(
+                    current_node,
+                    current_node.content,
+                    properties_override=properties,
                 )
+                if key == "id":
+                    updated = updated.model_copy(update={"uuid": value})
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
                 self.registry.register(updated)
@@ -296,6 +373,7 @@ class StackMachineParser:
                 in_code_block = True
 
         self._validate_references(root_nodes)
+        root_nodes = self._normalize_indent_levels(root_nodes)
         return LogseqPage(
             title=page_title,
             raw_content=text,
@@ -323,7 +401,18 @@ class StackMachineParser:
         properties: dict[str, Any] = {}
 
         uuid_match = LOGSEQ_PATTERNS["uuid_prop"].match(stripped_text)
-        node_uuid = uuid_match.group(1) if uuid_match else self._deterministic_uuid(page_title, stripped_text)
+        inline_uuid_match = LOGSEQ_PATTERNS["inline_uuid_prop"].search(stripped_text)
+        if inline_uuid_match is not None:
+            inline_uuid = inline_uuid_match.group(1)
+            properties["id"] = inline_uuid
+            stripped_text = LOGSEQ_PATTERNS["inline_uuid_prop"].sub("", stripped_text).strip()
+        node_uuid = (
+            uuid_match.group(1)
+            if uuid_match
+            else (inline_uuid_match.group(1) if inline_uuid_match else None)
+        )
+        if node_uuid is None:
+            node_uuid = self._deterministic_uuid(page_title, stripped_text)
         time_properties = _extract_time_properties(stripped_text)
         if time_properties:
             properties.update(time_properties)
@@ -331,6 +420,9 @@ class StackMachineParser:
         heading_level = _extract_heading_level(stripped_text)
         if heading_level is not None:
             properties["heading_level"] = heading_level
+        property_wikilinks, property_tags, property_block_refs = _extract_property_graph_tokens(
+            properties
+        )
 
         return LogseqNode(
             uuid=node_uuid,
@@ -338,9 +430,9 @@ class StackMachineParser:
             clean_text=clean_node_content(stripped_text, properties),
             indent_level=indent_level,
             properties=properties,
-            wikilinks=LOGSEQ_PATTERNS["wikilink"].findall(stripped_text),
-            tags=_extract_tags(stripped_text),
-            block_refs=_extract_block_refs(stripped_text),
+            wikilinks=[*LOGSEQ_PATTERNS["wikilink"].findall(stripped_text), *property_wikilinks],
+            tags=[*_extract_tags(stripped_text), *property_tags],
+            block_refs=[*_extract_block_refs(stripped_text), *property_block_refs],
             task_status=task_status,
             parent_id=None,
             children=[],
@@ -380,6 +472,29 @@ class StackMachineParser:
         grand_parent_children[-1] = updated_parent
         stack[-3] = grand_parent.model_copy(update={"children": grand_parent_children})
 
+    def _attach_node_to_parent(
+        self,
+        stack: list[LogseqNode],
+        root_nodes: list[LogseqNode],
+        node: LogseqNode,
+    ) -> LogseqNode:
+        parent = stack[-1]
+        attached_node = node.model_copy(update={"parent_id": parent.uuid})
+        updated_ancestor = attached_node
+
+        for idx in range(len(stack) - 1, -1, -1):
+            ancestor = stack[idx]
+            ancestor_children = list(ancestor.children)
+            if idx == len(stack) - 1:
+                ancestor_children.append(updated_ancestor)
+            else:
+                ancestor_children[-1] = updated_ancestor
+            updated_ancestor = ancestor.model_copy(update={"children": ancestor_children})
+            stack[idx] = updated_ancestor
+
+        root_nodes[-1] = stack[0]
+        return attached_node
+
     def _validate_references(self, roots: list[LogseqNode]) -> None:
         stack: list[LogseqNode] = list(roots)
         while stack:
@@ -403,17 +518,31 @@ class StackMachineParser:
         if heading_level is not None:
             properties["heading_level"] = heading_level
         task_status, _ = _extract_task_status(content.splitlines()[0].strip())
+        property_wikilinks, property_tags, property_block_refs = _extract_property_graph_tokens(
+            properties
+        )
         return node.model_copy(
             update={
                 "content": content,
                 "properties": properties,
                 "clean_text": clean_node_content(content, properties),
                 "task_status": task_status,
-                "wikilinks": LOGSEQ_PATTERNS["wikilink"].findall(content),
-                "tags": _extract_tags(content),
-                "block_refs": _extract_block_refs(content),
+                "wikilinks": [*LOGSEQ_PATTERNS["wikilink"].findall(content), *property_wikilinks],
+                "tags": [*_extract_tags(content), *property_tags],
+                "block_refs": [*_extract_block_refs(content), *property_block_refs],
             }
         )
+
+    def _normalize_indent_levels(
+        self, nodes: list[LogseqNode], depth: int = 0
+    ) -> list[LogseqNode]:
+        normalized_nodes: list[LogseqNode] = []
+        for node in nodes:
+            normalized_children = self._normalize_indent_levels(node.children, depth + 1)
+            normalized_nodes.append(
+                node.model_copy(update={"indent_level": depth, "children": normalized_children})
+            )
+        return normalized_nodes
 
 
 # Backward-compatible alias.

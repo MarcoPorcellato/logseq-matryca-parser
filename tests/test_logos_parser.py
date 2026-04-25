@@ -267,6 +267,183 @@ def test_absolute_indentation_overrides_heading_semantics(parser: StackMachinePa
     assert child.properties["heading_level"] == 3
 
 
+@pytest.mark.parametrize(
+    ("content", "expected_root", "expected_child", "expected_grandchild"),
+    [
+        (
+            "### Root Level H3\n"
+            "\t- Level 1 Bullet\n"
+            "\t\t# Level 2 H1\n"
+            "\t\t\t- Level 3 Bullet",
+            "### Root Level H3",
+            "Level 1 Bullet",
+            "# Level 2 H1",
+        ),
+    ],
+)
+def test_official_heading_indentation_topology(
+    parser: StackMachineParser,
+    content: str,
+    expected_root: str,
+    expected_child: str,
+    expected_grandchild: str,
+) -> None:
+    """Official spec: absolute indentation drives hierarchy even with heading markers."""
+    page = parser.parse(content, page_title="official-indent-heading")
+
+    assert len(page.root_nodes) == 1
+    root = page.root_nodes[0]
+    assert root.content == expected_root
+    assert root.properties["heading_level"] == 3
+    assert len(root.children) == 1
+
+    child = root.children[0]
+    assert child.content == expected_child
+    assert len(child.children) == 1
+
+    grandchild = child.children[0]
+    assert grandchild.content == expected_grandchild
+    assert grandchild.properties["heading_level"] == 1
+    assert len(grandchild.children) == 1
+    assert grandchild.children[0].content == "Level 3 Bullet"
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_levels"),
+    [
+        (
+            "* Root Node\n"
+            "    * Sudden Four Space Node\n"
+            "      * Normal Two Space Delta",
+            (0, 1, 2),
+        ),
+    ],
+)
+def test_official_zero_to_four_space_normalizes_logical_depth(
+    parser: StackMachineParser, content: str, expected_levels: tuple[int, int, int]
+) -> None:
+    """Official spec: broken physical spacing still serializes as normalized tree depth."""
+    page = parser.parse(content, page_title="official-space-fracture")
+
+    root = page.root_nodes[0]
+    child = root.children[0]
+    grandchild = child.children[0]
+
+    assert (root.indent_level, child.indent_level, grandchild.indent_level) == expected_levels
+    assert root.content == "Root Node"
+    assert child.content == "Sudden Four Space Node"
+    assert grandchild.content == "Normal Two Space Delta"
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        "* Parent Block\n\t* Sibling One (1 Tab)\n    * Sibling Two (4 Spaces)\n  * Sibling Three (2 Spaces)",
+    ],
+)
+def test_official_mixed_whitespace_siblings_flatten_to_same_parent(
+    parser: StackMachineParser, content: str
+) -> None:
+    """Official spec fallback: mixed tab/space siblings collapse to nearest sibling depth."""
+    page = parser.parse(content, page_title="official-sibling-mismatch")
+
+    parent = page.root_nodes[0]
+    assert [child.content for child in parent.children] == [
+        "Sibling One (1 Tab)",
+        "Sibling Two (4 Spaces)",
+        "Sibling Three (2 Spaces)",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_logbook_entry"),
+    [
+        (
+            "- TODO Implement the new AST parser\n"
+            "  :LOGBOOK:\n"
+            "  CLOCK:-- => 01:00\n"
+            "  :END:\n"
+            "  - Sub-task continuing after the drawer",
+            "CLOCK:-- => 01:00",
+        ),
+    ],
+)
+def test_official_logbook_drawer_preserves_clock_metadata(
+    parser: StackMachineParser, content: str, expected_logbook_entry: str
+) -> None:
+    """Official spec: drawer content is stored as metadata and parsing resumes afterward."""
+    page = parser.parse(content, page_title="official-logbook")
+    root = page.root_nodes[0]
+
+    assert root.task_status == "TODO"
+    assert expected_logbook_entry in root.properties["logbook"]
+    assert len(root.children) == 1
+    assert root.children[0].content == "Sub-task continuing after the drawer"
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_collapsed"),
+    [
+        (
+            "- A massive block of text that the user wants to hide.\n  collapsed:: true",
+            True,
+        ),
+    ],
+)
+def test_official_collapsed_directive_maps_to_boolean_metadata(
+    parser: StackMachineParser, content: str, expected_collapsed: bool
+) -> None:
+    """Official spec: collapsed:: true is stripped from text and stored as metadata."""
+    page = parser.parse(content, page_title="official-collapsed")
+    root = page.root_nodes[0]
+
+    assert root.properties["collapsed"] is expected_collapsed
+    assert "collapsed:: true" not in root.content
+    assert "collapsed:: true" not in root.clean_text
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_uuid"),
+    [
+        (
+            "- test anki cloze 2 {{c1 ![][image1]}} id:: 5defb049-56eb-4cc8-a391-3d9cdd74c907",
+            "5defb049-56eb-4cc8-a391-3d9cdd74c907",
+        ),
+    ],
+)
+def test_official_inline_uuid_property_binding(
+    parser: StackMachineParser, content: str, expected_uuid: str
+) -> None:
+    """Official spec: inline id:: UUID is extracted to metadata and stripped from visible text."""
+    page = parser.parse(content, page_title="official-inline-id")
+    root = page.root_nodes[0]
+
+    assert root.uuid == expected_uuid
+    assert root.properties["id"] == expected_uuid
+    assert "id::" not in root.content
+    assert "id::" not in root.clean_text
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        "- Primary research statement.\n  source:: [[mathematics]]\n  related-tags:: #theory, [[physics]]",
+    ],
+)
+def test_official_property_values_emit_graph_links(
+    parser: StackMachineParser, content: str
+) -> None:
+    """Official spec: links/tags inside property values are tokenized for graph connectivity."""
+    page = parser.parse(content, page_title="official-property-values")
+    root = page.root_nodes[0]
+
+    assert root.properties["source"] == "[[mathematics]]"
+    assert root.properties["related-tags"] == "#theory, [[physics]]"
+    assert "mathematics" in root.wikilinks
+    assert "physics" in root.wikilinks
+    assert "theory" in root.tags
+
+
 def test_empty_logbook_drawer_tolerance(parser: StackMachineParser) -> None:
     """An empty :LOGBOOK: drawer does not swallow following blocks."""
     content = "- Root\n  :LOGBOOK:\n  :END:\n  - Child after drawer"
