@@ -1,70 +1,152 @@
-"""
-Logseq Matryca Parser - SYNAPSE ADAPTER
----------------------------------------
-Author: Marco Porcellato (Matryca.ai)
-License: Apache 2.0
+"""SYNAPSE adapters implemented with AST visitors."""
 
-Descrizione: Il modulo Synapse funge da ponte (sinapsi) tra l'AST Logos 
-e gli ecosistemi AI standard come LangChain.
-"""
-from typing import List, Any
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Any
 
-# Nota: Queste dipendenze sono standard nel mondo RAG
 try:
     from langchain_core.documents import Document  # type: ignore
 except ImportError:
-    # Fallback se LangChain non è installato (per mantenere il core leggero)
     Document = None
 
-from .logos_core import LogseqNode
+try:
+    from llama_index.core.schema import (  # type: ignore
+        NodeRelationship,
+        RelatedNodeInfo,
+        TextNode,
+    )
+except ImportError:
+    NodeRelationship = None
+    RelatedNodeInfo = None
+    TextNode = None
+
+from .logos_core import ASTVisitor, LogseqNode
 from .logos_parser import LogosParser
 
+
+class LangChainVisitor(ASTVisitor):
+    """Build LangChain documents during AST traversal."""
+
+    def __init__(self, source_name: str, document_cls: type[Any]) -> None:
+        self._source_name = source_name
+        self._document_cls = document_cls
+        self._documents: list[Any] = []
+
+    def visit_node(self, node: LogseqNode) -> None:
+        metadata = {
+            **node.properties,
+            "uuid": node.uuid,
+            "parent_id": node.parent_id,
+            "indent_level": node.indent_level,
+            "source": self._source_name,
+            "path": node.path,
+            "left_id": node.left_id,
+            "refs": node.refs,
+            "task_status": node.task_status,
+            "repeater": node.repeater,
+            "created_at": node.created_at,
+        }
+        self._documents.append(
+            self._document_cls(
+                page_content=node.clean_text,
+                metadata=metadata,
+            )
+        )
+
+    def depart_node(self, node: LogseqNode) -> None:
+        _ = node
+
+    def get_documents(self) -> list[Any]:
+        return self._documents
+
+
+class LlamaIndexVisitor(ASTVisitor):
+    """Build LlamaIndex nodes and inject parent/child topology relationships."""
+
+    def __init__(
+        self,
+        text_node_cls: type[Any],
+        node_relationship: Any,
+        related_node_info_cls: type[Any],
+    ) -> None:
+        self._text_node_cls = text_node_cls
+        self._node_relationship = node_relationship
+        self._related_node_info_cls = related_node_info_cls
+        self._nodes_by_id: dict[str, Any] = {}
+        self._ordered_nodes: list[Any] = []
+
+    def visit_node(self, node: LogseqNode) -> None:
+        text_node = self._text_node_cls(
+            id_=node.uuid,
+            text=node.clean_text,
+            metadata={
+                **node.properties,
+                "uuid": node.uuid,
+                "indent_level": node.indent_level,
+                "path": node.path,
+                "left_id": node.left_id,
+                "refs": node.refs,
+                "task_status": node.task_status,
+                "repeater": node.repeater,
+                "created_at": node.created_at,
+            },
+        )
+        if not hasattr(text_node, "relationships") or text_node.relationships is None:
+            text_node.relationships = {}
+
+        if node.parent_id:
+            text_node.relationships[self._node_relationship.PARENT] = self._related_node_info_cls(
+                node_id=node.parent_id
+            )
+            parent_node = self._nodes_by_id.get(node.parent_id)
+            if parent_node is not None:
+                child_relationships = parent_node.relationships.get(
+                    self._node_relationship.CHILD, []
+                )
+                child_relationships.append(self._related_node_info_cls(node_id=node.uuid))
+                parent_node.relationships[self._node_relationship.CHILD] = child_relationships
+
+        self._nodes_by_id[node.uuid] = text_node
+        self._ordered_nodes.append(text_node)
+
+    def depart_node(self, node: LogseqNode) -> None:
+        _ = node
+
+    def get_nodes(self) -> list[Any]:
+        return self._ordered_nodes
+
+
 class SynapseAdapter:
-    """Trasforma la gerarchia Logos in oggetti pronti per i framework AI."""
+    """Transform Logseq hierarchy into framework-native AI objects."""
 
     @staticmethod
-    def to_langchain_documents(nodes: List[LogseqNode], source_name: str) -> List[Any]:
-        """
-        Converte ricorsivamente i nodi Logos in una lista di LangChain Documents.
-        Ogni blocco Logseq diventa un'unità atomica arricchita da metadati gerarchici.
-        """
+    def to_langchain_documents(nodes: list[LogseqNode], source_name: str) -> list[Any]:
+        """Convert AST nodes to LangChain documents using `LangChainVisitor`."""
         if Document is None:
             raise ImportError("LangChain non rilevato. Installa 'langchain-core' per usare Synapse.")
+        visitor = LangChainVisitor(source_name=source_name, document_cls=Document)
+        for node in nodes:
+            node.accept(visitor)
+        return visitor.get_documents()
 
-        documents = []
-
-        def _traverse(node_list: List[LogseqNode]) -> None:
-            for node in node_list:
-                # Costruzione dei metadati: l'anima del RAG avanzato
-                metadata = {
-                    "uuid": node.uuid,
-                    "parent_id": node.parent_id,
-                    "indent_level": node.indent_level,
-                    "source": source_name,
-                    **node.properties
-                }
-
-                # Creazione del Documento LangChain
-                doc = Document(
-                    page_content=node.content,
-                    metadata=metadata
-                )
-                documents.append(doc)
-
-                # Continua la ricorsione nell'albero
-                if node.children:
-                    _traverse(node.children)
-
-        _traverse(nodes)
-        return documents
+    @staticmethod
+    def to_llamaindex_nodes(nodes: list[LogseqNode]) -> list[Any]:
+        """Convert AST nodes to LlamaIndex nodes preserving topology links."""
+        if TextNode is None or NodeRelationship is None or RelatedNodeInfo is None:
+            raise ImportError("LlamaIndex non rilevato. Installa 'llama-index' per usare Synapse.")
+        visitor = LlamaIndexVisitor(
+            text_node_cls=TextNode,
+            node_relationship=NodeRelationship,
+            related_node_info_cls=RelatedNodeInfo,
+        )
+        for node in nodes:
+            node.accept(visitor)
+        return visitor.get_nodes()
 
     @classmethod
-    def load_and_convert(cls, file_path: Path) -> List[Any]:
-        """
-        Utility high-level: legge un file via LogosParser e lo sputa fuori 
-        direttamente come lista di Documenti LangChain.
-        """
+    def load_and_convert(cls, file_path: Path) -> list[Any]:
+        """Parse a file and convert it to LangChain documents."""
         parser = LogosParser()
         nodes = parser.parse_file(file_path)
         return cls.to_langchain_documents(nodes, source_name=file_path.name)
