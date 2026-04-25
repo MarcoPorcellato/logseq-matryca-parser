@@ -154,6 +154,16 @@ def _extract_heading_level(content: str) -> int | None:
     return None
 
 
+def _merge_refs(wikilinks: list[str], tags: list[str]) -> list[str]:
+    merged: list[str] = []
+    seen: set[str] = set()
+    for token in [*wikilinks, *tags]:
+        if token and token not in seen:
+            seen.add(token)
+            merged.append(token)
+    return merged
+
+
 def _extract_property_graph_tokens(
     properties: dict[str, Any],
 ) -> tuple[list[str], list[str], list[str]]:
@@ -293,6 +303,7 @@ class StackMachineParser:
                     stack_columns.pop()
                     stack_indents.pop()
 
+                node = self._initialize_node_graph_fields(node, stack, root_nodes)
                 if stack:
                     node = self._attach_node_to_parent(stack, root_nodes, node)
                 else:
@@ -323,6 +334,7 @@ class StackMachineParser:
                     stack_columns.pop()
                     stack_indents.pop()
 
+                node = self._initialize_node_graph_fields(node, stack, root_nodes)
                 if stack:
                     node = self._attach_node_to_parent(stack, root_nodes, node)
                 else:
@@ -350,11 +362,15 @@ class StackMachineParser:
 
                 properties = dict(current_node.properties)
                 properties[key] = value
+                properties_order = list(current_node.properties_order)
+                if key not in properties_order:
+                    properties_order.append(key)
 
                 updated = self._refresh_node(
                     current_node,
                     current_node.content,
                     properties_override=properties,
+                    properties_order_override=properties_order,
                 )
                 if key == "id":
                     updated = updated.model_copy(update={"uuid": value})
@@ -384,10 +400,12 @@ class StackMachineParser:
 
         self._validate_references(root_nodes)
         root_nodes = self._normalize_indent_levels(root_nodes)
+        page_refs = self._collect_page_refs(root_nodes)
         return LogseqPage(
             title=page_title,
             raw_content=text,
             properties=page_properties,
+            refs=page_refs,
             root_nodes=root_nodes,
         )
 
@@ -433,6 +451,9 @@ class StackMachineParser:
         property_wikilinks, property_tags, property_block_refs = _extract_property_graph_tokens(
             properties
         )
+        wikilinks = [*LOGSEQ_PATTERNS["wikilink"].findall(stripped_text), *property_wikilinks]
+        tags = [*_extract_tags(stripped_text), *property_tags]
+        properties_order = ["id"] if "id" in properties else []
 
         return LogseqNode(
             uuid=node_uuid,
@@ -440,8 +461,10 @@ class StackMachineParser:
             clean_text=clean_node_content(stripped_text, properties),
             indent_level=indent_level,
             properties=properties,
-            wikilinks=[*LOGSEQ_PATTERNS["wikilink"].findall(stripped_text), *property_wikilinks],
-            tags=[*_extract_tags(stripped_text), *property_tags],
+            properties_order=properties_order,
+            wikilinks=wikilinks,
+            tags=tags,
+            refs=_merge_refs(wikilinks, tags),
             block_refs=[*_extract_block_refs(stripped_text), *property_block_refs],
             task_status=task_status,
             parent_id=None,
@@ -505,6 +528,43 @@ class StackMachineParser:
         root_nodes[-1] = stack[0]
         return attached_node
 
+    def _initialize_node_graph_fields(
+        self,
+        node: LogseqNode,
+        stack: list[LogseqNode],
+        root_nodes: list[LogseqNode],
+    ) -> LogseqNode:
+        left_id = self._resolve_left_sibling_id(stack, root_nodes)
+        if stack:
+            parent = stack[-1]
+            path = [*parent.path, node.uuid]
+        else:
+            path = [node.uuid]
+        return node.model_copy(update={"left_id": left_id, "path": path})
+
+    def _resolve_left_sibling_id(
+        self, stack: list[LogseqNode], root_nodes: list[LogseqNode]
+    ) -> str | None:
+        if stack:
+            parent = stack[-1]
+            return parent.children[-1].uuid if parent.children else None
+        return root_nodes[-1].uuid if root_nodes else None
+
+    def _collect_page_refs(self, roots: list[LogseqNode]) -> list[str]:
+        collected: list[str] = []
+        seen: set[str] = set()
+
+        def visit(nodes: list[LogseqNode]) -> None:
+            for node in nodes:
+                for token in node.refs:
+                    if token not in seen:
+                        seen.add(token)
+                        collected.append(token)
+                visit(node.children)
+
+        visit(roots)
+        return collected
+
     def _validate_references(self, roots: list[LogseqNode]) -> None:
         _ = roots
 
@@ -513,8 +573,14 @@ class StackMachineParser:
         node: LogseqNode,
         content: str,
         properties_override: dict[str, Any] | None = None,
+        properties_order_override: list[str] | None = None,
     ) -> LogseqNode:
         properties = dict(node.properties) if properties_override is None else dict(properties_override)
+        properties_order = (
+            list(node.properties_order)
+            if properties_order_override is None
+            else list(properties_order_override)
+        )
         time_properties = _extract_time_properties(content)
         if time_properties:
             properties.update(time_properties)
@@ -525,14 +591,18 @@ class StackMachineParser:
         property_wikilinks, property_tags, property_block_refs = _extract_property_graph_tokens(
             properties
         )
+        wikilinks = [*LOGSEQ_PATTERNS["wikilink"].findall(content), *property_wikilinks]
+        tags = [*_extract_tags(content), *property_tags]
         return node.model_copy(
             update={
                 "content": content,
                 "properties": properties,
+                "properties_order": properties_order,
                 "clean_text": clean_node_content(content, properties),
                 "task_status": task_status,
-                "wikilinks": [*LOGSEQ_PATTERNS["wikilink"].findall(content), *property_wikilinks],
-                "tags": [*_extract_tags(content), *property_tags],
+                "wikilinks": wikilinks,
+                "tags": tags,
+                "refs": _merge_refs(wikilinks, tags),
                 "block_refs": [*_extract_block_refs(content), *property_block_refs],
             }
         )
