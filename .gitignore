@@ -43,3 +43,5 @@ repomix-output.xml
 .idea/
 .rooignore
 .clinerules
+.cursor/rules/
+.cursor/
