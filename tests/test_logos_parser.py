@@ -9,7 +9,12 @@ from pathlib import Path
 import pytest
 
 from logseq_matryca_parser.exceptions import LogseqIndentationError
-from logseq_matryca_parser.logos_parser import LogosParser, StackMachineParser, is_system_block
+from logseq_matryca_parser.logos_parser import (
+    LogosParser,
+    StackMachineParser,
+    is_system_block,
+    resolve_journal_day,
+)
 
 
 @pytest.fixture
@@ -758,3 +763,47 @@ def test_parse_page_file_uses_filesystem_times_when_missing(tmp_path: Path) -> N
 
     assert page.created_at == int(page_path.stat().st_ctime)
     assert page.updated_at == int(page_path.stat().st_mtime)
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("[[Apr 25th, 2024]]", 20240425),
+        ("2024_04_25.md", 20240425),
+    ],
+)
+def test_resolve_journal_day_parses_logseq_formats(value: str, expected: int) -> None:
+    """Journal day resolver normalizes links and filenames to YYYYMMDD ints."""
+    assert resolve_journal_day(value) == expected
+
+
+def test_scheduled_marker_parses_time_and_repeater(parser: StackMachineParser) -> None:
+    """SCHEDULED marker stores normalized fields and is stripped from clean_text."""
+    content = "- TODO Ship parser SCHEDULED: <2024-04-25 Thu 17:00 ++1w>"
+    page = parser.parse(content, page_title="temporal-marker")
+    root = page.root_nodes[0]
+
+    assert root.clean_text == "Ship parser"
+    assert root.properties["scheduled_journal_day"] == 20240425
+    assert root.properties["scheduled_iso"] == "2024-04-25T17:00:00"
+    assert root.properties["repeater"] == "++1w"
+    assert root.repeater == "++1w"
+
+
+def test_clock_marker_extracts_start_end_and_duration(parser: StackMachineParser) -> None:
+    """CLOCK markers expose start/end timestamps and duration seconds."""
+    content = (
+        "- Task\n"
+        "  :LOGBOOK:\n"
+        "  CLOCK: [2024-04-25 Thu 10:00]--[2024-04-25 Thu 11:30] => 01:30:00\n"
+        "  :END:"
+    )
+    page = parser.parse(content, page_title="clock-marker")
+    root = page.root_nodes[0]
+    clock_entry = root.properties["clock"][0]
+
+    assert root.clean_text == "Task"
+    assert clock_entry["start_iso"] == "2024-04-25T10:00:00"
+    assert clock_entry["end_iso"] == "2024-04-25T11:30:00"
+    assert clock_entry["duration"] == "01:30:00"
+    assert clock_entry["duration_seconds"] == 5400

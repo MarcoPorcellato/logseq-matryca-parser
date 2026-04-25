@@ -37,6 +37,7 @@ class LogseqNode(BaseModel):
     block_refs: list[str] = Field(default_factory=list)
     refs: list[str] = Field(default_factory=list)
     task_status: str | None = None
+    repeater: str | None = None
     parent_id: str | None = None
     left_id: str | None = None
     path: list[str] = Field(default_factory=list)

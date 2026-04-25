@@ -53,6 +53,11 @@ HEADING_BLOCK_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)(#{1,6}\s+.+)$")
 logger = logging.getLogger(__name__)
 CREATED_AT_KEYS: tuple[str, ...] = ("created_at", "created-at", "createdat")
 UPDATED_AT_KEYS: tuple[str, ...] = ("updated_at", "updated-at", "updatedat")
+REPEATER_PATTERN: re.Pattern[str] = re.compile(r"(\.\+|\+\+|\+)\d+[hdwmy]")
+CLOCK_PATTERN: re.Pattern[str] = re.compile(
+    r"^\s*CLOCK:\s*\[([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[A-Za-z]{3}\s+[0-9]{2}:[0-9]{2})\]\s*--\s*"
+    r"\[([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[A-Za-z]{3}\s+[0-9]{2}:[0-9]{2})\]\s*=>\s*([0-9]{2}:[0-9]{2}:[0-9]{2})\s*$"
+)
 
 
 def is_system_block(line: str) -> bool:
@@ -108,8 +113,8 @@ def _extract_task_status(first_line: str) -> tuple[str | None, str]:
     return None, first_line
 
 
-def _extract_time_properties(raw_content: str) -> dict[str, str]:
-    properties: dict[str, str] = {}
+def _extract_time_properties(raw_content: str) -> dict[str, Any]:
+    properties: dict[str, Any] = {}
     in_code_block = False
     for line in raw_content.splitlines():
         stripped = line.strip()
@@ -119,7 +124,20 @@ def _extract_time_properties(raw_content: str) -> dict[str, str]:
         if in_code_block:
             continue
         for key, value in TIME_PATTERN.findall(line):
-            properties[key.lower()] = value
+            marker_lower = key.lower()
+            marker_payload = value.strip("<>")
+            properties[marker_lower] = value
+            repeater_match = REPEATER_PATTERN.search(marker_payload)
+            repeater = repeater_match.group(0) if repeater_match else None
+            payload_without_repeater = (
+                REPEATER_PATTERN.sub("", marker_payload).strip() if repeater else marker_payload
+            )
+            parsed_dt = _parse_logseq_datetime(payload_without_repeater)
+            if parsed_dt is not None:
+                properties[f"{marker_lower}_journal_day"] = int(parsed_dt.strftime("%Y%m%d"))
+                properties[f"{marker_lower}_iso"] = parsed_dt.isoformat(timespec="seconds")
+            if repeater is not None:
+                properties["repeater"] = repeater
     return properties
 
 
@@ -158,6 +176,44 @@ def _extract_heading_level(content: str) -> int | None:
     return None
 
 
+def _strip_ordinal_suffix(value: str) -> str:
+    return re.sub(r"\b([0-9]{1,2})(st|nd|rd|th)\b", r"\1", value, flags=re.IGNORECASE)
+
+
+def _parse_logseq_datetime(raw_value: str) -> datetime | None:
+    candidate = _strip_ordinal_suffix(raw_value.strip())
+    datetime_formats = (
+        "%Y-%m-%d %a %H:%M",
+        "%Y-%m-%d %H:%M",
+        "%Y-%m-%d %a",
+        "%Y-%m-%d",
+        "%b %d, %Y",
+        "%Y_%m_%d",
+        "%a, %d-%m-%Y",
+    )
+    for fmt in datetime_formats:
+        try:
+            return datetime.strptime(candidate, fmt)
+        except ValueError:
+            continue
+    return None
+
+
+def resolve_journal_day(value: str) -> int | None:
+    """Resolve a journal-like string into Logseq YYYYMMDD integer."""
+    candidate = value.strip()
+    if not candidate:
+        return None
+    if candidate.startswith("[[") and candidate.endswith("]]"):
+        candidate = candidate[2:-2].strip()
+    if candidate.lower().endswith(".md"):
+        candidate = candidate[:-3]
+    parsed = _parse_logseq_datetime(candidate)
+    if parsed is None:
+        return None
+    return int(parsed.strftime("%Y%m%d"))
+
+
 def normalize_logseq_timestamp(value: Any) -> int | None:
     """Normalize Logseq-style timestamp values to unix epoch seconds."""
     if value is None:
@@ -187,7 +243,11 @@ def normalize_logseq_timestamp(value: Any) -> int | None:
         except ValueError:
             pass
 
-        date_formats = ("%Y-%m-%d", "%Y/%m/%d", "%Y%m%d")
+        parsed_logseq_date = _parse_logseq_datetime(candidate)
+        if parsed_logseq_date is not None:
+            return int(parsed_logseq_date.replace(tzinfo=timezone.utc).timestamp())
+
+        date_formats = ("%Y/%m/%d", "%Y%m%d")
         for fmt in date_formats:
             try:
                 parsed_date = datetime.strptime(candidate, fmt).replace(tzinfo=timezone.utc)
@@ -292,6 +352,23 @@ class StackMachineParser:
                         logbook_entries = list(properties.get("logbook", []))
                         logbook_entries.append(stripped_line)
                         properties["logbook"] = logbook_entries
+                        clock_match = CLOCK_PATTERN.match(stripped_line)
+                        if clock_match:
+                            start_text, end_text, duration_text = clock_match.groups()
+                            start_dt = datetime.strptime(start_text, "%Y-%m-%d %a %H:%M")
+                            end_dt = datetime.strptime(end_text, "%Y-%m-%d %a %H:%M")
+                            hours, minutes, seconds = [int(part) for part in duration_text.split(":")]
+                            duration_seconds = (hours * 3600) + (minutes * 60) + seconds
+                            clock_entries = list(properties.get("clock", []))
+                            clock_entries.append(
+                                {
+                                    "start_iso": start_dt.isoformat(timespec="seconds"),
+                                    "end_iso": end_dt.isoformat(timespec="seconds"),
+                                    "duration": duration_text,
+                                    "duration_seconds": duration_seconds,
+                                }
+                            )
+                            properties["clock"] = clock_entries
                         updated = self._refresh_node(
                             current_node,
                             current_node.content,
@@ -575,6 +652,7 @@ class StackMachineParser:
             refs=_merge_refs(wikilinks, tags),
             block_refs=[*_extract_block_refs(stripped_text), *property_block_refs],
             task_status=task_status,
+            repeater=properties.get("repeater") if isinstance(properties.get("repeater"), str) else None,
             parent_id=None,
             created_at=_first_normalized_timestamp(properties, CREATED_AT_KEYS),
             updated_at=_first_normalized_timestamp(properties, UPDATED_AT_KEYS),
@@ -710,6 +788,9 @@ class StackMachineParser:
                 "properties_order": properties_order,
                 "clean_text": clean_node_content(content, properties),
                 "task_status": task_status,
+                "repeater": (
+                    properties.get("repeater") if isinstance(properties.get("repeater"), str) else None
+                ),
                 "wikilinks": wikilinks,
                 "tags": tags,
                 "refs": _merge_refs(wikilinks, tags),
