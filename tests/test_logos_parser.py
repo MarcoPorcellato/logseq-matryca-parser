@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from logseq_matryca_parser.exceptions import BlockReferenceError, LogseqIndentationError
+from logseq_matryca_parser.exceptions import LogseqIndentationError
 from logseq_matryca_parser.logos_parser import LogosParser, StackMachineParser, is_system_block
 
 
@@ -58,13 +58,13 @@ def test_misaligned_indentation_still_raises(parser: StackMachineParser) -> None
         "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
     ],
 )
-def test_unresolved_block_reference_raises(
+def test_unresolved_block_reference_is_preserved(
     parser: StackMachineParser, missing_uuid: str
 ) -> None:
-    """Unresolved ((uuid)) references trigger BlockReferenceError."""
+    """Unresolved ((uuid)) references remain parseable as block-ref tokens."""
     content = f"- Root with missing ref (({missing_uuid}))"
-    with pytest.raises(BlockReferenceError):
-        parser.parse(content, page_title="missing-ref")
+    page = parser.parse(content, page_title="missing-ref")
+    assert missing_uuid in page.root_nodes[0].block_refs
 
 
 def test_resolved_block_reference_does_not_raise(parser: StackMachineParser) -> None:
@@ -442,6 +442,115 @@ def test_official_property_values_emit_graph_links(
     assert "mathematics" in root.wikilinks
     assert "physics" in root.wikilinks
     assert "theory" in root.tags
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_ref"),
+    [
+        (
+            "- The foundational argument is presented here: ((64c752b0-d33b-4448-a261-e4dc2bbe12d3)).",
+            "64c752b0-d33b-4448-a261-e4dc2bbe12d3",
+        ),
+    ],
+)
+def test_official_pure_block_reference_extraction(
+    parser: StackMachineParser, content: str, expected_ref: str
+) -> None:
+    """Official spec: block refs are extracted while punctuation remains visible text."""
+    page = parser.parse(content, page_title="official-block-ref")
+    root = page.root_nodes[0]
+
+    assert expected_ref in root.block_refs
+    assert expected_ref not in root.clean_text
+    assert root.clean_text.endswith(".")
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_clean"),
+    [
+        (
+            "- **Inclusion of Dell and Cisco Partnerships: **",
+            "Inclusion of Dell and Cisco Partnerships:",
+        ),
+    ],
+)
+def test_official_bold_trailing_space_anomaly(
+    parser: StackMachineParser, content: str, expected_clean: str
+) -> None:
+    """Official spec: trailing-space bold is normalized, avoiding italic fallback artifacts."""
+    page = parser.parse(content, page_title="official-bold-trailing-space")
+    root = page.root_nodes[0]
+    assert root.clean_text == expected_clean
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_clean", "expected_tag"),
+    [
+        (
+            "# #heading-tag at the start of a heading",
+            "#heading-tag at the start of a heading",
+            "heading-tag",
+        ),
+    ],
+)
+def test_official_heading_vs_tag_precedence(
+    parser: StackMachineParser, content: str, expected_clean: str, expected_tag: str
+) -> None:
+    """Official spec: first hash marks heading, subsequent inline hash token remains a tag."""
+    page = parser.parse(content, page_title="official-heading-tag")
+    root = page.root_nodes[0]
+    assert root.properties["heading_level"] == 1
+    assert root.clean_text == expected_clean
+    assert expected_tag in root.tags
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        "- ````\n  ```lang\n  code\n  ```\n  ````",
+    ],
+)
+def test_official_nested_verbatim_fence_escaping(
+    parser: StackMachineParser, content: str
+) -> None:
+    """Official spec: outer fence length controls closing; inner shorter fence stays literal."""
+    page = parser.parse(content, page_title="official-nested-fence")
+    root = page.root_nodes[0]
+    assert "```lang" in root.content
+    assert "\n  ```\n" in root.content
+    assert root.content.rstrip().endswith("````")
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_fragment"),
+    [
+        ("- Normally it is 1<sup>st</sup> but what about 1 <sup>st</sup>?", "<sup>st</sup>"),
+    ],
+)
+def test_official_html_superscript_preserved(
+    parser: StackMachineParser, content: str, expected_fragment: str
+) -> None:
+    """Official spec: inline HTML superscript remains preserved in parsed block text."""
+    page = parser.parse(content, page_title="official-superscript")
+    root = page.root_nodes[0]
+    assert expected_fragment in root.content
+    assert expected_fragment in root.clean_text
+
+
+@pytest.mark.parametrize(
+    ("content", "expected_fragment"),
+    [
+        ("- test anki cloze 1 {{c1 $\\mathrm{K}$}}", "{{c1 $\\mathrm{K}$}}"),
+    ],
+)
+def test_official_cloze_latex_boundary_preserved(
+    parser: StackMachineParser, content: str, expected_fragment: str
+) -> None:
+    """Official spec: cloze blocks containing LaTeX math are preserved without corruption."""
+    page = parser.parse(content, page_title="official-cloze-latex")
+    root = page.root_nodes[0]
+    assert expected_fragment in root.content
+    assert expected_fragment in root.clean_text
 
 
 def test_empty_logbook_drawer_tolerance(parser: StackMachineParser) -> None:

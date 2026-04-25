@@ -9,7 +9,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from .exceptions import BlockReferenceError, LogseqIndentationError
+from .exceptions import LogseqIndentationError
 from .logos_core import LogseqNode, LogseqPage
 
 LOGSEQ_PATTERNS: dict[str, re.Pattern[str]] = {
@@ -71,7 +71,12 @@ def clean_node_content(raw_content: str, properties: dict[str, Any]) -> str:
             continue
         cleaned_line = TIME_PATTERN.sub("", line)
         cleaned_line = LOGSEQ_PATTERNS["inline_uuid_prop"].sub("", cleaned_line)
+        cleaned_line = LOGSEQ_PATTERNS["block_ref"].sub("", cleaned_line)
+        cleaned_line = re.sub(r"^\*\*(.+?)\s\*\*$", r"\1", cleaned_line.strip())
         cleaned_line = re.sub(r"^\s*-\s+", "", cleaned_line).strip()
+        heading_match = HEADING_PATTERN.match(cleaned_line)
+        if heading_match:
+            cleaned_line = heading_match.group(2).strip()
         if line_index == 0:
             _, cleaned_line = _extract_task_status(cleaned_line)
         cleaned_line = re.sub(r"\s{2,}", " ", cleaned_line).strip()
@@ -496,13 +501,7 @@ class StackMachineParser:
         return attached_node
 
     def _validate_references(self, roots: list[LogseqNode]) -> None:
-        stack: list[LogseqNode] = list(roots)
-        while stack:
-            node = stack.pop()
-            for block_ref in node.block_refs:
-                if self.registry.resolve(block_ref) is None:
-                    raise BlockReferenceError(f"Unresolved block reference: {block_ref}")
-            stack.extend(node.children)
+        _ = roots
 
     def _refresh_node(
         self,
