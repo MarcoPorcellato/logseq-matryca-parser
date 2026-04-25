@@ -33,8 +33,14 @@ class LogseqNode(BaseModel):
     wikilinks: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     block_refs: list[str] = Field(default_factory=list)
+    refs: list[str] = Field(default_factory=list)
     task_status: str | None = None
     parent_id: str | None = None
+    left_id: str | None = None
+    path: list[str] = Field(default_factory=list)
+    properties_order: list[str] = Field(default_factory=list)
+    created_at: int | None = None
+    updated_at: int | None = None
     children: list["LogseqNode"] = Field(default_factory=list)
 
     @model_validator(mode="before")
@@ -66,6 +72,9 @@ class LogseqPage(BaseModel):
     title: str
     raw_content: str
     properties: dict[str, Any] = Field(default_factory=dict)
+    refs: list[str] = Field(default_factory=list)
+    created_at: int | None = None
+    updated_at: int | None = None
     root_nodes: list[LogseqNode] = Field(default_factory=list)
 
 
