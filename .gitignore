@@ -1,7 +1,45 @@
+# =========================
+# macOS / System
+# =========================
+**/.DS_Store
+
+# =========================
+# Python / Bytecode
+# =========================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# =========================
+# Virtual Environments
+# =========================
 .venv/
+venv/
+env/
 .env
+
+# =========================
+# Build & Distribution
+# =========================
 dist/
 build/
-*.egg-info/.DS_Store
+*.egg-info/
+
+# =========================
+# Testing & Coverage
+# =========================
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+repomix-output.xml
+
+# =========================
+# IDEs & Tool Caches
+# =========================
+.mypy_cache/
+.ruff_cache/
+.vscode/
+.idea/
+.rooignore
+.clinerules
