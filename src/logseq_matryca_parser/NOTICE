@@ -1,0 +1,7 @@
+Logseq Matryca Parser (Logos Protocol)
+Copyright 2026 Marco Porcellato & Matryca.ai
+
+Architect: Marco Porcellato
+Protocol Name: Logos
+This module provides deterministic parsing for the Matryca ecosystem.
+Released under Apache 2.0.
