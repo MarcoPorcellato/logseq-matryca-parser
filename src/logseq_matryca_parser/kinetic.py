@@ -118,6 +118,49 @@ def _build_deep_stats_tables(stats: dict[str, Any]) -> tuple[Table, Table, Table
     return overview_table, connectivity_table, largest_pages_table
 
 
+def _build_official_logseq_demo_pages() -> list[LogseqPage]:
+    """Synthetic pages mimicking the official Logseq example graph (no disk I/O)."""
+    # Star hub: "Logseq" at center, spokes to core concepts, journals, and a tag.
+    hub_refs: list[str] = [
+        "[[Contents]]",
+        "[[Graph]]",
+        "[[Page]]",
+        "[[Block]]",
+        "[[Journal]]",
+        "2023_01_01",
+        "2024_06_15",
+        "logseq",
+    ]
+    hub = LogseqNode(
+        uuid="showcase-hub",
+        content="Logseq is a local-first, privacy-focused outliner and graph for knowledge work.",
+        clean_text="Logseq is a local-first, privacy-focused outliner and graph for knowledge work.",
+        indent_level=0,
+        refs=hub_refs,
+        tags=["logseq", "outliner"],
+    )
+    # Secondary block for a little depth (cross-link to [[Page]]).
+    branch = LogseqNode(
+        uuid="showcase-branch",
+        content="A block is a node in a tree. Blocks can nest and reference others.",
+        clean_text="A block is a node in a tree. Blocks can nest and reference others.",
+        indent_level=1,
+        parent_id=hub.uuid,
+        refs=["[[Block]]", "[[Page]]", "logseq"],
+        tags=["logseq"],
+    )
+    root_tree = hub.model_copy(update={"children": [branch]})
+    return [
+        LogseqPage(
+            title="Logseq",
+            raw_content="",
+            source_path=None,
+            graph_root=None,
+            root_nodes=[root_tree],
+        )
+    ]
+
+
 @app.command()
 def scan(graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root.")) -> None:
     """Scan a graph and print aggregate parsing statistics."""
@@ -159,6 +202,24 @@ def visualize(
 
     visualizer.export_html(output_html)
     console.print(f"[bold green]Visualization HTML written:[/] {output_html}")
+
+
+@app.command()
+def demo(
+    output_html: Path = typer.Argument(
+        Path("showcase.html"),
+        help="Path for the standalone showcase HTML (default: showcase.html in cwd).",
+    ),
+) -> None:
+    """Build a sample graph from the official Logseq demo topology and write showcase HTML (no graph files read)."""
+    pages = _build_official_logseq_demo_pages()
+    visualizer = GraphVisualizer(pages=pages)
+    visualizer.build_network()
+    visualizer.export_html(output_html.resolve())
+    console.print(
+        f"[bold green]Showcase example written:[/] {output_html.resolve()} "
+        f"(open in a browser to preview the LENS graph)."
+    )
 
 
 def _export_json(pages: list[LogseqPage], output_path: Path) -> Path:

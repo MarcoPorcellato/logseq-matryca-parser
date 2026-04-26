@@ -1,0 +1,66 @@
+# .repomixignore
+
+# Escludi i file di output di Repomix stesso
+repomix-output.xml
+
+# Escludi documentazione (se vuoi che l'AI si concentri solo sul codice Python)
+docs/
+*.md
+
+# Escludi file di lock (lunghissimi e illeggibili per l'AI)
+poetry.lock
+uv.lock
+package-lock.json
+
+# Escludi file di test giganteschi o dati dummy
+tests/fixtures/*.json
+
+# =========================
+# macOS / System
+# =========================
+**/.DS_Store
+
+# =========================
+# Python / Bytecode
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+# Virtual Environments
+# =========================
+.venv/
+venv/
+env/
+.env
+
+# =========================
+# Build & Distribution
+# =========================
+dist/
+build/
+*.egg-info/
+
+# =========================
+# Testing & Coverage
+# =========================
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+repomix-output.xml
+
+# =========================
+# IDEs & Tool Caches
+# =========================
+.mypy_cache/
+.ruff_cache/
+.vscode/
+.idea/
+.rooignore
+.clinerules
+.cursor/rules/
+.cursor/
+output_langchain/
+mappa_cervello.html

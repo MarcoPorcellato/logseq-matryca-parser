@@ -119,3 +119,16 @@ def test_visualize_command_invalid_graph_path_exits_with_error(tmp_path: Path) -
 
     assert result.exit_code == 1
     assert "Invalid graph path" in result.output
+
+
+def test_demo_command_builds_showcase_without_disk_graph(tmp_path: Path) -> None:
+    out = tmp_path / "showcase.html"
+
+    with patch("logseq_matryca_parser.kinetic.GraphVisualizer.export_html") as export_html_mock:
+        result = runner.invoke(app, ["demo", str(out)])
+
+    assert result.exit_code == 0
+    assert "Showcase example written" in result.output
+    export_html_mock.assert_called_once()
+    call_path = export_html_mock.call_args[0][0]
+    assert call_path == out.resolve()

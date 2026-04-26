@@ -68,7 +68,13 @@ def test_export_html_calls_save_graph_with_mocked_pyvis(tmp_path: Path) -> None:
     visualizer.build_network()
     destination = tmp_path / "lens-graph.html"
 
+    def _fake_save_graph(path: str) -> None:
+        Path(path).write_text('<div id="loadingBar"></div>', encoding="utf-8")
+
     with patch("logseq_matryca_parser.lens.Network.save_graph") as save_graph_mock:
+        save_graph_mock.side_effect = _fake_save_graph
         visualizer.export_html(destination)
 
     save_graph_mock.assert_called_once_with(str(destination))
+    body = destination.read_text(encoding="utf-8")
+    assert 'style="display: none !important;"' in body
