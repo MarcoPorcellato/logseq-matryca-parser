@@ -75,7 +75,7 @@ Explore your graph like never before.
 * **Semantic Topology:** Dynamic Degree Centrality sizing (highly connected concepts become massive suns).
 * **Professional HUD:** A custom Glassmorphism UI injected directly into the graph. Instantly filter out daily journals or tags to declutter your view.
 
-> **[ 🖼️ INSERT HIGH-QUALITY GIF HERE: Show the Glassmorphism HUD hiding journals/tags in real-time ]**
+<img width="2868" height="1730" alt="Image" src="https://github.com/user-attachments/assets/cc6d1d4e-7b3a-4224-a1f5-3ec69bb4a9ac" />
 
 ### 4. FORGE & KINETIC (Exporters & CLI)
 
