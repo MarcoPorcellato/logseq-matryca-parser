@@ -33,6 +33,7 @@ build/
 coverage.xml
 htmlcov/
 repomix-output.xml
+docs/index.html
 
 # =========================
 # IDEs & Tool Caches

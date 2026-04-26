@@ -105,7 +105,7 @@ pip install -e .
 Generate a stunning, interactive HTML map of your local Logseq graph.
 
 ```bash
-matryca-parse visualize /path/to/your/logseq/graph my-brain-map.html
+uv run matryca-parse visualize /path/to/your/logseq/graph my-brain-map.html
 ```
 
 #### 2. Export for AI / RAG
@@ -113,7 +113,7 @@ matryca-parse visualize /path/to/your/logseq/graph my-brain-map.html
 Export your entire graph into natively formatted JSON for LangChain integration.
 
 ```bash
-matryca-parse export /path/to/your/logseq/graph output_dir --format langchain
+uv run matryca-parse export /path/to/your/logseq/graph output_dir --format langchain
 ```
 
 #### 3. Test the showcase demo
@@ -121,7 +121,7 @@ matryca-parse export /path/to/your/logseq/graph output_dir --format langchain
 Generate a synthetic, highly connected graph to test the physics engine without a local Logseq folder.
 
 ```bash
-matryca-parse demo showcase.html
+uv run matryca-parse demo showcase.html
 ```
 
 ### Python API usage
