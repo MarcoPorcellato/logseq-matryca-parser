@@ -21,7 +21,7 @@ Standard RAG parsers destroy the semantic structure of Logseq. They chunk text b
 
 *Want to understand why standard parsing fails on Logseq? Read our [Logseq AST Primer](docs/logseq_ast_primer.md).*
 
-Mermaid
+```Mermaid
 flowchart LR
   subgraph input["Source"]
     G[("Logseq graph root directory")]
@@ -47,6 +47,7 @@ flowchart LR
   AST --> S
   AST --> L
   AST --> K
+```
 
 ### 1. LOGOS (The Core Engine)
 Unlike traditional chunkers that "cut" text randomly, Logos respects your **thought sovereignty**, keeping parent-child block relationships intact.
