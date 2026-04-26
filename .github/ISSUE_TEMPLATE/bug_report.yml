@@ -1,0 +1,43 @@
+name: 🐛 Bug Report
+description: Create a report to help us fix parsing errors or visualizer bugs.
+title: "[BUG] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug in the Logseq Matryca Parser! 
+        Please fill out this form as completely as possible to help us reproduce and fix the issue.
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: When I parse a page with this specific property, the AST breaks...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we trigger this bug? Please include a minimal snippet of Logseq Markdown if possible.
+      placeholder: |
+        1. Run `matryca-parse visualize /my-graph`
+        2. Wait for the parsing phase
+        3. See error...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Environment & Version
+      description: What version of Matryca Parser and Python are you using? (e.g., Parser v0.1.0, Python 3.12, Windows 11)
+    validations:
+      required: true

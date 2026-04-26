@@ -1,0 +1,30 @@
+name: 💡 Feature Request
+description: Suggest an idea, a new exporter, or an AI feature for the Logos Protocol.
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make the Logseq Matryca Parser even better? We'd love to hear it!
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear and concise description of what the problem is.
+      placeholder: "I'm always frustrated when..."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution or new feature you'd like to see.
+      placeholder: "It would be great if the parser could export to..."
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add any other context, links to AI frameworks, or screenshots about the feature request here.
