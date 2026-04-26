@@ -43,6 +43,33 @@ Explore your graph like never before.
 * **FORGE:** Transformation forge for optimized JSON, clean Markdown, and flat-list outputs.
 * **KINETIC:** High-performance command-line interface to orchestrate the entire pipeline.
 
+flowchart LR
+  subgraph input["Source"]
+    G[("Logseq graph root directory")]
+    MD[".md files under pages/ and journals/"]
+  end
+
+  subgraph logos["LOGOS"]
+    P["LogosParser + stack machine"]
+    AST["LogseqPage + LogseqNode tree (AST)"]
+  end
+
+  subgraph out["Outputs"]
+    F["FORGE: JSON, flat Markdown"]
+    S["SYNAPSE: RAG documents (e.g. LangChain)"]
+    L["LENS: interactive HTML"]
+    K["KINETIC: aggregate stats (scan)"]
+  end
+
+  G --> MD
+  MD --> P
+  P --> AST
+  AST --> F
+  AST --> S
+  AST --> L
+  AST --> K
+
+
 ---
 
 ## 🛠️ Quickstart
