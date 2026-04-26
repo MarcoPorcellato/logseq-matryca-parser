@@ -9,6 +9,10 @@
 > *"Giving LLMs the vision to read hierarchical thought."*
 > — [Marco Porcellato](https://www.marcoporcellato.it)
 
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/24f73c6d-3eca-4adb-8442-981f2ba4cccd" autoplay loop muted playsinline width="800"></video>
+</p>
+
 [👉 **TRY THE LIVE INTERACTIVE DEMO (Mobile Friendly)**](https://MarcoPorcellato.github.io/logseq-matryca-parser/)
 
 ---
