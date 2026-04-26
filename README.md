@@ -91,7 +91,7 @@ Ensure you have Python 3.12+ installed.
 
 ```bash
 # Clone the repository
-git clone [https://github.com/MarcoPorcellato/logseq-matryca-parser.git](https://github.com/MarcoPorcellato/logseq-matryca-parser.git)
+git clone https://github.com/MarcoPorcellato/logseq-matryca-parser.git
 cd logseq-matryca-parser
 
 # Install via pip or uv
