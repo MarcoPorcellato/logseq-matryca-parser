@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -55,11 +56,33 @@ class GraphVisualizer:
 
     def build_network(self) -> None:
         self._graph = nx.Graph()
+        page_block_counts = {page.title: self._count_page_blocks(page) for page in self._pages}
         for page in self._pages:
             self._graph.add_node(page.title, group="page")
             visitor = NetworkXVisitor(graph=self._graph, page_title=page.title)
             for root_node in page.root_nodes:
                 root_node.accept(visitor)
+
+        degree_by_node = dict(self._graph.degree())
+        for node_name in self._graph.nodes:
+            group = self._classify_node_group(node_name)
+            degree = int(degree_by_node.get(node_name, 0))
+            page_block_count = page_block_counts.get(node_name)
+            title = (
+                f"<b>{node_name}</b><br>"
+                f"Group: {group}<br>"
+                f"Connections: {degree}"
+            )
+            if page_block_count is not None:
+                title = f"{title}<br>Blocks: {page_block_count}"
+
+            self._graph.nodes[node_name].update(
+                {
+                    "group": group,
+                    "value": degree + 1,
+                    "title": title,
+                }
+            )
         logger.debug(
             "LENS build_network completed nodes=%d edges=%d",
             self._graph.number_of_nodes(),
@@ -108,20 +131,60 @@ class GraphVisualizer:
             stack.extend(current_node.children)
         return total_blocks
 
+    @staticmethod
+    def _classify_node_group(node_name: str) -> str:
+        normalized_name = node_name.strip()
+        if normalized_name.lower().startswith("progetti___"):
+            return "project"
+        if normalized_name.startswith("#"):
+            return "tag"
+        if GraphVisualizer._looks_like_journal(normalized_name):
+            return "journal"
+        return "page"
+
+    @staticmethod
+    def _looks_like_journal(node_name: str) -> bool:
+        if re.match(r"^\d{4}_\d{2}_\d{2}$", node_name):
+            return True
+        if re.match(r"^\d{4}-\d{2}-\d{2}$", node_name):
+            return True
+        return bool(re.match(r"^\[\[[A-Za-z]{3} \d{1,2}(st|nd|rd|th), \d{4}\]\]$", node_name))
+
     def export_html(self, output_path: Path) -> None:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         network = Network(height="900px", width="100%", bgcolor="#111827", font_color="white")
         network.from_nx(self._graph)
+        network.repulsion(node_distance=100, spring_length=200, damping=0.2)
+        network.show_buttons(filter_=["physics", "nodes"])
         network.set_options(
             """
             var options = {
-              "nodes": {"shape": "dot", "size": 18},
-              "edges": {"color": {"inherit": true}, "smooth": false},
+              "nodes": {
+                "shape": "dot",
+                "scaling": {"min": 8, "max": 42, "label": {"enabled": true}}
+              },
+              "edges": {
+                "color": {"inherit": true, "opacity": 0.35},
+                "smooth": {"enabled": true, "type": "dynamic"}
+              },
               "physics": {
                 "enabled": true,
-                "barnesHut": {"gravitationalConstant": -18000, "springLength": 140}
+                "barnesHut": {
+                  "gravitationalConstant": -25000,
+                  "centralGravity": 0.18,
+                  "springLength": 180,
+                  "springConstant": 0.02,
+                  "damping": 0.12,
+                  "avoidOverlap": 0.85
+                },
+                "stabilization": {"enabled": true, "iterations": 800}
               },
-              "interaction": {"hover": true, "navigationButtons": true}
+              "interaction": {
+                "hover": true,
+                "tooltipDelay": 200,
+                "navigationButtons": true,
+                "hoverConnectedEdges": true
+              }
             }
             """
         )
