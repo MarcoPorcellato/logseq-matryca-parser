@@ -9,7 +9,7 @@
 > *"Giving LLMs the vision to read hierarchical thought."*
 > — [Marco Porcellato](https://www.marcoporcellato.it)
 
-[👉 **TRY THE LIVE INTERACTIVE DEMO (Mobile Friendly)**](https://[YOUR-GITHUB-USERNAME].github.io/logseq-matryca-parser)
+[👉 **TRY THE LIVE INTERACTIVE DEMO (Mobile Friendly)**](https://MarcoPorcellato.github.io/logseq-matryca-parser/)
 
 ---
 
@@ -21,7 +21,7 @@ Standard RAG parsers destroy the semantic structure of Logseq. They chunk text b
 
 *Want to understand why standard parsing fails on Logseq? Read our [Logseq AST Primer](docs/logseq_ast_primer.md).*
 
-Mermaid
+```mermaid
 flowchart LR
   subgraph input["Source"]
     G[("Logseq graph root directory")]
@@ -47,39 +47,40 @@ flowchart LR
   AST --> S
   AST --> L
   AST --> K
+1. LOGOS (The Core Engine)
+Unlike traditional chunkers that "cut" text randomly, Logos respects your thought sovereignty, keeping parent-child block relationships intact.
 
-### 1. LOGOS (The Core Engine)
-Unlike traditional chunkers that "cut" text randomly, Logos respects your **thought sovereignty**, keeping parent-child block relationships intact.
-* Finite state Stack-Machine parsing engine for deterministic indentation reconstruction.
-* Resolves complex syntax: properties, aliases, block-references (`((uuid))`), and temporal journals.
+Finite state Stack-Machine parsing engine for deterministic indentation reconstruction.
 
-### 2. SYNAPSE (AI & RAG Ready)
+Resolves complex syntax: properties, aliases, block-references (((uuid))), and temporal journals.
+
+2. SYNAPSE (AI & RAG Ready)
 Transform your Second Brain into perfect vectors for LLMs.
-* Native adapters for **LangChain** (`Document`) and **LlamaIndex** (`TextNode`).
-* Automatically injects hierarchical relationships into metadata, ensuring the AI never loses the parent context of a bullet point.
 
-### 3. LENS (The God-Tier Visualizer)
+Native adapters for LangChain (Document) and LlamaIndex (TextNode).
+
+Automatically injects hierarchical relationships into metadata, ensuring the AI never loses the parent context of a bullet point.
+
+3. LENS (The God-Tier Visualizer)
 Explore your graph like never before.
-* **Insane Performance:** Aggressively optimized ForceAtlas2 physics engine. Fluidly renders massive graphs (7,000+ nodes) at 60FPS.
-* **Semantic Topology:** Dynamic Degree Centrality sizing (highly connected concepts become massive suns).
-* **Professional HUD:** A custom Glassmorphism UI injected directly into the graph. Instantly filter out daily journals or tags to declutter your view.
 
-> **[ 🖼️ INSERT HIGH-QUALITY GIF HERE: Show the Glassmorphism HUD hiding journals/tags in real-time ]**
+Insane Performance: Aggressively optimized ForceAtlas2 physics engine. Fluidly renders massive graphs (7,000+ nodes) at 60FPS.
 
-### 4. FORGE & KINETIC (Exporters & CLI)
-* **FORGE:** Transformation forge for optimized JSON, clean Markdown, and flat-list outputs.
-* **KINETIC:** High-performance command-line interface to orchestrate the entire pipeline.
+Semantic Topology: Dynamic Degree Centrality sizing (highly connected concepts become massive suns).
 
+Professional HUD: A custom Glassmorphism UI injected directly into the graph. Instantly filter out daily journals or tags to declutter your view.
 
+[ 🖼️ INSERT HIGH-QUALITY GIF HERE: Show the Glassmorphism HUD hiding journals/tags in real-time ]
 
+4. FORGE & KINETIC (Exporters & CLI)
+FORGE: Transformation forge for optimized JSON, clean Markdown, and flat-list outputs.
 
----
+KINETIC: High-performance command-line interface to orchestrate the entire pipeline.
 
-## 🛠️ Quickstart
+🛠️ Quickstart
+Ensure you have Python 3.12+ installed.
 
-Ensure you have Python 3.12+ installed. 
-
-```bash
+Bash
 # Clone the repository
 git clone [https://github.com/MarcoPorcellato/logseq-matryca-parser.git](https://github.com/MarcoPorcellato/logseq-matryca-parser.git)
 cd logseq-matryca-parser
@@ -117,5 +118,14 @@ docs = SynapseAdapter.to_langchain_documents(page.root_nodes, source_name=page.t
 Designed to run locally. Zero telemetry. Zero training on your data. Fully GDPR-compliant by EEA protocol design.
 
 Your Second Brain is your private intellectual property. Keep it that way.
+
+☕ Support the Project
+Logseq Matryca Parser is an open-source project built with passion and precision. I maintain this engine in my free time to help the PKM and AI community keep their data sovereign and accessible.
+
+If this tool has saved you hours of parsing headaches or empowered your AI pipeline, consider supporting its development!
+
+💖 Sponsor me on GitHub (Preferred)
+
+🤝 Enterprise Support: Need custom RAG integrations, priority bug fixes, or consulting? Check out the higher sponsor tiers or reach out to me at marco@matryca.ai.
 
 Architected by Marco Porcellato | Powered by Matryca.ai Building the future of Sovereign Knowledge Management.
