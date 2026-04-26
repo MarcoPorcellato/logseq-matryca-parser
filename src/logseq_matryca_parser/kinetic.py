@@ -1,131 +1,191 @@
-"""
-Logseq Matryca Parser - KINETIC CLI
------------------------------------
-Author: Marco Porcellato (Matryca.ai)
-License: Apache 2.0
+"""KINETIC command line interface for Logseq graph parsing."""
 
-Descrizione: Interfaccia a riga di comando (CLI) ad alte prestazioni.
-POSIX-compliant: telemetria su stderr, output dati puro su stdout.
-"""
-import typer  # type: ignore
+from __future__ import annotations
+
+import json
+import logging
+from collections.abc import Iterable
+from enum import Enum
 from pathlib import Path
-from rich.console import Console  # type: ignore
-from rich.progress import Progress, SpinnerColumn, TextColumn  # type: ignore
-from rich.panel import Panel  # type: ignore
-from rich.table import Table  # type: ignore
-from typing import Optional, List
+from typing import Any
 
-# Importiamo il motore e la fucina
-from .logos_parser import LogosParser
-from .forge import ForgeExporter
+import typer
+from rich.console import Console
+from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
+from rich.table import Table
 
-app = typer.Typer(
-    name="matryca-parse",
-    help="⚡ KINETIC: Il motore CLI del Protocollo Logos per Matryca.ai.",
-    no_args_is_help=True,
-    add_completion=False
-)
+from logseq_matryca_parser.forge import ForgeExporter
+from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
+from logseq_matryca_parser.logos_parser import LogosParser
+from logseq_matryca_parser.synapse import SynapseAdapter
 
-# Separazione dei canali (Standard Enterprise)
-err_console = Console(stderr=True)  # UI, Errori, Progress Bar
-out_console = Console()             # JSON/Dati puri per il piping (| jq)
+logger = logging.getLogger(__name__)
+app = typer.Typer(help="KINETIC CLI for parsing and exporting Logseq graphs.", no_args_is_help=True)
+console = Console()
 
-def version_callback(value: bool):
-    if value:
-        err_console.print("[bold gold1]Logos Protocol[/] v0.1.0 - Architected by Marco Porcellato")
-        raise typer.Exit()
+
+class ExportFormat(str, Enum):
+    JSON = "json"
+    MARKDOWN = "markdown"
+    LANGCHAIN = "langchain"
+
+
+def _discover_graph_files(graph_path: Path) -> list[Path]:
+    files: list[Path] = []
+    for folder_name in ("pages", "journals"):
+        target = graph_path / folder_name
+        if not target.exists():
+            logger.debug("Skipping missing graph subdirectory: %s", target)
+            continue
+        files.extend(sorted(target.rglob("*.md")))
+    logger.debug("Discovered %d markdown files in graph %s", len(files), graph_path)
+    return files
+
+
+def _iter_nodes(nodes: Iterable[LogseqNode]) -> Iterable[LogseqNode]:
+    for node in nodes:
+        yield node
+        if node.children:
+            yield from _iter_nodes(node.children)
+
+
+def _parse_graph(graph_path: Path) -> list[LogseqPage]:
+    parser = LogosParser()
+    files = _discover_graph_files(graph_path)
+    if not files:
+        return []
+
+    pages: list[LogseqPage] = []
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TextColumn("{task.completed}/{task.total}"),
+        TimeElapsedColumn(),
+        console=console,
+    ) as progress:
+        task_id = progress.add_task("Parsing Logseq graph", total=len(files))
+        for file_path in files:
+            logger.debug("Parsing graph file: %s", file_path)
+            pages.append(parser.parse_page_file(file_path))
+            progress.advance(task_id)
+    return pages
+
+
+def _build_stats_table(pages: list[LogseqPage]) -> Table:
+    total_blocks = 0
+    total_tags = 0
+    total_tasks = 0
+
+    for page in pages:
+        for node in _iter_nodes(page.root_nodes):
+            total_blocks += 1
+            total_tags += len(node.tags)
+            if node.task_status is not None:
+                total_tasks += 1
+
+    table = Table(title="Graph Scan Statistics")
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold green")
+    table.add_row("Total Pages", str(len(pages)))
+    table.add_row("Total Blocks", str(total_blocks))
+    table.add_row("Total Tags extracted", str(total_tags))
+    table.add_row("Total Tasks found", str(total_tasks))
+    return table
+
 
 @app.command()
-def extract(
-    target: Path = typer.Argument(..., help="Path al file o directory Logseq (.md)"),
-    format: str = typer.Option("json", "--format", "-f", help="Target format: json, md, flat"),
-    output: Optional[Path] = typer.Option(None, "--out", "-o", help="File di destinazione (opzionale)"),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Attiva telemetria dettagliata")
-):
-    """
-    Estrae l'AST dai file Markdown target e lo forgia nel formato richiesto.
-    """
-    if not target.exists():
-        err_console.print(f"[bold red]❌ ERRORE:[/] Il target '{target}' non esiste nel filesystem.")
+def scan(graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root.")) -> None:
+    """Scan a graph and print aggregate parsing statistics."""
+    if not graph_path.exists() or not graph_path.is_dir():
+        console.print(f"[bold red]Invalid graph path:[/] {graph_path}")
         raise typer.Exit(code=1)
 
-    # Gestione file singolo o scansione directory
-    files_to_parse: List[Path] = [target] if target.is_file() else list(target.rglob("*.md"))
-    
-    if not files_to_parse:
-        err_console.print("[bold yellow]⚠️ VUOTO:[/] Nessun file Markdown trovato in questa locazione.")
-        raise typer.Exit()
+    pages = _parse_graph(graph_path.resolve())
+    if not pages:
+        console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
+        raise typer.Exit(code=0)
 
-    if verbose:
-        err_console.print(Panel(
-            f"[bold gold1]⚡ KINETIC ENGINE - Avvio Protocollo Logos[/]\n"
-            f"[cyan]Target:[/] {target}\n"
-            f"[cyan]Formato:[/] {format.upper()}\n"
-            f"[cyan]File Rilevati:[/] {len(files_to_parse)}",
-            border_style="gold1"
-        ))
+    console.print(_build_stats_table(pages))
 
-    parser = LogosParser()
-    results = []
-    
-    # UI Reattiva
-    with Progress(
-        SpinnerColumn(spinner_name="dots2"),
-        TextColumn("[progress.description]{task.description}"),
-        console=err_console,
-        transient=True,
-    ) as progress:
-        task = progress.add_task(f"[cyan]Estrazione AST in corso su {len(files_to_parse)} file...", total=len(files_to_parse))
-        
-        for file_path in files_to_parse:
-            if verbose:
-                progress.print(f"[dim]Parsing: {file_path.name}[/dim]")
-            
-            # Motore LOGOS
-            roots = parser.parse_file(file_path)
-            
-            # Motore FORGE
-            if format.lower() == "json":
-                artefatto = ForgeExporter.to_json(roots)
-            elif format.lower() == "md":
-                artefatto = ForgeExporter.to_clean_markdown(roots)
-            elif format.lower() == "flat":
-                import json
-                artefatto = json.dumps(ForgeExporter.to_flat_list(roots), indent=2)
-            else:
-                err_console.print(f"[bold red]❌ Formato non supportato:[/] {format}")
-                raise typer.Exit(code=1)
 
-            results.append((file_path.name, artefatto, len(roots)))
-            progress.advance(task)
+def _export_json(pages: list[LogseqPage], output_path: Path) -> Path:
+    payload: list[dict[str, Any]] = []
+    for page in pages:
+        page_payload = {
+            "title": page.title,
+            "source_path": page.source_path,
+            "graph_root": page.graph_root,
+            "properties": page.properties,
+            "refs": page.refs,
+            "created_at": page.created_at,
+            "updated_at": page.updated_at,
+            "ast": json.loads(ForgeExporter.to_json(page.root_nodes)),
+        }
+        payload.append(page_payload)
+    destination = output_path / "graph.json"
+    destination.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return destination
 
-    # Routing dell'Output
-    if output:
-        with open(output, "w", encoding="utf-8") as f:
-            if len(results) == 1:
-                f.write(results[0][1])
-            else:
-                # Merge per salvataggi massivi
-                merged = ",\n".join([r[1] for r in results])
-                f.write(f"[\n{merged}\n]")
-        err_console.print(f"[bold green]✅ Estrazione completata.[/] Dati forgiati in [white]{output}[/]")
-    else:
-        # RAW Stdout per concatenazioni (Piping)
-        for _, artefatto, _ in results:
-            out_console.print(artefatto, highlight=False)
 
-    # Telemetria finale
-    if verbose:
-        table = Table(title="Telemetria Logos", border_style="gold1", title_style="bold cyan")
-        table.add_column("File Target", style="white")
-        table.add_column("Nodi Radice (AST)", justify="right", style="bold green")
-        for name, _, count in results:
-            table.add_row(name, str(count))
-        err_console.print(table)
+def _export_markdown(pages: list[LogseqPage], output_path: Path) -> Path:
+    destination = output_path / "graph.md"
+    sections: list[str] = []
+    for page in pages:
+        sections.append(f"# {page.title}")
+        sections.append(ForgeExporter.to_clean_markdown(page.root_nodes))
+        sections.append("")
+    destination.write_text("\n".join(sections).rstrip() + "\n", encoding="utf-8")
+    return destination
 
-@app.callback()
-def main(version: Optional[bool] = typer.Option(None, "--version", callback=version_callback, is_eager=True)):
-    pass
+
+def _export_langchain(pages: list[LogseqPage], output_path: Path) -> Path:
+    payload: list[dict[str, Any]] = []
+    for page in pages:
+        docs = SynapseAdapter.to_langchain_documents(page.root_nodes, source_name=page.title)
+        payload.extend(
+            {
+                "page_content": doc.page_content,
+                "metadata": doc.metadata,
+            }
+            for doc in docs
+        )
+    destination = output_path / "langchain.json"
+    destination.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return destination
+
+
+@app.command()
+def export(
+    graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root."),
+    output_path: Path = typer.Argument(..., help="Output directory for exported artifacts."),
+    format: ExportFormat = typer.Option(ExportFormat.JSON, "--format", "-f", help="Export format."),
+) -> None:
+    """Parse an entire graph and export it to the selected format."""
+    if not graph_path.exists() or not graph_path.is_dir():
+        console.print(f"[bold red]Invalid graph path:[/] {graph_path}")
+        raise typer.Exit(code=1)
+
+    pages = _parse_graph(graph_path.resolve())
+    if not pages:
+        console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
+        raise typer.Exit(code=0)
+
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    try:
+        if format is ExportFormat.JSON:
+            destination = _export_json(pages, output_path)
+        elif format is ExportFormat.MARKDOWN:
+            destination = _export_markdown(pages, output_path)
+        else:
+            destination = _export_langchain(pages, output_path)
+    except ImportError as exc:
+        console.print(f"[bold red]Export failed:[/] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    console.print(f"[bold green]Export completed:[/] {destination}")
+
 
 if __name__ == "__main__":
     app()
