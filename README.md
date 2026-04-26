@@ -153,6 +153,6 @@ If this tool has saved you hours of parsing headaches or empowered your AI pipel
 
 **💖 Sponsor me on GitHub (Preferred)**
 
-**🤝 Enterprise Support:** Need custom RAG integrations, priority bug fixes, or consulting? Check out the higher sponsor tiers or reach out to me at marco@matryca.ai.
+**🤝 Enterprise Support:** Need custom RAG integrations, priority bug fixes, or consulting? Check out the higher sponsor tiers or reach out to me at marco@marcoporcellato.it .
 
 Architected by Marco Porcellato | Powered by Matryca.ai Building the future of Sovereign Knowledge Management.
