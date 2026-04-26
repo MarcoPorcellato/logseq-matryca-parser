@@ -21,28 +21,7 @@ Standard RAG parsers destroy the semantic structure of Logseq. They chunk text b
 
 *Want to understand why standard parsing fails on Logseq? Read our [Logseq AST Primer](docs/logseq_ast_primer.md).*
 
-### 1. LOGOS (The Core Engine)
-Unlike traditional chunkers that "cut" text randomly, Logos respects your **thought sovereignty**, keeping parent-child block relationships intact.
-* Finite state Stack-Machine parsing engine for deterministic indentation reconstruction.
-* Resolves complex syntax: properties, aliases, block-references (`((uuid))`), and temporal journals.
-
-### 2. SYNAPSE (AI & RAG Ready)
-Transform your Second Brain into perfect vectors for LLMs.
-* Native adapters for **LangChain** (`Document`) and **LlamaIndex** (`TextNode`).
-* Automatically injects hierarchical relationships into metadata, ensuring the AI never loses the parent context of a bullet point.
-
-### 3. LENS (The God-Tier Visualizer)
-Explore your graph like never before.
-* **Insane Performance:** Aggressively optimized ForceAtlas2 physics engine. Fluidly renders massive graphs (7,000+ nodes) at 60FPS.
-* **Semantic Topology:** Dynamic Degree Centrality sizing (highly connected concepts become massive suns).
-* **Professional HUD:** A custom Glassmorphism UI injected directly into the graph. Instantly filter out daily journals or tags to declutter your view.
-
-> **[ 🖼️ INSERT HIGH-QUALITY GIF HERE: Show the Glassmorphism HUD hiding journals/tags in real-time ]**
-
-### 4. FORGE & KINETIC (Exporters & CLI)
-* **FORGE:** Transformation forge for optimized JSON, clean Markdown, and flat-list outputs.
-* **KINETIC:** High-performance command-line interface to orchestrate the entire pipeline.
-
+Mermaid
 flowchart LR
   subgraph input["Source"]
     G[("Logseq graph root directory")]
@@ -68,6 +47,30 @@ flowchart LR
   AST --> S
   AST --> L
   AST --> K
+
+### 1. LOGOS (The Core Engine)
+Unlike traditional chunkers that "cut" text randomly, Logos respects your **thought sovereignty**, keeping parent-child block relationships intact.
+* Finite state Stack-Machine parsing engine for deterministic indentation reconstruction.
+* Resolves complex syntax: properties, aliases, block-references (`((uuid))`), and temporal journals.
+
+### 2. SYNAPSE (AI & RAG Ready)
+Transform your Second Brain into perfect vectors for LLMs.
+* Native adapters for **LangChain** (`Document`) and **LlamaIndex** (`TextNode`).
+* Automatically injects hierarchical relationships into metadata, ensuring the AI never loses the parent context of a bullet point.
+
+### 3. LENS (The God-Tier Visualizer)
+Explore your graph like never before.
+* **Insane Performance:** Aggressively optimized ForceAtlas2 physics engine. Fluidly renders massive graphs (7,000+ nodes) at 60FPS.
+* **Semantic Topology:** Dynamic Degree Centrality sizing (highly connected concepts become massive suns).
+* **Professional HUD:** A custom Glassmorphism UI injected directly into the graph. Instantly filter out daily journals or tags to declutter your view.
+
+> **[ 🖼️ INSERT HIGH-QUALITY GIF HERE: Show the Glassmorphism HUD hiding journals/tags in real-time ]**
+
+### 4. FORGE & KINETIC (Exporters & CLI)
+* **FORGE:** Transformation forge for optimized JSON, clean Markdown, and flat-list outputs.
+* **KINETIC:** High-performance command-line interface to orchestrate the entire pipeline.
+
+
 
 
 ---
