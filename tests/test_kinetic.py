@@ -94,3 +94,28 @@ def test_export_command_langchain_writes_output_file(tmp_path: Path) -> None:
     assert len(payload) >= 2
     assert "page_content" in payload[0]
     assert "metadata" in payload[0]
+
+
+def test_visualize_command_prints_deep_stats_and_success_message(tmp_path: Path) -> None:
+    graph_root = _create_graph(tmp_path)
+    output_html = tmp_path / "lens.html"
+
+    with patch("logseq_matryca_parser.kinetic.GraphVisualizer.export_html") as export_html_mock:
+        result = runner.invoke(app, ["visualize", str(graph_root), str(output_html)])
+
+    assert result.exit_code == 0
+    assert "LENS Deep Statistics" in result.output
+    assert "Top 10 Most Connected Nodes" in result.output
+    assert "Top 5 Largest Pages" in result.output
+    assert "Visualization HTML written:" in result.output
+    export_html_mock.assert_called_once_with(output_html)
+
+
+def test_visualize_command_invalid_graph_path_exits_with_error(tmp_path: Path) -> None:
+    missing_graph_path = tmp_path / "does_not_exist"
+    output_html = tmp_path / "lens.html"
+
+    result = runner.invoke(app, ["visualize", str(missing_graph_path), str(output_html)])
+
+    assert result.exit_code == 1
+    assert "Invalid graph path" in result.output

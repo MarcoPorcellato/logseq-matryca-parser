@@ -15,6 +15,7 @@ from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn, TimeEl
 from rich.table import Table
 
 from logseq_matryca_parser.forge import ForgeExporter
+from logseq_matryca_parser.lens import GraphVisualizer
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import LogosParser
 from logseq_matryca_parser.synapse import SynapseAdapter
@@ -94,6 +95,29 @@ def _build_stats_table(pages: list[LogseqPage]) -> Table:
     return table
 
 
+def _build_deep_stats_tables(stats: dict[str, Any]) -> tuple[Table, Table, Table]:
+    overview_table = Table(title="LENS Deep Statistics")
+    overview_table.add_column("Metric", style="cyan")
+    overview_table.add_column("Value", justify="right", style="bold green")
+    overview_table.add_row("Total Nodes", str(stats["total_nodes"]))
+    overview_table.add_row("Total Edges", str(stats["total_edges"]))
+
+    connectivity_table = Table(title="Top 10 Most Connected Nodes")
+    connectivity_table.add_column("Node", style="cyan")
+    connectivity_table.add_column("Group", style="magenta")
+    connectivity_table.add_column("Degree", justify="right", style="bold green")
+    for entry in stats["top_connected_nodes"]:
+        connectivity_table.add_row(str(entry["node"]), str(entry["group"]), str(entry["degree"]))
+
+    largest_pages_table = Table(title="Top 5 Largest Pages")
+    largest_pages_table.add_column("Page", style="cyan")
+    largest_pages_table.add_column("Block Count", justify="right", style="bold green")
+    for entry in stats["largest_pages"]:
+        largest_pages_table.add_row(str(entry["page"]), str(entry["block_count"]))
+
+    return overview_table, connectivity_table, largest_pages_table
+
+
 @app.command()
 def scan(graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root.")) -> None:
     """Scan a graph and print aggregate parsing statistics."""
@@ -107,6 +131,34 @@ def scan(graph_path: Path = typer.Argument(..., help="Path to the Logseq graph r
         raise typer.Exit(code=0)
 
     console.print(_build_stats_table(pages))
+
+
+@app.command()
+def visualize(
+    graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root."),
+    output_html: Path = typer.Argument(..., help="Output HTML path for network visualization."),
+) -> None:
+    """Parse a graph, compute deep topology stats, and export an interactive HTML network."""
+    if not graph_path.exists() or not graph_path.is_dir():
+        console.print(f"[bold red]Invalid graph path:[/] {graph_path}")
+        raise typer.Exit(code=1)
+
+    pages = _parse_graph(graph_path.resolve())
+    if not pages:
+        console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
+        raise typer.Exit(code=0)
+
+    visualizer = GraphVisualizer(pages=pages)
+    visualizer.build_network()
+    stats = visualizer.get_deep_statistics()
+
+    overview_table, connectivity_table, largest_pages_table = _build_deep_stats_tables(stats)
+    console.print(overview_table)
+    console.print(connectivity_table)
+    console.print(largest_pages_table)
+
+    visualizer.export_html(output_html)
+    console.print(f"[bold green]Visualization HTML written:[/] {output_html}")
 
 
 def _export_json(pages: list[LogseqPage], output_path: Path) -> Path:

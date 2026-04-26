@@ -11,7 +11,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .exceptions import LogseqIndentationError
 from .logos_core import LogseqNode, LogseqPage
 
 LOGSEQ_PATTERNS: dict[str, re.Pattern[str]] = {
@@ -605,8 +604,12 @@ class StackMachineParser:
 
     def _compute_indent_level(self, indentation: str) -> int:
         spaces = indentation.count(" ") + (indentation.count("\t") * self.tab_size)
-        if spaces % self.tab_size != 0:
-            raise LogseqIndentationError("Indentation is not aligned to tab_size.")
+        logger.debug(
+            "Computed indentation level via floor division: spaces=%s tab_size=%s level=%s",
+            spaces,
+            self.tab_size,
+            spaces // self.tab_size,
+        )
         return spaces // self.tab_size
 
     def _build_node(self, block_text: str, indent_level: int, page_title: str) -> LogseqNode:

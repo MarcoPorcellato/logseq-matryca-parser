@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pytest
 
-from logseq_matryca_parser.exceptions import LogseqIndentationError
 from logseq_matryca_parser.logos_parser import (
     LogosParser,
     StackMachineParser,
@@ -51,10 +50,13 @@ def test_zero_to_four_space_fracture_binds_to_root(parser: StackMachineParser) -
     assert page.root_nodes[0].children[0].content == "Four space child"
 
 
-def test_misaligned_indentation_still_raises(parser: StackMachineParser) -> None:
-    """Non-tab-size aligned indentation remains invalid."""
-    with pytest.raises(LogseqIndentationError):
-        parser.parse("- Root\n   - Misaligned indentation", page_title="invalid-indentation")
+def test_misaligned_indentation_floors_to_nearest_level(parser: StackMachineParser) -> None:
+    """Non-tab-size aligned indentation is floored to nearest logical level."""
+    page = parser.parse("- Root\n   - Misaligned indentation", page_title="invalid-indentation")
+    assert len(page.root_nodes) == 1
+    assert len(page.root_nodes[0].children) == 1
+    assert page.root_nodes[0].children[0].content == "Misaligned indentation"
+    assert page.root_nodes[0].children[0].indent_level == 1
 
 
 @pytest.mark.parametrize(

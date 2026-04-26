@@ -5,6 +5,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from .logos_core import ASTVisitor, LogseqNode
+from .logos_parser import LogosParser
+
+Document: type[Any] | None
+NodeRelationship: Any
+RelatedNodeInfo: type[Any] | None
+TextNode: type[Any] | None
+
 try:
     from langchain_core.documents import Document  # type: ignore
 except ImportError:
@@ -20,9 +28,6 @@ except ImportError:
     NodeRelationship = None
     RelatedNodeInfo = None
     TextNode = None
-
-from .logos_core import ASTVisitor, LogseqNode
-from .logos_parser import LogosParser
 
 
 class LangChainVisitor(ASTVisitor):
