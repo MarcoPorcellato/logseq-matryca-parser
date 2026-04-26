@@ -1,0 +1,412 @@
+<html>
+    <head><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #111827;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"font": {"color": "white"}, "group": "project", "id": "progetti___Matryca_Parser", "label": "progetti___Matryca_Parser", "shape": "dot", "size": 10, "title": "\u003cb\u003eprogetti___Matryca_Parser\u003c/b\u003e\u003cbr\u003eGroup: project\u003cbr\u003eConnections: 32\u003cbr\u003eBlocks: 4", "value": 33}, {"font": {"color": "white"}, "group": "page", "id": "RAG", "label": "RAG", "shape": "dot", "size": 10, "title": "\u003cb\u003eRAG\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 18\u003cbr\u003eBlocks: 2", "value": 19}, {"font": {"color": "white"}, "group": "page", "id": "Knowledge Graph", "label": "Knowledge Graph", "shape": "dot", "size": 10, "title": "\u003cb\u003eKnowledge Graph\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 21\u003cbr\u003eBlocks: 2", "value": 22}, {"font": {"color": "white"}, "group": "project", "id": "progetti___AI_Integration", "label": "progetti___AI_Integration", "shape": "dot", "size": 10, "title": "\u003cb\u003eprogetti___AI_Integration\u003c/b\u003e\u003cbr\u003eGroup: project\u003cbr\u003eConnections: 33\u003cbr\u003eBlocks: 4", "value": 34}, {"font": {"color": "white"}, "group": "tag", "id": "feature", "label": "feature", "shape": "dot", "size": 10, "title": "\u003cb\u003efeature\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 21", "value": 22}, {"font": {"color": "white"}, "group": "tag", "id": "pkm", "label": "pkm", "shape": "dot", "size": 10, "title": "\u003cb\u003epkm\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 12", "value": 13}, {"font": {"color": "white"}, "group": "tag", "id": "graph", "label": "graph", "shape": "dot", "size": 10, "title": "\u003cb\u003egraph\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 12", "value": 13}, {"font": {"color": "white"}, "group": "page", "id": "Abstract Syntax Tree", "label": "Abstract Syntax Tree", "shape": "dot", "size": 10, "title": "\u003cb\u003eAbstract Syntax Tree\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 18\u003cbr\u003eBlocks: 2", "value": 19}, {"font": {"color": "white"}, "group": "page", "id": "ForceAtlas2", "label": "ForceAtlas2", "shape": "dot", "size": 10, "title": "\u003cb\u003eForceAtlas2\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 21\u003cbr\u003eBlocks: 2", "value": 22}, {"font": {"color": "white"}, "group": "page", "id": "MOC_Projects", "label": "MOC_Projects", "shape": "dot", "size": 10, "title": "\u003cb\u003eMOC_Projects\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 20", "value": 21}, {"font": {"color": "white"}, "group": "tag", "id": "bug", "label": "bug", "shape": "dot", "size": 10, "title": "\u003cb\u003ebug\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 20", "value": 21}, {"font": {"color": "white"}, "group": "tag", "id": "parser", "label": "parser", "shape": "dot", "size": 10, "title": "\u003cb\u003eparser\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 16", "value": 17}, {"font": {"color": "white"}, "group": "tag", "id": "sprint", "label": "sprint", "shape": "dot", "size": 10, "title": "\u003cb\u003esprint\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 21", "value": 22}, {"font": {"color": "white"}, "group": "project", "id": "progetti___LENS_UI", "label": "progetti___LENS_UI", "shape": "dot", "size": 10, "title": "\u003cb\u003eprogetti___LENS_UI\u003c/b\u003e\u003cbr\u003eGroup: project\u003cbr\u003eConnections: 36\u003cbr\u003eBlocks: 4", "value": 37}, {"font": {"color": "white"}, "group": "tag", "id": "done", "label": "done", "shape": "dot", "size": 10, "title": "\u003cb\u003edone\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 22", "value": 23}, {"font": {"color": "white"}, "group": "tag", "id": "mypy", "label": "mypy", "shape": "dot", "size": 10, "title": "\u003cb\u003emypy\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 8", "value": 9}, {"font": {"color": "white"}, "group": "page", "id": "MOC_Research", "label": "MOC_Research", "shape": "dot", "size": 10, "title": "\u003cb\u003eMOC_Research\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 17", "value": 18}, {"font": {"color": "white"}, "group": "page", "id": "Vector database", "label": "Vector database", "shape": "dot", "size": 10, "title": "\u003cb\u003eVector database\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 20\u003cbr\u003eBlocks: 2", "value": 21}, {"font": {"color": "white"}, "group": "page", "id": "Glassmorphism", "label": "Glassmorphism", "shape": "dot", "size": 10, "title": "\u003cb\u003eGlassmorphism\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 20\u003cbr\u003eBlocks: 2", "value": 21}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_01", "label": "2024_04_01", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_01\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 16\u003cbr\u003eBlocks: 5", "value": 17}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_03", "label": "2024_04_03", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_03\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 16\u003cbr\u003eBlocks: 5", "value": 17}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_04", "label": "2024_04_04", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_04\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 18\u003cbr\u003eBlocks: 5", "value": 19}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_06", "label": "2024_04_06", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_06\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 20\u003cbr\u003eBlocks: 5", "value": 21}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_07", "label": "2024_04_07", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_07\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 19\u003cbr\u003eBlocks: 5", "value": 20}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_09", "label": "2024_04_09", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_09\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 19\u003cbr\u003eBlocks: 5", "value": 20}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_10", "label": "2024_04_10", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_10\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 19\u003cbr\u003eBlocks: 5", "value": 20}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_12", "label": "2024_04_12", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_12\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 18\u003cbr\u003eBlocks: 5", "value": 19}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_13", "label": "2024_04_13", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_13\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 19\u003cbr\u003eBlocks: 5", "value": 20}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_15", "label": "2024_04_15", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_15\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 19\u003cbr\u003eBlocks: 5", "value": 20}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_16", "label": "2024_04_16", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_16\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 18\u003cbr\u003eBlocks: 5", "value": 19}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_18", "label": "2024_04_18", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_18\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 17\u003cbr\u003eBlocks: 5", "value": 18}, {"font": {"color": "white"}, "group": "tag", "id": "thesis", "label": "thesis", "shape": "dot", "size": 10, "title": "\u003cb\u003ethesis\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 8", "value": 9}, {"font": {"color": "white"}, "group": "tag", "id": "mlops", "label": "mlops", "shape": "dot", "size": 10, "title": "\u003cb\u003emlops\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 8", "value": 9}, {"font": {"color": "white"}, "group": "page", "id": "LLM", "label": "LLM", "shape": "dot", "size": 10, "title": "\u003cb\u003eLLM\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 19\u003cbr\u003eBlocks: 2", "value": 20}, {"font": {"color": "white"}, "group": "tag", "id": "design", "label": "design", "shape": "dot", "size": 10, "title": "\u003cb\u003edesign\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 13", "value": 14}, {"font": {"color": "white"}, "group": "tag", "id": "review", "label": "review", "shape": "dot", "size": 10, "title": "\u003cb\u003ereview\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 13", "value": 14}, {"font": {"color": "white"}, "group": "tag", "id": "urgent", "label": "urgent", "shape": "dot", "size": 10, "title": "\u003cb\u003eurgent\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 20", "value": 21}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_02", "label": "2024_04_02", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_02\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 17\u003cbr\u003eBlocks: 5", "value": 18}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_14", "label": "2024_04_14", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_14\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 19\u003cbr\u003eBlocks: 5", "value": 20}, {"font": {"color": "white"}, "group": "page", "id": "Someday_Maybe", "label": "Someday_Maybe", "shape": "dot", "size": 10, "title": "\u003cb\u003eSomeday_Maybe\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 5", "value": 6}, {"font": {"color": "white"}, "group": "tag", "id": "kinetic", "label": "kinetic", "shape": "dot", "size": 10, "title": "\u003cb\u003ekinetic\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 9", "value": 10}, {"font": {"color": "white"}, "group": "tag", "id": "research", "label": "research", "shape": "dot", "size": 10, "title": "\u003cb\u003eresearch\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 21", "value": 22}, {"font": {"color": "white"}, "group": "page", "id": "Python", "label": "Python", "shape": "dot", "size": 10, "title": "\u003cb\u003ePython\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 19\u003cbr\u003eBlocks: 2", "value": 20}, {"font": {"color": "white"}, "group": "page", "id": "Inbox", "label": "Inbox", "shape": "dot", "size": 10, "title": "\u003cb\u003eInbox\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 11", "value": 12}, {"font": {"color": "white"}, "group": "tag", "id": "bugfix", "label": "bugfix", "shape": "dot", "size": 10, "title": "\u003cb\u003ebugfix\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 13", "value": 14}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_05", "label": "2024_04_05", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_05\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 17\u003cbr\u003eBlocks: 5", "value": 18}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_08", "label": "2024_04_08", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_08\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 19\u003cbr\u003eBlocks: 5", "value": 20}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_11", "label": "2024_04_11", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_11\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 19\u003cbr\u003eBlocks: 5", "value": 20}, {"font": {"color": "white"}, "group": "journal", "id": "2024_04_17", "label": "2024_04_17", "shape": "dot", "size": 10, "title": "\u003cb\u003e2024_04_17\u003c/b\u003e\u003cbr\u003eGroup: journal\u003cbr\u003eConnections: 18\u003cbr\u003eBlocks: 5", "value": 19}, {"font": {"color": "white"}, "group": "page", "id": "MOC_Reading", "label": "MOC_Reading", "shape": "dot", "size": 10, "title": "\u003cb\u003eMOC_Reading\u003c/b\u003e\u003cbr\u003eGroup: page\u003cbr\u003eConnections: 7", "value": 8}, {"font": {"color": "white"}, "group": "tag", "id": "python", "label": "python", "shape": "dot", "size": 10, "title": "\u003cb\u003epython\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 7", "value": 8}, {"font": {"color": "white"}, "group": "tag", "id": "ui", "label": "ui", "shape": "dot", "size": 10, "title": "\u003cb\u003eui\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 12", "value": 13}, {"font": {"color": "white"}, "group": "tag", "id": "logseq", "label": "logseq", "shape": "dot", "size": 10, "title": "\u003cb\u003elogseq\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 11", "value": 12}, {"font": {"color": "white"}, "group": "tag", "id": "k8s", "label": "k8s", "shape": "dot", "size": 10, "title": "\u003cb\u003ek8s\u003c/b\u003e\u003cbr\u003eGroup: tag\u003cbr\u003eConnections: 5", "value": 6}]);
+                  edges = new vis.DataSet([{"from": "progetti___Matryca_Parser", "to": "progetti___Matryca_Parser", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "RAG", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "Knowledge Graph", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "progetti___AI_Integration", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "feature", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "pkm", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "graph", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "Abstract Syntax Tree", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "ForceAtlas2", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "MOC_Projects", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "bug", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "parser", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "sprint", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "progetti___LENS_UI", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "done", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "mypy", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "MOC_Research", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "Vector database", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "Glassmorphism", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_01", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_03", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_04", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_06", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_07", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_09", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_10", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_12", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_13", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_15", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_16", "width": 1}, {"from": "progetti___Matryca_Parser", "to": "2024_04_18", "width": 1}, {"from": "RAG", "to": "progetti___LENS_UI", "width": 1}, {"from": "RAG", "to": "ForceAtlas2", "width": 1}, {"from": "RAG", "to": "Knowledge Graph", "width": 1}, {"from": "RAG", "to": "Vector database", "width": 1}, {"from": "RAG", "to": "MOC_Research", "width": 1}, {"from": "RAG", "to": "pkm", "width": 1}, {"from": "RAG", "to": "thesis", "width": 1}, {"from": "RAG", "to": "mlops", "width": 1}, {"from": "RAG", "to": "LLM", "width": 1}, {"from": "RAG", "to": "design", "width": 1}, {"from": "RAG", "to": "review", "width": 1}, {"from": "RAG", "to": "urgent", "width": 1}, {"from": "RAG", "to": "2024_04_02", "width": 1}, {"from": "RAG", "to": "2024_04_06", "width": 1}, {"from": "RAG", "to": "2024_04_10", "width": 1}, {"from": "RAG", "to": "2024_04_14", "width": 1}, {"from": "RAG", "to": "2024_04_18", "width": 1}, {"from": "Knowledge Graph", "to": "progetti___LENS_UI", "width": 1}, {"from": "Knowledge Graph", "to": "Abstract Syntax Tree", "width": 1}, {"from": "Knowledge Graph", "to": "ForceAtlas2", "width": 1}, {"from": "Knowledge Graph", "to": "LLM", "width": 1}, {"from": "Knowledge Graph", "to": "Someday_Maybe", "width": 1}, {"from": "Knowledge Graph", "to": "thesis", "width": 1}, {"from": "Knowledge Graph", "to": "kinetic", "width": 1}, {"from": "Knowledge Graph", "to": "graph", "width": 1}, {"from": "Knowledge Graph", "to": "progetti___AI_Integration", "width": 1}, {"from": "Knowledge Graph", "to": "design", "width": 1}, {"from": "Knowledge Graph", "to": "review", "width": 1}, {"from": "Knowledge Graph", "to": "research", "width": 1}, {"from": "Knowledge Graph", "to": "2024_04_02", "width": 1}, {"from": "Knowledge Graph", "to": "2024_04_06", "width": 1}, {"from": "Knowledge Graph", "to": "2024_04_07", "width": 1}, {"from": "Knowledge Graph", "to": "2024_04_10", "width": 1}, {"from": "Knowledge Graph", "to": "2024_04_14", "width": 1}, {"from": "Knowledge Graph", "to": "2024_04_15", "width": 1}, {"from": "Knowledge Graph", "to": "2024_04_18", "width": 1}, {"from": "progetti___AI_Integration", "to": "progetti___LENS_UI", "width": 1}, {"from": "progetti___AI_Integration", "to": "progetti___AI_Integration", "width": 1}, {"from": "progetti___AI_Integration", "to": "Python", "width": 1}, {"from": "progetti___AI_Integration", "to": "Glassmorphism", "width": 1}, {"from": "progetti___AI_Integration", "to": "urgent", "width": 1}, {"from": "progetti___AI_Integration", "to": "pkm", "width": 1}, {"from": "progetti___AI_Integration", "to": "graph", "width": 1}, {"from": "progetti___AI_Integration", "to": "LLM", "width": 1}, {"from": "progetti___AI_Integration", "to": "Vector database", "width": 1}, {"from": "progetti___AI_Integration", "to": "Inbox", "width": 1}, {"from": "progetti___AI_Integration", "to": "research", "width": 1}, {"from": "progetti___AI_Integration", "to": "parser", "width": 1}, {"from": "progetti___AI_Integration", "to": "sprint", "width": 1}, {"from": "progetti___AI_Integration", "to": "bugfix", "width": 1}, {"from": "progetti___AI_Integration", "to": "mypy", "width": 1}, {"from": "progetti___AI_Integration", "to": "MOC_Research", "width": 1}, {"from": "progetti___AI_Integration", "to": "done", "width": 1}, {"from": "progetti___AI_Integration", "to": "ForceAtlas2", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_02", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_03", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_05", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_06", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_08", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_09", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_11", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_12", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_14", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_15", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_17", "width": 1}, {"from": "progetti___AI_Integration", "to": "2024_04_18", "width": 1}, {"from": "feature", "to": "progetti___LENS_UI", "width": 1}, {"from": "feature", "to": "ForceAtlas2", "width": 1}, {"from": "feature", "to": "2024_04_01", "width": 1}, {"from": "feature", "to": "2024_04_02", "width": 1}, {"from": "feature", "to": "2024_04_03", "width": 1}, {"from": "feature", "to": "2024_04_04", "width": 1}, {"from": "feature", "to": "2024_04_05", "width": 1}, {"from": "feature", "to": "2024_04_06", "width": 1}, {"from": "feature", "to": "2024_04_07", "width": 1}, {"from": "feature", "to": "2024_04_08", "width": 1}, {"from": "feature", "to": "2024_04_09", "width": 1}, {"from": "feature", "to": "2024_04_10", "width": 1}, {"from": "feature", "to": "2024_04_11", "width": 1}, {"from": "feature", "to": "2024_04_12", "width": 1}, {"from": "feature", "to": "2024_04_13", "width": 1}, {"from": "feature", "to": "2024_04_14", "width": 1}, {"from": "feature", "to": "2024_04_15", "width": 1}, {"from": "feature", "to": "2024_04_16", "width": 1}, {"from": "feature", "to": "2024_04_17", "width": 1}, {"from": "feature", "to": "2024_04_18", "width": 1}, {"from": "pkm", "to": "progetti___LENS_UI", "width": 1}, {"from": "pkm", "to": "ForceAtlas2", "width": 1}, {"from": "pkm", "to": "Vector database", "width": 1}, {"from": "pkm", "to": "Python", "width": 1}, {"from": "pkm", "to": "2024_04_04", "width": 1}, {"from": "pkm", "to": "2024_04_08", "width": 1}, {"from": "pkm", "to": "2024_04_11", "width": 1}, {"from": "pkm", "to": "2024_04_12", "width": 1}, {"from": "pkm", "to": "2024_04_13", "width": 1}, {"from": "graph", "to": "progetti___LENS_UI", "width": 1}, {"from": "graph", "to": "Abstract Syntax Tree", "width": 1}, {"from": "graph", "to": "LLM", "width": 1}, {"from": "graph", "to": "Glassmorphism", "width": 1}, {"from": "graph", "to": "2024_04_01", "width": 1}, {"from": "graph", "to": "2024_04_05", "width": 1}, {"from": "graph", "to": "2024_04_08", "width": 1}, {"from": "graph", "to": "2024_04_09", "width": 1}, {"from": "graph", "to": "2024_04_10", "width": 1}, {"from": "Abstract Syntax Tree", "to": "progetti___LENS_UI", "width": 1}, {"from": "Abstract Syntax Tree", "to": "MOC_Reading", "width": 1}, {"from": "Abstract Syntax Tree", "to": "thesis", "width": 1}, {"from": "Abstract Syntax Tree", "to": "kinetic", "width": 1}, {"from": "Abstract Syntax Tree", "to": "ForceAtlas2", "width": 1}, {"from": "Abstract Syntax Tree", "to": "design", "width": 1}, {"from": "Abstract Syntax Tree", "to": "review", "width": 1}, {"from": "Abstract Syntax Tree", "to": "bug", "width": 1}, {"from": "Abstract Syntax Tree", "to": "Glassmorphism", "width": 1}, {"from": "Abstract Syntax Tree", "to": "Python", "width": 1}, {"from": "Abstract Syntax Tree", "to": "2024_04_01", "width": 1}, {"from": "Abstract Syntax Tree", "to": "2024_04_05", "width": 1}, {"from": "Abstract Syntax Tree", "to": "2024_04_09", "width": 1}, {"from": "Abstract Syntax Tree", "to": "2024_04_13", "width": 1}, {"from": "Abstract Syntax Tree", "to": "2024_04_17", "width": 1}, {"from": "ForceAtlas2", "to": "Inbox", "width": 1}, {"from": "ForceAtlas2", "to": "thesis", "width": 1}, {"from": "ForceAtlas2", "to": "mlops", "width": 1}, {"from": "ForceAtlas2", "to": "progetti___LENS_UI", "width": 1}, {"from": "ForceAtlas2", "to": "design", "width": 1}, {"from": "ForceAtlas2", "to": "review", "width": 1}, {"from": "ForceAtlas2", "to": "Python", "width": 1}, {"from": "ForceAtlas2", "to": "2024_04_01", "width": 1}, {"from": "ForceAtlas2", "to": "2024_04_04", "width": 1}, {"from": "ForceAtlas2", "to": "2024_04_05", "width": 1}, {"from": "ForceAtlas2", "to": "2024_04_09", "width": 1}, {"from": "ForceAtlas2", "to": "2024_04_12", "width": 1}, {"from": "ForceAtlas2", "to": "2024_04_13", "width": 1}, {"from": "ForceAtlas2", "to": "2024_04_17", "width": 1}, {"from": "MOC_Projects", "to": "LLM", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_01", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_02", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_03", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_04", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_05", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_06", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_07", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_08", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_09", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_10", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_11", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_12", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_13", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_14", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_15", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_16", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_17", "width": 1}, {"from": "MOC_Projects", "to": "2024_04_18", "width": 1}, {"from": "bug", "to": "2024_04_01", "width": 1}, {"from": "bug", "to": "2024_04_02", "width": 1}, {"from": "bug", "to": "2024_04_03", "width": 1}, {"from": "bug", "to": "2024_04_04", "width": 1}, {"from": "bug", "to": "2024_04_05", "width": 1}, {"from": "bug", "to": "2024_04_06", "width": 1}, {"from": "bug", "to": "2024_04_07", "width": 1}, {"from": "bug", "to": "2024_04_08", "width": 1}, {"from": "bug", "to": "2024_04_09", "width": 1}, {"from": "bug", "to": "2024_04_10", "width": 1}, {"from": "bug", "to": "2024_04_11", "width": 1}, {"from": "bug", "to": "2024_04_12", "width": 1}, {"from": "bug", "to": "2024_04_13", "width": 1}, {"from": "bug", "to": "2024_04_14", "width": 1}, {"from": "bug", "to": "2024_04_15", "width": 1}, {"from": "bug", "to": "2024_04_16", "width": 1}, {"from": "bug", "to": "2024_04_17", "width": 1}, {"from": "bug", "to": "2024_04_18", "width": 1}, {"from": "parser", "to": "progetti___LENS_UI", "width": 1}, {"from": "parser", "to": "Python", "width": 1}, {"from": "parser", "to": "2024_04_01", "width": 1}, {"from": "parser", "to": "2024_04_03", "width": 1}, {"from": "parser", "to": "2024_04_05", "width": 1}, {"from": "parser", "to": "2024_04_06", "width": 1}, {"from": "parser", "to": "2024_04_07", "width": 1}, {"from": "parser", "to": "2024_04_08", "width": 1}, {"from": "parser", "to": "2024_04_09", "width": 1}, {"from": "parser", "to": "2024_04_11", "width": 1}, {"from": "parser", "to": "2024_04_13", "width": 1}, {"from": "parser", "to": "2024_04_15", "width": 1}, {"from": "parser", "to": "2024_04_17", "width": 1}, {"from": "parser", "to": "2024_04_18", "width": 1}, {"from": "sprint", "to": "progetti___LENS_UI", "width": 1}, {"from": "sprint", "to": "2024_04_01", "width": 1}, {"from": "sprint", "to": "2024_04_02", "width": 1}, {"from": "sprint", "to": "2024_04_03", "width": 1}, {"from": "sprint", "to": "2024_04_04", "width": 1}, {"from": "sprint", "to": "2024_04_05", "width": 1}, {"from": "sprint", "to": "2024_04_06", "width": 1}, {"from": "sprint", "to": "2024_04_07", "width": 1}, {"from": "sprint", "to": "2024_04_08", "width": 1}, {"from": "sprint", "to": "2024_04_09", "width": 1}, {"from": "sprint", "to": "2024_04_10", "width": 1}, {"from": "sprint", "to": "2024_04_11", "width": 1}, {"from": "sprint", "to": "2024_04_12", "width": 1}, {"from": "sprint", "to": "2024_04_13", "width": 1}, {"from": "sprint", "to": "2024_04_14", "width": 1}, {"from": "sprint", "to": "2024_04_15", "width": 1}, {"from": "sprint", "to": "2024_04_16", "width": 1}, {"from": "sprint", "to": "2024_04_17", "width": 1}, {"from": "sprint", "to": "2024_04_18", "width": 1}, {"from": "progetti___LENS_UI", "to": "progetti___LENS_UI", "width": 1}, {"from": "progetti___LENS_UI", "to": "Vector database", "width": 1}, {"from": "progetti___LENS_UI", "to": "LLM", "width": 1}, {"from": "progetti___LENS_UI", "to": "research", "width": 1}, {"from": "progetti___LENS_UI", "to": "MOC_Reading", "width": 1}, {"from": "progetti___LENS_UI", "to": "python", "width": 1}, {"from": "progetti___LENS_UI", "to": "mypy", "width": 1}, {"from": "progetti___LENS_UI", "to": "MOC_Research", "width": 1}, {"from": "progetti___LENS_UI", "to": "ui", "width": 1}, {"from": "progetti___LENS_UI", "to": "done", "width": 1}, {"from": "progetti___LENS_UI", "to": "Glassmorphism", "width": 1}, {"from": "progetti___LENS_UI", "to": "Python", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_01", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_02", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_04", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_05", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_07", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_08", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_10", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_11", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_13", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_14", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_16", "width": 1}, {"from": "progetti___LENS_UI", "to": "2024_04_17", "width": 1}, {"from": "done", "to": "LLM", "width": 1}, {"from": "done", "to": "2024_04_01", "width": 1}, {"from": "done", "to": "2024_04_02", "width": 1}, {"from": "done", "to": "2024_04_03", "width": 1}, {"from": "done", "to": "2024_04_04", "width": 1}, {"from": "done", "to": "2024_04_05", "width": 1}, {"from": "done", "to": "2024_04_06", "width": 1}, {"from": "done", "to": "2024_04_07", "width": 1}, {"from": "done", "to": "2024_04_08", "width": 1}, {"from": "done", "to": "2024_04_09", "width": 1}, {"from": "done", "to": "2024_04_10", "width": 1}, {"from": "done", "to": "2024_04_11", "width": 1}, {"from": "done", "to": "2024_04_12", "width": 1}, {"from": "done", "to": "2024_04_13", "width": 1}, {"from": "done", "to": "2024_04_14", "width": 1}, {"from": "done", "to": "2024_04_15", "width": 1}, {"from": "done", "to": "2024_04_16", "width": 1}, {"from": "done", "to": "2024_04_17", "width": 1}, {"from": "done", "to": "2024_04_18", "width": 1}, {"from": "mypy", "to": "2024_04_03", "width": 1}, {"from": "mypy", "to": "2024_04_07", "width": 1}, {"from": "mypy", "to": "2024_04_10", "width": 1}, {"from": "mypy", "to": "2024_04_11", "width": 1}, {"from": "mypy", "to": "2024_04_12", "width": 1}, {"from": "MOC_Research", "to": "2024_04_01", "width": 1}, {"from": "MOC_Research", "to": "2024_04_02", "width": 1}, {"from": "MOC_Research", "to": "2024_04_04", "width": 1}, {"from": "MOC_Research", "to": "2024_04_05", "width": 1}, {"from": "MOC_Research", "to": "2024_04_07", "width": 1}, {"from": "MOC_Research", "to": "2024_04_08", "width": 1}, {"from": "MOC_Research", "to": "2024_04_10", "width": 1}, {"from": "MOC_Research", "to": "2024_04_11", "width": 1}, {"from": "MOC_Research", "to": "2024_04_13", "width": 1}, {"from": "MOC_Research", "to": "2024_04_14", "width": 1}, {"from": "MOC_Research", "to": "2024_04_15", "width": 1}, {"from": "MOC_Research", "to": "2024_04_16", "width": 1}, {"from": "MOC_Research", "to": "2024_04_17", "width": 1}, {"from": "Vector database", "to": "LLM", "width": 1}, {"from": "Vector database", "to": "Python", "width": 1}, {"from": "Vector database", "to": "MOC_Reading", "width": 1}, {"from": "Vector database", "to": "thesis", "width": 1}, {"from": "Vector database", "to": "mlops", "width": 1}, {"from": "Vector database", "to": "Glassmorphism", "width": 1}, {"from": "Vector database", "to": "design", "width": 1}, {"from": "Vector database", "to": "review", "width": 1}, {"from": "Vector database", "to": "python", "width": 1}, {"from": "Vector database", "to": "2024_04_03", "width": 1}, {"from": "Vector database", "to": "2024_04_07", "width": 1}, {"from": "Vector database", "to": "2024_04_08", "width": 1}, {"from": "Vector database", "to": "2024_04_11", "width": 1}, {"from": "Vector database", "to": "2024_04_15", "width": 1}, {"from": "Vector database", "to": "2024_04_16", "width": 1}, {"from": "LLM", "to": "Glassmorphism", "width": 1}, {"from": "LLM", "to": "thesis", "width": 1}, {"from": "LLM", "to": "kinetic", "width": 1}, {"from": "LLM", "to": "design", "width": 1}, {"from": "LLM", "to": "review", "width": 1}, {"from": "LLM", "to": "2024_04_03", "width": 1}, {"from": "LLM", "to": "2024_04_05", "width": 1}, {"from": "LLM", "to": "2024_04_07", "width": 1}, {"from": "LLM", "to": "2024_04_11", "width": 1}, {"from": "LLM", "to": "2024_04_13", "width": 1}, {"from": "LLM", "to": "2024_04_15", "width": 1}, {"from": "research", "to": "2024_04_01", "width": 1}, {"from": "research", "to": "2024_04_02", "width": 1}, {"from": "research", "to": "2024_04_03", "width": 1}, {"from": "research", "to": "2024_04_04", "width": 1}, {"from": "research", "to": "2024_04_05", "width": 1}, {"from": "research", "to": "2024_04_06", "width": 1}, {"from": "research", "to": "2024_04_07", "width": 1}, {"from": "research", "to": "2024_04_08", "width": 1}, {"from": "research", "to": "2024_04_09", "width": 1}, {"from": "research", "to": "2024_04_10", "width": 1}, {"from": "research", "to": "2024_04_11", "width": 1}, {"from": "research", "to": "2024_04_12", "width": 1}, {"from": "research", "to": "2024_04_13", "width": 1}, {"from": "research", "to": "2024_04_14", "width": 1}, {"from": "research", "to": "2024_04_15", "width": 1}, {"from": "research", "to": "2024_04_16", "width": 1}, {"from": "research", "to": "2024_04_17", "width": 1}, {"from": "research", "to": "2024_04_18", "width": 1}, {"from": "MOC_Reading", "to": "2024_04_02", "width": 1}, {"from": "MOC_Reading", "to": "2024_04_07", "width": 1}, {"from": "MOC_Reading", "to": "2024_04_12", "width": 1}, {"from": "MOC_Reading", "to": "2024_04_17", "width": 1}, {"from": "python", "to": "2024_04_01", "width": 1}, {"from": "python", "to": "2024_04_04", "width": 1}, {"from": "python", "to": "2024_04_05", "width": 1}, {"from": "python", "to": "2024_04_06", "width": 1}, {"from": "python", "to": "2024_04_16", "width": 1}, {"from": "ui", "to": "2024_04_02", "width": 1}, {"from": "ui", "to": "2024_04_04", "width": 1}, {"from": "ui", "to": "2024_04_06", "width": 1}, {"from": "ui", "to": "2024_04_07", "width": 1}, {"from": "ui", "to": "2024_04_08", "width": 1}, {"from": "ui", "to": "2024_04_09", "width": 1}, {"from": "ui", "to": "2024_04_10", "width": 1}, {"from": "ui", "to": "2024_04_12", "width": 1}, {"from": "ui", "to": "2024_04_14", "width": 1}, {"from": "ui", "to": "2024_04_16", "width": 1}, {"from": "ui", "to": "2024_04_18", "width": 1}, {"from": "Python", "to": "Glassmorphism", "width": 1}, {"from": "Python", "to": "Someday_Maybe", "width": 1}, {"from": "Python", "to": "thesis", "width": 1}, {"from": "Python", "to": "mlops", "width": 1}, {"from": "Python", "to": "design", "width": 1}, {"from": "Python", "to": "review", "width": 1}, {"from": "Python", "to": "2024_04_04", "width": 1}, {"from": "Python", "to": "2024_04_06", "width": 1}, {"from": "Python", "to": "2024_04_08", "width": 1}, {"from": "Python", "to": "2024_04_12", "width": 1}, {"from": "Python", "to": "2024_04_14", "width": 1}, {"from": "Python", "to": "2024_04_16", "width": 1}, {"from": "Glassmorphism", "to": "Inbox", "width": 1}, {"from": "Glassmorphism", "to": "thesis", "width": 1}, {"from": "Glassmorphism", "to": "kinetic", "width": 1}, {"from": "Glassmorphism", "to": "design", "width": 1}, {"from": "Glassmorphism", "to": "review", "width": 1}, {"from": "Glassmorphism", "to": "bugfix", "width": 1}, {"from": "Glassmorphism", "to": "2024_04_03", "width": 1}, {"from": "Glassmorphism", "to": "2024_04_04", "width": 1}, {"from": "Glassmorphism", "to": "2024_04_08", "width": 1}, {"from": "Glassmorphism", "to": "2024_04_11", "width": 1}, {"from": "Glassmorphism", "to": "2024_04_12", "width": 1}, {"from": "Glassmorphism", "to": "2024_04_16", "width": 1}, {"from": "urgent", "to": "2024_04_01", "width": 1}, {"from": "urgent", "to": "2024_04_02", "width": 1}, {"from": "urgent", "to": "2024_04_03", "width": 1}, {"from": "urgent", "to": "2024_04_04", "width": 1}, {"from": "urgent", "to": "2024_04_05", "width": 1}, {"from": "urgent", "to": "2024_04_06", "width": 1}, {"from": "urgent", "to": "2024_04_07", "width": 1}, {"from": "urgent", "to": "2024_04_08", "width": 1}, {"from": "urgent", "to": "2024_04_09", "width": 1}, {"from": "urgent", "to": "2024_04_10", "width": 1}, {"from": "urgent", "to": "2024_04_11", "width": 1}, {"from": "urgent", "to": "2024_04_12", "width": 1}, {"from": "urgent", "to": "2024_04_13", "width": 1}, {"from": "urgent", "to": "2024_04_14", "width": 1}, {"from": "urgent", "to": "2024_04_15", "width": 1}, {"from": "urgent", "to": "2024_04_16", "width": 1}, {"from": "urgent", "to": "2024_04_17", "width": 1}, {"from": "urgent", "to": "2024_04_18", "width": 1}, {"from": "Inbox", "to": "2024_04_03", "width": 1}, {"from": "Inbox", "to": "2024_04_06", "width": 1}, {"from": "Inbox", "to": "2024_04_08", "width": 1}, {"from": "Inbox", "to": "2024_04_09", "width": 1}, {"from": "Inbox", "to": "2024_04_12", "width": 1}, {"from": "Inbox", "to": "2024_04_13", "width": 1}, {"from": "Inbox", "to": "2024_04_15", "width": 1}, {"from": "Inbox", "to": "2024_04_18", "width": 1}, {"from": "bugfix", "to": "2024_04_01", "width": 1}, {"from": "bugfix", "to": "2024_04_02", "width": 1}, {"from": "bugfix", "to": "2024_04_03", "width": 1}, {"from": "bugfix", "to": "2024_04_05", "width": 1}, {"from": "bugfix", "to": "2024_04_06", "width": 1}, {"from": "bugfix", "to": "2024_04_07", "width": 1}, {"from": "bugfix", "to": "2024_04_09", "width": 1}, {"from": "bugfix", "to": "2024_04_11", "width": 1}, {"from": "bugfix", "to": "2024_04_13", "width": 1}, {"from": "bugfix", "to": "2024_04_15", "width": 1}, {"from": "bugfix", "to": "2024_04_17", "width": 1}, {"from": "kinetic", "to": "2024_04_02", "width": 1}, {"from": "kinetic", "to": "2024_04_06", "width": 1}, {"from": "kinetic", "to": "2024_04_09", "width": 1}, {"from": "kinetic", "to": "2024_04_10", "width": 1}, {"from": "kinetic", "to": "2024_04_11", "width": 1}, {"from": "design", "to": "2024_04_07", "width": 1}, {"from": "design", "to": "2024_04_11", "width": 1}, {"from": "design", "to": "2024_04_14", "width": 1}, {"from": "design", "to": "2024_04_15", "width": 1}, {"from": "design", "to": "2024_04_16", "width": 1}, {"from": "review", "to": "2024_04_06", "width": 1}, {"from": "review", "to": "2024_04_10", "width": 1}, {"from": "review", "to": "2024_04_13", "width": 1}, {"from": "review", "to": "2024_04_14", "width": 1}, {"from": "review", "to": "2024_04_15", "width": 1}, {"from": "mlops", "to": "2024_04_10", "width": 1}, {"from": "mlops", "to": "2024_04_14", "width": 1}, {"from": "mlops", "to": "2024_04_17", "width": 1}, {"from": "mlops", "to": "2024_04_18", "width": 1}, {"from": "Someday_Maybe", "to": "2024_04_04", "width": 1}, {"from": "Someday_Maybe", "to": "2024_04_09", "width": 1}, {"from": "Someday_Maybe", "to": "2024_04_14", "width": 1}, {"from": "2024_04_02", "to": "logseq", "width": 1}, {"from": "logseq", "to": "2024_04_04", "width": 1}, {"from": "logseq", "to": "2024_04_06", "width": 1}, {"from": "logseq", "to": "2024_04_08", "width": 1}, {"from": "logseq", "to": "2024_04_10", "width": 1}, {"from": "logseq", "to": "2024_04_12", "width": 1}, {"from": "logseq", "to": "2024_04_14", "width": 1}, {"from": "logseq", "to": "2024_04_15", "width": 1}, {"from": "logseq", "to": "2024_04_16", "width": 1}, {"from": "logseq", "to": "2024_04_17", "width": 1}, {"from": "logseq", "to": "2024_04_18", "width": 1}, {"from": "2024_04_09", "to": "k8s", "width": 1}, {"from": "k8s", "to": "2024_04_13", "width": 1}, {"from": "k8s", "to": "2024_04_16", "width": 1}, {"from": "k8s", "to": "2024_04_17", "width": 1}, {"from": "k8s", "to": "2024_04_18", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics",
+            "nodes"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": false
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "forceAtlas2Based": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.01,
+            "damping": 0.4,
+            "gravitationalConstant": -50,
+            "springConstant": 0.08,
+            "springLength": 100
+        },
+        "solver": "forceAtlas2Based",
+        "stabilization": {
+            "enabled": false,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <style>
+        html, body, #mynetwork {
+          margin: 0;
+          padding: 0;
+          width: 100vw;
+          height: 100vh;
+          overflow: hidden;
+          background-color: #111827;
+        }
+        /* Responsive HUD */
+        @media (max-width: 600px) {
+          #hud-sidebar {
+            width: 90% !important;
+            left: 5% !important;
+            right: 5% !important;
+            top: 10px !important;
+            max-height: 80vh !important;
+          }
+          #hud-toggle {
+            right: 16px !important;
+            top: 10px !important;
+          }
+        }
+        #hud-sidebar {
+          position: fixed;
+          top: 16px;
+          right: 16px;
+          width: 350px;
+          background: rgba(255, 255, 255, 0.04) !important;
+          -webkit-backdrop-filter: blur(10px) !important;
+          backdrop-filter: blur(10px) !important;
+          border: 1px solid rgba(255, 255, 255, 0.15) !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5) !important;
+          border-radius: 12px !important;
+          color: white;
+          padding: 15px;
+          z-index: 9999;
+          max-height: 90vh;
+          overflow-y: auto;
+          overflow-x: hidden !important;
+          transform: translateX(0);
+          transition: transform 220ms ease-in-out, opacity 220ms ease-in-out;
+          opacity: 1;
+        }
+        #hud-sidebar.hud-hidden {
+          transform: translateX(calc(100% + 28px));
+          opacity: 0;
+          pointer-events: none;
+        }
+        #hud-toggle {
+          position: fixed;
+          top: 16px;
+          right: 388px;
+          z-index: 10000;
+          border: 1px solid rgba(148, 163, 184, 0.35);
+          background: rgba(15, 23, 42, 0.92);
+          color: #ffffff;
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-family: sans-serif;
+          font-size: 13px;
+          cursor: pointer;
+          box-shadow: 0 8px 20px rgba(2, 6, 23, 0.35);
+        }
+        #hud-toggle:hover {
+          background: rgba(30, 41, 59, 0.95);
+        }
+        #hud-sidebar #config {
+          width: 100%;
+          max-width: 100%;
+          background: transparent !important;
+          background-color: transparent !important;
+        }
+        /* Nuke all vis-configuration backgrounds except color preview blocks */
+        #hud-sidebar .vis-configuration:not(.vis-config-colorBlock):not(.vis-color-picker) {
+          background: transparent !important;
+          background-color: transparent !important;
+          border: none !important;
+          color: #e5e7eb !important;
+        }
+
+        /* Clean up the labels */
+        #hud-sidebar .vis-config-label {
+          color: #f9fafb !important;
+          font-weight: 500 !important;
+          text-shadow: none !important;
+          margin-bottom: 2px !important;
+        }
+
+        /* Style text/number inputs without breaking native sliders */
+        #hud-sidebar input[type="text"],
+        #hud-sidebar input[type="number"],
+        #hud-sidebar select {
+          background-color: #374151 !important;
+          color: white !important;
+          border: 1px solid #4b5563 !important;
+          border-radius: 4px;
+          padding: 2px 4px;
+          outline: none;
+        }
+
+        /* Ensure range sliders and checkboxes remain native and readable */
+        #hud-sidebar input[type="range"],
+        #hud-sidebar input[type="checkbox"] {
+          background: transparent !important;
+          margin: 0 5px;
+        }
+
+        /* Ensure color blocks have a visible border on dark glass */
+        #hud-sidebar .vis-config-colorBlock {
+          border: 1px solid #9ca3af !important;
+          border-radius: 3px !important;
+        }
+
+        /* Prevent horizontal overflow and shrink inputs */
+        #hud-sidebar * {
+          box-sizing: border-box !important;
+        }
+        #hud-sidebar .vis-configuration-wrapper {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+        #hud-sidebar .vis-config-item {
+          max-width: 100% !important;
+          white-space: normal !important;
+        }
+
+        /* Shrink the range sliders so they fit next to labels */
+        #hud-sidebar input[type="range"] {
+          max-width: 100px !important;
+          width: 100px !important;
+          min-width: 50px !important;
+        }
+
+        /* Shrink the number/text input boxes */
+        #hud-sidebar input[type="number"],
+        #hud-sidebar input[type="text"] {
+          max-width: 60px !important;
+        }
+        </style><script>
+        (function() {
+          const configPanel = document.getElementById('config');
+          if (!configPanel) {
+            return;
+          }
+
+          const hudSidebar = document.createElement('div');
+          hudSidebar.id = 'hud-sidebar';
+
+          const hudToggle = document.createElement('button');
+          hudToggle.id = 'hud-toggle';
+          hudToggle.type = 'button';
+          hudToggle.textContent = 'Hide Controls';
+
+          document.body.appendChild(hudSidebar);
+          document.body.appendChild(hudToggle);
+
+          // 1. Create the Custom Controls HTML
+          const customControls = document.createElement('div');
+          customControls.innerHTML = `
+              <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                  <h3 style="margin-top:0; color: #F9FAFB; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Logseq Filters</h3>
+                  <label style="display:flex; align-items:center; gap:8px; font-size: 13px; color: #E5E7EB; cursor:pointer; margin-bottom: 8px;">
+                      <input type="checkbox" id="filter-journals" checked style="accent-color: #3B82F6; cursor:pointer;"> Show Daily Journals
+                  </label>
+                  <label style="display:flex; align-items:center; gap:8px; font-size: 13px; color: #E5E7EB; cursor:pointer; margin-bottom: 12px;">
+                      <input type="checkbox" id="filter-tags" checked style="accent-color: #3B82F6; cursor:pointer;"> Show Tags
+                  </label>
+                  <button id="btn-reset" style="width: 100%; padding: 6px; background: #374151; color: white; border: 1px solid #4B5563; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; transition: background 0.2s;">
+                      🔄 Reset Graph & Physics
+                  </button>
+              </div>
+          `;
+          hudSidebar.appendChild(customControls);
+
+          // 2. Append the original config div below our filters
+          hudSidebar.appendChild(configPanel);
+
+          // 3. Add Event Listeners for Hover Effects
+          const resetButton = document.getElementById('btn-reset');
+          const filterJournals = document.getElementById('filter-journals');
+          const filterTags = document.getElementById('filter-tags');
+          if (!resetButton || !filterJournals || !filterTags) {
+            return;
+          }
+          resetButton.onmouseover = function() { this.style.background = '#4B5563'; };
+          resetButton.onmouseout = function() { this.style.background = '#374151'; };
+
+          // 4. Implement Reset Logic
+          resetButton.addEventListener('click', () => {
+            window.location.reload();
+          });
+
+          // 5. Implement Dynamic Filtering using PyVis global 'nodes' DataSet
+          function applyFilters() {
+            if (typeof nodes !== 'undefined') {
+              const updates = [];
+              nodes.get().forEach(node => {
+                let isHidden = false;
+                if (!filterJournals.checked && node.group === 'journal') isHidden = true;
+                if (!filterTags.checked && node.group === 'tag') isHidden = true;
+                updates.push({ id: node.id, hidden: isHidden });
+              });
+              nodes.update(updates);
+            }
+          }
+          filterJournals.addEventListener('change', applyFilters);
+          filterTags.addEventListener('change', applyFilters);
+
+          hudToggle.onclick = function() {
+            const isHidden = hudSidebar.classList.toggle('hud-hidden');
+            hudToggle.textContent = isHidden ? 'Show Controls' : 'Hide Controls';
+          };
+
+          setTimeout(() => {
+            const sidebar = document.getElementById('hud-sidebar');
+            const configDiv = document.getElementById('config');
+            if (sidebar && configDiv) {
+              let lastScroll = 0;
+
+              // Record scroll position continuously
+              sidebar.addEventListener('scroll', () => { lastScroll = sidebar.scrollTop; }, { passive: true });
+              sidebar.addEventListener('mousedown', () => { lastScroll = sidebar.scrollTop; });
+
+              // Watch for vis.js rebuilding the config panel
+              const observer = new MutationObserver(() => {
+                sidebar.scrollTop = lastScroll;
+              });
+
+              // Observe changes to the children of the config div
+              observer.observe(configDiv, { childList: true, subtree: true });
+            }
+          }, 500);
+        })();
+        </script></body>
+</html>
