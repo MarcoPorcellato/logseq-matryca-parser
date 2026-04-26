@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Mantiene aggiornate le dipendenze Python (legge il pyproject.toml)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Mantiene aggiornate le GitHub Actions (legge il tuo .github/workflows/ci.yml)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
