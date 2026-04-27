@@ -145,6 +145,13 @@ Designed to run locally. Zero telemetry. Zero training on your data. Fully GDPR-
 
 Your Second Brain is your private intellectual property. Keep it that way.
 
+## 🗺️ Roadmap & Future Vision
+
+We are actively planning to lower the barrier to entry for non-technical users. 
+- [ ] **Standalone Desktop App:** A click-and-run GUI to select folders and visualize graphs without using the terminal. 👉 *[Join the discussion in the RFC Issue here!](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/3)*
+- [ ] Native Obsidian export adapter.
+- [ ] Integration with local LLMs (Ollama) out of the box.
+
 ## ☕ Support the Project
 
 Logseq Matryca Parser is an open-source project built with passion and precision. I maintain this engine in my free time to help the PKM and AI community keep their data sovereign and accessible.
