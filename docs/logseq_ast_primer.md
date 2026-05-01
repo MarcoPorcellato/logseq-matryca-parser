@@ -5,7 +5,7 @@ To contribute to or understand the **Logos Protocol**, you must first understand
 Logseq does not use standard Markdown; it uses an **Outliner-based Spatial Markdown**. 
 Standard NLP text splitters and RAG chunkers destroy Logseq data because they parse text linearly. Logseq must be parsed **topologically**.
 
-Here is the domain logic that the Logos FSM (Finite State Machine) is built to handle.
+Here is the domain logic that the Logos Stack-Machine is built to handle.
 
 ---
 
@@ -27,7 +27,7 @@ In standard Markdown, lists are just formatting. In Logseq, **indentation dictat
 - **"Strategy Meeting" (Level 0)** is the Parent.
 - **"Discussed Q3 goals" (Level 1)** is a Child. 
 
-If you delete the parent, this child loses its context. Standard chunkers will split these lines into different vector embeddings, destroying the semantic link. Logos preserves it via `parent_id`.
+If you delete the parent, this child loses its context. Standard chunkers will split these lines into different vector embeddings, destroying the semantic link. The Logos engine preserves this topology via exact `parent_id` and `path` lineage.
 
 ---
 
@@ -49,7 +49,7 @@ Logseq allows injecting metadata directly into blocks. These are not standard Ma
 
 1. Properties (like `id::`) belong to the block above them.
 2. They must be stripped from the raw text content to avoid polluting the AI's context window.
-3. The `id::` property is sacred: it overrides any deterministic UUID generation because it is the native anchor for Logseq's internal block-references.
+3. The `id::` property is sacred: it overrides any deterministic UUID generation because it is the native anchor for Logseq's internal block-references `((uuid))`.
 
 ---
 
@@ -79,4 +79,4 @@ If you feed Logseq Markdown into `RecursiveCharacterTextSplitter` (LangChain) or
 - It completely loses the parent-child indentation context.
 - It ingests system properties (e.g., `collapsed:: true`) as semantic text, confusing the LLM.
 
-The **Logos Protocol** solves this by walking the AST deterministically, isolating properties, and exporting "Clean-RAG" formatted data (`ForgeExporter`) where every node retains its hierarchical lineage.
+The **Logos Protocol** solves this by walking the AST deterministically, isolating properties, and using the `SYNAPSE` adapter to export native LangChain `Document` or LlamaIndex `TextNode` objects. Every generated object retains its exact hierarchical lineage in the metadata, feeding your local LLM perfectly structured data.
