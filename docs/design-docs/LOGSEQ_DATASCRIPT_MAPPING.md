@@ -1,3 +1,5 @@
+> **Note for Contributors:** This document is part of the original *Document-Driven Development* phase. It was generated as a structural blueprint during the initial scaffolding of the Logos Protocol. It is preserved here for historical context and to explain the initial design intent. For the current, active architecture, please refer to the main `ARCHITECTURE.md` at the root of the `/docs` folder.
+
 # **LOGSEQ\_DATASCRIPT\_MAPPING.md**
 
 The architectural integrity of the LOGOS parser depends upon a precise reverse-engineering of the Logseq Datascript schema. Logseq represents a departure from traditional Markdown-based note-taking applications by implementing an Entity-Attribute-Value (EAV) model, where the Markdown file serves as a serialized representation of a persistent in-memory Datalog graph database.1 To achieve 100% semantic parity, the Python-based LOGOS objects must mirror the internal logic that transposes plaintext syntax into specific database attributes. This report provides a technical specification for that mapping, detailing the keywords, data structures, and relationship logic utilized within Logseq’s core.

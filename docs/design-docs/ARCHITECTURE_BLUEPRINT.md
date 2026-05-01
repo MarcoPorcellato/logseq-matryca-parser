@@ -1,3 +1,5 @@
+> **Note for Contributors:** This document is part of the original *Document-Driven Development* phase. It was generated as a structural blueprint during the initial scaffolding of the Logos Protocol. It is preserved here for historical context and to explain the initial design intent. For the current, active architecture, please refer to the main `ARCHITECTURE.md` at the root of the `/docs` folder.
+
 # Logseq Sovereign Parser - Architectural Blueprint
 
 ## 1. Core Objective & Problem Statement

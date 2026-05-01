@@ -26,7 +26,74 @@ Together, LOGOS + SYNAPSE implement **Document-Driven Development** principles. 
 
 ## 2. System Context Diagram
 
-The following pipeline is the authoritative context view for enterprise readers: ingestion from raw graph markdown, deterministic AST construction, adapter emission, then downstream **vector store indexing** / **LLM OS** retrieval.
+This section pairs a **C4 Model** view (Levels 1–2) with a **logical data-plane** flowchart. Together they document how Sovereign AI pipelines move from raw Spatial Markdown through deterministic parsing to structured context for retrieval and inference.
+
+### 2.1 C4 Level 1 — System context
+
+Actors and external systems framing **Logseq Matryca Parser** as the deterministic “driver” between the sovereign **Logseq Vault** and **LLM OS / Vector DB** runtimes.
+
+```mermaid
+C4Context
+title Logseq Matryca Parser — C4 Level 1 (System Context)
+
+Person(knowledgeWorker, "Knowledge Worker", "Maintains an outliner-based Second Brain; runs local tooling.")
+
+System(matryca, "Logseq Matryca Parser", "Core driver — deterministic Stack-Machine AST parsing and topology-preserving adapters.")
+
+System_Ext(logseqVault, "Logseq Vault", "Local Markdown pages, journals, and assets.")
+
+System_Ext(aiPlane, "LLM OS / Vector DB", "Vector storage, embeddings, retrieval, and model inference.")
+
+Rel(knowledgeWorker, logseqVault, "Authors and curates Spatial Markdown locally")
+
+Rel(knowledgeWorker, matryca, "Invokes ingestion, exports, and visualization")
+
+Rel(matryca, logseqVault, "Reads topologically intact graph files")
+
+Rel(matryca, aiPlane, "Emits context-rich, lineage-aware documents for RAG")
+```
+
+### 2.2 C4 Level 2 — Containers
+
+Containers live inside the **Matryca.ai Ecosystem** boundary: **KINETIC** is the operator entry point; **LOGOS** rebuilds the AST; **SYNAPSE** projects the AST into framework-native AI types; **LENS** renders topology for human inspection.
+
+```mermaid
+C4Container
+title Logseq Matryca Parser — C4 Level 2 (Containers)
+
+Person(knowledgeWorker, "Knowledge Worker", "Local operator of a sovereign Logseq graph.")
+
+System_Boundary(matrycaEcosystem, "Matryca.ai Ecosystem") {
+    Container(kinetic, "KINETIC", "Typer / Rich CLI", "CLI entry point — export, visualize, demo, graph scans.")
+    Container(logos, "LOGOS", "Python / Pydantic", "Stack-Machine AST engine — LogseqPage and LogseqNode models.")
+    Container(synapse, "SYNAPSE", "LangChain / LlamaIndex", "Framework-native exporters with parent-child metadata.")
+    Container(lens, "LENS", "NetworkX / PyVis", "Reference-topology visualization to interactive HTML.")
+}
+
+System_Ext(logseqVault, "Logseq Vault", "Raw Logseq Markdown on disk.")
+
+System_Ext(aiPlane, "LLM OS / Vector DB", "Indexes and serves structured context for models.")
+
+Rel(knowledgeWorker, kinetic, "Runs matryca-parse workflows")
+
+Rel(kinetic, logos, "Orchestrates parsing pipelines")
+
+Rel(kinetic, lens, "Builds visualization outputs")
+
+Rel(logos, logseqVault, "Reads Spatial Markdown deterministically")
+
+Rel(logos, synapse, "Hands off immutable AST subgraphs")
+
+Rel(logos, lens, "Supplies semantic references for graph layout")
+
+Rel(synapse, aiPlane, "Supplies lineage-injected Documents / TextNodes")
+
+Rel(lens, knowledgeWorker, "Delivers inspectable topology (HTML)")
+```
+
+### 2.3 Supplementary logical data-plane (flowchart)
+
+The following pipeline is the complementary **logical** view for readers who prefer LR flow over C4 boxing: ingestion from raw graph markdown, deterministic AST construction, adapter emission, then downstream **vector store indexing** / **LLM OS** retrieval.
 
 ```mermaid
 ---
@@ -77,7 +144,7 @@ flowchart LR
   VS --> RAG --> LLM
 ```
 
-Auxiliary exporters (**FORGE** for JSON / flat Markdown, **KINETIC** CLI orchestration) consume the same AST and are orthogonal to SYNAPSE; they are intentionally omitted above to emphasize the sovereign RAG path.
+Auxiliary exporters (**FORGE** for JSON / flat Markdown) consume the same AST and are orthogonal to SYNAPSE; **KINETIC** is modeled in §2.2 but omitted from **§2.3**’s flowchart so the sovereign RAG data plane stays legible.
 
 ---
 
