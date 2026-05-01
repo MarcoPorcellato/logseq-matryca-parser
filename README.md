@@ -21,6 +21,22 @@ Standard RAG parsers destroy the semantic structure of Logseq. They chunk text b
 
 **Logseq Matryca Parser** is the fast and deterministic engine built at [Matryca.ai](https://matryca.ai) to preserve the true Abstract Syntax Tree (AST) of your graphs. We guarantee that artificial intelligence understands spatial hierarchy, time, task, namespaces etc., not just flat text.
 
+## 🧠 The LLM OS Vision: Why this Parser exists
+
+Andrej Karpathy recently popularized the concept of the **LLM OS**. We need to stop treating AI as just a "chatbot" and start viewing the Large Language Model as the **CPU of a new kind of computer**. 
+
+In this paradigm:
+* The **LLM** is the CPU (executing logic and reasoning).
+* The **Context Window** is the RAM (short-term memory).
+* The **Tool Calling** represents the Peripherals (I/O).
+* Your **Logseq/Markdown Vault** is the Hard Disk (long-term memory).
+
+**The Problem:** Standard RAG pipelines and naive chunkers (like LangChain's default splitters) treat your Hard Disk like a BLENDER. They chop your documents into random pieces, completely destroying the semantic topology and parent-child relationships of your outliner notes. It's like having a hard drive without a File System.
+
+**The Solution:** The **Logseq Matryca Parser** is built to be the **File System Driver** for your personal LLM OS. 
+
+Just like NTFS or ext4 tells a traditional OS how to read files and folders, this parser tells your AI how to read your Logseq graph. It preserves the exact AST (Abstract Syntax Tree), ensuring the LLM (CPU) receives data in the Context Window (RAM) with perfectly intact hierarchical context. This is the only way to achieve true, hallucination-free *Sovereign AI* on your local machine.
+
 ## 🏗️ System Architecture & Killer Features
 
 *Want to understand why standard parsing fails on Logseq? Read our [Logseq AST Primer](docs/logseq_ast_primer.md).*
@@ -144,6 +160,13 @@ docs = SynapseAdapter.to_langchain_documents(page.root_nodes, source_name=page.t
 Designed to run locally. Zero telemetry. Zero training on your data. Fully GDPR-compliant by EEA protocol design.
 
 Your Second Brain is your private intellectual property. Keep it that way.
+
+## 🗺️ Roadmap & Future Vision
+
+We are actively planning to lower the barrier to entry for non-technical users. 
+- [ ] **Standalone Desktop App:** A click-and-run GUI to select folders and visualize graphs without using the terminal. 👉 *[Join the discussion in the RFC Issue here!](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/3)*
+- [ ] Native Obsidian export adapter.
+- [ ] Integration with local LLMs (Ollama) out of the box.
 
 ## ☕ Support the Project
 
