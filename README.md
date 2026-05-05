@@ -5,7 +5,7 @@
 [![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange?style=for-the-badge)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-> **Giving LLMs the vision to read hierarchical thought.**
+> **"Turning a forest of local plain-text files into a unified semantic powerhouse."**
 
 <p align="center">
   <video src="https://github.com/user-attachments/assets/24f73c6d-3eca-4adb-8442-981f2ba4cccd" autoplay loop muted playsinline width="800"></video>
@@ -14,6 +14,35 @@
 [👉 **TRY THE LIVE INTERACTIVE DEMO**](https://MarcoPorcellato.github.io/logseq-matryca-parser/) 
 
 [📘 **READ THE ARCHITECTURE (LLM OS Vision)**](docs/ARCHITECTURE.md)
+
+---
+
+## 🌐 The Vision: Virtual Centralization vs. Binary Lock-in
+
+The PKM (Personal Knowledge Management) world is currently forcing users to make a painful choice between **Data Longevity** and **AI Power**. 
+
+* **Vanilla Logseq / Obsidian** is a "Forest" of decentralized Markdown files. It guarantees the [Lindy effect](https://en.wikipedia.org/wiki/Lindy_effect) (plain-text lasts forever) and perfect Git versioning, but standard AI chunkers treat it like a blender, destroying the outliner hierarchy.
+* **Tana** is a centralized "Tree". It offers incredible semantic power, but traps your brain in a proprietary cloud database.
+* **The new Logseq DB (SQLite)** aims for database speed, but at a huge cost: it locks your notes inside a binary `.db` file. You lose human-readable files, you lose line-by-line Git diffs, and you lose the immortality of plain-text.
+
+### 🔱 The Matryca Solution: The Best of Both Worlds
+**Logseq Matryca Parser** is the ultimate bridge. It allows you to **keep your sovereign, future-proof Markdown files**, while synthesizing a **Virtual Global Graph** in RAM at runtime.
+
+It acts as the strict **File System Driver** for your LLM OS. By using a deterministic Stack-Machine to parse your outliner topology, it feeds LangChain or LlamaIndex with the exact parent-child context of every single block. 
+
+*You get the reasoning power of a centralized relational database, without sacrificing the plain-text soul of your Second Brain in Logseq.*
+
+---
+
+## ⚖️ The PKM Landscape
+
+| Feature | Vanilla Markdown | **Matryca Parser** | Logseq DB (SQLite) | Tana |
+| :--- | :--- | :--- | :--- | :--- |
+| **Data Format** | Plain-text (.md) | **Plain-text (.md)** | Binary (.db) | Proprietary Cloud |
+| **Version Control** | Perfect (Git) | **Perfect (Git)** | Poor (Binary blob) | None |
+| **Data Structure** | Decentralized Forest | **Virtually Centralized Graph** | Relational Database | Centralized Tree |
+| **AI Readiness** | Low (Linear Chunks) | **High (Topological AST)** | TBD (Requires SQL) | High (Proprietary) |
+| **Sovereignty** | 100% Local | **100% Local (Sovereign AI)** | 100% Local | Cloud-Only |
 
 ---
 
