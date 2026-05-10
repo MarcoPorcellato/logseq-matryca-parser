@@ -90,6 +90,24 @@ page = LogosParser().parse_page_file("page.md")
 docs = SynapseAdapter.to_langchain_documents(page.root_nodes)
 ```
 
+### 🤖 Agentic Write Access (Append-Only)
+
+Agents such as Hermes or OpenClaw can record structured notes into a Logseq graph **without rewriting existing pages**. The helper `logseq_agent_write` only **opens the weekly agent page in append mode** (`"a"`), writes a new bullet (journal link + optional tag links + body), and never truncates or replaces prior content—so routine logging cannot wipe blocks that already live in that file.
+
+Point it at your graph’s **`pages`** directory and **`config.edn`** so journal titles match Logseq’s `:journal/page-title-format` (including ordinal days when you use `do` in the pattern).
+
+```python
+from logseq_matryca_parser import logseq_agent_write
+
+result = logseq_agent_write(
+    "Summarized user intent and proposed next steps.",
+    config_path="/path/to/logseq/config.edn",
+    pages_dir="/path/to/logseq/pages",
+    context_tags=["agent/hermes", "#session"],
+)
+assert result["status"] == "success"
+# result["path"] → e.g. .../pages/2026-18-agent.md
+```
 ---
 
 ## 🗺️ Roadmap
