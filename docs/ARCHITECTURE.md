@@ -26,7 +26,7 @@ Together, LOGOS + SYNAPSE implement **Document-Driven Development** principles. 
 
 ## 2. System Context Diagram
 
-This section pairs a **C4 Model** view (Levels 1–2) with a **logical data-plane** flowchart. Together they document how Sovereign AI pipelines move from raw Spatial Markdown through deterministic parsing to structured context for retrieval and inference.
+This section pairs a **C4 Model** view (Levels 1–2) with a **logical data-plane** flowchart. Together they document how Sovereign AI pipelines move from raw Spatial Markdown through deterministic parsing to structured context for retrieval and inference — and how **append-only, sandboxed writes** (Agent Writer / KINETIC) can extend the vault without re-parsing or rewriting existing structure on behalf of agents.
 
 ### 2.1 C4 Level 1 — System context
 
@@ -48,7 +48,7 @@ Rel(knowledgeWorker, logseqVault, "Authors and curates Spatial Markdown locally"
 
 Rel(knowledgeWorker, matryca, "Invokes ingestion, exports, and visualization")
 
-Rel(matryca, logseqVault, "Reads topologically intact graph files")
+Rel(matryca, logseqVault, "Reads topologically intact graph files; append-only Agent Writer preserves AST invariants")
 
 Rel(matryca, aiPlane, "Emits context-rich, lineage-aware documents for RAG")
 ```
@@ -186,7 +186,7 @@ Visualization export uses **`pyvis`** with **`force_atlas_2based`** physics, ful
 
 ### 3.4 AGENT WRITER — Append-Only Sandboxing
 
-While **LOGOS** reads and parses the graph into an immutable AST, **`agent_writer`** ([`logseq_matryca_parser.agent_writer`](../src/logseq_matryca_parser/agent_writer.py)) provides a **deterministic**, **configuration-aware** write path: it reads **`config.edn`** (for example **`:journal/page-title-format`**) so journal page filenames and titles match the vault’s own formatting rules. Writes use **`open(..., mode="a")`** **append-only** I/O so agents add blocks **after** existing bytes **without rewriting** or re-indenting prior structure — **existing topology is never torn down or merged by an overwrite**. Together with the **`append`** CLI command in **KINETIC**, this gives AI agents a bounded, inspectable channel to contribute material to journal or page files while **read/export pipelines** continue to treat the vault as the authoritative hierarchical source.
+In the **LLM OS** metaphor, **LOGOS** is the **read path** into the hierarchical “disk”: it materializes Spatial Markdown into a **deterministic AST** that downstream adapters trust. **`agent_writer`** ([`logseq_matryca_parser.agent_writer`](../src/logseq_matryca_parser/agent_writer.py)) is the complementary **bounded write syscall**: a **deterministic**, **configuration-aware** channel that **dynamically reads `config.edn`** (for example **`:journal/page-title-format`**) so filenames and titles align with the vault’s own conventions. Writes use **`open(..., mode="a")`** **append-only** I/O — agents **append** new block material **after** existing bytes; they do **not** rewrite, merge, or re-indent prior content. That discipline keeps **existing topology intact** and avoids corrupting the graph in ways that would break a subsequent **LOGOS** parse or violate the **deterministic AST** contract. Surfaced through the **`append`** command in **KINETIC**, this yields an **enterprise-grade**, inspectable path for agent contributions while **read/export** flows remain the authoritative, topology-preserving contract with the vault.
 
 ---
 
