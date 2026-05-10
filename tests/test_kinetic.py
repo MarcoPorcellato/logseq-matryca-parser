@@ -100,7 +100,7 @@ def test_visualize_command_prints_deep_stats_and_success_message(tmp_path: Path)
     graph_root = _create_graph(tmp_path)
     output_html = tmp_path / "lens.html"
 
-    with patch("logseq_matryca_parser.kinetic.GraphVisualizer.export_html") as export_html_mock:
+    with patch("logseq_matryca_parser.lens.GraphVisualizer.export_html") as export_html_mock:
         result = runner.invoke(app, ["visualize", str(graph_root), str(output_html)])
 
     assert result.exit_code == 0
@@ -124,7 +124,7 @@ def test_visualize_command_invalid_graph_path_exits_with_error(tmp_path: Path) -
 def test_demo_command_builds_showcase_without_disk_graph(tmp_path: Path) -> None:
     out = tmp_path / "showcase.html"
 
-    with patch("logseq_matryca_parser.kinetic.GraphVisualizer.export_html") as export_html_mock:
+    with patch("logseq_matryca_parser.lens.GraphVisualizer.export_html") as export_html_mock:
         result = runner.invoke(app, ["demo", str(out)])
 
     assert result.exit_code == 0
@@ -132,3 +132,109 @@ def test_demo_command_builds_showcase_without_disk_graph(tmp_path: Path) -> None
     export_html_mock.assert_called_once()
     call_path = export_html_mock.call_args[0][0]
     assert call_path == out.resolve()
+
+
+def test_append_command_success_prints_path(tmp_path: Path) -> None:
+    config = tmp_path / "config.edn"
+    pages = tmp_path / "pages"
+    config.write_text("", encoding="utf-8")
+    pages.mkdir()
+    written = pages / "2026-W01-agent.md"
+    with patch("logseq_matryca_parser.kinetic.logseq_agent_write") as write_mock:
+        write_mock.return_value = {"status": "success", "path": str(written)}
+        result = runner.invoke(
+            app,
+            [
+                "append",
+                "Line one",
+                "--config",
+                str(config.resolve()),
+                "--pages",
+                str(pages.resolve()),
+                "--tags",
+                "alpha",
+                "--tags",
+                "beta",
+            ],
+        )
+
+    assert result.exit_code == 0
+    assert "Appended to agent page:" in result.output
+    assert str(written) in result.output
+    write_mock.assert_called_once_with(
+        "Line one",
+        str(config.resolve()),
+        str(pages.resolve()),
+        context_tags=["alpha", "beta"],
+    )
+
+
+def test_append_command_success_without_tags_passes_none(tmp_path: Path) -> None:
+    config = tmp_path / "config.edn"
+    pages = tmp_path / "pages"
+    config.touch()
+    pages.mkdir()
+    with patch("logseq_matryca_parser.kinetic.logseq_agent_write") as write_mock:
+        write_mock.return_value = {"status": "success", "path": "/abs/agent.md"}
+        result = runner.invoke(
+            app,
+            [
+                "append",
+                "Note body",
+                "--config",
+                str(config.resolve()),
+                "--pages",
+                str(pages.resolve()),
+            ],
+        )
+
+    assert result.exit_code == 0
+    write_mock.assert_called_once_with(
+        "Note body",
+        str(config.resolve()),
+        str(pages.resolve()),
+        context_tags=None,
+    )
+
+
+def test_append_command_failure_exits_with_error(tmp_path: Path) -> None:
+    config = tmp_path / "config.edn"
+    pages = tmp_path / "pages"
+    config.touch()
+    pages.mkdir()
+    with patch("logseq_matryca_parser.kinetic.logseq_agent_write") as write_mock:
+        write_mock.return_value = {"status": "error", "message": "disk full"}
+        result = runner.invoke(
+            app,
+            [
+                "append",
+                "x",
+                "--config",
+                str(config.resolve()),
+                "--pages",
+                str(pages.resolve()),
+            ],
+        )
+
+    assert result.exit_code == 1
+    assert "Append failed:" in result.output
+    assert "disk full" in result.output
+
+
+def test_append_command_rejects_relative_config_path(tmp_path: Path) -> None:
+    pages = tmp_path / "pages"
+    pages.mkdir(parents=True)
+    result = runner.invoke(
+        app,
+        [
+            "append",
+            "x",
+            "--config",
+            "relative/config.edn",
+            "--pages",
+            str(pages.resolve()),
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "must be an absolute path" in result.output

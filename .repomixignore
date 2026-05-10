@@ -1,31 +1,44 @@
 # .repomixignore
 
-# Escludi i file di output di Repomix stesso
-repomix-output.xml
+# =========================
+# Repomix Outputs & AI Generated
+# =========================
+repomix-output.*
+output_langchain/
+mappa_cervello.html
 
-# Escludi documentazione (se vuoi che l'AI si concentri solo sul codice Python)
+# =========================
+# Documentation (Token Optimization)
+# =========================
 docs/
 *.md
+!README.md
+!CHANGELOG.md
 
-# Escludi file di lock (lunghissimi e illeggibili per l'AI)
+# =========================
+# Locks & Dependencies
+# =========================
 poetry.lock
 uv.lock
 package-lock.json
-
-# Escludi file di test giganteschi o dati dummy
-tests/fixtures/*.json
+yarn.lock
+pnpm-lock.yaml
 
 # =========================
-# macOS / System
+# OS / System
 # =========================
 **/.DS_Store
+Thumbs.db
 
 # =========================
-# Python / Bytecode
+# Python / Bytecode & Caches
 # =========================
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # =========================
 # Virtual Environments
@@ -45,22 +58,26 @@ build/
 # =========================
 # Testing & Coverage
 # =========================
-.pytest_cache/
 .coverage
 coverage.xml
 htmlcov/
-repomix-output.xml
+tests/fixtures/*.json
+
+# =========================
+# Token Killers (Logs, DBs, Vector Graphics)
+# =========================
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.csv
+*.svg
 
 # =========================
 # IDEs & Tool Caches
 # =========================
-.mypy_cache/
-.ruff_cache/
 .vscode/
 .idea/
 .rooignore
 .clinerules
-.cursor/rules/
 .cursor/
-output_langchain/
-mappa_cervello.html

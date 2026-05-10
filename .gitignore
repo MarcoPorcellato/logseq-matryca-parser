@@ -1,7 +1,11 @@
 # =========================
-# macOS / System
+# OS / System
 # =========================
 **/.DS_Store
+**/.AppleDouble
+**/.LSOverride
+Thumbs.db
+desktop.ini
 
 # =========================
 # Python / Bytecode
@@ -9,14 +13,17 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 
 # =========================
-# Virtual Environments
+# Virtual Environments & Secrets
 # =========================
 .venv/
 venv/
 env/
 .env
+.env.*
+!.env.example
 
 # =========================
 # Build & Distribution
@@ -24,6 +31,8 @@ env/
 dist/
 build/
 *.egg-info/
+*.egg
+MANIFEST
 
 # =========================
 # Testing & Coverage
@@ -32,7 +41,23 @@ build/
 .coverage
 coverage.xml
 htmlcov/
-repomix-output.xml
+tests/fixtures/*.json
+repomix-output.*
+
+# =========================
+# Logs & Databases (Security/Privacy)
+# =========================
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# =========================
+# Notebooks & Data
+# =========================
+.ipynb_checkpoints/
+output_langchain/
+mappa_cervello.html
 docs/index.html
 
 # =========================
@@ -46,5 +71,3 @@ docs/index.html
 .clinerules
 .cursor/rules/
 .cursor/
-output_langchain/
-mappa_cervello.html

@@ -55,7 +55,7 @@ Rel(matryca, aiPlane, "Emits context-rich, lineage-aware documents for RAG")
 
 ### 2.2 C4 Level 2 — Containers
 
-Containers live inside the **Matryca.ai Ecosystem** boundary: **KINETIC** is the operator entry point; **LOGOS** rebuilds the AST; **SYNAPSE** projects the AST into framework-native AI types; **LENS** renders topology for human inspection.
+Containers live inside the **Matryca.ai Ecosystem** boundary: **KINETIC** is the operator entry point (including **append-only** agent writes to the vault); **LOGOS** rebuilds the AST; **SYNAPSE** projects the AST into framework-native AI types; **LENS** renders topology for human inspection.
 
 ```mermaid
 C4Container
@@ -64,7 +64,7 @@ title Logseq Matryca Parser — C4 Level 2 (Containers)
 Person(knowledgeWorker, "Knowledge Worker", "Local operator of a sovereign Logseq graph.")
 
 System_Boundary(matrycaEcosystem, "Matryca.ai Ecosystem") {
-    Container(kinetic, "KINETIC", "Typer / Rich CLI", "CLI entry point — export, visualize, demo, graph scans.")
+    Container(kinetic, "KINETIC", "Typer / Rich CLI", "CLI entry point — export, visualize, demo, graph scans, and append-only agent writes (`append`).")
     Container(logos, "LOGOS", "Python / Pydantic", "Stack-Machine AST engine — LogseqPage and LogseqNode models.")
     Container(synapse, "SYNAPSE", "LangChain / LlamaIndex", "Framework-native exporters with parent-child metadata.")
     Container(lens, "LENS", "NetworkX / PyVis", "Reference-topology visualization to interactive HTML.")
@@ -81,6 +81,8 @@ Rel(kinetic, logos, "Orchestrates parsing pipelines")
 Rel(kinetic, lens, "Builds visualization outputs")
 
 Rel(logos, logseqVault, "Reads Spatial Markdown deterministically")
+
+Rel(kinetic, logseqVault, "KINETIC / LOGOS: append-only Agent Writer — safe vault append, topology preserved")
 
 Rel(logos, synapse, "Hands off immutable AST subgraphs")
 
@@ -182,6 +184,10 @@ Together, adapters guarantee that **embedding units align with intentional block
 
 Visualization export uses **`pyvis`** with **`force_atlas_2based`** physics, fullscreen canvas, HUD filters, glassmorphism control chrome, and stabilized layout configuration suitable for **large graphs at interactive frame rates** in the browser (product positioning targets fluid exploration of graphs on the order of **10⁴ nodes**).
 
+### 3.4 AGENT WRITER — Append-Only Sandboxing
+
+While **LOGOS** reads and parses the graph into an immutable AST, **`agent_writer`** ([`logseq_matryca_parser.agent_writer`](../src/logseq_matryca_parser/agent_writer.py)) provides a **deterministic**, **configuration-aware** write path: it reads **`config.edn`** (for example **`:journal/page-title-format`**) so journal page filenames and titles match the vault’s own formatting rules. Writes use **`open(..., mode="a")`** **append-only** I/O so agents add blocks **after** existing bytes **without rewriting** or re-indenting prior structure — **existing topology is never torn down or merged by an overwrite**. Together with the **`append`** CLI command in **KINETIC**, this gives AI agents a bounded, inspectable channel to contribute material to journal or page files while **read/export pipelines** continue to treat the vault as the authoritative hierarchical source.
+
 ---
 
 ## 4. Data Flow Sequence
@@ -249,4 +255,4 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 
 ---
 
-*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `lens.py`, and `logos_core.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).* 
+*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `lens.py`, `logos_core.py`, and `agent_writer.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).* 

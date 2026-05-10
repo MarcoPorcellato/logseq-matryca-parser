@@ -1,6 +1,6 @@
 [project]
 name = "logseq-matryca-parser"
-version = "0.1.0"
+version = "0.2.0"
 description = "The Logos Protocol: Deterministic Logseq AST parsing for Matryca.ai."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -27,8 +27,22 @@ dependencies = [
     "pydantic>=2.7.0",
     "typer>=0.12.0",
     "rich>=13.7.1",
+]
+
+[project.optional-dependencies]
+viz = [
     "networkx>=3.0.0",
-    "pyvis>=0.3.2"
+    "pyvis>=0.3.2",
+]
+ai = [
+    "langchain-core",
+    "llama-index-core",
+]
+all = [
+    "networkx>=3.0.0",
+    "pyvis>=0.3.2",
+    "langchain-core",
+    "llama-index-core",
 ]
 
 [project.urls]
@@ -48,4 +62,8 @@ dev = [
     "mypy>=1.20.2",
     "pytest>=9.0.3",
     "ruff>=0.15.12",
+    "networkx>=3.0.0",
+    "pyvis>=0.3.2",
+    "langchain-core",
+    "llama-index-core",
 ]
