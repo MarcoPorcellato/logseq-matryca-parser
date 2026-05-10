@@ -1,0 +1,45 @@
+# .cursorignore
+# (Nota: Cursor ignora già automaticamente tutto ciò che è nel .gitignore)
+
+# =========================
+# Lockfiles (Letali per il Codebase Indexing)
+# =========================
+# I lockfile devono stare su Git, ma l'IA non deve MAI leggerli, 
+# sono solo un muro di versioni incomprensibili.
+poetry.lock
+uv.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# =========================
+# Output AI e Report (Evitare loop di contesto)
+# =========================
+# Se committi per sbaglio un output, non vogliamo che Cursor lo studi.
+repomix-output.*
+output_langchain/
+mappa_cervello.html
+
+# =========================
+# Dati di Test e Fixtures Mock
+# =========================
+# Se hai dei file Markdown o JSON enormi che usi solo per testare il parser,
+# a Git servono, ma all'IA confondono solo le idee.
+tests/fixtures/*.json
+tests/fixtures/*.edn
+tests/fixtures/*.md
+*.csv
+
+# =========================
+# Assets Vettoriali
+# =========================
+# Le immagini PNG/JPG Cursor le ignora da solo, ma gli SVG sono file di testo! 
+# Se l'IA legge un SVG, legge migliaia di coordinate matematiche inutili.
+*.svg
+
+# =========================
+# File di Configurazione Editor
+# =========================
+.vscode/
+.idea/
+.clinerules

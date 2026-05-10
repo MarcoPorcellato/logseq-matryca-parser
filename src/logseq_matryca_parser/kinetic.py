@@ -14,8 +14,8 @@ from rich.console import Console
 from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
 
+from logseq_matryca_parser import logseq_agent_write
 from logseq_matryca_parser.forge import ForgeExporter
-from logseq_matryca_parser.lens import GraphVisualizer
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import LogosParser
 from logseq_matryca_parser.synapse import SynapseAdapter
@@ -191,7 +191,17 @@ def visualize(
         console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
         raise typer.Exit(code=0)
 
-    visualizer = GraphVisualizer(pages=pages)
+    try:
+        from logseq_matryca_parser.lens import GraphVisualizer
+
+        visualizer = GraphVisualizer(pages=pages)
+    except ImportError:
+        console.print(
+            "[bold red]Missing visualization dependencies.[/] Please install them using: "
+            "[cyan]pip install 'logseq-matryca-parser[viz]'[/]"
+        )
+        raise typer.Exit(1) from None
+
     visualizer.build_network()
     stats = visualizer.get_deep_statistics()
 
@@ -213,7 +223,17 @@ def demo(
 ) -> None:
     """Build a sample graph from the official Logseq demo topology and write showcase HTML (no graph files read)."""
     pages = _build_official_logseq_demo_pages()
-    visualizer = GraphVisualizer(pages=pages)
+    try:
+        from logseq_matryca_parser.lens import GraphVisualizer
+
+        visualizer = GraphVisualizer(pages=pages)
+    except ImportError:
+        console.print(
+            "[bold red]Missing visualization dependencies.[/] Please install them using: "
+            "[cyan]pip install 'logseq-matryca-parser[viz]'[/]"
+        )
+        raise typer.Exit(1) from None
+
     visualizer.build_network()
     visualizer.export_html(output_html.resolve())
     console.print(
@@ -286,18 +306,76 @@ def export(
 
     output_path.mkdir(parents=True, exist_ok=True)
 
-    try:
-        if format is ExportFormat.JSON:
-            destination = _export_json(pages, output_path)
-        elif format is ExportFormat.MARKDOWN:
-            destination = _export_markdown(pages, output_path)
-        else:
+    if format is ExportFormat.JSON:
+        destination = _export_json(pages, output_path)
+    elif format is ExportFormat.MARKDOWN:
+        destination = _export_markdown(pages, output_path)
+    else:
+        try:
             destination = _export_langchain(pages, output_path)
-    except ImportError as exc:
-        console.print(f"[bold red]Export failed:[/] {exc}")
-        raise typer.Exit(code=1) from exc
+        except ImportError:
+            console.print(
+                "[bold red]Missing AI export dependencies.[/] Please install them using: "
+                "[cyan]pip install 'logseq-matryca-parser[ai]'[/]"
+            )
+            raise typer.Exit(1) from None
 
     console.print(f"[bold green]Export completed:[/] {destination}")
+
+
+def _require_absolute_path(path: Path, label: str) -> Path:
+    expanded = path.expanduser()
+    if not expanded.is_absolute():
+        console.print(f"[bold red]{label} must be an absolute path:[/] {path}")
+        raise typer.Exit(code=1)
+    return expanded.resolve()
+
+
+@app.command()
+def append(
+    content: str = typer.Argument(..., help="Markdown text to append to the agent file."),
+    config: Path = typer.Option(
+        ...,
+        "--config",
+        help="Absolute path to the Logseq config.edn file.",
+        metavar="PATH",
+    ),
+    pages: Path = typer.Option(
+        ...,
+        "--pages",
+        help="Absolute path to the Logseq pages directory.",
+        metavar="PATH",
+    ),
+    tags: list[str] = typer.Option(
+        [],
+        "--tags",
+        help="Optional context tags for the block (repeat for multiple).",
+    ),
+) -> None:
+    """Append a block to the weekly agent page via logseq_agent_write."""
+    config_path = _require_absolute_path(config, "--config")
+    pages_dir = _require_absolute_path(pages, "--pages")
+
+    result = logseq_agent_write(
+        content,
+        str(config_path),
+        str(pages_dir),
+        context_tags=tags or None,
+    )
+
+    if result.get("status") == "success":
+        path_str = result.get("path", "")
+        console.print(
+            f"[bold green]Appended to agent page:[/] {path_str}",
+            no_wrap=True,
+            overflow="ignore",
+            crop=False,
+        )
+        return
+
+    message = result.get("message", "Unknown error.")
+    console.print(f"[bold red]Append failed:[/] {message}")
+    raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":

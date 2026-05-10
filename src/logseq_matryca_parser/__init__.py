@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 
+from .agent_writer import LogseqConfigReader, logseq_agent_write
 from .exceptions import BlockReferenceError, LogseqIndentationError, LogseqParserError
 from .logos_core import ASTVisitor, LogseqNode, LogseqPage, LogosNode, SovereignNotePackage
 from .logos_parser import (
@@ -28,6 +29,7 @@ __all__ = [
     "LOGSEQ_PATTERNS",
     "LogosNode",
     "LogosParser",
+    "LogseqConfigReader",
     "LogseqIndentationError",
     "LogseqNode",
     "LogseqPage",
@@ -38,4 +40,5 @@ __all__ = [
     "clean_node_content",
     "ensure_aot_compatibility",
     "is_system_block",
+    "logseq_agent_write",
 ]
