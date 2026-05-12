@@ -62,6 +62,31 @@ def test_export_command_json_writes_output_file(tmp_path: Path) -> None:
     assert payload[0]["ast"]
 
 
+def test_export_command_json_preserves_duplicate_block_identity(
+    tmp_path: Path,
+) -> None:
+    graph_root = tmp_path / "graph"
+    pages_dir = graph_root / "pages"
+    journals_dir = graph_root / "journals"
+    pages_dir.mkdir(parents=True, exist_ok=True)
+    journals_dir.mkdir(parents=True, exist_ok=True)
+    (pages_dir / "identity.md").write_text("- repeated\n- repeated\n", encoding="utf-8")
+    output_dir = tmp_path / "out-json"
+
+    result = runner.invoke(app, ["export", str(graph_root), str(output_dir), "--format", "json"])
+
+    assert result.exit_code == 0
+    payload = json.loads((output_dir / "graph.json").read_text(encoding="utf-8"))
+    ast = payload[0]["ast"]
+    first, second = ast
+    assert first["content"] == "repeated"
+    assert second["content"] == "repeated"
+    assert first["uuid"] != second["uuid"]
+    assert first["path"] == [first["uuid"]]
+    assert second["path"] == [second["uuid"]]
+    assert second["left_id"] == first["uuid"]
+
+
 def test_export_command_markdown_writes_output_file(tmp_path: Path) -> None:
     graph_root = _create_graph(tmp_path)
     output_dir = tmp_path / "out-markdown"

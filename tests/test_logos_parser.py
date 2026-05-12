@@ -704,6 +704,41 @@ def test_sibling_left_id_integrity(parser: StackMachineParser) -> None:
     assert child_c.left_id == child_b.uuid
 
 
+def test_duplicate_same_page_blocks_have_distinct_identities(
+    parser: StackMachineParser,
+) -> None:
+    """Repeated content on one page must not collapse to one parser identity."""
+    content = "- repeated\n- repeated"
+    page = parser.parse(content, page_title="identity-collision")
+    first, second = page.root_nodes
+
+    assert first.content == "repeated"
+    assert second.content == "repeated"
+    assert first.uuid != second.uuid
+    assert first.path == [first.uuid]
+    assert second.path == [second.uuid]
+    assert second.left_id == first.uuid
+
+
+def test_duplicate_nested_blocks_have_position_distinct_identities(
+    parser: StackMachineParser,
+) -> None:
+    """Identical children under different parents need independent identities."""
+    content = "- Parent A\n  - repeated\n- Parent B\n  - repeated"
+    page = parser.parse(content, page_title="nested-identity-collision")
+    parent_a, parent_b = page.root_nodes
+    child_a = parent_a.children[0]
+    child_b = parent_b.children[0]
+
+    assert child_a.content == "repeated"
+    assert child_b.content == "repeated"
+    assert child_a.uuid != child_b.uuid
+    assert child_a.parent_id == parent_a.uuid
+    assert child_b.parent_id == parent_b.uuid
+    assert child_a.path == [parent_a.uuid, child_a.uuid]
+    assert child_b.path == [parent_b.uuid, child_b.uuid]
+
+
 def test_leaf_path_resolution(parser: StackMachineParser) -> None:
     """Leaf path tracks UUID chain from root to current node."""
     content = "- Root\n  - Child\n    - Leaf"
