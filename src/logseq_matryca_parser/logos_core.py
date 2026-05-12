@@ -28,6 +28,8 @@ class LogseqNode(BaseModel):
     model_config = ConfigDict(strict=True, frozen=True)
 
     uuid: str
+    source_uuid: str | None = None
+    synthetic_id: bool = False
     content: str
     clean_text: str = ""
     indent_level: int
@@ -41,6 +43,10 @@ class LogseqNode(BaseModel):
     parent_id: str | None = None
     left_id: str | None = None
     path: list[str] = Field(default_factory=list)
+    source_path: str | None = None
+    line_start: int | None = None
+    line_end: int | None = None
+    outline_path: list[int] = Field(default_factory=list)
     properties_order: list[str] = Field(default_factory=list)
     created_at: int | None = None
     updated_at: int | None = None

@@ -325,12 +325,12 @@ class StackMachineParser:
         in_code_block = False
         in_drawer = False
 
-        for raw_line in text.splitlines():
+        for line_number, raw_line in enumerate(text.splitlines(), start=1):
             stripped_line = raw_line.strip()
 
             if in_code_block and current_node is not None:
                 merged_content = f"{current_node.content}\n{raw_line}"
-                updated = self._refresh_node(current_node, merged_content)
+                updated = self._refresh_node(current_node, merged_content, line_end=line_number)
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
                 if _is_code_fence_line(stripped_line):
@@ -372,6 +372,7 @@ class StackMachineParser:
                             current_node,
                             current_node.content,
                             properties_override=properties,
+                            line_end=line_number,
                         )
                         self._replace_stack_tail_node(stack, root_nodes, updated)
                         current_node = updated
@@ -381,7 +382,12 @@ class StackMachineParser:
                 in_drawer = True
                 properties = dict(current_node.properties)
                 properties.setdefault("logbook", [])
-                updated = self._refresh_node(current_node, current_node.content, properties_override=properties)
+                updated = self._refresh_node(
+                    current_node,
+                    current_node.content,
+                    properties_override=properties,
+                    line_end=line_number,
+                )
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
                 continue
@@ -395,6 +401,7 @@ class StackMachineParser:
                     current_node,
                     current_node.content,
                     properties_override=properties,
+                    line_end=line_number,
                 )
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
@@ -415,6 +422,7 @@ class StackMachineParser:
                     block_text=bullet_match.group(2),
                     indent_level=indent_level,
                     page_title=page_title,
+                    line_start=line_number,
                 )
                 raw_indent = bullet_match.group(1)
                 if (
@@ -455,6 +463,7 @@ class StackMachineParser:
                     block_text=heading_match.group(2),
                     indent_level=indent_level,
                     page_title=page_title,
+                    line_start=line_number,
                 )
                 raw_indent = heading_match.group(1)
 
@@ -500,9 +509,10 @@ class StackMachineParser:
                     current_node.content,
                     properties_override=properties,
                     properties_order_override=properties_order,
+                    line_end=line_number,
                 )
                 if key == "id":
-                    updated = updated.model_copy(update={"uuid": value})
+                    updated = updated.model_copy(update={"source_uuid": value})
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
                 self.registry.register(updated)
@@ -519,7 +529,7 @@ class StackMachineParser:
                 continue
 
             merged_content = f"{current_node.content}\n{raw_line}"
-            updated = self._refresh_node(current_node, merged_content)
+            updated = self._refresh_node(current_node, merged_content, line_end=line_number)
             self._replace_stack_tail_node(stack, root_nodes, updated)
             current_node = updated
             frontmatter_active = False
@@ -572,12 +582,14 @@ class StackMachineParser:
             created_at = int(os.path.getctime(path))
         if updated_at is None:
             updated_at = int(os.path.getmtime(path))
+        source_path = str(path.resolve())
         return page.model_copy(
             update={
-                "source_path": str(path.resolve()),
+                "source_path": source_path,
                 "graph_root": str(graph_root),
                 "created_at": created_at,
                 "updated_at": updated_at,
+                "root_nodes": self._apply_source_path(page.root_nodes, source_path),
             }
         )
 
@@ -602,6 +614,17 @@ class StackMachineParser:
                 return parent.parent.resolve()
         return resolved_path.parent.resolve()
 
+    def _apply_source_path(self, nodes: list[LogseqNode], source_path: str) -> list[LogseqNode]:
+        return [
+            node.model_copy(
+                update={
+                    "source_path": source_path,
+                    "children": self._apply_source_path(node.children, source_path),
+                }
+            )
+            for node in nodes
+        ]
+
     def _compute_indent_level(self, indentation: str) -> int:
         spaces = indentation.count(" ") + (indentation.count("\t") * self.tab_size)
         logger.debug(
@@ -612,7 +635,13 @@ class StackMachineParser:
         )
         return spaces // self.tab_size
 
-    def _build_node(self, block_text: str, indent_level: int, page_title: str) -> LogseqNode:
+    def _build_node(
+        self,
+        block_text: str,
+        indent_level: int,
+        page_title: str,
+        line_start: int,
+    ) -> LogseqNode:
         stripped_text = block_text.strip()
         properties: dict[str, Any] = {}
 
@@ -622,13 +651,12 @@ class StackMachineParser:
             inline_uuid = inline_uuid_match.group(1)
             properties["id"] = inline_uuid
             stripped_text = LOGSEQ_PATTERNS["inline_uuid_prop"].sub("", stripped_text).strip()
-        node_uuid = (
+        source_uuid = (
             uuid_match.group(1)
             if uuid_match
             else (inline_uuid_match.group(1) if inline_uuid_match else None)
         )
-        if node_uuid is None:
-            node_uuid = self._deterministic_uuid(page_title, stripped_text)
+        node_uuid = self._deterministic_uuid(page_title, line_start, stripped_text)
         time_properties = _extract_time_properties(stripped_text)
         if time_properties:
             properties.update(time_properties)
@@ -645,6 +673,8 @@ class StackMachineParser:
 
         return LogseqNode(
             uuid=node_uuid,
+            source_uuid=source_uuid,
+            synthetic_id=True,
             content=stripped_text,
             clean_text=clean_node_content(stripped_text, properties),
             indent_level=indent_level,
@@ -657,13 +687,15 @@ class StackMachineParser:
             task_status=task_status,
             repeater=properties.get("repeater") if isinstance(properties.get("repeater"), str) else None,
             parent_id=None,
+            line_start=line_start,
+            line_end=line_start,
             created_at=_first_normalized_timestamp(properties, CREATED_AT_KEYS),
             updated_at=_first_normalized_timestamp(properties, UPDATED_AT_KEYS),
             children=[],
         )
 
-    def _deterministic_uuid(self, page_title: str, content: str) -> str:
-        payload = f"{page_title}:{content}".encode("utf-8")
+    def _deterministic_uuid(self, page_title: str, line_start: int, content: str) -> str:
+        payload = f"{page_title}:{line_start}:{content}".encode("utf-8")
         digest = hashlib.sha256(payload).hexdigest()
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, digest))
 
@@ -729,9 +761,13 @@ class StackMachineParser:
         if stack:
             parent = stack[-1]
             path = [*parent.path, node.uuid]
+            outline_path = [*parent.outline_path, len(parent.children) + 1]
         else:
             path = [node.uuid]
-        return node.model_copy(update={"left_id": left_id, "path": path})
+            outline_path = [len(root_nodes) + 1]
+        return node.model_copy(
+            update={"left_id": left_id, "path": path, "outline_path": outline_path}
+        )
 
     def _resolve_left_sibling_id(
         self, stack: list[LogseqNode], root_nodes: list[LogseqNode]
@@ -765,6 +801,7 @@ class StackMachineParser:
         content: str,
         properties_override: dict[str, Any] | None = None,
         properties_order_override: list[str] | None = None,
+        line_end: int | None = None,
     ) -> LogseqNode:
         properties = dict(node.properties) if properties_override is None else dict(properties_override)
         properties_order = (
@@ -798,6 +835,7 @@ class StackMachineParser:
                 "tags": tags,
                 "refs": _merge_refs(wikilinks, tags),
                 "block_refs": [*_extract_block_refs(content), *property_block_refs],
+                "line_end": line_end if line_end is not None else node.line_end,
                 "created_at": _first_normalized_timestamp(properties, CREATED_AT_KEYS),
                 "updated_at": _first_normalized_timestamp(properties, UPDATED_AT_KEYS),
             }
