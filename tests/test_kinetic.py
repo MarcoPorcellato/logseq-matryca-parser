@@ -60,6 +60,16 @@ def test_export_command_json_writes_output_file(tmp_path: Path) -> None:
     payload = json.loads(output_file.read_text(encoding="utf-8"))
     assert len(payload) == 2
     assert payload[0]["ast"]
+    assert payload[0]["raw_title"] == "project"
+    assert payload[0]["canonical_title"] == "project"
+    assert payload[0]["page_kind"] == "page"
+    assert payload[0]["journal_day"] is None
+    assert payload[0]["namespace_chain"] == []
+    assert payload[0]["aliases"] == []
+    assert payload[1]["raw_title"] == "2026_04_25"
+    assert payload[1]["canonical_title"] == "2026_04_25"
+    assert payload[1]["page_kind"] == "journal"
+    assert payload[1]["journal_day"] == 20260425
 
 
 def test_export_command_json_preserves_duplicate_block_identity(

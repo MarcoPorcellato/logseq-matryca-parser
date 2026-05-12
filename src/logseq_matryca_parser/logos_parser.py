@@ -10,6 +10,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote
 
 from .logos_core import LogseqNode, LogseqPage
 
@@ -274,6 +275,57 @@ def _merge_refs(wikilinks: list[str], tags: list[str]) -> list[str]:
             seen.add(token)
             merged.append(token)
     return merged
+
+
+def normalize_page_title(raw_title: str) -> str:
+    """Normalize filesystem-derived Logseq page titles into graph addresses."""
+    title = unquote(raw_title.strip().replace("\\", "/"))
+    parts = [part for part in title.split("/") if part]
+    normalized_parts: list[str] = []
+    for part in parts:
+        normalized_parts.extend(
+            segment for segment in re.split(r"___|__", part) if segment
+        )
+    return "/".join(normalized_parts)
+
+
+def derive_namespace_chain(canonical_title: str) -> list[str]:
+    """Return namespace ancestors from a canonical Logseq title."""
+    title_segments = [segment for segment in canonical_title.split("/") if segment]
+    return title_segments[:-1] if len(title_segments) > 1 else []
+
+
+def normalize_page_aliases(properties: dict[str, Any]) -> list[str]:
+    """Extract a deterministic normalized page alias list from page properties."""
+    aliases: list[str] = []
+    seen: set[str] = set()
+    for key in ("alias", "aliases"):
+        value = properties.get(key)
+        if not isinstance(value, str):
+            continue
+        tokens = _split_alias_value(value)
+        for token in tokens:
+            normalized = normalize_page_title(token)
+            if normalized and normalized not in seen:
+                seen.add(normalized)
+                aliases.append(normalized)
+    return aliases
+
+
+def _split_alias_value(value: str) -> list[str]:
+    tokens: list[str] = []
+    wikilinks = LOGSEQ_PATTERNS["wikilink"].findall(value)
+    consumed = LOGSEQ_PATTERNS["wikilink"].sub("", value)
+    tokens.extend(wikilinks)
+    tokens.extend(part.strip() for part in consumed.split(","))
+    return [_strip_alias_token(token) for token in tokens if _strip_alias_token(token)]
+
+
+def _strip_alias_token(token: str) -> str:
+    stripped = token.strip().strip("[]")
+    if stripped.startswith("#"):
+        stripped = stripped[1:]
+    return stripped.strip()
 
 
 def _extract_property_graph_tokens(
@@ -542,10 +594,16 @@ class StackMachineParser:
         page_refs = self._collect_page_refs(root_nodes)
         created_at = _first_normalized_timestamp(page_properties, CREATED_AT_KEYS)
         updated_at = _first_normalized_timestamp(page_properties, UPDATED_AT_KEYS)
-        title_segments = [segment for segment in page_title.split("/") if segment]
-        namespace_chain = title_segments[:-1] if len(title_segments) > 1 else []
+        canonical_title = normalize_page_title(page_title)
+        namespace_chain = derive_namespace_chain(canonical_title)
+        aliases = normalize_page_aliases(page_properties)
         return LogseqPage(
-            title=page_title,
+            title=canonical_title,
+            raw_title=page_title,
+            canonical_title=canonical_title,
+            page_kind="page",
+            journal_day=None,
+            aliases=aliases,
             raw_content=text,
             properties=page_properties,
             refs=page_refs,
@@ -565,17 +623,26 @@ class StackMachineParser:
         content = path.read_text(encoding="utf-8")
         if not content.strip():
             logger.warning("Il file %s è vuoto.", path)
+            raw_title = self._derive_page_title(path)
+            canonical_title = normalize_page_title(raw_title)
+            page_kind = self._derive_page_kind(path)
             return LogseqPage(
-                title=path.stem,
+                title=canonical_title,
+                raw_title=raw_title,
+                canonical_title=canonical_title,
+                page_kind=page_kind,
+                journal_day=resolve_journal_day(path.stem) if page_kind == "journal" else None,
                 raw_content=content,
-                namespace_chain=[],
+                namespace_chain=derive_namespace_chain(canonical_title),
                 source_path=str(path.resolve()),
-                graph_root=str(path.resolve().parent),
+                graph_root=str(self._derive_graph_root(path)),
             )
 
         page_title = self._derive_page_title(path)
         page = self.parse(content, page_title=page_title)
         graph_root = self._derive_graph_root(path)
+        page_kind = self._derive_page_kind(path)
+        journal_day = resolve_journal_day(path.stem) if page_kind == "journal" else None
         created_at = page.created_at
         updated_at = page.updated_at
         if created_at is None:
@@ -587,6 +654,8 @@ class StackMachineParser:
             update={
                 "source_path": source_path,
                 "graph_root": str(graph_root),
+                "page_kind": page_kind,
+                "journal_day": journal_day,
                 "created_at": created_at,
                 "updated_at": updated_at,
                 "root_nodes": self._apply_source_path(page.root_nodes, source_path),
@@ -605,6 +674,10 @@ class StackMachineParser:
             journal_index = parts.index("journals")
             return "/".join(parts[journal_index + 1 :])
         return path.stem
+
+    def _derive_page_kind(self, path: Path) -> str:
+        resolved_path = path.resolve()
+        return "journal" if "journals" in resolved_path.parts else "page"
 
     def _derive_graph_root(self, path: Path) -> Path:
         resolved_path = path.resolve()

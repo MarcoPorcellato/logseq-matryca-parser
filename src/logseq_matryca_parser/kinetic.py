@@ -227,6 +227,12 @@ def _export_json(pages: list[LogseqPage], output_path: Path) -> Path:
     for page in pages:
         page_payload = {
             "title": page.title,
+            "raw_title": page.raw_title,
+            "canonical_title": page.canonical_title,
+            "page_kind": page.page_kind,
+            "journal_day": page.journal_day,
+            "namespace_chain": page.namespace_chain,
+            "aliases": page.aliases,
             "source_path": page.source_path,
             "graph_root": page.graph_root,
             "properties": page.properties,

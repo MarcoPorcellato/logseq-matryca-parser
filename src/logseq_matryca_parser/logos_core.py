@@ -79,6 +79,11 @@ class LogseqPage(BaseModel):
     model_config = ConfigDict(strict=True, frozen=True)
 
     title: str
+    raw_title: str | None = None
+    canonical_title: str | None = None
+    page_kind: str = "page"
+    journal_day: int | None = None
+    aliases: list[str] = Field(default_factory=list)
     raw_content: str
     properties: dict[str, Any] = Field(default_factory=dict)
     refs: list[str] = Field(default_factory=list)

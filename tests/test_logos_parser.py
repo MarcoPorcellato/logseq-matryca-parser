@@ -12,6 +12,7 @@ from logseq_matryca_parser.logos_parser import (
     LogosParser,
     StackMachineParser,
     is_system_block,
+    normalize_page_title,
     resolve_journal_day,
 )
 
@@ -798,6 +799,58 @@ def test_resolve_asset_path_nested_namespace_page(tmp_path: Path) -> None:
 
     assert page.namespace_chain == ["Projects", "AI"]
     assert page.resolve_asset_path("../assets/pic.png") == str(asset_path.resolve())
+
+
+@pytest.mark.parametrize(
+    ("raw_title", "expected"),
+    [
+        ("Projects__AI__Logos", "Projects/AI/Logos"),
+        ("Projects___AI___Logos", "Projects/AI/Logos"),
+        ("Projects%2FAI%2FLogos", "Projects/AI/Logos"),
+        ("Projects/AI/Logos", "Projects/AI/Logos"),
+    ],
+)
+def test_normalize_page_title_decodes_logseq_namespace_encodings(
+    raw_title: str, expected: str
+) -> None:
+    """Filesystem namespace encodings become canonical Logseq page addresses."""
+    assert normalize_page_title(raw_title) == expected
+
+
+def test_parse_page_file_exports_canonical_page_identity(tmp_path: Path) -> None:
+    """Page files expose raw and canonical graph identity fields."""
+    page_path = tmp_path / "graph" / "pages" / "Projects__AI__Logos.md"
+    page_path.parent.mkdir(parents=True, exist_ok=True)
+    page_path.write_text(
+        "aliases:: [[Logos Parser]], Parser Alias\n- Root block\n",
+        encoding="utf-8",
+    )
+
+    page = LogosParser().parse_page_file(page_path)
+
+    assert page.title == "Projects/AI/Logos"
+    assert page.raw_title == "Projects__AI__Logos"
+    assert page.canonical_title == "Projects/AI/Logos"
+    assert page.page_kind == "page"
+    assert page.journal_day is None
+    assert page.namespace_chain == ["Projects", "AI"]
+    assert page.aliases == ["Logos Parser", "Parser Alias"]
+
+
+def test_parse_page_file_exports_journal_identity(tmp_path: Path) -> None:
+    """Journal files expose page kind and sortable journal day."""
+    page_path = tmp_path / "graph" / "journals" / "2026_05_12.md"
+    page_path.parent.mkdir(parents=True, exist_ok=True)
+    page_path.write_text("- Journal block\n", encoding="utf-8")
+
+    page = LogosParser().parse_page_file(page_path)
+
+    assert page.title == "2026_05_12"
+    assert page.raw_title == "2026_05_12"
+    assert page.canonical_title == "2026_05_12"
+    assert page.page_kind == "journal"
+    assert page.journal_day == 20260512
+    assert page.namespace_chain == []
 
 
 def test_page_temporal_properties_are_normalized(parser: StackMachineParser) -> None:
