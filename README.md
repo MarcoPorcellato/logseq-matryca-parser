@@ -21,7 +21,7 @@
 
 The PKM (Personal Knowledge Management) world is currently forcing users to make a painful choice between **Data Longevity** and **AI Power**. 
 
-* **Vanilla Logseq / Obsidian** is a "Forest" of decentralized Markdown files. It guarantees the [Lindy effect](https://en.wikipedia.org/wiki/Lindy_effect) (plain-text lasts forever) and perfect Git versioning, but standard AI chunkers treat it like a blender, destroying the outliner hierarchy.
+* **Vanilla Logseq / Obsidian** is a "Forest" of decentralized Markdown files. It guarantees the Lindy effect (plain-text lasts forever) and perfect Git versioning, but standard AI chunkers treat it like a blender, destroying the outliner hierarchy.
 * **Tana** is a centralized "Tree". It offers incredible semantic power, but traps your brain in a proprietary cloud database.
 * **The new Logseq DB (SQLite)** aims for database speed, but at a huge cost: it locks your notes inside a binary `.db` file. You lose human-readable files, you lose line-by-line Git diffs, and you lose the immortality of plain-text.
 
