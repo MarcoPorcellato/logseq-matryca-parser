@@ -213,7 +213,7 @@ def test_stack_machine_nesting():
 
 # 13. THE SOVEREIGN NOTE PACKAGE (SNP)
 # This is the "Universal Payload" that leaves the parser 
-# to be ingested by LadybugDB or WikiSinks.
+# to be ingested by graph databases, GraphRAG engines, or WikiSinks.
 class SovereignNotePackage(BaseModel):
     model_config = ConfigDict(strict=True, frozen=True)
     
@@ -392,7 +392,7 @@ async def emit_note_package(
 ) -> None:
     """
     Asynchronously emits a SovereignNotePackage to the IngestionEngine sinks.
-    This ensures that writing to LadybugDB or disk doesn't block the fast Stack-Machine.
+    This ensures that writing to graph sinks or disk doesn't block the fast Stack-Machine.
     """
     # Placeholder for the actual dispatch logic to WikiSink and GraphSink
     pass

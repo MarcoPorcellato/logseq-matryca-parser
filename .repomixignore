@@ -14,6 +14,20 @@ docs/
 *.md
 !README.md
 !CHANGELOG.md
+!ARCHITECTURE.md
+
+# =========================
+# Third-Party Libraries & Frontend Assets (Massive Token Killers)
+# =========================
+lib/
+*.js
+*.css
+*.min.js
+
+# =========================
+# Legacy & Deprecated Code
+# =========================
+legacy/
 
 # =========================
 # Locks & Dependencies
@@ -25,43 +39,17 @@ yarn.lock
 pnpm-lock.yaml
 
 # =========================
-# OS / System
+# OS / System / Python Caches
 # =========================
 **/.DS_Store
 Thumbs.db
-
-# =========================
-# Python / Bytecode & Caches
-# =========================
 __pycache__/
 *.py[cod]
-*$py.class
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-
-# =========================
-# Virtual Environments
-# =========================
 .venv/
 venv/
-env/
-.env
-
-# =========================
-# Build & Distribution
-# =========================
-dist/
-build/
-*.egg-info/
-
-# =========================
-# Testing & Coverage
-# =========================
-.coverage
-coverage.xml
-htmlcov/
-tests/fixtures/*.json
 
 # =========================
 # Token Killers (Logs, DBs, Vector Graphics)
@@ -72,12 +60,4 @@ tests/fixtures/*.json
 *.db
 *.csv
 *.svg
-
-# =========================
-# IDEs & Tool Caches
-# =========================
-.vscode/
-.idea/
-.rooignore
-.clinerules
-.cursor/
+tests/fixtures/*.json

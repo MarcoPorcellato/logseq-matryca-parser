@@ -1,6 +1,6 @@
 [project]
 name = "logseq-matryca-parser"
-version = "0.2.2"
+version = "0.3.0"
 description = "The Logos Protocol: Deterministic Logseq AST parsing for Matryca.ai."
 readme = "README.md"
 requires-python = ">=3.12"

@@ -1,5 +1,23 @@
 # Logseq Matryca Parser — Architecture (The Logos Protocol)
 
+## System Architecture
+
+High-level data flow from sovereign graph files through deterministic parsing to AST-backed exporters and adapters.
+
+```mermaid
+flowchart LR
+    FS[(Local Logseq\nGraph .md)] --> Logos[LOGOS Engine\nParser]
+    Logos --> AST((Abstract\nSyntax Tree))
+    
+    AST --> Forge[FORGE Exporter]
+    AST --> Synapse[SYNAPSE Adapter]
+    AST --> Lens[LENS Visualizer]
+    
+    Forge --> JSON[JSON / Markdown\nPayloads]
+    Synapse --> AI[LangChain /\nLlamaIndex Nodes]
+    Lens --> HTML[Interactive\n3D Graph]
+```
+
 ## 1. Title & High-Level Philosophy
 
 ### 1.1 The LLM operating system metaphor
@@ -171,6 +189,29 @@ Auxiliary exporters (**FORGE** for JSON / flat Markdown) consume the same AST an
 - **Task priority (`PRIORITY_PATTERN`).** Priority tags match `\[#([A-Z])\]` (Logseq’s A/B/C style). On the **first line** of a block, a match sets **`LogseqNode.task_priority`** to the captured letter and **`PRIORITY_PATTERN.sub("", …)`** removes the marker from **`clean_text`** so priority is a **typed attribute**, not redundant surface noise in retrieval text.
 
 - **Temporal markers (`TIME_PATTERN`) → epoch fields.** Lines matching `\b(SCHEDULED|DEADLINE):\s*(<[^>]+>)` are parsed by **`_extract_time_properties`**: the `<…>` payload is interpreted through **`_parse_logseq_datetime`** (multiple Logseq date formats), then normalized to **UTC Unix epoch seconds** and assigned to **`LogseqNode.scheduled_at`** and **`LogseqNode.deadline_at`** respectively. Auxiliary keys (`scheduled_iso`, `deadline_journal_day`, repeaters, etc.) may still land in **`properties`** for human/debug parity, but the **integer epoch pair on the node** is the stable contract for **temporal graph edges**, range filters, and **GraphRAG** planners—without forcing downstream graph databases to re-scan Markdown.
+
+#### Node anatomy — raw Markdown to temporal `LogseqNode`
+
+```mermaid
+classDiagram
+  direction LR
+  class RawMarkdown {
+      <<Input>>
+      String: "- TODO [#A] Ship new feature SCHEDULED: <2026-05-15>"
+  }
+  
+  class LogseqNode {
+      <<AST Output>>
+      +uuid: String
+      +clean_text: "Ship new feature"
+      +task_status: "TODO"
+      +task_priority: "A"
+      +scheduled_at: 1778803200 (Epoch)
+      +children: List~LogseqNode~
+  }
+  
+  RawMarkdown --> LogseqNode : Parsing & Extraction
+```
 
 ### 3.2 SYNAPSE — AST → LangChain / LlamaIndex with lineage injection
 

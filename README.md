@@ -49,6 +49,33 @@ It acts as the strict **File System Driver** for your LLM OS. By using a determi
 ### 🚀 The Problem
 Standard RAG pipelines treat your notes like a blender. They chop Markdown into random shards, destroying the **parent-child hierarchy** that makes Logseq powerful.
 
+```mermaid
+graph TD
+    Raw[(Logseq Markdown\nFiles)]
+    
+    subgraph Standard RAG
+        Blender[Standard Text Splitter\n'The Blender']
+        Chunk1[Chunk 1: Orphan text]
+        Chunk2[Chunk 2: Lost context]
+        Blender --> Chunk1 & Chunk2
+    end
+
+    subgraph Matryca Parser
+        Architect[Logos Engine\nStack-Machine]
+        Parent[Parent Node\n+ Properties]
+        Child[Child Node\n+ Task State & Time]
+        Architect --> Parent --> Child
+    end
+
+    Raw --> Blender
+    Raw --> Architect
+    
+    classDef bad fill:#fee2e2,stroke:#ef4444,color:#000;
+    classDef good fill:#dcfce7,stroke:#22c55e,color:#000;
+    class Chunk1,Chunk2 bad;
+    class Parent,Child good;
+```
+
 ### 🔱 The Solution
 Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as the **File System Driver** for your LLM. It preserves the true topology of your thoughts, ensuring AI understands spatial hierarchy, time, and block-lineage—including **structured task state** and **first-class temporal attributes** you can query in downstream graph databases and GraphRAG engines without re-parsing raw Markdown.
 
