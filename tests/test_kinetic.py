@@ -62,6 +62,63 @@ def test_export_command_json_writes_output_file(tmp_path: Path) -> None:
     assert payload[0]["ast"]
 
 
+def test_export_command_json_preserves_duplicate_block_identity(
+    tmp_path: Path,
+) -> None:
+    graph_root = tmp_path / "graph"
+    pages_dir = graph_root / "pages"
+    journals_dir = graph_root / "journals"
+    pages_dir.mkdir(parents=True, exist_ok=True)
+    journals_dir.mkdir(parents=True, exist_ok=True)
+    (pages_dir / "identity.md").write_text("- repeated\n- repeated\n", encoding="utf-8")
+    output_dir = tmp_path / "out-json"
+
+    result = runner.invoke(app, ["export", str(graph_root), str(output_dir), "--format", "json"])
+
+    assert result.exit_code == 0
+    payload = json.loads((output_dir / "graph.json").read_text(encoding="utf-8"))
+    ast = payload[0]["ast"]
+    first, second = ast
+    assert first["content"] == "repeated"
+    assert second["content"] == "repeated"
+    assert first["uuid"] != second["uuid"]
+    assert first["path"] == [first["uuid"]]
+    assert second["path"] == [second["uuid"]]
+    assert second["left_id"] == first["uuid"]
+
+
+def test_export_command_json_preserves_source_uuid_separately(
+    tmp_path: Path,
+) -> None:
+    graph_root = tmp_path / "graph"
+    pages_dir = graph_root / "pages"
+    journals_dir = graph_root / "journals"
+    pages_dir.mkdir(parents=True, exist_ok=True)
+    journals_dir.mkdir(parents=True, exist_ok=True)
+    source_uuid = "11111111-1111-1111-1111-111111111111"
+    (pages_dir / "identity.md").write_text(
+        f"- Root\n  id:: {source_uuid}\n  - Child\n",
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "out-json"
+
+    result = runner.invoke(app, ["export", str(graph_root), str(output_dir), "--format", "json"])
+
+    assert result.exit_code == 0
+    payload = json.loads((output_dir / "graph.json").read_text(encoding="utf-8"))
+    root = payload[0]["ast"][0]
+    child = root["children"][0]
+    assert root["uuid"] != source_uuid
+    assert root["source_uuid"] == source_uuid
+    assert root["synthetic_id"] is True
+    assert root["source_path"] == str((pages_dir / "identity.md").resolve())
+    assert root["line_start"] == 1
+    assert root["line_end"] == 2
+    assert root["outline_path"] == [1]
+    assert child["parent_id"] == root["uuid"]
+    assert child["path"] == [root["uuid"], child["uuid"]]
+
+
 def test_export_command_markdown_writes_output_file(tmp_path: Path) -> None:
     graph_root = _create_graph(tmp_path)
     output_dir = tmp_path / "out-markdown"

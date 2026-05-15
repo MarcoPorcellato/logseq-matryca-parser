@@ -86,7 +86,8 @@ def test_resolved_block_reference_does_not_raise(parser: StackMachineParser) -> 
 
     page = parser.parse(content, page_title="resolved-ref")
     assert len(page.root_nodes) == 1
-    assert page.root_nodes[0].uuid == existing_uuid
+    assert page.root_nodes[0].uuid != existing_uuid
+    assert page.root_nodes[0].source_uuid == existing_uuid
     assert page.root_nodes[0].children[0].block_refs == [existing_uuid]
 
 
@@ -426,10 +427,25 @@ def test_official_inline_uuid_property_binding(
     page = parser.parse(content, page_title="official-inline-id")
     root = page.root_nodes[0]
 
-    assert root.uuid == expected_uuid
+    assert root.uuid != expected_uuid
+    assert root.source_uuid == expected_uuid
+    assert root.synthetic_id is True
     assert root.properties["id"] == expected_uuid
     assert "id::" not in root.content
     assert "id::" not in root.clean_text
+
+
+def test_property_uuid_is_preserved_as_source_uuid(parser: StackMachineParser) -> None:
+    """Official id:: properties do not replace the parser identity."""
+    source_uuid = "11111111-1111-1111-1111-111111111111"
+    page = parser.parse(f"- Root\n  id:: {source_uuid}\n  - Child", page_title="property-id")
+    root = page.root_nodes[0]
+
+    assert root.uuid != source_uuid
+    assert root.source_uuid == source_uuid
+    assert root.properties["id"] == source_uuid
+    assert root.children[0].parent_id == root.uuid
+    assert root.children[0].path == [root.uuid, root.children[0].uuid]
 
 
 @pytest.mark.parametrize(
@@ -702,6 +718,47 @@ def test_sibling_left_id_integrity(parser: StackMachineParser) -> None:
     assert child_a.left_id is None
     assert child_b.left_id == child_a.uuid
     assert child_c.left_id == child_b.uuid
+
+
+def test_duplicate_same_page_blocks_have_distinct_identities(
+    parser: StackMachineParser,
+) -> None:
+    """Repeated content on one page must not collapse to one parser identity."""
+    content = "- repeated\n- repeated"
+    page = parser.parse(content, page_title="identity-collision")
+    first, second = page.root_nodes
+
+    assert first.content == "repeated"
+    assert second.content == "repeated"
+    assert first.uuid != second.uuid
+    assert first.line_start == 1
+    assert second.line_start == 2
+    assert first.outline_path == [1]
+    assert second.outline_path == [2]
+    assert first.path == [first.uuid]
+    assert second.path == [second.uuid]
+    assert second.left_id == first.uuid
+
+
+def test_duplicate_nested_blocks_have_position_distinct_identities(
+    parser: StackMachineParser,
+) -> None:
+    """Identical children under different parents need independent identities."""
+    content = "- Parent A\n  - repeated\n- Parent B\n  - repeated"
+    page = parser.parse(content, page_title="nested-identity-collision")
+    parent_a, parent_b = page.root_nodes
+    child_a = parent_a.children[0]
+    child_b = parent_b.children[0]
+
+    assert child_a.content == "repeated"
+    assert child_b.content == "repeated"
+    assert child_a.uuid != child_b.uuid
+    assert child_a.outline_path == [1, 1]
+    assert child_b.outline_path == [2, 1]
+    assert child_a.parent_id == parent_a.uuid
+    assert child_b.parent_id == parent_b.uuid
+    assert child_a.path == [parent_a.uuid, child_a.uuid]
+    assert child_b.path == [parent_b.uuid, child_b.uuid]
 
 
 def test_leaf_path_resolution(parser: StackMachineParser) -> None:

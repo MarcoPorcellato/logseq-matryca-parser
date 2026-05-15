@@ -59,6 +59,8 @@ repomix-output.*
 output_langchain/
 mappa_cervello.html
 docs/index.html
+out/graph.json
+out/graph.md
 
 # =========================
 # IDEs & Tool Caches
