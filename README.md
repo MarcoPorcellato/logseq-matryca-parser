@@ -68,8 +68,8 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 ## 🛠️ Quickstart
 
 ```bash
-# Install via pip or uv
-pip install -e .
+# Install from GitHub (not yet published to PyPI)
+pip install git+https://github.com/MarcoPorcellato/logseq-matryca-parser.git
 
 # 1. Visualize your local graph (LENS)
 matryca-parse visualize /path/to/logseq/graph my-map.html

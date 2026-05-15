@@ -6,6 +6,7 @@ import sys
 
 from .agent_writer import LogseqConfigReader, logseq_agent_write
 from .exceptions import BlockReferenceError, LogseqIndentationError, LogseqParserError
+from .forge import FlatListForgeVisitor, ForgeExporter, JSONForgeVisitor, MarkdownForgeVisitor
 from .logos_core import ASTVisitor, LogseqNode, LogseqPage, LogosNode, SovereignNotePackage
 from .logos_parser import (
     LOGSEQ_PATTERNS,
@@ -26,6 +27,9 @@ def ensure_aot_compatibility() -> None:
 __all__ = [
     "ASTVisitor",
     "BlockReferenceError",
+    "FlatListForgeVisitor",
+    "ForgeExporter",
+    "JSONForgeVisitor",
     "LOGSEQ_PATTERNS",
     "LogosNode",
     "LogosParser",
@@ -41,4 +45,5 @@ __all__ = [
     "ensure_aot_compatibility",
     "is_system_block",
     "logseq_agent_write",
+    "MarkdownForgeVisitor",
 ]

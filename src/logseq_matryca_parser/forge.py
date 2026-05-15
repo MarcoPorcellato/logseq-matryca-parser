@@ -61,8 +61,8 @@ class MarkdownForgeVisitor(ASTVisitor):
     def visit_node(self, node: LogseqNode) -> None:
         depth = len(self._stack)
         prefix = "  " * depth + "- "
-        content = node.content.replace("\n", " ")
-        self._lines.append(f"{prefix}{content}")
+        line_text = node.clean_text.replace("\n", " ")
+        self._lines.append(f"{prefix}{line_text}")
         if node.properties:
             for key, value in node.properties.items():
                 if key != "id":

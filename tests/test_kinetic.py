@@ -75,7 +75,7 @@ def test_export_command_markdown_writes_output_file(tmp_path: Path) -> None:
     assert output_file.exists()
     body = output_file.read_text(encoding="utf-8")
     assert "# project" in body
-    assert "- TODO Build parser #kinetic" in body
+    assert "- Build parser #kinetic" in body
 
 
 def test_export_command_langchain_writes_output_file(tmp_path: Path) -> None:

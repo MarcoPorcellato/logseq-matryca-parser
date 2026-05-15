@@ -545,13 +545,14 @@ class StackMachineParser:
             root_nodes=root_nodes,
         )
 
-    def parse_file(self, path: Path) -> list[LogseqNode]:
+    def parse_file(self, path: Path | str) -> list[LogseqNode]:
         """Compatibility API: parse file and return root nodes."""
         page = self.parse_page_file(path)
         return page.root_nodes
 
-    def parse_page_file(self, path: Path) -> LogseqPage:
+    def parse_page_file(self, path: Path | str) -> LogseqPage:
         """Parse a markdown file and return a graph-native page model."""
+        path = Path(path)
         content = path.read_text(encoding="utf-8")
         if not content.strip():
             logger.warning("Il file %s è vuoto.", path)
