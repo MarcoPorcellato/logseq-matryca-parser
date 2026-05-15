@@ -50,7 +50,7 @@ It acts as the strict **File System Driver** for your LLM OS. By using a determi
 Standard RAG pipelines treat your notes like a blender. They chop Markdown into random shards, destroying the **parent-child hierarchy** that makes Logseq powerful.
 
 ### 🔱 The Solution
-Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as the **File System Driver** for your LLM. It preserves the true topology of your thoughts, ensuring AI understands spatial hierarchy, time, and block-lineage.
+Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as the **File System Driver** for your LLM. It preserves the true topology of your thoughts, ensuring AI understands spatial hierarchy, time, and block-lineage—including **structured task state** and **first-class temporal attributes** you can query in downstream graph databases and GraphRAG engines without re-parsing raw Markdown.
 
 ---
 
@@ -59,9 +59,27 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 | Feature | Description |
 | :--- | :--- |
 | **LOGOS Engine** | Deterministic AST parsing. No regex-guessing. Handles `id::`, aliases, and multiline blocks. |
+| **Advanced Task Extraction** | Task **state** (TODO / DOING / …), **priority** markers `[#A]`–`[#C]` promoted to `task_priority`, and **SCHEDULED** / **DEADLINE** Logseq timestamps normalized to **UTC Unix epoch seconds** on `scheduled_at` / `deadline_at` for temporal graph and retrieval pipelines. |
 | **SYNAPSE Adapter** | Native exports for **LangChain** and **LlamaIndex** with automated lineage metadata. |
 | **LENS Visualizer** | 60FPS interactive graph rendering (10k+ nodes) with Glassmorphism HUD. |
 | **Sovereign AI** | 100% Local. Zero telemetry. Private by design. |
+
+### Data model — `LogseqNode` task fields
+
+Each AST block is a `LogseqNode`. Alongside `task_status`, the parser surfaces priority and schedule metadata as typed fields (epoch integers are **seconds since Unix epoch, UTC**):
+
+```json
+{
+  "uuid": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+  "task_status": "TODO",
+  "task_priority": "A",
+  "scheduled_at": 1641600000,
+  "deadline_at": 1641772800,
+  "clean_text": "Cut v0.3.0 release"
+}
+```
+
+Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `clean_text` so embeddings stay clean; the promoted fields carry the structured signal for downstream graph databases and GraphRAG engines.
 
 ---
 

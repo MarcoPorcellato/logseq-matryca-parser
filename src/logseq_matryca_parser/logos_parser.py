@@ -33,6 +33,7 @@ TASK_STATUSES: tuple[str, ...] = (
     "CANCELED",
 )
 TIME_PATTERN: re.Pattern[str] = re.compile(r"\b(SCHEDULED|DEADLINE):\s*(<[^>]+>)")
+PRIORITY_PATTERN: re.Pattern[str] = re.compile(r"\[#([A-Z])\]")
 MACRO_PATTERN: re.Pattern[str] = re.compile(r"\{\{.*?\}\}")
 HEADING_PATTERN: re.Pattern[str] = re.compile(r"^(#{1,6})\s+(.+)$")
 ALIASED_BLOCK_REF_PATTERN: re.Pattern[str] = re.compile(
@@ -92,6 +93,7 @@ def clean_node_content(raw_content: str, properties: dict[str, Any]) -> str:
             cleaned_line = heading_match.group(2).strip()
         if line_index == 0:
             _, cleaned_line = _extract_task_status(cleaned_line)
+            cleaned_line = PRIORITY_PATTERN.sub("", cleaned_line).strip()
         cleaned_line = re.sub(r"\s{2,}", " ", cleaned_line).strip()
         if not cleaned_line:
             continue
@@ -135,6 +137,9 @@ def _extract_time_properties(raw_content: str) -> dict[str, Any]:
             if parsed_dt is not None:
                 properties[f"{marker_lower}_journal_day"] = int(parsed_dt.strftime("%Y%m%d"))
                 properties[f"{marker_lower}_iso"] = parsed_dt.isoformat(timespec="seconds")
+                properties[f"{marker_lower}_at"] = int(
+                    parsed_dt.replace(tzinfo=timezone.utc).timestamp()
+                )
             if repeater is not None:
                 properties["repeater"] = repeater
     return properties
@@ -659,8 +664,22 @@ class StackMachineParser:
         )
         node_uuid = self._deterministic_uuid(page_title, line_start, stripped_text)
         time_properties = _extract_time_properties(stripped_text)
+        scheduled_at: int | None = None
+        deadline_at: int | None = None
         if time_properties:
-            properties.update(time_properties)
+            scheduled_raw = time_properties.get("scheduled_at")
+            deadline_raw = time_properties.get("deadline_at")
+            scheduled_at = scheduled_raw if isinstance(scheduled_raw, int) else None
+            deadline_at = deadline_raw if isinstance(deadline_raw, int) else None
+            merge_time = {
+                key: value
+                for key, value in time_properties.items()
+                if key not in ("scheduled_at", "deadline_at")
+            }
+            properties.update(merge_time)
+        first_line = stripped_text.splitlines()[0].strip() if stripped_text else ""
+        priority_match = PRIORITY_PATTERN.search(first_line)
+        task_priority = priority_match.group(1) if priority_match else None
         task_status, _ = _extract_task_status(stripped_text)
         heading_level = _extract_heading_level(stripped_text)
         if heading_level is not None:
@@ -686,6 +705,9 @@ class StackMachineParser:
             refs=_merge_refs(wikilinks, tags),
             block_refs=[*_extract_block_refs(stripped_text), *property_block_refs],
             task_status=task_status,
+            task_priority=task_priority,
+            scheduled_at=scheduled_at,
+            deadline_at=deadline_at,
             repeater=properties.get("repeater") if isinstance(properties.get("repeater"), str) else None,
             parent_id=None,
             line_start=line_start,
@@ -811,11 +833,25 @@ class StackMachineParser:
             else list(properties_order_override)
         )
         time_properties = _extract_time_properties(content)
+        scheduled_at: int | None = None
+        deadline_at: int | None = None
         if time_properties:
-            properties.update(time_properties)
+            scheduled_raw = time_properties.get("scheduled_at")
+            deadline_raw = time_properties.get("deadline_at")
+            scheduled_at = scheduled_raw if isinstance(scheduled_raw, int) else None
+            deadline_at = deadline_raw if isinstance(deadline_raw, int) else None
+            merge_time = {
+                key: value
+                for key, value in time_properties.items()
+                if key not in ("scheduled_at", "deadline_at")
+            }
+            properties.update(merge_time)
         heading_level = _extract_heading_level(content)
         if heading_level is not None:
             properties["heading_level"] = heading_level
+        first_line = content.splitlines()[0].strip() if content.splitlines() else ""
+        priority_match = PRIORITY_PATTERN.search(first_line)
+        task_priority = priority_match.group(1) if priority_match else None
         task_status, _ = _extract_task_status(content.splitlines()[0].strip())
         property_wikilinks, property_tags, property_block_refs = _extract_property_graph_tokens(
             properties
@@ -829,6 +865,9 @@ class StackMachineParser:
                 "properties_order": properties_order,
                 "clean_text": clean_node_content(content, properties),
                 "task_status": task_status,
+                "task_priority": task_priority,
+                "scheduled_at": scheduled_at,
+                "deadline_at": deadline_at,
                 "repeater": (
                     properties.get("repeater") if isinstance(properties.get("repeater"), str) else None
                 ),

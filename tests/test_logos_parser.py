@@ -221,21 +221,40 @@ def test_task_marker_extraction(
     assert root.clean_text == expected_clean
 
 
+def test_task_priority_extraction(parser: StackMachineParser) -> None:
+    """Priority markers become task_priority and are removed from clean_text."""
+    page = parser.parse("- TODO [#A] Ship feature", page_title="priority")
+    root = page.root_nodes[0]
+
+    assert root.task_priority == "A"
+    assert root.task_status == "TODO"
+    assert root.clean_text == "Ship feature"
+    assert "[#A]" not in root.clean_text
+
+
 @pytest.mark.parametrize(
-    ("content", "expected"),
+    ("content", "expected", "expected_scheduled_at", "expected_deadline_at"),
     [
         (
             "- TODO Plan launch SCHEDULED: <2026-04-30 Thu>\n  Details",
             {"scheduled": "<2026-04-30 Thu>"},
+            int(datetime(2026, 4, 30, 0, 0, 0, tzinfo=timezone.utc).timestamp()),
+            None,
         ),
         (
             "- DONE Finish draft DEADLINE: <2026-05-01 Fri>",
             {"deadline": "<2026-05-01 Fri>"},
+            None,
+            int(datetime(2026, 5, 1, 0, 0, 0, tzinfo=timezone.utc).timestamp()),
         ),
     ],
 )
 def test_time_topology_is_extracted_and_stripped(
-    parser: StackMachineParser, content: str, expected: dict[str, str]
+    parser: StackMachineParser,
+    content: str,
+    expected: dict[str, str],
+    expected_scheduled_at: int | None,
+    expected_deadline_at: int | None,
 ) -> None:
     """SCHEDULED/DEADLINE tokens are moved to properties and removed from clean_text."""
     page = parser.parse(content, page_title="timeline")
@@ -243,6 +262,8 @@ def test_time_topology_is_extracted_and_stripped(
 
     for key, value in expected.items():
         assert root.properties[key] == value
+    assert root.scheduled_at == expected_scheduled_at
+    assert root.deadline_at == expected_deadline_at
     assert "SCHEDULED:" not in root.clean_text
     assert "DEADLINE:" not in root.clean_text
 
@@ -662,6 +683,8 @@ def test_official_empty_logbook_with_scheduled_tolerance(
     root = page.root_nodes[0]
     assert root.task_status == "TODO"
     assert root.properties["scheduled"] == expected_scheduled
+    expected_scheduled_at = int(datetime(2022, 1, 8, 0, 0, 0, tzinfo=timezone.utc).timestamp())
+    assert root.scheduled_at == expected_scheduled_at
     assert root.properties["logbook"] == []
 
 
@@ -847,6 +870,8 @@ def test_scheduled_marker_parses_time_and_repeater(parser: StackMachineParser) -
     assert root.properties["scheduled_iso"] == "2024-04-25T17:00:00"
     assert root.properties["repeater"] == "++1w"
     assert root.repeater == "++1w"
+    expected_scheduled_at = int(datetime(2024, 4, 25, 17, 0, 0, tzinfo=timezone.utc).timestamp())
+    assert root.scheduled_at == expected_scheduled_at
 
 
 def test_clock_marker_extracts_start_end_and_duration(parser: StackMachineParser) -> None:
