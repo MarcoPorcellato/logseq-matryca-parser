@@ -182,7 +182,17 @@ Auxiliary exporters (**FORGE** for JSON / flat Markdown) consume the same AST an
 
 - **Spatial indentation rules.** In Logseq, **indentation defines the AST**, not list decoration. Heading blocks and bullets both participate as first-class structural lines. Levels are **normalized post-pass** to tree depth (`_normalize_indent_levels`) so persisted `indent_level` reflects hierarchical depth independent of authoring quirks after stack repair.
 
-- **Block properties & `id::`.** Subsequent lines matching `key:: value` attach to **`current_node`** (or accumulate into **frontmatter-derived page properties** when no node exists yet). Parsed properties live in **`LogseqNode.properties`**. **`id::`** establishes the authoritative block UUID (`uuid` overridden from property `id` when present — the native anchor for `((uuid))` references inside Logseq).
+- **Block properties & `id::`.** Subsequent lines matching `key:: value` attach to **`current_node`** (or accumulate into **frontmatter-derived page properties** when no node exists yet). Parsed properties live in **`LogseqNode.properties`**. Native **`id::`** values are preserved in **`source_uuid`** (and in **`properties["id"]`** when applicable) so **`((uuid))`** references match Logseq; the parser’s stable **`uuid`** field remains the synthetic identity used for AST wiring and adapters.
+
+#### Sovereign UUID architecture and zero-corruption guarantee
+
+One of the most critical aspects of parsing a Logseq graph for AI is maintaining the integrity of block references (`((uuid))`) without causing infinite loops or polluting a vector database with duplicates.
+
+The Logos protocol uses a **dual-track identity system** so vanilla Logseq compatibility and RAG-stable keys coexist:
+
+1. **Native Logseq identity (absolute priority).** During AST traversal, the parser scans for Logseq’s native `id:: <uuid>` properties or inline IDs. If a block has been explicitly referenced in Logseq, that value is adopted as **`source_uuid`** — the absolute source of truth for cross-page block references and registry lookups.
+
+2. **Topological deterministic hashing (AI fallback).** For blocks that do not carry a physical UUID in the Markdown file, Matryca generates a **deterministic SHA-256–based** synthetic UUID from strict coordinates: **page title**, **physical line number**, **exact plain-text content**, and the **parent node’s synthetic UUID** (a sentinel when the block is page-root level). Re-parsing therefore yields the same synthetic identities without random UUID v4 churn, while sibling branches cannot collide when only title, line, and text coincide.
 
 - **`clean_text` isolation.** Embedding-facing text (`clean_text`) is produced by stripping property lines, timelines, markup noise appropriate to vector use, bullet prefixes, etc. **`content`** retains richer raw semantics; **`clean_text`** strips **collapsed::** and inline **SCHEDULED** / **DEADLINE** marker text (via `TIME_PATTERN`) so prose embeddings stay clean—while the same parse pass **promotes** decoded times to first-class node fields (below), avoiding the classic failure mode where temporal tokens pollute vectors yet remain unqueryable as data.
 
@@ -256,7 +266,7 @@ sequenceDiagram
   alt Structural bullet or heading prefix
     INV->>INV: Compute indentation level<br/>(_compute_indent_level)
     INV->>STK: While deeper/equal indentation exhausted → pop ascend
-    PSI->>PSI: Resolve UUID (id:: / deterministic hash fallback)
+    PSI->>PSI: Resolve UUID (id:: for source_uuid / deterministic hash for synthetic uuid)
     PSI->>PSI: Harvest inline tokens (wikilinks, tags, SCHEDULED/DEADLINE, headings)
     PSI->>PSI: Produce clean_text excluding property/key noise
     PSI->>AST: Instantiate LogseqNode shell

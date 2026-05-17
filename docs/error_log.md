@@ -34,7 +34,7 @@
 
 ### Module: `logos_core.py` & `logos_parser.py` (AST Identity Collision - v0.2.2)
 * **Issue:** Generating block UUIDs purely from `page_title` and `content` resulted in identical UUIDs for repeated blocks (e.g., recurring identical tasks). This caused critical node-merging collisions when ingested into downstream Graph Databases and GraphRAG engines.
-* **Resolution:** 1. Updated the `_deterministic_uuid` hashing algorithm to include physical file position (`line_start`) as a primary entropy source.
+* **Resolution:** 1. Updated the `_deterministic_uuid` hashing algorithm to include physical file position (`line_start`) and the parent’s synthetic UUID (or a root sentinel when the block is top-level) so topology cannot collide when title, line, and text coincide.
   2. Preserved the native Logseq `id::` property safely into a separate `source_uuid` field.
   3. Upgraded the `LogseqNode` model to capture rich topological metadata: `line_start`, `line_end`, `source_path`, and `outline_path`.
 * **Verification:** Merged PR from `@slikts`. Regression tests for duplicate same-content blocks and JSON exports passed successfully.

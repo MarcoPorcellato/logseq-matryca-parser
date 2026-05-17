@@ -784,6 +784,18 @@ def test_duplicate_nested_blocks_have_position_distinct_identities(
     assert child_b.path == [parent_b.uuid, child_b.uuid]
 
 
+def test_deterministic_uuid_collision_prevention(parser: StackMachineParser) -> None:
+    """Same page title, line index, and text must not collide across different parents."""
+    page_title = "macro-dup"
+    line_start = 42
+    text = "synthetic duplicate payload"
+    parent_a = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    parent_b = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+    first = parser._deterministic_uuid(page_title, line_start, text, parent_a)
+    second = parser._deterministic_uuid(page_title, line_start, text, parent_b)
+    assert first != second
+
+
 def test_leaf_path_resolution(parser: StackMachineParser) -> None:
     """Leaf path tracks UUID chain from root to current node."""
     content = "- Root\n  - Child\n    - Leaf"
