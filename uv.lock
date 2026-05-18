@@ -893,14 +893,10 @@ watch = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "langchain-core" },
-    { name = "llama-index-core" },
+    { name = "logseq-matryca-parser", extra = ["all", "watch"] },
     { name = "mypy" },
-    { name = "networkx" },
     { name = "pytest" },
-    { name = "pyvis" },
     { name = "ruff" },
-    { name = "watchdog" },
 ]
 
 [package.metadata]
@@ -922,14 +918,10 @@ provides-extras = ["viz", "ai", "all", "watch"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "langchain-core" },
-    { name = "llama-index-core" },
+    { name = "logseq-matryca-parser", extras = ["all", "watch"] },
     { name = "mypy", specifier = ">=1.20.2" },
-    { name = "networkx", specifier = ">=3.0.0" },
     { name = "pytest", specifier = ">=9.0.3" },
-    { name = "pyvis", specifier = ">=0.3.2" },
     { name = "ruff", specifier = ">=0.15.12" },
-    { name = "watchdog", specifier = ">=4.0.0" },
 ]
 
 [[package]]
