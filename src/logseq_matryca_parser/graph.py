@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import uuid
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Self
@@ -321,3 +322,150 @@ class LogseqGraph(BaseModel):
             len(children),
         )
         return children
+
+    def _resolved_path_is_tracked_markdown(self, path: Path) -> bool:
+        """True when ``path`` is a ``.md`` file under this graph's ``pages/`` or ``journals/``."""
+        resolved = path.resolve()
+        if resolved.suffix.lower() != ".md":
+            return False
+        graph_root = self.graph_path.resolve()
+        for folder in ("pages", "journals"):
+            root = graph_root / folder
+            if not root.is_dir():
+                continue
+            try:
+                resolved.relative_to(root)
+                return True
+            except ValueError:
+                continue
+        return False
+
+    def _page_title_for_source_path(self, resolved_file: Path) -> str | None:
+        """Return the ``pages`` dict key for the page loaded from ``resolved_file``, if any."""
+        for title, page in self.pages.items():
+            sp = page.source_path
+            if sp and Path(sp).resolve() == resolved_file:
+                return title
+        return None
+
+    def _purge_stale_page_uuids(self, stale: set[str]) -> None:
+        """Remove stale node UUIDs from the node registry and scrub backlink source lists."""
+        for uid in stale:
+            self._node_registry.pop(uid, None)
+        dead_keys: list[str] = []
+        for key, sources in self._backlink_registry.items():
+            filtered = [s for s in sources if s not in stale]
+            if filtered:
+                self._backlink_registry[key] = filtered
+            else:
+                dead_keys.append(key)
+        for key in dead_keys:
+            del self._backlink_registry[key]
+        logger.debug(
+            "Stack-Machine incremental purge: stale_uuids=%s dead_backlink_keys=%s",
+            len(stale),
+            len(dead_keys),
+        )
+
+    def _register_page_nodes(self, page: LogseqPage) -> None:
+        for node in _flatten_nodes(page.root_nodes):
+            self._node_registry[node.uuid] = node
+
+    def _append_page_backlinks(self, page: LogseqPage) -> None:
+        for node in _flatten_nodes(page.root_nodes):
+            for link in node.wikilinks:
+                key = _normalize_backlink_key(link)
+                if key:
+                    _append_backlink(self._backlink_registry, key, node.uuid)
+            for tag in node.tags:
+                key = _normalize_backlink_key(tag)
+                if key:
+                    _append_backlink(self._backlink_registry, key, node.uuid)
+            for block_ref in node.block_refs:
+                key = _normalize_backlink_key(block_ref)
+                if key:
+                    _append_backlink(self._backlink_registry, key, node.uuid)
+
+    def invalidate_and_reload_page(self, file_path: Path) -> None:
+        """Re-parse a single file, purge its old nodes/backlinks, and merge fresh indexes."""
+        resolved = Path(file_path).expanduser().resolve()
+        if not self._resolved_path_is_tracked_markdown(resolved):
+            logger.debug("invalidate_and_reload_page: skip non-tracked path=%s", resolved)
+            return
+        fresh = StackMachineParser().parse_page_file(resolved)
+        old_title = self._page_title_for_source_path(resolved)
+        stale: set[str] = set()
+        if old_title is not None:
+            old_page = self.pages[old_title]
+            stale = {n.uuid for n in _flatten_nodes(old_page.root_nodes)}
+            self._purge_stale_page_uuids(stale)
+        new_pages = dict(self.pages)
+        if old_title is not None:
+            del new_pages[old_title]
+        new_pages[fresh.title] = fresh
+        object.__setattr__(self, "pages", new_pages)
+        self._register_page_nodes(fresh)
+        self._append_page_backlinks(fresh)
+        logger.debug(
+            "Stack-Machine incremental re-hydrate: path=%s title=%s nodes=%s",
+            resolved,
+            fresh.title,
+            len(list(_flatten_nodes(fresh.root_nodes))),
+        )
+
+    def start_watching(self, callback: Callable[[Path], None] | None = None) -> LogseqGraphWatcher:
+        """Start a recursive filesystem observer over the graph (requires optional ``watchdog``)."""
+        return LogseqGraphWatcher(self, callback).start()
+
+
+class LogseqGraphWatcher:
+    """Background ``watchdog`` observer that incremental-reloads touched Markdown pages."""
+
+    def __init__(self, graph: LogseqGraph, callback: Callable[[Path], None] | None = None) -> None:
+        self._graph = graph
+        self._callback = callback
+        self._observer: Any = None
+
+    def start(self) -> LogseqGraphWatcher:
+        from watchdog.events import FileSystemEventHandler
+        from watchdog.observers import Observer
+
+        graph = self._graph
+        user_callback = self._callback
+
+        def _route_event(event: Any) -> None:
+            if getattr(event, "is_directory", False):
+                return
+            path = Path(str(event.src_path))
+            if not graph._resolved_path_is_tracked_markdown(path):
+                logger.debug("Stack-Machine watcher: ignore path=%s", path)
+                return
+            logger.debug("Stack-Machine watcher: invalidate path=%s", path)
+            graph.invalidate_and_reload_page(path)
+            if user_callback is not None:
+                user_callback(path)
+
+        class _MarkdownGraphHandler(FileSystemEventHandler):
+            def on_modified(self, event: Any) -> None:
+                _route_event(event)
+
+            def on_created(self, event: Any) -> None:
+                _route_event(event)
+
+        observer = Observer()
+        observer.schedule(
+            _MarkdownGraphHandler(),
+            str(graph.graph_path.resolve()),
+            recursive=True,
+        )
+        observer.start()
+        self._observer = observer
+        logger.debug("Stack-Machine watcher: started on graph_path=%s", graph.graph_path)
+        return self
+
+    def stop(self) -> None:
+        if self._observer is not None:
+            self._observer.stop()
+            self._observer.join(timeout=5)
+            self._observer = None
+            logger.debug("Stack-Machine watcher: stopped")

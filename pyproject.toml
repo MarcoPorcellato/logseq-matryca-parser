@@ -44,6 +44,9 @@ all = [
     "langchain-core",
     "llama-index-core",
 ]
+watch = [
+    "watchdog>=4.0.0",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/MarcoPorcellato/logseq-matryca-parser"
@@ -62,6 +65,7 @@ dev = [
     "mypy>=1.20.2",
     "pytest>=9.0.3",
     "ruff>=0.15.12",
+    "watchdog>=4.0.0",
     "networkx>=3.0.0",
     "pyvis>=0.3.2",
     "langchain-core",

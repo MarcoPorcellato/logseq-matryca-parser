@@ -219,3 +219,81 @@ def test_fluent_graph_query_pipeline(tmp_path: Path) -> None:
         .execute()
     )
     assert branch_beta_hits == [shallow]
+
+
+def test_graph_incremental_page_invalidation(tmp_path: Path) -> None:
+    """Single-file invalidation purges stale UUIDs and backlinks without a full directory reload."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Target.md").write_text("- Anchor\n", encoding="utf-8")
+    (pages / "Other.md").write_text("- Still [[Target]]\n", encoding="utf-8")
+    path_bridge = pages / "Bridge.md"
+    path_bridge.write_text("- Bridge to [[Target]]\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    bridge_page = graph.pages["Bridge"]
+    bridge_node = bridge_page.root_nodes[0]
+    stale_uuid = bridge_node.uuid
+
+    assert graph.get_node_by_uuid(stale_uuid) is bridge_node
+    assert bridge_node in graph.get_backlinks("Target")
+
+    path_bridge.write_text("- Isolated after edit\n", encoding="utf-8")
+    graph.invalidate_and_reload_page(path_bridge)
+
+    assert graph.get_node_by_uuid(stale_uuid) is None
+    assert "Isolated" in graph.pages["Bridge"].root_nodes[0].clean_text
+    remaining = graph.get_backlinks("Target")
+    assert len(remaining) == 1
+    assert remaining[0].source_path == str((pages / "Other.md").resolve())
+
+
+def test_graph_watcher_filesystem_events(tmp_path: Path) -> None:
+    """Watchdog handler routes ``on_modified`` / ``on_created`` into incremental invalidation."""
+    from unittest.mock import MagicMock, patch
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    path_doc = pages / "Live.md"
+    path_doc.write_text("- v1\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    old_uuid = graph.pages["Live"].root_nodes[0].uuid
+
+    callback_paths: list[Path] = []
+
+    def cb(p: Path) -> None:
+        callback_paths.append(p.resolve())
+
+    mock_observer = MagicMock()
+    with patch("watchdog.observers.Observer", return_value=mock_observer):
+        watcher = graph.start_watching(callback=cb)
+        handler = mock_observer.schedule.call_args[0][0]
+        mock_observer.start.assert_called_once()
+
+    path_doc.write_text("- v2 breakthrough\n", encoding="utf-8")
+
+    class _Ev:
+        is_directory = False
+        src_path = str(path_doc)
+
+    handler.on_modified(_Ev())
+    assert old_uuid != graph.pages["Live"].root_nodes[0].uuid
+    assert "v2" in graph.pages["Live"].root_nodes[0].clean_text
+    assert callback_paths == [path_doc.resolve()]
+
+    callback_paths.clear()
+    handler.on_created(_Ev())
+    assert callback_paths == [path_doc.resolve()]
+
+    callback_paths.clear()
+    class _DirEv:
+        is_directory = True
+        src_path = str(pages)
+
+    handler.on_modified(_DirEv())
+    assert callback_paths == []
+
+    watcher.stop()
+    mock_observer.stop.assert_called_once()
