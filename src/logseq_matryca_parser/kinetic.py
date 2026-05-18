@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from collections.abc import Iterable
 from enum import Enum
 from pathlib import Path
@@ -33,6 +34,7 @@ class ExportFormat(str, Enum):
     MARKDOWN = "markdown"
     LANGCHAIN = "langchain"
     LANGCHAIN_ENRICHED = "langchain-enriched"
+    OBSIDIAN = "obsidian"
 
 
 def _discover_graph_files(graph_path: Path) -> list[Path]:
@@ -306,6 +308,64 @@ def _export_langchain_enriched(graph: LogseqGraph, output_path: Path) -> tuple[P
     return destination, len(payload)
 
 
+def _page_tree_contains_node_uuid(roots: list[LogseqNode], needle_uuid: str) -> bool:
+    for node in roots:
+        if node.uuid == needle_uuid:
+            return True
+        if node.children and _page_tree_contains_node_uuid(node.children, needle_uuid):
+            return True
+    return False
+
+
+def _safe_obsidian_vault_relative_path(page_title: str) -> Path:
+    segments = [
+        re.sub(r'[<>:"|?*\\]', "_", segment) for segment in page_title.split("/") if segment
+    ]
+    if not segments:
+        return Path("untitled.md")
+    *parents, leaf = segments
+    if not parents:
+        return Path(f"{leaf}.md")
+    return Path(*parents) / f"{leaf}.md"
+
+
+def _export_obsidian(graph: LogseqGraph, output_path: Path) -> int:
+    """Write one Obsidian-compatible Markdown file per page (namespace folders)."""
+    pages_list = list(graph.pages.values())
+    targets = ForgeExporter.vault_wide_embed_targets(pages_list)
+    suffix_map = ForgeExporter.build_vault_obsidian_suffix_map(
+        pages_list,
+        vault_wide_ref_targets=targets,
+    )
+
+    def embed_resolver(ref: str) -> tuple[str, str] | None:
+        node = graph.get_node_by_embed_ref(ref)
+        if node is None:
+            return None
+        for title, page in graph.pages.items():
+            if _page_tree_contains_node_uuid(page.root_nodes, node.uuid):
+                anchor = suffix_map.get(node.uuid, node.uuid.replace("-", "")[:8])
+                return title, anchor
+        return None
+
+    count = 0
+    for page in graph.pages.values():
+        props = {**page.properties, "title": page.title}
+        md = ForgeExporter.to_obsidian_markdown(
+            page.root_nodes,
+            props,
+            embed_resolver=embed_resolver,
+            global_suffix_map=suffix_map,
+            vault_wide_ref_targets=targets,
+        )
+        rel = _safe_obsidian_vault_relative_path(page.title)
+        out_file = output_path / rel
+        out_file.parent.mkdir(parents=True, exist_ok=True)
+        out_file.write_text(md, encoding="utf-8")
+        count += 1
+    return count
+
+
 @app.command()
 def export(
     graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root."),
@@ -338,6 +398,21 @@ def export(
         console.print(
             f"[bold green]Synthesized[/] [cyan]{chunk_count}[/] contextual chunks; "
             f"[bold green]written to[/] {destination}"
+        )
+        return
+
+    if format is ExportFormat.OBSIDIAN:
+        from logseq_matryca_parser.graph import LogseqGraph
+
+        graph = LogseqGraph.load_directory(resolved_graph)
+        if not graph.pages:
+            console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
+            raise typer.Exit(code=0)
+        output_path.mkdir(parents=True, exist_ok=True)
+        file_count = _export_obsidian(graph, output_path)
+        console.print(
+            f"[bold green]Obsidian vault export completed:[/] [cyan]{file_count}[/] markdown "
+            f"files under {output_path.resolve()}"
         )
         return
 

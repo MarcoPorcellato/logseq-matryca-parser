@@ -1,4 +1,5 @@
 import json
+import re
 
 import pytest
 
@@ -43,6 +44,38 @@ def test_forge_json_nested_structure(sample_ast: list[LogseqNode]) -> None:
     assert json_payload[0]["uuid"] == "123"
     assert len(json_payload[0]["children"]) == 1
     assert json_payload[0]["children"][0]["uuid"] == "456"
+
+
+def test_forge_obsidian_markdown_translation() -> None:
+    block_id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+    child = LogseqNode(
+        uuid="22222222-2222-2222-2222-222222222222",
+        content="Target block",
+        clean_text="Target block",
+        indent_level=1,
+        parent_id="11111111-1111-1111-1111-111111111111",
+        source_uuid=block_id,
+        synthetic_id=True,
+        properties={"id": block_id},
+    )
+    root = LogseqNode(
+        uuid="11111111-1111-1111-1111-111111111111",
+        content=f"Ref (({block_id})) and [[Wiki Page]]",
+        clean_text=f"Ref (({block_id})) and [[Wiki Page]]",
+        indent_level=0,
+        block_refs=[block_id],
+        children=[child],
+    )
+    page_props = {"title": "MyPage", "type": "project"}
+    md = ForgeExporter.to_obsidian_markdown([root], page_props)
+    assert md.startswith("---\n")
+    assert "type: project" in md
+    assert "title: MyPage" in md
+    assert "id::" not in md
+    assert "[[Wiki Page]]" in md
+    assert re.search(r"\[\[MyPage#\^[0-9a-f]+\]\]", md)
+    assert not re.search(r"\(\([a-f0-9-]{36}\)\)", md)
+    assert "Target block ^" in md
 
 
 @pytest.mark.parametrize(

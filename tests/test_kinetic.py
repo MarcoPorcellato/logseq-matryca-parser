@@ -119,6 +119,45 @@ def test_export_command_json_preserves_source_uuid_separately(
     assert child["path"] == [root["uuid"], child["uuid"]]
 
 
+def test_export_command_obsidian_writes_namespace_markdown(tmp_path: Path) -> None:
+    graph_root = tmp_path / "graph"
+    pages_dir = graph_root / "pages"
+    journals_dir = graph_root / "journals"
+    pages_dir.mkdir(parents=True, exist_ok=True)
+    journals_dir.mkdir(parents=True, exist_ok=True)
+    block_id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+    ns = pages_dir / "Projects" / "AI"
+    ns.mkdir(parents=True)
+    (ns / "Demo.md").write_text(
+        "scope:: demo\n\n"
+        f"- Pointer (({block_id}))\n",
+        encoding="utf-8",
+    )
+    (pages_dir / "Target.md").write_text(
+        f"- Claim line\n  id:: {block_id}\n",
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "out-obsidian"
+
+    result = runner.invoke(
+        app, ["export", str(graph_root), str(output_dir), "--format", "obsidian"]
+    )
+
+    assert result.exit_code == 0
+    assert "Obsidian vault export completed" in result.output
+    demo_md = output_dir / "Projects" / "AI" / "Demo.md"
+    target_md = output_dir / "Target.md"
+    assert demo_md.is_file()
+    assert target_md.is_file()
+    demo_body = demo_md.read_text(encoding="utf-8")
+    assert demo_body.startswith("---\n")
+    assert "scope: demo" in demo_body
+    assert "[[Target#" in demo_body
+    target_body = target_md.read_text(encoding="utf-8")
+    assert "id::" not in target_body
+    assert "^" in target_body
+
+
 def test_export_command_markdown_writes_output_file(tmp_path: Path) -> None:
     graph_root = _create_graph(tmp_path)
     output_dir = tmp_path / "out-markdown"

@@ -8,7 +8,13 @@ __version__ = "0.3.0"
 
 from .agent_writer import LogseqConfigReader, logseq_agent_write
 from .exceptions import BlockReferenceError, LogseqIndentationError, LogseqParserError
-from .forge import FlatListForgeVisitor, ForgeExporter, JSONForgeVisitor, MarkdownForgeVisitor
+from .forge import (
+    FlatListForgeVisitor,
+    ForgeExporter,
+    JSONForgeVisitor,
+    MarkdownForgeVisitor,
+    ObsidianForgeVisitor,
+)
 from .graph import LogseqGraph
 from .logos_core import ASTVisitor, LogseqNode, LogseqPage, LogosNode, SovereignNotePackage
 from .logos_parser import (
@@ -51,4 +57,5 @@ __all__ = [
     "is_system_block",
     "logseq_agent_write",
     "MarkdownForgeVisitor",
+    "ObsidianForgeVisitor",
 ]
