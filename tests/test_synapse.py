@@ -130,6 +130,9 @@ def test_synapse_context_enriched_chunking(tmp_path: Path) -> None:
     pages = graph_root / "pages"
     pages.mkdir(parents=True)
     (pages / "Demo.md").write_text(
+        "tags:: research\n"
+        "project:: matryca-demo\n"
+        "\n"
         "- Section **Alpha** [[SomePage]]\n"
         "  - Deep leaf line\n",
         encoding="utf-8",
@@ -143,6 +146,14 @@ def test_synapse_context_enriched_chunking(tmp_path: Path) -> None:
     assert len(chunks) == 2
     child_chunk = chunks[1]
     assert child_chunk.metadata["clean_text"] == "Deep leaf line"
+    assert "effective_properties" in child_chunk.metadata
+    eff = child_chunk.metadata["effective_properties"]
+    assert isinstance(eff, dict)
+    assert eff.get("tags") == "research"
+    assert eff.get("project") == "matryca-demo"
+    assert child_chunk.metadata.get("source_path")
+    assert child_chunk.metadata.get("line_start") is not None
+    assert child_chunk.metadata.get("parent_id")
     assert "Demo" in child_chunk.page_content
     assert "Section" in child_chunk.page_content and "Alpha" in child_chunk.page_content
     assert "Deep leaf line" in child_chunk.page_content

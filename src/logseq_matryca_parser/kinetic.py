@@ -7,7 +7,10 @@ import logging
 from collections.abc import Iterable
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from logseq_matryca_parser.graph import LogseqGraph
 
 import typer
 from rich.console import Console
@@ -29,6 +32,7 @@ class ExportFormat(str, Enum):
     JSON = "json"
     MARKDOWN = "markdown"
     LANGCHAIN = "langchain"
+    LANGCHAIN_ENRICHED = "langchain-enriched"
 
 
 def _discover_graph_files(graph_path: Path) -> list[Path]:
@@ -288,6 +292,20 @@ def _export_langchain(pages: list[LogseqPage], output_path: Path) -> Path:
     return destination
 
 
+def _export_langchain_enriched(graph: LogseqGraph, output_path: Path) -> tuple[Path, int]:
+    """Serialize context-enriched LangChain documents for the full loaded graph."""
+    all_roots: list[LogseqNode] = []
+    for page in graph.pages.values():
+        all_roots.extend(page.root_nodes)
+    docs = SynapseAdapter.to_context_enriched_chunks(all_roots, graph)
+    payload: list[dict[str, Any]] = [
+        {"page_content": doc.page_content, "metadata": doc.metadata} for doc in docs
+    ]
+    destination = output_path / "langchain_enriched.json"
+    destination.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return destination, len(payload)
+
+
 @app.command()
 def export(
     graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root."),
@@ -299,7 +317,31 @@ def export(
         console.print(f"[bold red]Invalid graph path:[/] {graph_path}")
         raise typer.Exit(code=1)
 
-    pages = _parse_graph(graph_path.resolve())
+    resolved_graph = graph_path.resolve()
+
+    if format is ExportFormat.LANGCHAIN_ENRICHED:
+        from logseq_matryca_parser.graph import LogseqGraph
+
+        graph = LogseqGraph.load_directory(resolved_graph)
+        if not graph.pages:
+            console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
+            raise typer.Exit(code=0)
+        output_path.mkdir(parents=True, exist_ok=True)
+        try:
+            destination, chunk_count = _export_langchain_enriched(graph, output_path)
+        except ImportError:
+            console.print(
+                "[bold red]Missing AI export dependencies.[/] Please install them using: "
+                "[cyan]pip install 'logseq-matryca-parser[ai]'[/]"
+            )
+            raise typer.Exit(1) from None
+        console.print(
+            f"[bold green]Synthesized[/] [cyan]{chunk_count}[/] contextual chunks; "
+            f"[bold green]written to[/] {destination}"
+        )
+        return
+
+    pages = _parse_graph(resolved_graph)
     if not pages:
         console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
         raise typer.Exit(code=0)

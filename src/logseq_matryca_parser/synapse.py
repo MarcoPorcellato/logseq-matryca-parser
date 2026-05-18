@@ -213,6 +213,7 @@ class SynapseAdapter:
                 breadcrumbs=breadcrumbs,
                 content=node.clean_text,
             )
+            effective_properties = dict(graph.get_effective_properties(node.uuid))
             metadata = {
                 **node.properties,
                 "uuid": node.uuid,
@@ -227,12 +228,16 @@ class SynapseAdapter:
                 "created_at": node.created_at,
                 "clean_text": node.clean_text,
                 "page_title": page.title if page is not None else "",
+                "source_path": node.source_path,
+                "line_start": node.line_start,
+                "effective_properties": effective_properties,
             }
             documents.append(Document(page_content=page_content, metadata=metadata))
             logger.debug(
-                "context chunk uuid=%s breadcrumbs_len=%s",
+                "context chunk uuid=%s breadcrumbs_len=%s effective_keys=%s",
                 node.uuid,
                 len(breadcrumbs),
+                tuple(effective_properties.keys()),
             )
         return documents
 

@@ -135,6 +135,46 @@ def test_export_command_markdown_writes_output_file(tmp_path: Path) -> None:
     assert "- Build parser #kinetic" in body
 
 
+def test_export_command_langchain_enriched_writes_hydrated_file(tmp_path: Path) -> None:
+    graph_root = tmp_path / "graph"
+    pages_dir = graph_root / "pages"
+    journals_dir = graph_root / "journals"
+    pages_dir.mkdir(parents=True, exist_ok=True)
+    journals_dir.mkdir(parents=True, exist_ok=True)
+    (pages_dir / "Alpha.md").write_text(
+        "type:: spec\n"
+        "\n"
+        "- Parent block\n"
+        "  - Nested insight\n",
+        encoding="utf-8",
+    )
+    (journals_dir / "2026_05_18.md").write_text(
+        "- Journal note #daily\n",
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "out-langchain-enriched"
+
+    with patch("logseq_matryca_parser.synapse.Document", FakeDocument):
+        result = runner.invoke(
+            app,
+            ["export", str(graph_root), str(output_dir), "--format", "langchain-enriched"],
+        )
+
+    assert result.exit_code == 0
+    assert "contextual chunks" in result.output
+    out_file = output_dir / "langchain_enriched.json"
+    assert out_file.exists()
+    payload = json.loads(out_file.read_text(encoding="utf-8"))
+    assert len(payload) >= 3
+    nested = next(p for p in payload if p["metadata"].get("clean_text") == "Nested insight")
+    assert "Parent block" in nested["page_content"]
+    assert "Alpha" in nested["page_content"]
+    assert nested["page_content"].startswith("[")
+    eff = nested["metadata"].get("effective_properties")
+    assert isinstance(eff, dict)
+    assert eff.get("type") == "spec"
+
+
 def test_export_command_langchain_writes_output_file(tmp_path: Path) -> None:
     graph_root = _create_graph(tmp_path)
     output_dir = tmp_path / "out-langchain"
