@@ -157,16 +157,18 @@ def test_namespace_hierarchy_and_relative_resolution(tmp_path: Path) -> None:
     (pages / "Progetti" / "AI" / "Parser.md").write_text("- tool\n", encoding="utf-8")
     (pages / "Progetti" / "AI" / "Team").mkdir(parents=True)
     (pages / "Progetti" / "AI" / "Team" / "Lead.md").write_text("- nested\n", encoding="utf-8")
+    (pages / "Progetti" / "AI" / "Sviluppo.md").write_text("- contextual sviluppo\n", encoding="utf-8")
     (pages / "Progetti" / "Sviluppo.md").write_text("- sibling namespace\n", encoding="utf-8")
+    (pages / "Sviluppo.md").write_text("- global sviluppo\n", encoding="utf-8")
 
     graph = LogseqGraph.load_directory(graph_root)
 
-    assert graph.resolve_relative_page_link("Progetti/AI/Matryca", "Sviluppo") == "Progetti/Sviluppo"
+    assert graph.resolve_relative_page_link("Progetti/AI/Matryca", "Sviluppo") == "Progetti/AI/Sviluppo"
     assert graph.resolve_relative_page_link("Progetti/AI/Matryca", "Parser") == "Progetti/AI/Parser"
     assert graph.resolve_relative_page_link("Progetti/AI/Matryca", "Unknown") is None
     assert graph.resolve_relative_page_link("Progetti/AI/Matryca", "Matryca") == "Progetti/AI/Matryca"
 
     children = graph.get_namespace_children("Progetti/AI")
     titles = {p.title for p in children}
-    assert titles == {"Progetti/AI/Matryca", "Progetti/AI/Parser"}
+    assert titles == {"Progetti/AI/Matryca", "Progetti/AI/Parser", "Progetti/AI/Sviluppo"}
     assert "Progetti/AI/Team/Lead" not in titles

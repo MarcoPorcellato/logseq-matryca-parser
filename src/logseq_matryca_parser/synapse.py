@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
+import logging
+import re
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from .logos_core import ASTVisitor, LogseqNode
-from .logos_parser import LogosParser
+from logseq_matryca_parser.logos_core import ASTVisitor, LogseqNode, LogseqPage
+from logseq_matryca_parser.logos_parser import LogosParser
+
+if TYPE_CHECKING:
+    from logseq_matryca_parser.graph import LogseqGraph
+
+logger = logging.getLogger(__name__)
 
 Document: type[Any] | None
 NodeRelationship: Any
@@ -28,6 +35,45 @@ except ImportError:
     NodeRelationship = None
     RelatedNodeInfo = None
     TextNode = None
+
+
+def _flatten_nodes_for_export(nodes: list[LogseqNode]) -> list[LogseqNode]:
+    """Depth-first flattening of a node tree (same order as graph indexing)."""
+    flat: list[LogseqNode] = []
+    for node in nodes:
+        flat.append(node)
+        if node.children:
+            flat.extend(_flatten_nodes_for_export(node.children))
+    return flat
+
+
+def _strip_markdown_for_embedding(text: str) -> str:
+    """Remove common markdown noise from breadcrumb fragments for embedding-friendly strings."""
+    s = text.strip()
+    s = re.sub(r"\[\[([^\]|]+)(?:\|[^\]]+)?\]\]", r"\1", s)
+    s = re.sub(r"\*\*([^*]+)\*\*", r"\1", s)
+    s = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"\1", s)
+    s = re.sub(r"`([^`]+)`", r"\1", s)
+    s = re.sub(r"#([^\s#]+)", "", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def _build_breadcrumbs(graph: LogseqGraph, node: LogseqNode) -> tuple[str, LogseqPage | None]:
+    """Build `Page > ancestor clean_text ...` using ``node.path`` and the graph registry."""
+    page = graph._page_for_node(node)
+    page_title = page.title if page is not None else ""
+    parts: list[str] = []
+    if page_title:
+        parts.append(_strip_markdown_for_embedding(page_title))
+    for ancestor_uuid in node.path[:-1]:
+        ancestor = graph.get_node_by_uuid(ancestor_uuid)
+        if ancestor is None:
+            continue
+        stripped = _strip_markdown_for_embedding(ancestor.clean_text)
+        if stripped:
+            parts.append(stripped)
+    return " > ".join(parts), page
 
 
 class LangChainVisitor(ASTVisitor):
@@ -148,6 +194,47 @@ class SynapseAdapter:
         for node in nodes:
             node.accept(visitor)
         return visitor.get_nodes()
+
+    @staticmethod
+    def to_context_enriched_chunks(
+        nodes: list[LogseqNode],
+        graph: LogseqGraph,
+        format_template: str = "[{breadcrumbs}] {content}",
+    ) -> list[Any]:
+        """Flatten ``nodes`` and emit LangChain ``Document``s with breadcrumb-enriched ``page_content``."""
+        if Document is None:
+            raise ImportError("LangChain non rilevato. Installa 'langchain-core' per usare Synapse.")
+        documents: list[Any] = []
+        flat = _flatten_nodes_for_export(nodes)
+        for node in flat:
+            breadcrumbs, page = _build_breadcrumbs(graph, node)
+            source_name = Path(node.source_path).name if node.source_path else str(graph.graph_path.name)
+            page_content = format_template.format(
+                breadcrumbs=breadcrumbs,
+                content=node.clean_text,
+            )
+            metadata = {
+                **node.properties,
+                "uuid": node.uuid,
+                "parent_id": node.parent_id,
+                "indent_level": node.indent_level,
+                "source": source_name,
+                "path": node.path,
+                "left_id": node.left_id,
+                "refs": node.refs,
+                "task_status": node.task_status,
+                "repeater": node.repeater,
+                "created_at": node.created_at,
+                "clean_text": node.clean_text,
+                "page_title": page.title if page is not None else "",
+            }
+            documents.append(Document(page_content=page_content, metadata=metadata))
+            logger.debug(
+                "context chunk uuid=%s breadcrumbs_len=%s",
+                node.uuid,
+                len(breadcrumbs),
+            )
+        return documents
 
     @classmethod
     def load_and_convert(cls, file_path: Path) -> list[Any]:

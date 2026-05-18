@@ -220,17 +220,28 @@ class LogseqGraph(BaseModel):
         return hits
 
     def resolve_relative_page_link(self, current_page_title: str, link_target: str) -> str | None:
-        """Resolve a relative page title like Logseq OG: deepest namespace match wins."""
+        """Resolve a relative page title like Logseq OG: nested namespace shadowing beats global."""
         target = link_target.strip()
         if not target:
             return None
-        if target in self.pages:
-            return target
         segments = [part for part in current_page_title.split("/") if part]
-        for depth in range(len(segments), -1, -1):
-            candidate = "/".join([*segments[:depth], target])
+        for prefix_len in range(len(segments), 0, -1):
+            candidate = "/".join([*segments[:prefix_len], target])
             if candidate in self.pages:
+                logger.debug(
+                    "resolve_relative_page_link: contextual hit current=%s target=%s -> %s",
+                    current_page_title,
+                    link_target,
+                    candidate,
+                )
                 return candidate
+        if target in self.pages:
+            logger.debug(
+                "resolve_relative_page_link: global fallback current=%s target=%s",
+                current_page_title,
+                link_target,
+            )
+            return target
         return None
 
     def get_namespace_children(self, namespace_prefix: str) -> list[LogseqPage]:

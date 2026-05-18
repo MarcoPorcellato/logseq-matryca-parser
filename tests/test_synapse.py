@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
 
+from logseq_matryca_parser.graph import LogseqGraph
 from logseq_matryca_parser.logos_core import LogseqNode
 from logseq_matryca_parser.synapse import SynapseAdapter
 
@@ -113,3 +115,36 @@ def test_to_llamaindex_nodes_injects_parent_child_relationships() -> None:
     assert root_node.relationships["CHILD"][0].node_id == "child-1"
     assert root_node.metadata["path"] == ["Root"]
     assert child_node.metadata["task_status"] == "TODO"
+
+
+def test_to_context_enriched_chunks_raises_when_dependency_missing(tmp_path: Path) -> None:
+    with patch("logseq_matryca_parser.synapse.Document", None):
+        with pytest.raises(ImportError, match="LangChain"):
+            graph = LogseqGraph(graph_path=tmp_path, pages={})
+            SynapseAdapter.to_context_enriched_chunks([], graph)
+
+
+def test_synapse_context_enriched_chunking(tmp_path: Path) -> None:
+    """Deep nodes embed page and ancestor markers inside ``page_content``; metadata keeps clean text."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Demo.md").write_text(
+        "- Section **Alpha** [[SomePage]]\n"
+        "  - Deep leaf line\n",
+        encoding="utf-8",
+    )
+    graph = LogseqGraph.load_directory(graph_root)
+    demo = graph.pages["Demo"]
+
+    with patch("logseq_matryca_parser.synapse.Document", FakeDocument):
+        chunks = SynapseAdapter.to_context_enriched_chunks(demo.root_nodes, graph)
+
+    assert len(chunks) == 2
+    child_chunk = chunks[1]
+    assert child_chunk.metadata["clean_text"] == "Deep leaf line"
+    assert "Demo" in child_chunk.page_content
+    assert "Section" in child_chunk.page_content and "Alpha" in child_chunk.page_content
+    assert "Deep leaf line" in child_chunk.page_content
+    assert child_chunk.page_content.startswith("[")
+    assert "]" in child_chunk.page_content
