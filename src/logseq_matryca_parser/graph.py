@@ -7,7 +7,7 @@ import os
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
@@ -18,6 +18,43 @@ from logseq_matryca_parser.logos_parser import StackMachineParser
 logger = logging.getLogger(__name__)
 
 _DEFAULT_MAX_WORKERS = min(32, (os.cpu_count() or 1) + 4)
+
+
+class GraphQuery:
+    """Fluent, chainable filter pipeline over a fixed slice of ``LogseqNode`` instances."""
+
+    def __init__(self, graph: LogseqGraph, nodes: list[LogseqNode]) -> None:
+        self._graph = graph
+        self._nodes: list[LogseqNode] = list(nodes)
+        logger.debug(
+            "GraphQuery init graph_path=%s seed_nodes=%s",
+            self._graph.graph_path,
+            len(self._nodes),
+        )
+
+    def has_tag(self, tag: str) -> Self:
+        self._nodes = [n for n in self._nodes if tag in n.tags]
+        logger.debug("GraphQuery.has_tag tag=%s remaining=%s", tag, len(self._nodes))
+        return self
+
+    def with_priority(self, priority: str) -> Self:
+        self._nodes = [n for n in self._nodes if n.task_priority == priority]
+        logger.debug("GraphQuery.with_priority priority=%s remaining=%s", priority, len(self._nodes))
+        return self
+
+    def under_parent(self, parent_uuid: str) -> Self:
+        """Keep nodes whose ancestry chain (``path`` sans self) contains ``parent_uuid``."""
+        self._nodes = [n for n in self._nodes if len(n.path) > 1 and parent_uuid in n.path[:-1]]
+        logger.debug("GraphQuery.under_parent parent=%s remaining=%s", parent_uuid, len(self._nodes))
+        return self
+
+    def is_task_state(self, status: str) -> Self:
+        self._nodes = [n for n in self._nodes if n.task_status == status]
+        logger.debug("GraphQuery.is_task_state status=%s remaining=%s", status, len(self._nodes))
+        return self
+
+    def execute(self) -> list[LogseqNode]:
+        return list(self._nodes)
 
 
 def _flatten_nodes(nodes: list[LogseqNode]) -> list[LogseqNode]:
@@ -154,6 +191,26 @@ class LogseqGraph(BaseModel):
     def get_node_by_uuid(self, uuid: str) -> LogseqNode | None:
         """Return the node for ``uuid`` if present in the global registry."""
         return self._node_registry.get(uuid)
+
+    def get_node_by_embed_ref(self, block_ref: str) -> LogseqNode | None:
+        """Resolve a Logseq block id: synthetic registry UUID, ``source_uuid``, or ``properties['id']``."""
+        stripped = block_ref.strip()
+        if not stripped:
+            return None
+        direct = self.get_node_by_uuid(stripped)
+        if direct is not None:
+            return direct
+        for node in self._node_registry.values():
+            if node.source_uuid == stripped:
+                return node
+            if node.properties.get("id") == stripped:
+                return node
+        logger.debug("get_node_by_embed_ref: no node for ref=%s", stripped)
+        return None
+
+    def query(self) -> GraphQuery:
+        """Return a fluent query over all nodes registered in the graph."""
+        return GraphQuery(self, list(self._node_registry.values()))
 
     def get_backlinks(self, target: str) -> list[LogseqNode]:
         """Return nodes that reference ``target`` via wikilinks, tags, or block refs."""

@@ -15,6 +15,12 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+_BLOCK_EMBED_PATTERN = re.compile(
+    r"\{\{\s*embed\s+\(\((?P<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\)\)\s*\}\}",
+    re.IGNORECASE,
+)
+_PAGE_EMBED_PATTERN = re.compile(r"\{\{\s*embed\s+\[\[(?P<title>[^\]]+)\]\]\s*\}\}")
+
 Document: type[Any] | None
 NodeRelationship: Any
 RelatedNodeInfo: type[Any] | None
@@ -57,6 +63,79 @@ def _strip_markdown_for_embedding(text: str) -> str:
     s = re.sub(r"#([^\s#]+)", "", s)
     s = re.sub(r"\s+", " ", s).strip()
     return s
+
+
+def _expand_macros_and_embeds(text: str, graph: LogseqGraph, visited_uuids: set[str]) -> str:
+    """Expand ``{{embed ((uuid))}}`` / ``{{embed [[page]]}}`` for RAG text.
+
+    Operates on raw block ``content`` (not ``clean_text``) so ``((uuid))`` inside macros is
+    still visible to the scanner after parsing.
+    """
+    return _expand_macros_and_embeds_impl(text, graph, visited_uuids, set())
+
+
+def _expand_macros_and_embeds_impl(
+    text: str,
+    graph: LogseqGraph,
+    visited_uuids: set[str],
+    visited_pages: set[str],
+) -> str:
+    """Shared worker: ``visited_uuids`` breaks block cycles; ``visited_pages`` breaks page cycles."""
+    result = text
+    while True:
+        bm = _BLOCK_EMBED_PATTERN.search(result)
+        pm = _PAGE_EMBED_PATTERN.search(result)
+        if bm is None and pm is None:
+            break
+        use_block = bm is not None and (pm is None or bm.start() <= pm.start())
+        if use_block:
+            assert bm is not None
+            match = bm
+            uid = match.group("uuid")
+            if uid in visited_uuids:
+                logger.debug("Stack-Machine embed: cyclic block uuid=%s", uid)
+                replacement = ""
+            else:
+                target = graph.get_node_by_embed_ref(uid)
+                if target is None:
+                    logger.debug("Stack-Machine embed: unresolved block uuid=%s", uid)
+                    replacement = match.group(0)
+                else:
+                    next_seen = set(visited_uuids)
+                    next_seen.add(uid)
+                    replacement = _expand_macros_and_embeds_impl(
+                        target.content, graph, next_seen, visited_pages
+                    )
+            result = result[: match.start()] + replacement + result[match.end() :]
+        else:
+            assert pm is not None
+            match = pm
+            title = match.group("title").strip()
+            if title in visited_pages:
+                logger.debug("Stack-Machine embed: cyclic page title=%s", title)
+                replacement = ""
+            else:
+                page = graph.pages.get(title)
+                if page is None:
+                    logger.debug("Stack-Machine embed: unknown page title=%s", title)
+                    replacement = match.group(0)
+                else:
+                    visited_pages.add(title)
+                    try:
+                        shared_blocks = set(visited_uuids)
+                        pieces: list[str] = []
+                        for n in _flatten_nodes_for_export(page.root_nodes):
+                            frag = _expand_macros_and_embeds_impl(
+                                n.content, graph, shared_blocks, visited_pages
+                            )
+                            stripped = frag.strip()
+                            if stripped:
+                                pieces.append(stripped)
+                        replacement = "\n".join(pieces)
+                    finally:
+                        visited_pages.discard(title)
+            result = result[: match.start()] + replacement + result[match.end() :]
+    return result
 
 
 def _build_breadcrumbs(graph: LogseqGraph, node: LogseqNode) -> tuple[str, LogseqPage | None]:
@@ -209,9 +288,10 @@ class SynapseAdapter:
         for node in flat:
             breadcrumbs, page = _build_breadcrumbs(graph, node)
             source_name = Path(node.source_path).name if node.source_path else str(graph.graph_path.name)
+            expanded_content = _expand_macros_and_embeds(node.content, graph, set())
             page_content = format_template.format(
                 breadcrumbs=breadcrumbs,
-                content=node.clean_text,
+                content=expanded_content,
             )
             effective_properties = dict(graph.get_effective_properties(node.uuid))
             metadata = {

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from logseq_matryca_parser.graph import LogseqGraph
+from logseq_matryca_parser.graph import GraphQuery, LogseqGraph
 
 
 def test_load_directory_empty_graph(tmp_path: Path) -> None:
@@ -172,3 +172,50 @@ def test_namespace_hierarchy_and_relative_resolution(tmp_path: Path) -> None:
     titles = {p.title for p in children}
     assert titles == {"Progetti/AI/Matryca", "Progetti/AI/Parser", "Progetti/AI/Sviluppo"}
     assert "Progetti/AI/Team/Lead" not in titles
+
+
+def test_fluent_graph_query_pipeline(tmp_path: Path) -> None:
+    """Chained ``GraphQuery`` filters combine with strict ancestry and task metadata."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "FluentQuery.md").write_text(
+        "- Branch alpha #pipeline\n"
+        "  - Middle #pipeline\n"
+        "    - TODO [#A] Deep hit #pipeline\n"
+        "- Branch beta #pipeline\n"
+        "  - TODO [#A] Shallow hit #pipeline\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    demo = graph.pages["FluentQuery"]
+    alpha = demo.root_nodes[0]
+    middle = alpha.children[0]
+    deep = middle.children[0]
+
+    q = graph.query()
+    assert isinstance(q, GraphQuery)
+
+    hits = (
+        graph.query()
+        .has_tag("pipeline")
+        .with_priority("A")
+        .is_task_state("TODO")
+        .under_parent(middle.uuid)
+        .execute()
+    )
+
+    assert hits == [deep]
+
+    beta = demo.root_nodes[1]
+    shallow = beta.children[0]
+    branch_beta_hits = (
+        graph.query()
+        .has_tag("pipeline")
+        .with_priority("A")
+        .is_task_state("TODO")
+        .under_parent(beta.uuid)
+        .execute()
+    )
+    assert branch_beta_hits == [shallow]

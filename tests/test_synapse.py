@@ -159,3 +159,42 @@ def test_synapse_context_enriched_chunking(tmp_path: Path) -> None:
     assert "Deep leaf line" in child_chunk.page_content
     assert child_chunk.page_content.startswith("[")
     assert "]" in child_chunk.page_content
+
+
+def test_synapse_recursive_embed_expansion(tmp_path: Path) -> None:
+    """``page_content`` substitutes ``{{embed ((uuid))}}`` and ``{{embed [[Page]]}}`` with expanded text."""
+    block_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "EmbedTarget.md").write_text(
+        f"- Secret transcluded line\n  id:: {block_id}\n",
+        encoding="utf-8",
+    )
+    (pages / "EmbedHost.md").write_text(
+        "- Before {{embed ((" + block_id + "))}} after\n",
+        encoding="utf-8",
+    )
+    (pages / "SnippetPage.md").write_text("- Line one from snippet\n- Line two from snippet\n", encoding="utf-8")
+    (pages / "PageEmbedHost.md").write_text("- Start {{embed [[SnippetPage]]}} end\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+
+    with patch("logseq_matryca_parser.synapse.Document", FakeDocument):
+        host_chunks = SynapseAdapter.to_context_enriched_chunks(
+            graph.pages["EmbedHost"].root_nodes, graph
+        )
+        page_embed_chunks = SynapseAdapter.to_context_enriched_chunks(
+            graph.pages["PageEmbedHost"].root_nodes, graph
+        )
+
+    assert len(host_chunks) == 1
+    host_pc = host_chunks[0].page_content
+    assert "Secret transcluded line" in host_pc
+    assert "{{embed" not in host_pc
+    assert host_chunks[0].metadata["clean_text"] == "Before {{embed }} after"
+
+    assert len(page_embed_chunks) == 1
+    pe = page_embed_chunks[0].page_content
+    assert "Line one from snippet" in pe and "Line two from snippet" in pe
+    assert "{{embed [[" not in pe
