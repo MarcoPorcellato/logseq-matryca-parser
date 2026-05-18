@@ -7,6 +7,7 @@ import sys
 from .agent_writer import LogseqConfigReader, logseq_agent_write
 from .exceptions import BlockReferenceError, LogseqIndentationError, LogseqParserError
 from .forge import FlatListForgeVisitor, ForgeExporter, JSONForgeVisitor, MarkdownForgeVisitor
+from .graph import LogseqGraph
 from .logos_core import ASTVisitor, LogseqNode, LogseqPage, LogosNode, SovereignNotePackage
 from .logos_parser import (
     LOGSEQ_PATTERNS,
@@ -34,6 +35,7 @@ __all__ = [
     "LogosNode",
     "LogosParser",
     "LogseqConfigReader",
+    "LogseqGraph",
     "LogseqIndentationError",
     "LogseqNode",
     "LogseqPage",

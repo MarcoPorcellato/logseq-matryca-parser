@@ -796,6 +796,18 @@ def test_deterministic_uuid_collision_prevention(parser: StackMachineParser) -> 
     assert first != second
 
 
+def test_deterministic_uuid_topological_uniqueness(parser: StackMachineParser) -> None:
+    """Identical page, line, and text hash to different synthetic UUIDs under different parents."""
+    page_title = "topo-contract"
+    line_start = 7
+    text = "duplicate macro line"
+    parent_uuid_alpha = "cccccccc-cccc-cccc-cccc-cccccccccccc"
+    parent_uuid_beta = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+    uuid_alpha = parser._deterministic_uuid(page_title, line_start, text, parent_uuid_alpha)
+    uuid_beta = parser._deterministic_uuid(page_title, line_start, text, parent_uuid_beta)
+    assert uuid_alpha != uuid_beta
+
+
 def test_leaf_path_resolution(parser: StackMachineParser) -> None:
     """Leaf path tracks UUID chain from root to current node."""
     content = "- Root\n  - Child\n    - Leaf"

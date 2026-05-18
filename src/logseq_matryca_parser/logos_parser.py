@@ -52,7 +52,6 @@ BULLET_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)[-*]\s+(.*)$")
 HEADING_BLOCK_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)(#{1,6}\s+.+)$")
 logger = logging.getLogger(__name__)
 
-LOGOS_ROOT_TOPOLOGY_KEY = "__logos_root__"
 CREATED_AT_KEYS: tuple[str, ...] = ("created_at", "created-at", "createdat")
 UPDATED_AT_KEYS: tuple[str, ...] = ("updated_at", "updated-at", "updatedat")
 REPEATER_PATTERN: re.Pattern[str] = re.compile(r"(\.\+|\+\+|\+)\d+[hdwmy]")
@@ -440,13 +439,13 @@ class StackMachineParser:
                     stack_columns.pop()
                     stack_indents.pop()
 
-                parent_topology_key = self._parent_topology_key(stack)
+                parent_uuid = self._resolve_parent_uuid_for_synthetic(stack)
                 node = self._build_node(
                     block_text=bullet_match.group(2),
                     indent_level=indent_level,
                     page_title=page_title,
                     line_start=line_number,
-                    parent_topology_key=parent_topology_key,
+                    parent_uuid=parent_uuid,
                 )
 
                 node = self._initialize_node_graph_fields(node, stack, root_nodes)
@@ -475,13 +474,13 @@ class StackMachineParser:
                     stack_columns.pop()
                     stack_indents.pop()
 
-                parent_topology_key = self._parent_topology_key(stack)
+                parent_uuid = self._resolve_parent_uuid_for_synthetic(stack)
                 node = self._build_node(
                     block_text=heading_match.group(2),
                     indent_level=indent_level,
                     page_title=page_title,
                     line_start=line_number,
-                    parent_topology_key=parent_topology_key,
+                    parent_uuid=parent_uuid,
                 )
 
                 node = self._initialize_node_graph_fields(node, stack, root_nodes)
@@ -648,14 +647,16 @@ class StackMachineParser:
         )
         return spaces // self.tab_size
 
-    def _parent_topology_key(self, stack: list[LogseqNode]) -> str:
-        """Stable parent discriminator for synthetic UUID hashing (root if stack empty)."""
+    def _resolve_parent_uuid_for_synthetic(self, stack: list[LogseqNode]) -> str | None:
+        """Return the parent block UUID for synthetic hashing; None at graph root (payload uses 'root')."""
         if not stack:
-            logger.debug("Stack empty: synthetic UUID parent key=%s", LOGOS_ROOT_TOPOLOGY_KEY)
-            return LOGOS_ROOT_TOPOLOGY_KEY
-        parent_uuid = stack[-1].uuid
-        logger.debug("Stack depth=%s: synthetic UUID parent key=%s", len(stack), parent_uuid)
-        return parent_uuid
+            logger.debug("Stack empty: synthetic UUID parent_uuid=None (hashed as root sentinel)")
+            return None
+        resolved_parent_uuid = stack[-1].uuid
+        logger.debug(
+            "Stack depth=%s: synthetic UUID parent_uuid=%s", len(stack), resolved_parent_uuid
+        )
+        return resolved_parent_uuid
 
     def _build_node(
         self,
@@ -663,7 +664,7 @@ class StackMachineParser:
         indent_level: int,
         page_title: str,
         line_start: int,
-        parent_topology_key: str,
+        parent_uuid: str | None,
     ) -> LogseqNode:
         stripped_text = block_text.strip()
         properties: dict[str, Any] = {}
@@ -679,9 +680,7 @@ class StackMachineParser:
             if uuid_match
             else (inline_uuid_match.group(1) if inline_uuid_match else None)
         )
-        node_uuid = self._deterministic_uuid(
-            page_title, line_start, stripped_text, parent_topology_key
-        )
+        node_uuid = self._deterministic_uuid(page_title, line_start, stripped_text, parent_uuid)
         time_properties = _extract_time_properties(stripped_text)
         scheduled_at: int | None = None
         deadline_at: int | None = None
@@ -741,9 +740,16 @@ class StackMachineParser:
         page_title: str,
         line_start: int,
         content: str,
-        parent_topology_key: str,
+        parent_uuid: str | None,
     ) -> str:
-        payload = f"{page_title}:{line_start}:{parent_topology_key}:{content}".encode("utf-8")
+        parent_token = "root" if parent_uuid is None else parent_uuid
+        logger.debug(
+            "Stack-Machine synthetic UUID payload parent_token=%s line_start=%s page_title=%s",
+            parent_token,
+            line_start,
+            page_title,
+        )
+        payload = f"{page_title}:{line_start}:{parent_token}:{content}".encode("utf-8")
         digest = hashlib.sha256(payload).hexdigest()
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, digest))
 
