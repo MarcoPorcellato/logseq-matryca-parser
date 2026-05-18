@@ -90,3 +90,83 @@ def test_journals_directory_is_discovered(tmp_path: Path) -> None:
 
     assert "2026_05_18" in graph.pages
     assert len(graph.get_nodes_by_tag("daily")) == 1
+
+
+def test_graph_backlink_resolution_cross_page(tmp_path: Path) -> None:
+    """Backlinks resolve for page wikilinks and native block UUIDs referenced across pages."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    block_uuid = "64c752b0-d33b-4448-a261-e4dc2bbe12d3"
+    (pages / "Page B.md").write_text(
+        f"- Target block\n  id:: {block_uuid}\n",
+        encoding="utf-8",
+    )
+    (pages / "Page A.md").write_text(
+        f"- Linking block references [[Page B]] and (({block_uuid}))\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    page_a = graph.pages["Page A"]
+    linker = page_a.root_nodes[0]
+
+    by_page = graph.get_backlinks("Page B")
+    by_uuid = graph.get_backlinks(block_uuid)
+
+    assert linker in by_page
+    assert linker in by_uuid
+    assert graph.get_backlinks("page b") == by_page
+
+
+def test_property_inheritance_overrides(tmp_path: Path) -> None:
+    """Page frontmatter flows down the outline; a descendant ``status`` overrides an inherited one."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Scope.md").write_text(
+        "project:: Matryca\n"
+        "status:: WIP\n"
+        "- Root\n"
+        "  - Middle\n"
+        "    status:: DONE\n"
+        "    - Inner leaf\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    scope = graph.pages["Scope"]
+    root = scope.root_nodes[0]
+    middle = root.children[0]
+    leaf = middle.children[0]
+
+    effective = graph.get_effective_properties(leaf.uuid)
+
+    assert effective.get("project") == "Matryca"
+    assert effective.get("status") == "DONE"
+    assert effective.get("status") != "WIP"
+
+
+def test_namespace_hierarchy_and_relative_resolution(tmp_path: Path) -> None:
+    """Namespace-aware link resolution and direct child listing match Logseq-style scoping."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Progetti" / "AI").mkdir(parents=True)
+    (pages / "Progetti" / "AI" / "Matryca.md").write_text("- hub\n", encoding="utf-8")
+    (pages / "Progetti" / "AI" / "Parser.md").write_text("- tool\n", encoding="utf-8")
+    (pages / "Progetti" / "AI" / "Team").mkdir(parents=True)
+    (pages / "Progetti" / "AI" / "Team" / "Lead.md").write_text("- nested\n", encoding="utf-8")
+    (pages / "Progetti" / "Sviluppo.md").write_text("- sibling namespace\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+
+    assert graph.resolve_relative_page_link("Progetti/AI/Matryca", "Sviluppo") == "Progetti/Sviluppo"
+    assert graph.resolve_relative_page_link("Progetti/AI/Matryca", "Parser") == "Progetti/AI/Parser"
+    assert graph.resolve_relative_page_link("Progetti/AI/Matryca", "Unknown") is None
+    assert graph.resolve_relative_page_link("Progetti/AI/Matryca", "Matryca") == "Progetti/AI/Matryca"
+
+    children = graph.get_namespace_children("Progetti/AI")
+    titles = {p.title for p in children}
+    assert titles == {"Progetti/AI/Matryca", "Progetti/AI/Parser"}
+    assert "Progetti/AI/Team/Lead" not in titles

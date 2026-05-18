@@ -23,7 +23,12 @@ class ASTVisitor(ABC):
 
 
 class LogseqNode(BaseModel):
-    """Single Logseq AST node."""
+    """Single Logseq AST node.
+
+    ``path`` lists synthetic block UUIDs from the outline root to this node; LogseqGraph uses it
+    with ``properties`` to compute inherited metadata (see ``get_effective_properties`` on
+    ``LogseqGraph``).
+    """
 
     model_config = ConfigDict(strict=True, frozen=True)
 

@@ -40,6 +40,43 @@ def test_is_system_block_detection(line: str, expected: bool) -> None:
     assert is_system_block(line) is expected
 
 
+def test_inline_entity_extraction_shields_code_spans(parser: StackMachineParser) -> None:
+    """Inline code and macro-shielded spans must not yield wikilinks, tags, or block refs."""
+    content = (
+        "- Investigate code block `[[FalseLink]]` and tag `#[[NotATag]]` "
+        "then cite [[GoodPage]] and #GoodTag"
+    )
+    page = parser.parse(content, page_title="shield-case")
+    root = page.root_nodes[0]
+
+    assert "FalseLink" not in root.wikilinks
+    assert "NotATag" not in root.wikilinks
+    assert "NotATag" not in root.tags
+    assert "GoodPage" in root.wikilinks
+    assert "GoodTag" in root.tags
+    assert "`[[FalseLink]]`" in root.content
+
+
+def test_fenced_code_shields_graph_tokens(parser: StackMachineParser) -> None:
+    """Fenced regions must not contribute wikilinks or tags to graph metadata."""
+    content = "- Visible [[Outer]]\n  ```\n  [[InnerNoise]] #inner-tag\n  ```"
+    page = parser.parse(content, page_title="fence-shield")
+    root = page.root_nodes[0]
+    assert "Outer" in root.wikilinks
+    assert "InnerNoise" not in root.wikilinks
+    assert "inner-tag" not in root.tags
+
+
+def test_macro_shields_embedded_link_syntax(parser: StackMachineParser) -> None:
+    """Macros are opaque for entity extraction."""
+    content = "- Before {{fake [[NoPage]] #no-tag}} after [[After]]"
+    page = parser.parse(content, page_title="macro-shield")
+    root = page.root_nodes[0]
+    assert "NoPage" not in root.wikilinks
+    assert "no-tag" not in root.tags
+    assert "After" in root.wikilinks
+
+
 def test_zero_to_four_space_fracture_binds_to_root(parser: StackMachineParser) -> None:
     """A direct 0->4 space jump is legal and binds to root."""
     content = "- Root\n    - Four space child"

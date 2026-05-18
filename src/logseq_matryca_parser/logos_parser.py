@@ -34,7 +34,7 @@ TASK_STATUSES: tuple[str, ...] = (
 )
 TIME_PATTERN: re.Pattern[str] = re.compile(r"\b(SCHEDULED|DEADLINE):\s*(<[^>]+>)")
 PRIORITY_PATTERN: re.Pattern[str] = re.compile(r"\[#([A-Z])\]")
-MACRO_PATTERN: re.Pattern[str] = re.compile(r"\{\{.*?\}\}")
+_SHIELD_TOKEN_PREFIX = "___LOGOS_SHIELD_TOKEN_"
 HEADING_PATTERN: re.Pattern[str] = re.compile(r"^(#{1,6})\s+(.+)$")
 ALIASED_BLOCK_REF_PATTERN: re.Pattern[str] = re.compile(
     r"(\[[^\]]+\])\(\(\([a-f0-9\-]{36}\)\)\)"
@@ -107,6 +107,119 @@ def _is_code_fence_line(stripped_line: str) -> bool:
     return stripped_line.startswith("```")
 
 
+def _try_open_fence_line(content: str, line_start: int, n: int) -> tuple[int, int] | None:
+    """If the line starting at ``line_start`` opens a fenced code block, return (tick_index, tick_len)."""
+    k = line_start
+    while k < n and content[k] in " \t":
+        k += 1
+    if k >= n or content[k] != "`":
+        return None
+    tick_end = k
+    while tick_end < n and content[tick_end] == "`":
+        tick_end += 1
+    tick_len = tick_end - k
+    if tick_len < 3:
+        return None
+    return (k, tick_len)
+
+
+def _fence_line_is_closing(line: str, tick_len: int) -> bool:
+    stripped = line.strip()
+    if not stripped or stripped[0] != "`":
+        return False
+    run = 0
+    while run < len(stripped) and stripped[run] == "`":
+        run += 1
+    remainder = stripped[run:].strip()
+    return run >= tick_len and remainder == ""
+
+
+def _fence_region_end(content: str, tick_start: int, tick_len: int, n: int) -> int:
+    """Return end index (exclusive) of a fenced code region opened at ``tick_start``."""
+    line_end = content.find("\n", tick_start + tick_len)
+    if line_end == -1:
+        return n
+    pos = line_end + 1
+    while pos < n:
+        next_nl = content.find("\n", pos)
+        segment = content[pos:] if next_nl == -1 else content[pos:next_nl]
+        if _fence_line_is_closing(segment, tick_len):
+            return n if next_nl == -1 else next_nl + 1
+        if next_nl == -1:
+            return n
+        pos = next_nl + 1
+    return n
+
+
+def _find_inline_code_close(content: str, body_start: int, tick_len: int, n: int) -> int:
+    p = body_start
+    while p < n:
+        if content[p] == "`":
+            q = p
+            while q < n and content[q] == "`":
+                q += 1
+            if q - p == tick_len:
+                return q
+        p += 1
+    return -1
+
+
+def _consume_inline_code_span(content: str, i: int, n: int) -> tuple[str, int]:
+    """Return the full span (including delimiters) and exclusive end index."""
+    j = i
+    while j < n and content[j] == "`":
+        j += 1
+    tick_len = j - i
+    close = _find_inline_code_close(content, j, tick_len, n)
+    if close == -1:
+        return content[i:n], n
+    return content[i:close], close
+
+
+def _shield_inline_code(content: str) -> tuple[str, list[str]]:
+    """Mask inline code, fenced code, and ``{{...}}`` macros for entity extraction only."""
+    literals: list[str] = []
+    parts: list[str] = []
+    i = 0
+    n = len(content)
+
+    def emit_placeholder(segment: str) -> None:
+        literals.append(segment)
+        parts.append(f"{_SHIELD_TOKEN_PREFIX}{len(literals) - 1}___")
+
+    while i < n:
+        at_line_start = i == 0 or content[i - 1] == "\n"
+        if at_line_start:
+            line_start = i
+            fence_open = _try_open_fence_line(content, line_start, n)
+            if fence_open is not None:
+                tick_start, tick_len = fence_open
+                fence_end = _fence_region_end(content, tick_start, tick_len, n)
+                emit_placeholder(content[i:fence_end])
+                i = fence_end
+                continue
+
+        if i + 1 < n and content[i] == "{" and content[i + 1] == "{":
+            close = content.find("}}", i + 2)
+            if close == -1:
+                emit_placeholder(content[i:n])
+                break
+            emit_placeholder(content[i : close + 2])
+            i = close + 2
+            continue
+
+        if content[i] == "`":
+            segment, end = _consume_inline_code_span(content, i, n)
+            emit_placeholder(segment)
+            i = end
+            continue
+
+        parts.append(content[i])
+        i += 1
+
+    return "".join(parts), literals
+
+
 def _extract_task_status(first_line: str) -> tuple[str | None, str]:
     for status in TASK_STATUSES:
         prefix = f"{status} "
@@ -148,7 +261,8 @@ def _extract_time_properties(raw_content: str) -> dict[str, Any]:
 
 def _extract_tags(raw_content: str) -> list[str]:
     tags: list[str] = []
-    for bracketed, simple in LOGSEQ_PATTERNS["tag"].findall(raw_content):
+    shielded, _ = _shield_inline_code(raw_content)
+    for bracketed, simple in LOGSEQ_PATTERNS["tag"].findall(shielded):
         tag = bracketed or simple
         if tag:
             tags.append(tag.rstrip(".,;:"))
@@ -157,19 +271,11 @@ def _extract_tags(raw_content: str) -> list[str]:
 
 def _extract_block_refs(raw_content: str) -> list[str]:
     refs: list[str] = []
-    in_code_block = False
-    for line in raw_content.splitlines():
-        stripped = line.strip()
-        if _is_code_fence_line(stripped):
-            in_code_block = not in_code_block
-            continue
-        if in_code_block:
-            continue
-        safe_line = MACRO_PATTERN.sub("", line)
-        for alias_ref, plain_ref in LOGSEQ_PATTERNS["block_ref"].findall(safe_line):
-            block_ref = alias_ref or plain_ref
-            if block_ref:
-                refs.append(block_ref)
+    shielded, _ = _shield_inline_code(raw_content)
+    for alias_ref, plain_ref in LOGSEQ_PATTERNS["block_ref"].findall(shielded):
+        block_ref = alias_ref or plain_ref
+        if block_ref:
+            refs.append(block_ref)
     return refs
 
 
@@ -291,10 +397,15 @@ def _extract_property_graph_tokens(
     for value in properties.values():
         if not isinstance(value, str):
             continue
-        property_wikilinks.extend(LOGSEQ_PATTERNS["wikilink"].findall(value))
+        property_wikilinks.extend(_extract_wikilinks(value))
         property_tags.extend(_extract_tags(value))
         property_block_refs.extend(_extract_block_refs(value))
     return property_wikilinks, property_tags, property_block_refs
+
+
+def _extract_wikilinks(raw_content: str) -> list[str]:
+    shielded, _ = _shield_inline_code(raw_content)
+    return LOGSEQ_PATTERNS["wikilink"].findall(shielded)
 
 
 class PageRegistry:
@@ -705,7 +816,7 @@ class StackMachineParser:
         property_wikilinks, property_tags, property_block_refs = _extract_property_graph_tokens(
             properties
         )
-        wikilinks = [*LOGSEQ_PATTERNS["wikilink"].findall(stripped_text), *property_wikilinks]
+        wikilinks = [*_extract_wikilinks(stripped_text), *property_wikilinks]
         tags = [*_extract_tags(stripped_text), *property_tags]
         properties_order = ["id"] if "id" in properties else []
 
@@ -887,7 +998,7 @@ class StackMachineParser:
         property_wikilinks, property_tags, property_block_refs = _extract_property_graph_tokens(
             properties
         )
-        wikilinks = [*LOGSEQ_PATTERNS["wikilink"].findall(content), *property_wikilinks]
+        wikilinks = [*_extract_wikilinks(content), *property_wikilinks]
         tags = [*_extract_tags(content), *property_tags]
         return node.model_copy(
             update={
