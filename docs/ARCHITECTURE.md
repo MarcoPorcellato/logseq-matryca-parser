@@ -82,7 +82,7 @@ title Logseq Matryca Parser — C4 Level 2 (Containers)
 Person(knowledgeWorker, "Knowledge Worker", "Local operator of a sovereign Logseq graph.")
 
 System_Boundary(matrycaEcosystem, "Matryca.ai Ecosystem") {
-    Container(kinetic, "KINETIC", "Typer / Rich CLI", "CLI entry point — export, visualize, demo, graph scans, and append-only agent writes (`append`).")
+    Container(kinetic, "KINETIC", "Typer / Rich CLI", "CLI — export (json, markdown, langchain, langchain-enriched, obsidian), visualize, demo, graph scans, append-only agent writes (`append`).")
     Container(logos, "LOGOS", "Python / Pydantic", "Stack-Machine AST engine — LogseqPage and LogseqNode models.")
     Container(synapse, "SYNAPSE", "LangChain / LlamaIndex", "Framework-native exporters with parent-child metadata.")
     Container(lens, "LENS", "NetworkX / PyVis", "Reference-topology visualization to interactive HTML.")
@@ -138,6 +138,11 @@ flowchart LR
     REG["PageRegistry (UUID ⇄ Node)"]:::logos
   end
 
+  subgraph FORGE_SIDE["FORGE — Serialization (JSON / Markdown / Obsidian)"]
+    FJ["JSON + flat list visitors"]:::logos
+    FO["Obsidian YAML + ^ anchors"]:::logos
+  end
+
   subgraph SYN["SYNAPSE — Framework-native adapters"]
     LC["LangChain Document visitor"]:::synapse
     LI["LlamaIndex TextNode + NodeRelationship"]:::synapse
@@ -156,6 +161,8 @@ flowchart LR
 
   G --> MD --> P --> AST
   P --- REG
+  AST --> FJ
+  AST --> FO
   AST --> LC
   AST --> LI
   AST --> NX --> PV
@@ -164,7 +171,7 @@ flowchart LR
   VS --> RAG --> LLM
 ```
 
-Auxiliary exporters (**FORGE** for JSON / flat Markdown) consume the same AST and are orthogonal to SYNAPSE; **KINETIC** is modeled in §2.2 but omitted from **§2.3**’s flowchart so the sovereign RAG data plane stays legible.
+Auxiliary **FORGE** serialization (JSON / flat Markdown / Obsidian) appears as a parallel branch in **§2.3**; **KINETIC** orchestrates all surfaces but the operator CLI box is omitted from the RAG→LLM spine so the vector path stays legible.
 
 ---
 
@@ -233,6 +240,18 @@ classDiagram
 
 Together, adapters guarantee that **embedding units align with intentional block boundaries**, not splitter accidents.
 
+#### 3.2.1 Context-enriched RAG — `SynapseAdapter.to_context_enriched_chunks`
+
+Beyond flat `Document` emission, **`to_context_enriched_chunks`** targets **vector pipelines that would otherwise lose outline semantics**. For each flattened block it builds `page_content` from a configurable template (default **`[{breadcrumbs}] {content}`**):
+
+1. **Breadcrumbs.** [`_build_breadcrumbs`](../src/logseq_matryca_parser/synapse.py) walks the owning `LogseqPage` and the node’s UUID `path` so the chunk’s visible text carries **human-readable lineage** (page title + ancestor outline), not just an opaque `parent_id`.
+
+2. **Recursive macro / embed expansion.** [`_expand_macros_and_embeds`](../src/logseq_matryca_parser/synapse.py) operates on **`node.content`** (not `clean_text`) so tokens hidden from embeddings—such as `((uuid))` inside `{{embed ((uuid))}}`—remain visible to the scanner. It expands **`{{embed ((uuid))}}`** by inlining the target block’s content (with **per-UUID cycle detection**) and **`{{embed [[Page]]}}`** by inlining page bodies (with **per-title cycle detection**), preventing silent context loss when macros nest.
+
+3. **Org-mode-style property inheritance.** Metadata includes **`effective_properties`**: the merge produced by [`LogseqGraph.get_effective_properties`](../src/logseq_matryca_parser/graph.py) — **page frontmatter first**, then each ancestor on `node.path` **top-down**, with deeper `LogseqNode.properties` **overriding** shallower keys. Downstream filters can therefore key off inherited `type::`, `status::`, etc., without re-walking the outline at query time.
+
+The KINETIC **`export --format langchain-enriched`** path serializes these documents for offline inspection or ingestion.
+
 ### 3.3 LENS — NetworkX topology + PyVis interactive visualization
 
 **LENS** (`logseq_matryca_parser.lens.GraphVisualizer`) builds a **`networkx.Graph`** over **page ⇄ wiki/tag reference** projections using `NetworkXVisitor` during AST preorder walks. Nodes receive **degree-based sizing** (“sun” hotspots) and subgroup classification (`page`, `tag`, `journal`, etc.).
@@ -242,6 +261,37 @@ Visualization export uses **`pyvis`** with **`force_atlas_2based`** physics, ful
 ### 3.4 AGENT WRITER — Append-Only Sandboxing
 
 In the **LLM OS** metaphor, **LOGOS** is the **read path** into the hierarchical “disk”: it materializes Spatial Markdown into a **deterministic AST** that downstream adapters trust. **`agent_writer`** ([`logseq_matryca_parser.agent_writer`](../src/logseq_matryca_parser/agent_writer.py)) is the complementary **bounded write syscall**: a **deterministic**, **configuration-aware** channel that **dynamically reads `config.edn`** (for example **`:journal/page-title-format`**) so filenames and titles align with the vault’s own conventions. Writes use **`open(..., mode="a")`** **append-only** I/O — agents **append** new block material **after** existing bytes; they do **not** rewrite, merge, or re-indent prior content. That discipline keeps **existing topology intact** and avoids corrupting the graph in ways that would break a subsequent **LOGOS** parse or violate the **deterministic AST** contract. Surfaced through the **`append`** command in **KINETIC**, this yields an **enterprise-grade**, inspectable path for agent contributions while **read/export** flows remain the authoritative, topology-preserving contract with the vault.
+
+### 3.5 FORGE — multi-target serialization (JSON, Markdown, Obsidian)
+
+**FORGE** ([`forge.py`](../src/logseq_matryca_parser/forge.py)) hosts **AST visitors** that project the same immutable `LogseqNode` trees into transport-friendly artifacts. Besides nested **JSON** and hierarchy-preserving **clean Markdown**, **`ObsidianForgeVisitor`** emits **Obsidian-flavored Markdown**: a YAML **`---` frontmatter** block from merged page properties, list lines derived from the first line of each block’s **`content`** (so `((uuid))` survives when stripped from `clean_text`), **`[[Page#^anchor]]`** link rewriting via an optional embed resolver, and trailing **`^`** anchors on blocks that are referenced anywhere in the vault. **KINETIC** exposes this as **`matryca-parse export … --format obsidian`**, writing one file per page and mirroring **namespace segments** as nested directories.
+
+### 3.6 `LogseqGraph` — namespace scoping, O(1) invalidation, live watch
+
+The **in-memory graph** ([`graph.py`](../src/logseq_matryca_parser/graph.py)) is the runtime **RAM image** of the sovereign vault: `pages: dict[str, LogseqPage]`, a private **`_node_registry`** keyed by synthetic block UUID, and a **`_backlink_registry`** mapping normalized link targets to source node UUIDs.
+
+#### Namespace shadowing (`resolve_relative_page_link`)
+
+Relative page resolution follows **Logseq-style longest-prefix wins**: for a current page title split on **`/`** (namespace segments), the resolver tries candidates **`prefix + "/" + link_target`** for prefixes from **full namespace down to empty**, and returns the **first title that exists** in `pages`. Only if no contextual page exists does it fall back to a **global** title match. Thus a contextual page **`Progetti/AI/Sviluppo`** **shadows** a global **`Sviluppo`** when resolving from **`Progetti/AI/Matryca`** — matching the **nested-namespace shadowing** semantics described in the scoping roadmap.
+
+#### Incremental file invalidation (`invalidate_and_reload_page`)
+
+Full-directory loads are expensive for always-on agents. **`invalidate_and_reload_page(path)`** implements **page-level surgical refresh**:
+
+1. Ignore paths outside tracked **`pages/*.md`** and **`journals/*.md`**.
+2. Re-parse the file with **`StackMachineParser.parse_page_file`**, producing a fresh `LogseqPage`.
+3. If the path previously mapped to a page, collect **all synthetic UUIDs** from the old tree and call **`_purge_stale_page_uuids`**: remove each UUID from **`_node_registry`**, scrub those UUIDs from every **`_backlink_registry`** source list, and delete backlink keys that become empty.
+4. Replace the **`pages`** dict entry (title may change if the file moved), then **`_register_page_nodes`** and **`_append_page_backlinks`** for the new AST.
+
+This keeps **global indexes consistent** without rebuilding the entire graph.
+
+#### Live filesystem watcher (`start_watching`)
+
+**`LogseqGraph.start_watching(callback=None)`** (optional **`watchdog`** install) returns a **`LogseqGraphWatcher`** that schedules a recursive **`Observer`** on the graph root. **`on_modified` / `on_created`** events for tracked Markdown call **`invalidate_and_reload_page`**, then optionally invoke **`callback(path)`** — the intended hook for **vector store patch**, **re-embedding**, or UI refresh. Event routing ignores directories and non-tracked extensions so the hot path stays tight.
+
+#### Fluent topological queries (`GraphQuery`)
+
+**`graph.query()`** seeds a [`GraphQuery`](../src/logseq_matryca_parser/graph.py) with **all registered nodes**, then applies chainable filters: **`has_tag`**, **`with_priority`**, **`under_parent(parent_uuid)`** (ancestor chain on `path`), **`is_task_state`**, and **`execute()`** returning a materialized list. This is the **programmatic complement** to SQL-less graph inspection — ideal for **batch exporters**, **lint rules**, and **agent planners** that need a typed slice of the outline without ad-hoc traversal code.
 
 ---
 
@@ -310,4 +360,4 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 
 ---
 
-*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `lens.py`, `logos_core.py`, and `agent_writer.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).* 
+*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `graph.py`, `forge.py`, `lens.py`, `logos_core.py`, and `agent_writer.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).* 

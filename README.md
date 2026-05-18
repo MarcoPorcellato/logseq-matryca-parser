@@ -1,25 +1,33 @@
+<div align="center">
+
 # 🔱 Logseq Matryca Parser (The Logos Protocol)
+
+**Stop feeding broken Markdown to your AI.**
 
 [![CI/CD Status](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/workflows/ci.yml/badge.svg)](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/LICENSE)
+[![PyPI](https://img.shields.io/badge/PyPI-install%20via%20GitHub-3775A9?logo=pypi&logoColor=white)](https://github.com/MarcoPorcellato/logseq-matryca-parser#-quickstart)
 [![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange?style=for-the-badge)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-> **"Turning a forest of local plain-text files into a unified semantic powerhouse."**
+> *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
 <p align="center">
   <video src="https://github.com/user-attachments/assets/24f73c6d-3eca-4adb-8442-981f2ba4cccd" autoplay loop muted playsinline width="800"></video>
 </p>
 
-[👉 **TRY THE LIVE INTERACTIVE DEMO**](https://MarcoPorcellato.github.io/logseq-matryca-parser/) 
+[👉 **TRY THE LIVE INTERACTIVE DEMO**](https://MarcoPorcellato.github.io/logseq-matryca-parser/)
 
 [📘 **READ THE ARCHITECTURE (LLM OS Vision)**](docs/ARCHITECTURE.md)
+
+</div>
 
 ---
 
 ## 🌐 The Vision: Virtual Centralization vs. Binary Lock-in
 
-The PKM (Personal Knowledge Management) world is currently forcing users to make a painful choice between **Data Longevity** and **AI Power**. 
+The PKM (Personal Knowledge Management) world is currently forcing users to make a painful choice between **Data Longevity** and **AI Power**.
 
 * **Vanilla Logseq / Obsidian** is a "Forest" of decentralized Markdown files. It guarantees the Lindy effect (plain-text lasts forever) and perfect Git versioning, but standard AI chunkers treat it like a blender, destroying the outliner hierarchy.
 * **Tana** is a centralized "Tree". It offers incredible semantic power, but traps your brain in a proprietary cloud database.
@@ -28,7 +36,7 @@ The PKM (Personal Knowledge Management) world is currently forcing users to make
 ### 🔱 The Matryca Solution: The Best of Both Worlds
 **Logseq Matryca Parser** is the ultimate bridge. It allows you to **keep your sovereign, future-proof Markdown files**, while synthesizing a **Virtual Global Graph** in RAM at runtime.
 
-It acts as the strict **File System Driver** for your LLM OS. By using a deterministic Stack-Machine to parse your outliner topology, it feeds LangChain or LlamaIndex with the exact parent-child context of every single block. 
+It acts as the strict **File System Driver** for your LLM OS. By using a deterministic Stack-Machine to parse your outliner topology, it feeds LangChain or LlamaIndex with the exact parent-child context of every single block.
 
 *You get the reasoning power of a centralized relational database, without sacrificing the plain-text soul of your Second Brain in Logseq.*
 
@@ -46,13 +54,24 @@ It acts as the strict **File System Driver** for your LLM OS. By using a determi
 
 ---
 
+## 🧭 Matryca vs. naive framework loaders
+
+| Capability | Typical LangChain / LlamaIndex Markdown loaders | **Matryca (LOGOS + SYNAPSE + graph)** |
+| :--- | :--- | :--- |
+| **Parent–child context** | Character or heading splits; children often orphaned from parents | **True outliner AST**: every block carries `parent_id`, `path`, `left_id` and visits in deterministic tree order |
+| **Block references `((uuid))`** | Treated as opaque text or dropped | **Resolved** against `LogseqGraph`; optional **embed expansion** and **Obsidian `[[Page#^anchor]]`** export |
+| **Property inheritance** | Page-level frontmatter at best | **`get_effective_properties`**: page + ancestor outline keys merged top-down (Org-mode style), then exposed on enriched chunks |
+| **Live sync** | Re-read whole tree or poll | **`LogseqGraph.start_watching()`** (optional `watchdog`): **per-file invalidation** — re-parse one page, purge stale UUIDs from registries, refresh backlinks |
+
+---
+
 ### 🚀 The Problem
 Standard RAG pipelines treat your notes like a blender. They chop Markdown into random shards, destroying the **parent-child hierarchy** that makes Logseq powerful.
 
 ```mermaid
 graph TD
     Raw[(Logseq Markdown\nFiles)]
-    
+
     subgraph Standard RAG
         Blender[Standard Text Splitter\n'The Blender']
         Chunk1[Chunk 1: Orphan text]
@@ -69,7 +88,7 @@ graph TD
 
     Raw --> Blender
     Raw --> Architect
-    
+
     classDef bad fill:#fee2e2,stroke:#ef4444,color:#000;
     classDef good fill:#dcfce7,stroke:#22c55e,color:#000;
     class Chunk1,Chunk2 bad;
@@ -81,13 +100,46 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 
 ---
 
+## ⚡ Recent superpowers (Waves 4–10)
+
+### Obsidian-native export
+Compile an entire Logseq graph into an **Obsidian vault layout**: YAML frontmatter from page properties, list body preserved, Logseq `((uuid))` links rewritten to **`[[Page#^anchor]]`**, and trailing **`^block-id`** on referenced blocks. Namespace titles become nested folders (e.g. `Projects/AI/Demo.md`).
+
+```bash
+matryca-parse export /path/to/logseq/graph /path/to/obsidian/vault --format obsidian
+```
+
+> **Note:** Wikilinks currently use the **Logseq page title** (e.g. `[[Target#^…]]`). Vault files may live under namespace folders (`Projects/AI/Demo.md`). Obsidian usually resolves unique titles; aligning link text to folder paths is a possible future refinement.
+
+### Live incremental watcher
+`LogseqGraph` supports **surgical file invalidation** (optional dependency: `pip install 'logseq-matryca-parser[watch]'`). `start_watching()` runs a recursive **watchdog** observer: on `created` / `modified` under `pages/` or `journals/`, only that file is re-parsed; stale synthetic UUIDs are purged from `_node_registry` and scrubbed from `_backlink_registry`—no full-graph cold reload.
+
+### Fluent topological queries
+Filter the global node registry with a **chainable** API (tags, task state, ancestry under a parent UUID):
+
+```python
+from logseq_matryca_parser.graph import LogseqGraph
+
+graph = LogseqGraph.load_directory("/path/to/logseq/graph")
+hits = (
+    graph.query()
+    .has_tag("idea")
+    .under_parent("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
+    .is_task_state("TODO")
+    .execute()
+)
+```
+
+---
+
 ## 🏗️ Core Capabilities
 
 | Feature | Description |
 | :--- | :--- |
 | **LOGOS Engine** | Deterministic AST parsing. No regex-guessing. Handles `id::`, aliases, and multiline blocks. |
 | **Advanced Task Extraction** | Task **state** (TODO / DOING / …), **priority** markers `[#A]`–`[#C]` promoted to `task_priority`, and **SCHEDULED** / **DEADLINE** Logseq timestamps normalized to **UTC Unix epoch seconds** on `scheduled_at` / `deadline_at` for temporal graph and retrieval pipelines. |
-| **SYNAPSE Adapter** | Native exports for **LangChain** and **LlamaIndex** with automated lineage metadata. |
+| **SYNAPSE Adapter** | Native exports for **LangChain** and **LlamaIndex** with automated lineage metadata; **context-enriched** chunks with breadcrumbs, embed expansion, and inherited properties. |
+| **FORGE** | JSON, clean Markdown, and **Obsidian** vault serialization (`ObsidianForgeVisitor`, `ForgeExporter.to_obsidian_markdown`). |
 | **LENS Visualizer** | 60FPS interactive graph rendering (10k+ nodes) with Glassmorphism HUD. |
 | **Sovereign AI** | 100% Local. Zero telemetry. Private by design. |
 
@@ -113,14 +165,23 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from GitHub (not yet published to PyPI)
+# Install from GitHub (PyPI distribution tracked on roadmap)
 pip install git+https://github.com/MarcoPorcellato/logseq-matryca-parser.git
+
+# Optional: filesystem watcher for live incremental graph updates
+pip install 'logseq-matryca-parser[watch]'
 
 # 1. Visualize your local graph (LENS)
 matryca-parse visualize /path/to/logseq/graph my-map.html
 
-# 2. Export for AI/RAG (SYNAPSE)
+# 2. Export for AI / RAG (SYNAPSE)
 matryca-parse export /path/to/logseq/graph output --format langchain
+
+# 3. Context-enriched LangChain JSON (graph + inheritance + embed expansion)
+matryca-parse export /path/to/logseq/graph output --format langchain-enriched
+
+# 4. Obsidian vault (YAML frontmatter + ^ block ids)
+matryca-parse export /path/to/logseq/graph output --format obsidian
 ```
 
 ### Python API
@@ -132,7 +193,7 @@ from logseq_matryca_parser.synapse import SynapseAdapter
 page = LogosParser().parse_page_file("page.md")
 
 # Export to LangChain with lineage metadata
-docs = SynapseAdapter.to_langchain_documents(page.root_nodes)
+docs = SynapseAdapter.to_langchain_documents(page.root_nodes, source_name=page.title)
 ```
 
 ### 🤖 Agentic Write Access (Append-Only)
@@ -157,7 +218,7 @@ assert result["status"] == "success"
 
 ## 🗺️ Roadmap
 - [ ] **Desktop GUI:** Standalone app for non-technical users. [(Join the RFC)](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/3)
-- [ ] **Obsidian Adapter:** Native export for Obsidian vaults.
+- [x] **Obsidian Adapter:** Native CLI export (`--format obsidian`) with YAML frontmatter and `^` block anchors.
 - [ ] **Ollama Integration:** One-click local RAG setup.
 
 ## ☕ Support & Enterprise
