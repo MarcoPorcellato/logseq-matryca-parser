@@ -646,14 +646,20 @@ class StackMachineParser:
                 frontmatter_active = False
                 continue
 
-            if current_node is None:
+            if not stack:
                 frontmatter_active = False
                 continue
 
-            merged_content = f"{current_node.content}\n{raw_line}"
-            updated = self._refresh_node(current_node, merged_content, line_end=line_number)
+            active_node = stack[-1]
+            merged_content = f"{active_node.content}\n{raw_line}"
+            updated = self._refresh_node(active_node, merged_content, line_end=line_number)
             self._replace_stack_tail_node(stack, root_nodes, updated)
             current_node = updated
+            logger.debug(
+                "Soft-break continuation merged into stack tip line=%s depth=%s",
+                line_number,
+                len(stack),
+            )
             frontmatter_active = False
             property_list_indent_level = None
             if _is_code_fence_line(stripped_line):

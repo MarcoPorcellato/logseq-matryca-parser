@@ -96,6 +96,26 @@ def test_misaligned_indentation_floors_to_nearest_level(parser: StackMachinePars
     assert page.root_nodes[0].children[0].indent_level == 1
 
 
+def test_parser_captures_multiline_soft_break_paragraphs(parser: StackMachineParser) -> None:
+    """Lines without list markers append to the preceding active block (Shift+Enter style)."""
+    content = (
+        "- First line of thought\n"
+        "Second line without bullet\n"
+        "  Third line still prose"
+    )
+    page = parser.parse(content, page_title="soft-break-paragraph")
+    root = page.root_nodes[0]
+
+    assert "First line of thought" in root.content
+    assert "Second line without bullet" in root.content
+    assert "  Third line still prose" in root.content
+    assert root.content.splitlines() == [
+        "First line of thought",
+        "Second line without bullet",
+        "  Third line still prose",
+    ]
+
+
 @pytest.mark.parametrize(
     "missing_uuid",
     [
