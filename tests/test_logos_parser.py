@@ -507,7 +507,7 @@ def test_official_inline_uuid_property_binding(
 
     assert root.uuid != expected_uuid
     assert root.source_uuid == expected_uuid
-    assert root.synthetic_id is True
+    assert root.synthetic_id is False
     assert root.properties["id"] == expected_uuid
     assert "id::" not in root.content
     assert "id::" not in root.clean_text
@@ -521,9 +521,32 @@ def test_property_uuid_is_preserved_as_source_uuid(parser: StackMachineParser) -
 
     assert root.uuid != source_uuid
     assert root.source_uuid == source_uuid
+    assert root.synthetic_id is False
     assert root.properties["id"] == source_uuid
     assert root.children[0].parent_id == root.uuid
     assert root.children[0].path == [root.uuid, root.children[0].uuid]
+
+
+def test_synthetic_id_false_when_id_property_present(parser: StackMachineParser) -> None:
+    """Blocks with on-disk ``id::`` expose ``synthetic_id=False`` for downstream agents."""
+    source_uuid = "22222222-2222-2222-2222-222222222222"
+    page = parser.parse(f"- Root\n  id:: {source_uuid}", page_title="synthetic-flag-disk")
+    root = page.root_nodes[0]
+
+    assert root.source_uuid == source_uuid
+    assert root.synthetic_id is False
+
+
+def test_synthetic_id_true_without_id_property(parser: StackMachineParser) -> None:
+    """Blocks without ``id::`` use parser-generated UUIDs marked ``synthetic_id=True``."""
+    page = parser.parse("- Root\n  - Child", page_title="synthetic-flag-generated")
+    root = page.root_nodes[0]
+    child = root.children[0]
+
+    assert root.source_uuid is None
+    assert root.synthetic_id is True
+    assert child.source_uuid is None
+    assert child.synthetic_id is True
 
 
 @pytest.mark.parametrize(

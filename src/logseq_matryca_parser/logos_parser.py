@@ -634,7 +634,9 @@ class StackMachineParser:
                     line_end=line_number,
                 )
                 if key == "id":
-                    updated = updated.model_copy(update={"source_uuid": value})
+                    updated = updated.model_copy(
+                        update={"source_uuid": value, "synthetic_id": False}
+                    )
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
                 self.registry.register(updated)
@@ -829,7 +831,7 @@ class StackMachineParser:
         return LogseqNode(
             uuid=node_uuid,
             source_uuid=source_uuid,
-            synthetic_id=True,
+            synthetic_id=source_uuid is None,
             content=stripped_text,
             clean_text=clean_node_content(stripped_text, properties),
             indent_level=indent_level,

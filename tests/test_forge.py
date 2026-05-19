@@ -55,7 +55,7 @@ def test_forge_obsidian_markdown_translation() -> None:
         indent_level=1,
         parent_id="11111111-1111-1111-1111-111111111111",
         source_uuid=block_id,
-        synthetic_id=True,
+        synthetic_id=False,
         properties={"id": block_id},
     )
     root = LogseqNode(

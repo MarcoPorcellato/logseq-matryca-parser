@@ -110,7 +110,7 @@ def test_export_command_json_preserves_source_uuid_separately(
     child = root["children"][0]
     assert root["uuid"] != source_uuid
     assert root["source_uuid"] == source_uuid
-    assert root["synthetic_id"] is True
+    assert root["synthetic_id"] is False
     assert root["source_path"] == str((pages_dir / "identity.md").resolve())
     assert root["line_start"] == 1
     assert root["line_end"] == 2
