@@ -100,7 +100,7 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 
 ---
 
-## ⚡ Recent superpowers (Waves 4–10)
+## ⚡ Recent superpowers (Waves 4–11)
 
 ### Obsidian-native export
 Compile an entire Logseq graph into an **Obsidian vault layout**: YAML frontmatter from page properties, list body preserved, Logseq `((uuid))` links rewritten to **`[[Page#^anchor]]`**, and trailing **`^block-id`** on referenced blocks. Namespace titles become nested folders (e.g. `Projects/AI/Demo.md`).
@@ -130,6 +130,16 @@ hits = (
 )
 ```
 
+### Agent-Native X-Ray Mode (Token Optimization)
+For autonomous LLM agents, passing raw Markdown into the context window wastes thousands of tokens on **36-character UUIDs**, hidden `id::` properties, drawers, and collapsed directives that carry no immediate semantic signal. **X-Ray mode** compresses the parsed AST into **ultra-dense, zero-fluff plain text**: each block becomes `{indent}[{alias}] {clean_text}`, with heavy Logseq UUIDs replaced by **sequential integer aliases** (`[0]`, `[1]`, …) held in a session registry. On typical outlines this can reduce context consumption by **up to ~35×** compared to dumping full block payloads.
+
+```bash
+matryca-parse agent-read /path/to/graph --tag idea
+matryca-parse agent-read /path/to/graph --query "quantum"
+```
+
+The agent reads cheap topology now; the registry resolves aliases back to sovereign UUIDs when you wire targeted writes.
+
 ---
 
 ## 🏗️ Core Capabilities
@@ -141,6 +151,7 @@ hits = (
 | **SYNAPSE Adapter** | Native exports for **LangChain** and **LlamaIndex** with automated lineage metadata; **context-enriched** chunks with breadcrumbs, embed expansion, and inherited properties. |
 | **FORGE** | JSON, clean Markdown, and **Obsidian** vault serialization (`ObsidianForgeVisitor`, `ForgeExporter.to_obsidian_markdown`). |
 | **LENS Visualizer** | 60FPS interactive graph rendering (10k+ nodes) with Glassmorphism HUD. |
+| **Agent-Native Printing Press** | [`agent_press.py`](src/logseq_matryca_parser/agent_press.py): **`SessionAliasRegistry`** maps session aliases ↔ block UUIDs; **`to_xray_markdown`** emits token-minimal outline text for autonomous agents (`matryca-parse agent-read`). |
 | **Sovereign AI** | 100% Local. Zero telemetry. Private by design. |
 
 ### Data model — `LogseqNode` task fields

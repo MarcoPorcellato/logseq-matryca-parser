@@ -189,9 +189,31 @@ class LogseqGraph(BaseModel):
             backlink_registry=backlink_registry,
         )
 
+    @property
+    def tab_size(self) -> int:
+        """Logseq outline tab width in spaces (matches ``StackMachineParser`` default)."""
+        return 2
+
     def get_node_by_uuid(self, uuid: str) -> LogseqNode | None:
         """Return the node for ``uuid`` if present in the global registry."""
         return self._node_registry.get(uuid)
+
+    def get_broken_references(self) -> list[LogseqNode]:
+        """Return nodes whose ``block_refs`` point at UUIDs missing from the node registry."""
+        broken: list[LogseqNode] = []
+        for node in self._node_registry.values():
+            if not node.block_refs:
+                continue
+            for ref in node.block_refs:
+                if ref not in self._node_registry:
+                    broken.append(node)
+                    logger.debug(
+                        "get_broken_references origin=%s missing_ref=%s",
+                        node.uuid,
+                        ref,
+                    )
+                    break
+        return broken
 
     def get_node_by_embed_ref(self, block_ref: str) -> LogseqNode | None:
         """Resolve a Logseq block id: synthetic registry UUID, ``source_uuid``, or ``properties['id']``."""

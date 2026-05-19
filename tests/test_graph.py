@@ -297,3 +297,23 @@ def test_graph_watcher_filesystem_events(tmp_path: Path) -> None:
 
     watcher.stop()
     mock_observer.stop.assert_called_once()
+
+
+def test_get_broken_references_flags_missing_uuid(tmp_path: Path) -> None:
+    """Nodes referencing unknown block UUIDs are returned by the AST linter."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    fake_uuid = "00000000-0000-0000-0000-000000000099"
+    (pages / "Broken.md").write_text(
+        f"- Linker references (({fake_uuid}))\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    linker = graph.pages["Broken"].root_nodes[0]
+
+    broken = graph.get_broken_references()
+
+    assert linker in broken
+    assert fake_uuid in linker.block_refs

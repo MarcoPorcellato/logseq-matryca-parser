@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import sys
 from collections.abc import Iterable
 from enum import Enum
 from pathlib import Path
@@ -493,6 +494,37 @@ def append(
     message = result.get("message", "Unknown error.")
     console.print(f"[bold red]Append failed:[/] {message}")
     raise typer.Exit(code=1)
+
+
+@app.command()
+def agent_read(
+    graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root."),
+    tag: str | None = typer.Option(None, "--tag", help="Filter nodes by tag."),
+    query: str | None = typer.Option(None, "--query", help="Substring search on clean_text."),
+) -> None:
+    """Load a graph, filter nodes, and print ultra-dense X-Ray text to stdout (no Rich)."""
+    from logseq_matryca_parser.agent_press import SessionAliasRegistry, to_xray_markdown
+    from logseq_matryca_parser.graph import LogseqGraph
+
+    if not graph_path.exists() or not graph_path.is_dir():
+        print(f"Invalid graph path: {graph_path}", file=sys.stderr)
+        raise typer.Exit(code=1)
+
+    graph = LogseqGraph.load_directory(graph_path.resolve())
+    if tag is not None:
+        nodes = graph.query().has_tag(tag).execute()
+    elif query is not None:
+        nodes = graph.search_content(query)
+    else:
+        nodes = graph.query().execute()
+
+    registry = SessionAliasRegistry()
+    registry.generate_aliases(nodes)
+    output = to_xray_markdown(nodes, registry)
+    if output:
+        sys.stdout.write(output)
+        if not output.endswith("\n"):
+            sys.stdout.write("\n")
 
 
 if __name__ == "__main__":

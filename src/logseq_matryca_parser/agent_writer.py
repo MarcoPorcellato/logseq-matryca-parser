@@ -1,12 +1,19 @@
-"""Read Logseq ``config.edn`` and map journal page title date formats to Python ``strftime``."""
+"""Agent write helpers: weekly append-only logging and headless AST markdown splicing."""
 
 from __future__ import annotations
 
 import logging
 import os
 import re
+import tempfile
 from datetime import datetime
-from typing import NotRequired, TypedDict
+from pathlib import Path
+from typing import TYPE_CHECKING, NotRequired, TypedDict
+
+if TYPE_CHECKING:
+    from logseq_matryca_parser.graph import LogseqGraph
+
+from logseq_matryca_parser.logos_core import LogseqNode
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +159,68 @@ def logseq_agent_write(
         logger.exception("logseq_agent_write failed for path %s", file_path)
         return {"status": "error", "message": str(exc)}
     return {"status": "success", "path": file_path}
+
+
+def _deepest_line_end(node: LogseqNode) -> int:
+    """Return the 1-based ``line_end`` of the deepest last descendant (or ``node`` itself)."""
+    cursor = node
+    while cursor.children:
+        cursor = cursor.children[-1]
+    if cursor.line_end is None:
+        msg = f"Node uuid={node.uuid} has no line_end for markdown splice"
+        raise ValueError(msg)
+    return cursor.line_end
+
+
+def append_child_to_node(graph: LogseqGraph, target_uuid: str, content: str) -> None:
+    """Insert a child bullet under ``target_uuid`` in the on-disk source markdown file."""
+    target_node = graph.get_node_by_uuid(target_uuid)
+    if target_node is None:
+        msg = f"No node registered for uuid={target_uuid}"
+        raise ValueError(msg)
+    if not target_node.source_path:
+        msg = f"Node uuid={target_uuid} has no source_path"
+        raise ValueError(msg)
+
+    source_path = Path(target_node.source_path)
+    insert_after_line = _deepest_line_end(target_node)
+    child_level = target_node.indent_level + 1
+    indent = " " * (child_level * graph.tab_size)
+    new_line = f"{indent}- {content.rstrip()}"
+
+    raw_text = source_path.read_text(encoding="utf-8")
+    lines = raw_text.splitlines(keepends=True)
+    insert_index = insert_after_line
+    if insert_index < 0 or insert_index > len(lines):
+        msg = (
+            f"Insertion index {insert_index} out of range for {source_path} "
+            f"(lines={len(lines)}, target line_end={insert_after_line})"
+        )
+        raise ValueError(msg)
+
+    lines.insert(insert_index, f"{new_line}\n")
+    updated = "".join(lines)
+    logger.debug(
+        "append_child_to_node target=%s path=%s insert_index=%s indent_level=%s",
+        target_uuid,
+        source_path,
+        insert_index,
+        child_level,
+    )
+
+    fd, temp_path = tempfile.mkstemp(
+        dir=source_path.parent,
+        prefix=f".{source_path.name}.",
+        suffix=".tmp",
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(updated)
+        os.replace(temp_path, source_path)
+    except OSError:
+        if os.path.exists(temp_path):
+            os.unlink(temp_path)
+        raise
 
 
 def _demo() -> None:

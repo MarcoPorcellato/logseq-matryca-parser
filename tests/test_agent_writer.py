@@ -6,7 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from logseq_matryca_parser.agent_writer import LogseqConfigReader, logseq_agent_write
+from logseq_matryca_parser.agent_writer import LogseqConfigReader, append_child_to_node, logseq_agent_write
+from logseq_matryca_parser.graph import LogseqGraph
 
 
 @pytest.mark.parametrize(
@@ -67,3 +68,28 @@ def test_logseq_agent_write_append_only(tmp_path: Path) -> None:
     assert "First insight line." in written
     assert "Second block body." in written
     assert written.index("First insight line.") < written.index("Second block body.")
+
+
+def test_append_child_to_node_inserts_indented_bullet(tmp_path: Path) -> None:
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    page_path = pages / "Splice.md"
+    page_path.write_text(
+        "- Parent block\n"
+        "  - Existing child\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    parent = graph.pages["Splice"].root_nodes[0]
+
+    append_child_to_node(graph, parent.uuid, "Appended by headless writer")
+
+    updated = page_path.read_text(encoding="utf-8")
+    lines = updated.splitlines()
+    assert lines == [
+        "- Parent block",
+        "  - Existing child",
+        "  - Appended by headless writer",
+    ]

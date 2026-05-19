@@ -82,7 +82,7 @@ title Logseq Matryca Parser — C4 Level 2 (Containers)
 Person(knowledgeWorker, "Knowledge Worker", "Local operator of a sovereign Logseq graph.")
 
 System_Boundary(matrycaEcosystem, "Matryca.ai Ecosystem") {
-    Container(kinetic, "KINETIC", "Typer / Rich CLI", "CLI — export (json, markdown, langchain, langchain-enriched, obsidian), visualize, demo, graph scans, append-only agent writes (`append`).")
+    Container(kinetic, "KINETIC", "Typer / Rich CLI", "CLI — export (json, markdown, langchain, langchain-enriched, obsidian), visualize, demo, graph scans, `agent-read` (raw X-Ray stdout), append-only agent writes (`append`).")
     Container(logos, "LOGOS", "Python / Pydantic", "Stack-Machine AST engine — LogseqPage and LogseqNode models.")
     Container(synapse, "SYNAPSE", "LangChain / LlamaIndex", "Framework-native exporters with parent-child metadata.")
     Container(lens, "LENS", "NetworkX / PyVis", "Reference-topology visualization to interactive HTML.")
@@ -293,6 +293,49 @@ This keeps **global indexes consistent** without rebuilding the entire graph.
 
 **`graph.query()`** seeds a [`GraphQuery`](../src/logseq_matryca_parser/graph.py) with **all registered nodes**, then applies chainable filters: **`has_tag`**, **`with_priority`**, **`under_parent(parent_uuid)`** (ancestor chain on `path`), **`is_task_state`**, and **`execute()`** returning a materialized list. This is the **programmatic complement** to SQL-less graph inspection — ideal for **batch exporters**, **lint rules**, and **agent planners** that need a typed slice of the outline without ad-hoc traversal code.
 
+### 3.7 AGENT PRESS — Agent-native printing press & X-Ray mode
+
+Human-facing RAG (SYNAPSE enriched chunks, breadcrumbs, inherited properties) optimizes for **embedding geometry** and **retrieval filters**. Autonomous agents running tight **read → plan → write** loops need a different projection: **the fewest tokens per topological fact**. **`agent_press.py`** ([`logseq_matryca_parser.agent_press`](../src/logseq_matryca_parser/agent_press.py)) implements the **Printing Press** paradigm: compress the in-memory AST for machine consumption **without** sacrificing parent–child shape.
+
+#### Session alias mechanics (`SessionAliasRegistry`)
+
+`SessionAliasRegistry` is a **session-scoped, in-RAM translation table** between lightweight aliases and sovereign block identities:
+
+| Operation | Role |
+| --------- | ---- |
+| **`generate_aliases(nodes)`** | Depth-first over each input forest; assigns **`0..n-1`** to every distinct `LogseqNode.uuid`; returns **`dict[int, str]`** (alias → real UUID). |
+| **`resolve_alias(alias)`** | Inverse lookup for **targeted writes** — e.g. the agent says *“modify block `[12]`”* and the driver resolves `[12]` → `64a8b0c1-…` without ever loading 36-char IDs into the prompt. |
+| **`alias_for_uuid`** | Used by the renderer to stamp `[n]` on each outline line. |
+
+Heavy Logseq identifiers (`id:: 64a8b0c1-d33b-4448-a261-e4dc2bbe12d3`, synthetic `uuid` fields, property keys) **never appear** in the X-Ray stream. The agent reasons over **`[n]`** tokens; the Matryca stack retains the **authoritative UUID map** off-context — the same dual-track identity model as LOGOS (§3.1), but **projected for RAM-efficient agent turns**.
+
+#### Ultra-dense export (`to_xray_markdown`)
+
+**`to_xray_markdown(nodes, registry)`** serializes only:
+
+```text
+{indent}[{alias}] {clean_text}
+```
+
+- **`indent`** — two spaces × `LogseqNode.indent_level` (outline depth preserved).
+- **`alias`** — integer from the registry, not a UUID string.
+- **`clean_text`** — embedding-grade prose (properties, drawers, `collapsed::`, and schedule markers already stripped at parse time).
+
+No YAML, no JSON wrappers, no collapsed-state metadata, no blank separator lines — **pure topology + semantics** for the LLM “CPU” to load into its context window.
+
+#### KINETIC `agent-read` — Rich bypass for machine stdout
+
+The compound CLI command **`agent_read`** in [`kinetic.py`](../src/logseq_matryca_parser/kinetic.py) (`matryca-parse agent-read`) is the operator surface for X-Ray ingestion:
+
+1. **`LogseqGraph.load_directory`** — materialize the RAM image of the vault.
+2. **Filter** — `graph.query().has_tag(tag).execute()` when `--tag` is set; otherwise `search_content(query)` when `--query` is set; otherwise all registered nodes.
+3. **`SessionAliasRegistry.generate_aliases`** → **`to_xray_markdown`**.
+4. **Emit via `sys.stdout.write`** — deliberately **not** Typer’s Rich `Console`.
+
+Rich styling injects **ANSI escape sequences** that waste tokens and can cause models to **hallucinate markup** as content. `agent-read` is **stdout-pure** so shell pipelines, MCP tools, and headless agents receive **unescaped plain text** only. Human-oriented commands (`scan`, `export`, `visualize`) keep Rich; the **machine-native read path** opts out.
+
+This complements §3.4 **AGENT WRITER** (append-only human/agent notes) and §3.2 **SYNAPSE** (human/RAG chunking): one stack, three projections — **enriched chunks for vectors**, **X-Ray for agent context**, **append for durable writes**.
+
 ---
 
 ## 4. Data Flow Sequence
@@ -360,4 +403,4 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 
 ---
 
-*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `graph.py`, `forge.py`, `lens.py`, `logos_core.py`, and `agent_writer.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).* 
+*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `graph.py`, `forge.py`, `lens.py`, `logos_core.py`, `agent_writer.py`, and `agent_press.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).* 
