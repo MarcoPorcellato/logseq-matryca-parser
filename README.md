@@ -8,8 +8,10 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/LICENSE)
 [![PyPI](https://img.shields.io/badge/PyPI-install%20via%20GitHub-3775A9?logo=pypi&logoColor=white)](https://github.com/MarcoPorcellato/logseq-matryca-parser#-quickstart)
-[![Status: Alpha](https://img.shields.io/badge/Status-Alpha-orange?style=for-the-badge)](#)
+[![Status: Beta](https://img.shields.io/badge/Status-Beta-0052CC.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
+
+**In active Beta** — heavily tested (141+ tests), headless CRUD engine, and static typing; ready for community integration.
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
