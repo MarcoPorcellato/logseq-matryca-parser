@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 
-__version__ = "0.3.0"
+__version__ = "0.3.2"
 
 from .agent_writer import LogseqConfigReader, logseq_agent_write
 from .exceptions import BlockReferenceError, LogseqIndentationError, LogseqParserError

@@ -10,6 +10,8 @@ from logseq_matryca_parser.logos_core import LogseqNode
 
 logger = logging.getLogger(__name__)
 
+XRAY_STATE_FILENAME = ".matryca_xray_state.json"
+
 
 def _flatten_subtrees(nodes: list[LogseqNode]) -> list[LogseqNode]:
     """Depth-first list of nodes under each root, preserving outline order."""

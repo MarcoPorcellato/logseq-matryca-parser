@@ -100,7 +100,7 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 
 ---
 
-## ⚡ Recent superpowers (Waves 4–11)
+## ⚡ Recent superpowers (Waves 4–12)
 
 ### Obsidian-native export
 Compile an entire Logseq graph into an **Obsidian vault layout**: YAML frontmatter from page properties, list body preserved, Logseq `((uuid))` links rewritten to **`[[Page#^anchor]]`**, and trailing **`^block-id`** on referenced blocks. Namespace titles become nested folders (e.g. `Projects/AI/Demo.md`).
@@ -140,6 +140,16 @@ matryca-parse agent-read /path/to/graph --query "quantum"
 
 The agent reads cheap topology now; the registry resolves aliases back to sovereign UUIDs when you wire targeted writes.
 
+### Headless Write Engine & AST Linter (Wave 12)
+The parser is **no longer read-only**. Wave 12 adds a **headless Markdown splicer** ([`agent_writer.py`](src/logseq_matryca_parser/agent_writer.py)): `append_child_to_node` uses AST line numbers and indentation (`(indent_level + 1) × tab_size`) to insert a new bullet **atomically** into the sovereign `.md` file—via `tempfile` + `os.replace`—without Logseq’s fragile HTTP API. Pair **`agent-read`** with **`agent-write`**: X-Ray persists its alias map to **`.matryca_xray_state.json`** at the graph root so stateless CLI invocations can **read, then write** in sequence.
+
+```bash
+matryca-parse agent-read /path/to/graph --tag idea
+matryca-parse agent-write /path/to/graph --alias 0 --content "Follow-up from the agent"
+```
+
+For graph hygiene, **`LogseqGraph.get_broken_references()`** flags nodes whose `((uuid))` block refs point at missing registry targets—structural linting, not regex guessing.
+
 ---
 
 ## 🏗️ Core Capabilities
@@ -152,6 +162,8 @@ The agent reads cheap topology now; the registry resolves aliases back to sovere
 | **FORGE** | JSON, clean Markdown, and **Obsidian** vault serialization (`ObsidianForgeVisitor`, `ForgeExporter.to_obsidian_markdown`). |
 | **LENS Visualizer** | 60FPS interactive graph rendering (10k+ nodes) with Glassmorphism HUD. |
 | **Agent-Native Printing Press** | [`agent_press.py`](src/logseq_matryca_parser/agent_press.py): **`SessionAliasRegistry`** maps session aliases ↔ block UUIDs; **`to_xray_markdown`** emits token-minimal outline text for autonomous agents (`matryca-parse agent-read`). |
+| **Headless Write Engine** | [`agent_writer.py`](src/logseq_matryca_parser/agent_writer.py): **`append_child_to_node`** splices child bullets into on-disk Markdown from AST topology; **`matryca-parse agent-write`** resolves aliases via **`.matryca_xray_state.json`**. |
+| **AST Linters** | **`LogseqGraph.get_broken_references()`** returns originating nodes when `block_refs` target UUIDs absent from the global registry. |
 | **Sovereign AI** | 100% Local. Zero telemetry. Private by design. |
 
 ### Data model — `LogseqNode` task fields
@@ -165,7 +177,7 @@ Each AST block is a `LogseqNode`. Alongside `task_status`, the parser surfaces p
   "task_priority": "A",
   "scheduled_at": 1641600000,
   "deadline_at": 1641772800,
-  "clean_text": "Cut v0.3.0 release"
+  "clean_text": "Cut v0.3.2 release"
 }
 ```
 

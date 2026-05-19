@@ -82,7 +82,7 @@ title Logseq Matryca Parser — C4 Level 2 (Containers)
 Person(knowledgeWorker, "Knowledge Worker", "Local operator of a sovereign Logseq graph.")
 
 System_Boundary(matrycaEcosystem, "Matryca.ai Ecosystem") {
-    Container(kinetic, "KINETIC", "Typer / Rich CLI", "CLI — export (json, markdown, langchain, langchain-enriched, obsidian), visualize, demo, graph scans, `agent-read` (raw X-Ray stdout), append-only agent writes (`append`).")
+    Container(kinetic, "KINETIC", "Typer / Rich CLI", "CLI — export (json, markdown, langchain, langchain-enriched, obsidian), visualize, demo, graph scans, `agent-read` / `agent-write` (X-Ray + headless splice), weekly append (`append`).")
     Container(logos, "LOGOS", "Python / Pydantic", "Stack-Machine AST engine — LogseqPage and LogseqNode models.")
     Container(synapse, "SYNAPSE", "LangChain / LlamaIndex", "Framework-native exporters with parent-child metadata.")
     Container(lens, "LENS", "NetworkX / PyVis", "Reference-topology visualization to interactive HTML.")
@@ -258,9 +258,15 @@ The KINETIC **`export --format langchain-enriched`** path serializes these docum
 
 Visualization export uses **`pyvis`** with **`force_atlas_2based`** physics, fullscreen canvas, HUD filters, glassmorphism control chrome, and stabilized layout configuration suitable for **large graphs at interactive frame rates** in the browser (product positioning targets fluid exploration of graphs on the order of **10⁴ nodes**).
 
-### 3.4 AGENT WRITER — Append-Only Sandboxing
+### 3.4 AGENT WRITER — Append-Only Sandboxing & Headless Splicer
 
-In the **LLM OS** metaphor, **LOGOS** is the **read path** into the hierarchical “disk”: it materializes Spatial Markdown into a **deterministic AST** that downstream adapters trust. **`agent_writer`** ([`logseq_matryca_parser.agent_writer`](../src/logseq_matryca_parser/agent_writer.py)) is the complementary **bounded write syscall**: a **deterministic**, **configuration-aware** channel that **dynamically reads `config.edn`** (for example **`:journal/page-title-format`**) so filenames and titles align with the vault’s own conventions. Writes use **`open(..., mode="a")`** **append-only** I/O — agents **append** new block material **after** existing bytes; they do **not** rewrite, merge, or re-indent prior content. That discipline keeps **existing topology intact** and avoids corrupting the graph in ways that would break a subsequent **LOGOS** parse or violate the **deterministic AST** contract. Surfaced through the **`append`** command in **KINETIC**, this yields an **enterprise-grade**, inspectable path for agent contributions while **read/export** flows remain the authoritative, topology-preserving contract with the vault.
+In the **LLM OS** metaphor, **LOGOS** is the **read path** into the hierarchical “disk”: it materializes Spatial Markdown into a **deterministic AST** that downstream adapters trust. **`agent_writer`** ([`logseq_matryca_parser.agent_writer`](../src/logseq_matryca_parser/agent_writer.py)) is the complementary **bounded write syscall** with two surfaces:
+
+1. **Weekly append sandbox (`logseq_agent_write`).** A **deterministic**, **configuration-aware** channel that **dynamically reads `config.edn`** (for example **`:journal/page-title-format`**) so filenames and titles align with the vault’s own conventions. Writes use **`open(..., mode="a")`** **append-only** I/O — agents **append** new block material **after** existing bytes; they do **not** rewrite, merge, or re-indent prior content. Surfaced through the **`append`** command in **KINETIC**.
+
+2. **Headless Markdown splicer (`append_child_to_node`).** For **in-place graph mutation** under an existing parent block, the engine resolves `target_uuid` via `LogseqGraph.get_node_by_uuid`, walks to the **deepest last descendant** to obtain a **1-based `line_end` insertion index**, and computes child indentation as **`(target_node.indent_level + 1) × graph.tab_size`** spaces before the `- {content}` bullet prefix. The raw file is split into lines, the new row is inserted at that index, and the result is flushed through a **same-directory `tempfile.mkstemp` + `os.replace`** — an atomic swap that avoids torn reads during concurrent tooling. **KINETIC** exposes this as **`matryca-parse agent-write`**, resolving parent blocks by **`--alias`** (from the X-Ray state file) or **`--target-uuid`**.
+
+Both paths keep **existing topology intact** relative to their contract: append-only journaling never truncates prior bytes; the splicer only inserts one new child line at an AST-derived coordinate so a subsequent **LOGOS** parse remains deterministic.
 
 ### 3.5 FORGE — multi-target serialization (JSON, Markdown, Obsidian)
 
@@ -293,13 +299,21 @@ This keeps **global indexes consistent** without rebuilding the entire graph.
 
 **`graph.query()`** seeds a [`GraphQuery`](../src/logseq_matryca_parser/graph.py) with **all registered nodes**, then applies chainable filters: **`has_tag`**, **`with_priority`**, **`under_parent(parent_uuid)`** (ancestor chain on `path`), **`is_task_state`**, and **`execute()`** returning a materialized list. This is the **programmatic complement** to SQL-less graph inspection — ideal for **batch exporters**, **lint rules**, and **agent planners** that need a typed slice of the outline without ad-hoc traversal code.
 
+#### AST reference linter (`get_broken_references`)
+
+**`LogseqGraph.get_broken_references()`** scans every node in **`_node_registry`**. When **`block_refs`** contains a `((uuid))` target absent from the registry, the **originating node** is collected. Downstream apps (MCP servers, CI, pre-embed hooks) get **structural link validation** aligned with LOGOS identity rules — not brittle regex over raw Markdown.
+
 ### 3.7 AGENT PRESS — Agent-native printing press & X-Ray mode
 
 Human-facing RAG (SYNAPSE enriched chunks, breadcrumbs, inherited properties) optimizes for **embedding geometry** and **retrieval filters**. Autonomous agents running tight **read → plan → write** loops need a different projection: **the fewest tokens per topological fact**. **`agent_press.py`** ([`logseq_matryca_parser.agent_press`](../src/logseq_matryca_parser/agent_press.py)) implements the **Printing Press** paradigm: compress the in-memory AST for machine consumption **without** sacrificing parent–child shape.
 
+#### Stateful session registry (`.matryca_xray_state.json`)
+
+X-Ray is designed for **stateless LLM toolchains**: each `agent-read` invocation is a fresh process, yet agents must still **write back** to blocks they only saw as `[n]` tokens. After **`generate_aliases`**, **KINETIC** persists the alias map to **`<graph_root>/.matryca_xray_state.json`** via **`SessionAliasRegistry.save_to_disk`**. A later **`matryca-parse agent-write --alias N`** loads that JSON with **`load_from_disk`**, resolves `N → uuid`, and hands off to **`append_child_to_node`**. The read/write pair therefore composes as **two independent CLI exits** without stuffing UUIDs into the model context — the filesystem holds session continuity.
+
 #### Session alias mechanics (`SessionAliasRegistry`)
 
-`SessionAliasRegistry` is a **session-scoped, in-RAM translation table** between lightweight aliases and sovereign block identities:
+`SessionAliasRegistry` is a **session-scoped translation table** (in-RAM during a single command, rehydratable from disk across commands) between lightweight aliases and sovereign block identities:
 
 | Operation | Role |
 | --------- | ---- |
@@ -323,18 +337,26 @@ Heavy Logseq identifiers (`id:: 64a8b0c1-d33b-4448-a261-e4dc2bbe12d3`, synthetic
 
 No YAML, no JSON wrappers, no collapsed-state metadata, no blank separator lines — **pure topology + semantics** for the LLM “CPU” to load into its context window.
 
-#### KINETIC `agent-read` — Rich bypass for machine stdout
+#### KINETIC `agent-read` / `agent-write` — Rich bypass for machine stdout
 
-The compound CLI command **`agent_read`** in [`kinetic.py`](../src/logseq_matryca_parser/kinetic.py) (`matryca-parse agent-read`) is the operator surface for X-Ray ingestion:
+The compound CLI commands **`agent_read`** and **`agent_write`** in [`kinetic.py`](../src/logseq_matryca_parser/kinetic.py) are the operator surfaces for the **Headless CRUD** loop:
+
+**`matryca-parse agent-read`**
 
 1. **`LogseqGraph.load_directory`** — materialize the RAM image of the vault.
 2. **Filter** — `graph.query().has_tag(tag).execute()` when `--tag` is set; otherwise `search_content(query)` when `--query` is set; otherwise all registered nodes.
-3. **`SessionAliasRegistry.generate_aliases`** → **`to_xray_markdown`**.
+3. **`SessionAliasRegistry.generate_aliases`** → **`save_to_disk(.matryca_xray_state.json)`** → **`to_xray_markdown`**.
 4. **Emit via `sys.stdout.write`** — deliberately **not** Typer’s Rich `Console`.
 
-Rich styling injects **ANSI escape sequences** that waste tokens and can cause models to **hallucinate markup** as content. `agent-read` is **stdout-pure** so shell pipelines, MCP tools, and headless agents receive **unescaped plain text** only. Human-oriented commands (`scan`, `export`, `visualize`) keep Rich; the **machine-native read path** opts out.
+**`matryca-parse agent-write`**
 
-This complements §3.4 **AGENT WRITER** (append-only human/agent notes) and §3.2 **SYNAPSE** (human/RAG chunking): one stack, three projections — **enriched chunks for vectors**, **X-Ray for agent context**, **append for durable writes**.
+1. Reload the graph (fresh AST coordinates after any external edits).
+2. Resolve **`--alias`** through the persisted registry (or accept **`--target-uuid`** directly).
+3. **`append_child_to_node`** — atomic Markdown splice at the parent’s AST line index.
+
+Rich styling injects **ANSI escape sequences** that waste tokens and can cause models to **hallucinate markup** as content. `agent-read` is **stdout-pure** so shell pipelines, MCP tools, and headless agents receive **unescaped plain text** only. Human-oriented commands (`scan`, `export`, `visualize`) keep Rich; the **machine-native read/write paths** opt out where token fidelity matters.
+
+This complements §3.4 **AGENT WRITER** (weekly append + headless splice) and §3.2 **SYNAPSE** (human/RAG chunking): one stack, multiple projections — **enriched chunks for vectors**, **X-Ray + alias state for agent context**, **append / splice for durable writes**.
 
 ---
 

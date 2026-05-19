@@ -115,3 +115,38 @@ def test_agent_read_cli_plain_stdout(tmp_path: Path) -> None:
     assert "\x1b[" not in result.output
     assert "[0]" in result.output
     assert "X-Ray target" in result.output
+
+    state_path = graph_root / ".matryca_xray_state.json"
+    assert state_path.is_file()
+    restored = SessionAliasRegistry.load_from_disk(state_path)
+    assert restored.resolve_alias(0) is not None
+
+
+def test_agent_write_cli_splices_via_alias_state(tmp_path: Path) -> None:
+    graph_root = tmp_path / "graph"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (graph_root / "journals").mkdir()
+    (pages / "Write.md").write_text("- Parent #parent-tag\n", encoding="utf-8")
+
+    read_result = runner.invoke(
+        app,
+        ["agent-read", str(graph_root), "--tag", "parent-tag"],
+    )
+    assert read_result.exit_code == 0
+
+    write_result = runner.invoke(
+        app,
+        [
+            "agent-write",
+            str(graph_root),
+            "--alias",
+            "0",
+            "--content",
+            "Child from agent-write",
+        ],
+    )
+    assert write_result.exit_code == 0
+
+    updated = (pages / "Write.md").read_text(encoding="utf-8")
+    assert "Child from agent-write" in updated

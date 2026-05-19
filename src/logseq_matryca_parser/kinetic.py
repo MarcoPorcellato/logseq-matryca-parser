@@ -503,7 +503,11 @@ def agent_read(
     query: str | None = typer.Option(None, "--query", help="Substring search on clean_text."),
 ) -> None:
     """Load a graph, filter nodes, and print ultra-dense X-Ray text to stdout (no Rich)."""
-    from logseq_matryca_parser.agent_press import SessionAliasRegistry, to_xray_markdown
+    from logseq_matryca_parser.agent_press import (
+        SessionAliasRegistry,
+        XRAY_STATE_FILENAME,
+        to_xray_markdown,
+    )
     from logseq_matryca_parser.graph import LogseqGraph
 
     if not graph_path.exists() or not graph_path.is_dir():
@@ -520,11 +524,79 @@ def agent_read(
 
     registry = SessionAliasRegistry()
     registry.generate_aliases(nodes)
+    state_path = graph_path.resolve() / XRAY_STATE_FILENAME
+    registry.save_to_disk(state_path)
+
     output = to_xray_markdown(nodes, registry)
     if output:
         sys.stdout.write(output)
         if not output.endswith("\n"):
             sys.stdout.write("\n")
+
+
+@app.command("agent-write")
+def agent_write(
+    graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root."),
+    content: str = typer.Option(..., "--content", help="Markdown body for the new child bullet."),
+    alias: int | None = typer.Option(
+        None,
+        "--alias",
+        help="Session alias from a prior agent-read (resolved via .matryca_xray_state.json).",
+    ),
+    target_uuid: str | None = typer.Option(
+        None,
+        "--target-uuid",
+        help="Parent block UUID (bypasses alias registry).",
+    ),
+    state_file: Path | None = typer.Option(
+        None,
+        "--state-file",
+        help="Alias registry JSON (default: <graph>/.matryca_xray_state.json).",
+    ),
+) -> None:
+    """Append a child block under a parent via headless AST markdown splicing."""
+    from logseq_matryca_parser.agent_press import SessionAliasRegistry, XRAY_STATE_FILENAME
+    from logseq_matryca_parser.agent_writer import append_child_to_node
+    from logseq_matryca_parser.graph import LogseqGraph
+
+    if alias is None and target_uuid is None:
+        print("Provide --alias or --target-uuid.", file=sys.stderr)
+        raise typer.Exit(code=1)
+    if alias is not None and target_uuid is not None:
+        print("Use only one of --alias or --target-uuid.", file=sys.stderr)
+        raise typer.Exit(code=1)
+
+    if not graph_path.exists() or not graph_path.is_dir():
+        print(f"Invalid graph path: {graph_path}", file=sys.stderr)
+        raise typer.Exit(code=1)
+
+    graph = LogseqGraph.load_directory(graph_path.resolve())
+
+    parent_uuid = target_uuid
+    if alias is not None:
+        registry_path = state_file or (graph_path.resolve() / XRAY_STATE_FILENAME)
+        if not registry_path.is_file():
+            print(f"Alias state file not found: {registry_path}", file=sys.stderr)
+            raise typer.Exit(code=1)
+        registry = SessionAliasRegistry.load_from_disk(registry_path)
+        parent_uuid = registry.resolve_alias(alias)
+        if parent_uuid is None:
+            print(f"Unknown alias: {alias}", file=sys.stderr)
+            raise typer.Exit(code=1)
+
+    assert parent_uuid is not None
+    try:
+        append_child_to_node(graph, parent_uuid, content)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        raise typer.Exit(code=1) from exc
+
+    console.print(
+        f"[bold green]Appended child under[/] {parent_uuid}",
+        no_wrap=True,
+        overflow="ignore",
+        crop=False,
+    )
 
 
 if __name__ == "__main__":
