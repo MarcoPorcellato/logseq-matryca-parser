@@ -358,6 +358,46 @@ Rich styling injects **ANSI escape sequences** that waste tokens and can cause m
 
 This complements §3.4 **AGENT WRITER** (weekly append + headless splice) and §3.2 **SYNAPSE** (human/RAG chunking): one stack, multiple projections — **enriched chunks for vectors**, **X-Ray + alias state for agent context**, **append / splice for durable writes**.
 
+### 3.8 Bidirectional I/O and Logseq Layouts
+
+Wave 12 established **surgical writes** (single-line splices); v1.0 completes the loop with **full page round-tripping**. [`logseq_markdown.py`](../src/logseq_matryca_parser/logseq_markdown.py) is the native serializer that projects a parsed **`LogseqPage`** back onto sovereign Spatial Markdown — the inverse of LOGOS ingestion.
+
+#### Page properties (file header)
+
+Page-level metadata is emitted as **raw `key:: value` lines** at the top of the file — no YAML frontmatter wrapper. [`format_logseq_page_properties`](../src/logseq_matryca_parser/logseq_markdown.py) renders each entry on its own line (list-valued keys such as `tags::` are flattened to comma-separated tokens), followed by a **blank separator line** before the first outline bullet. This mirrors how Logseq stores page properties in vanilla `.md` exports and keeps Git diffs line-granular.
+
+#### Block properties (strict indentation contract)
+
+Block-scoped properties are serialized **immediately after the bullet text line**, never interleaved with child bullets. The indent rule is strict and deterministic:
+
+```text
+{parent_leading_whitespace}  {key}:: {value}
+```
+
+That is, take the **exact leading whitespace** of the parent bullet line and append **exactly two additional spaces** (`_block_property_indent`). Continuation lines of multiline block bodies use the same `parent + 2` column. [`format_logseq_block_property_lines`](../src/logseq_matryca_parser/logseq_markdown.py) respects **`properties_order`** when present so round-trips preserve author ordering.
+
+#### Full-page emission
+
+[`serialize_logseq_page`](../src/logseq_matryca_parser/logseq_markdown.py) walks `page.root_nodes` depth-first, emitting `- {first_line}` bullets scaled by `indent_level × tab_size`, then property lines, then continuations, then children. [`write_logseq_page`](../src/logseq_matryca_parser/logseq_markdown.py) persists the result with UTF-8 encoding. Together with §3.4’s **`append_child_to_node`**, the stack now supports **point mutations** and **whole-page regeneration** from the same AST — bidirectional I/O without Logseq’s HTTP API.
+
+### 3.9 Namespace & Path Translation
+
+Semantic page titles and OS filesystem paths speak different dialects. [`logseq_paths.py`](../src/logseq_matryca_parser/logseq_paths.py) centralizes that translation so graph loaders, exporters, and the write engine agree on **where a page lives on disk**.
+
+#### Title ↔ filename mapping
+
+Logseq namespaces use **`/`** in titles (e.g. `Projects/AI`). On disk, each segment is flattened into a single filename stem with the **`___`** separator and percent-encoding for reserved characters — e.g. `Projects/AI` → `Projects___AI.md`. The inverse helpers **`filename_to_page_title`** and **`derive_page_title_from_source_path`** reconstruct semantic titles from `pages/` or `journals/` paths, including nested directory layouts when namespace segments are stored as folders.
+
+| Direction | Function | Example |
+| --------- | -------- | ------- |
+| Title → stem | `page_title_to_filename` | `Projects/AI` → `Projects___AI` |
+| Stem → title | `filename_to_page_title` | `Projects___AI` → `Projects/AI` |
+| Title → relative path | `page_title_to_relative_path` | `pages/Projects___AI.md` |
+
+#### Graph discovery filters
+
+When scanning a vault root, **`is_excluded_graph_path`** drops noise directories — notably **`.recycle`**, **`.git`**, and the internal **`logseq`** config tree — so incremental watchers and bulk loaders never ingest backup blobs or VCS metadata as pages. This keeps **`LogseqGraph.load_directory`** and **`invalidate_and_reload_page`** focused on sovereign content under `pages/` and `journals/`.
+
 ---
 
 ## 4. Data Flow Sequence
@@ -425,4 +465,4 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 
 ---
 
-*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `graph.py`, `forge.py`, `lens.py`, `logos_core.py`, `agent_writer.py`, and `agent_press.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).* 
+*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `graph.py`, `forge.py`, `lens.py`, `logos_core.py`, `agent_writer.py`, `agent_press.py`, `logseq_markdown.py`, and `logseq_paths.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).* 

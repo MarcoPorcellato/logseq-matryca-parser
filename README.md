@@ -8,10 +8,10 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/LICENSE)
 [![PyPI](https://img.shields.io/badge/PyPI-install%20via%20GitHub-3775A9?logo=pypi&logoColor=white)](https://github.com/MarcoPorcellato/logseq-matryca-parser#-quickstart)
-[![Status: Beta](https://img.shields.io/badge/Status-Beta-0052CC.svg?style=flat-square)](#)
+[![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**In active Beta** — heavily tested (141+ tests), headless CRUD engine, and static typing; ready for community integration.
+**v1.0.0 Stable** — heavily tested (156+ tests), full bidirectional Headless CRUD engine, native markdown serialization, and static typing; ready for production Enterprise integration.
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -143,7 +143,7 @@ matryca-parse agent-read /path/to/graph --query "quantum"
 The agent reads cheap topology now; the registry resolves aliases back to sovereign UUIDs when you wire targeted writes.
 
 ### Headless Write Engine & AST Linter (Wave 12)
-The parser is **no longer read-only**. Wave 12 adds a **headless Markdown splicer** ([`agent_writer.py`](src/logseq_matryca_parser/agent_writer.py)): `append_child_to_node` uses AST line numbers and indentation (`(indent_level + 1) × tab_size`) to insert a new bullet **atomically** into the sovereign `.md` file—via `tempfile` + `os.replace`—without Logseq’s fragile HTTP API. Pair **`agent-read`** with **`agent-write`**: X-Ray persists its alias map to **`.matryca_xray_state.json`** at the graph root so stateless CLI invocations can **read, then write** in sequence.
+The parser is **no longer read-only**. Wave 12 adds a **headless Markdown splicer** ([`agent_writer.py`](src/logseq_matryca_parser/agent_writer.py)): `append_child_to_node` uses AST line numbers and indentation (`(indent_level + 1) × tab_size`) to insert a new bullet **atomically** into the sovereign `.md` file—via `tempfile` + `os.replace`—without Logseq’s fragile HTTP API. Beyond surgical node splicing, the engine now supports **full bidirectional page generation** via [`serialize_logseq_page`](src/logseq_matryca_parser/logseq_markdown.py) and [`write_logseq_page`](src/logseq_matryca_parser/logseq_markdown.py)—rebuilding entire Logseq-compliant `.md` pages from an in-memory AST. Pair **`agent-read`** with **`agent-write`**: X-Ray persists its alias map to **`.matryca_xray_state.json`** at the graph root so stateless CLI invocations can **read, then write** in sequence.
 
 ```bash
 matryca-parse agent-read /path/to/graph --tag idea
@@ -164,7 +164,8 @@ For graph hygiene, **`LogseqGraph.get_broken_references()`** flags nodes whose `
 | **FORGE** | JSON, clean Markdown, and **Obsidian** vault serialization (`ObsidianForgeVisitor`, `ForgeExporter.to_obsidian_markdown`). |
 | **LENS Visualizer** | 60FPS interactive graph rendering (10k+ nodes) with Glassmorphism HUD. |
 | **Agent-Native Printing Press** | [`agent_press.py`](src/logseq_matryca_parser/agent_press.py): **`SessionAliasRegistry`** maps session aliases ↔ block UUIDs; **`to_xray_markdown`** emits token-minimal outline text for autonomous agents (`matryca-parse agent-read`). |
-| **Headless Write Engine** | [`agent_writer.py`](src/logseq_matryca_parser/agent_writer.py): **`append_child_to_node`** splices child bullets into on-disk Markdown from AST topology; **`matryca-parse agent-write`** resolves aliases via **`.matryca_xray_state.json`**. |
+| **Native Markdown Serialization** | [`logseq_markdown.py`](src/logseq_matryca_parser/logseq_markdown.py) + [`logseq_paths.py`](src/logseq_matryca_parser/logseq_paths.py): rebuild and write Logseq-compliant markdown pages from an AST—page properties as raw `key:: value` lines, block properties indented at **parent whitespace + exactly 2 spaces**, and namespace titles mapped via **`___`** pathing rules. |
+| **Headless Write Engine** | [`agent_writer.py`](src/logseq_matryca_parser/agent_writer.py): **`append_child_to_node`** splices child bullets into on-disk Markdown from AST topology; **`serialize_logseq_page`** / **`write_logseq_page`** emit full pages; **`matryca-parse agent-write`** resolves aliases via **`.matryca_xray_state.json`**. |
 | **AST Linters** | **`LogseqGraph.get_broken_references()`** returns originating nodes when `block_refs` target UUIDs absent from the global registry. |
 | **Sovereign AI** | 100% Local. Zero telemetry. Private by design. |
 

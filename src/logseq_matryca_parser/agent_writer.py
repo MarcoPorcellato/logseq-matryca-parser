@@ -161,6 +161,11 @@ def logseq_agent_write(
     return {"status": "success", "path": file_path}
 
 
+def _insertion_line_after_node(node: LogseqNode) -> int:
+    """Return the 1-based line after ``node``'s contiguous properties and subtree."""
+    return _deepest_line_end(node)
+
+
 def _deepest_line_end(node: LogseqNode) -> int:
     """Return the 1-based ``line_end`` of the deepest last descendant (or ``node`` itself)."""
     cursor = node
@@ -183,7 +188,7 @@ def append_child_to_node(graph: LogseqGraph, target_uuid: str, content: str) -> 
         raise ValueError(msg)
 
     source_path = Path(target_node.source_path)
-    insert_after_line = _deepest_line_end(target_node)
+    insert_after_line = _insertion_line_after_node(target_node)
     child_level = target_node.indent_level + 1
     indent = " " * (child_level * graph.tab_size)
     new_line = f"{indent}- {content.rstrip()}"

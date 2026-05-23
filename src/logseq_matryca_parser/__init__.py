@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 
-__version__ = "0.3.3"
+__version__ = "1.0.0"
 
 from .agent_writer import LogseqConfigReader, logseq_agent_write
 from .exceptions import BlockReferenceError, LogseqIndentationError, LogseqParserError
@@ -17,13 +17,20 @@ from .forge import (
 )
 from .graph import LogseqGraph
 from .logos_core import ASTVisitor, LogseqNode, LogseqPage, LogosNode, SovereignNotePackage
-from .logos_parser import (
-    LOGSEQ_PATTERNS,
-    LogosParser,
-    PageRegistry,
-    StackMachineParser,
-    clean_node_content,
-    is_system_block,
+from .logseq_markdown import (
+    format_logseq_block_property_lines,
+    format_logseq_page_properties,
+    serialize_logseq_page,
+    write_logseq_page,
+)
+from .logseq_paths import (
+    decode_page_title_segment,
+    derive_page_title_from_source_path,
+    encode_page_title_segment,
+    filename_to_page_title,
+    is_excluded_graph_path,
+    page_title_to_filename,
+    page_title_to_relative_path,
 )
 
 
@@ -54,8 +61,19 @@ __all__ = [
     "StackMachineParser",
     "clean_node_content",
     "ensure_aot_compatibility",
+    "decode_page_title_segment",
+    "derive_page_title_from_source_path",
+    "encode_page_title_segment",
+    "filename_to_page_title",
+    "format_logseq_block_property_lines",
+    "format_logseq_page_properties",
+    "is_excluded_graph_path",
     "is_system_block",
     "logseq_agent_write",
     "MarkdownForgeVisitor",
     "ObsidianForgeVisitor",
+    "page_title_to_filename",
+    "page_title_to_relative_path",
+    "serialize_logseq_page",
+    "write_logseq_page",
 ]

@@ -13,6 +13,7 @@ from typing import Any, Self
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from logseq_matryca_parser.kinetic import _discover_graph_files
+from logseq_matryca_parser.logseq_paths import is_excluded_graph_path
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import StackMachineParser
 
@@ -348,6 +349,8 @@ class LogseqGraph(BaseModel):
     def _resolved_path_is_tracked_markdown(self, path: Path) -> bool:
         """True when ``path`` is a ``.md`` file under this graph's ``pages/`` or ``journals/``."""
         resolved = path.resolve()
+        if is_excluded_graph_path(resolved):
+            return False
         if resolved.suffix.lower() != ".md":
             return False
         graph_root = self.graph_path.resolve()

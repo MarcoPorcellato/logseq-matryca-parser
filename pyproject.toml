@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "logseq-matryca-parser"
-version = "0.3.3"
+version = "1.0.0"
 description = "The Logos Protocol: Deterministic Logseq AST parsing for Matryca.ai."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -21,7 +21,7 @@ keywords = [
     "knowledge-graph",
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: Apache Software License",

@@ -175,14 +175,39 @@ def test_system_noise_is_dropped_from_ast(
 
 def test_parse_file_empty_returns_no_nodes(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
     """Empty files return no nodes and emit a warning message."""
-    file_path = tmp_path / "empty.md"
+    file_path = tmp_path / "graph" / "pages" / "ghost.md"
+    file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_text("   \n\n  ", encoding="utf-8")
 
     with caplog.at_level(logging.WARNING):
-        roots = LogosParser().parse_file(file_path)
+        page = LogosParser().parse_page_file(file_path)
 
-    assert roots == []
+    assert page.root_nodes == []
+    assert page.title == "ghost"
     assert "vuoto" in caplog.text
+
+
+def test_parse_page_file_zero_byte_returns_empty_page(tmp_path: Path) -> None:
+    """Zero-byte ghost pages return an empty AST without raising."""
+    page_path = tmp_path / "graph" / "pages" / "dangling-link.md"
+    page_path.parent.mkdir(parents=True, exist_ok=True)
+    page_path.write_text("", encoding="utf-8")
+
+    page = LogosParser().parse_page_file(page_path)
+
+    assert page.root_nodes == []
+    assert page.title == "dangling-link"
+    assert page.raw_content == ""
+
+
+def test_parse_page_file_decodes_percent_encoded_title(tmp_path: Path) -> None:
+    page_path = tmp_path / "graph" / "pages" / "What%3F.md"
+    page_path.parent.mkdir(parents=True, exist_ok=True)
+    page_path.write_text("- Root\n", encoding="utf-8")
+
+    page = LogosParser().parse_page_file(page_path)
+
+    assert page.title == "What?"
 
 
 @pytest.mark.parametrize(

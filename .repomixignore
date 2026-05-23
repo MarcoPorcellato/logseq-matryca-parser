@@ -1,5 +1,3 @@
-# .repomixignore
-
 # =========================
 # Repomix Outputs & AI Generated
 # =========================
@@ -50,6 +48,31 @@ __pycache__/
 .ruff_cache/
 .venv/
 venv/
+env/
+
+# =========================
+# Python Build & Distribution (NUOVO)
+# =========================
+build/
+dist/
+*.egg-info/
+*.egg
+
+# =========================
+# Testing Coverage & Tox (NUOVO)
+# =========================
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+
+# =========================
+# IDE & Workflows (NUOVO)
+# =========================
+.vscode/
+.idea/
+.cursor/
+.github/
 
 # =========================
 # Token Killers (Logs, DBs, Vector Graphics)

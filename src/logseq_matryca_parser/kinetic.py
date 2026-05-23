@@ -23,6 +23,7 @@ from logseq_matryca_parser import logseq_agent_write
 from logseq_matryca_parser.forge import ForgeExporter
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import LogosParser
+from logseq_matryca_parser.logseq_paths import is_excluded_graph_path
 from logseq_matryca_parser.synapse import SynapseAdapter
 
 logger = logging.getLogger(__name__)
@@ -45,7 +46,11 @@ def _discover_graph_files(graph_path: Path) -> list[Path]:
         if not target.exists():
             logger.debug("Skipping missing graph subdirectory: %s", target)
             continue
-        files.extend(sorted(target.rglob("*.md")))
+        for file_path in sorted(target.rglob("*.md")):
+            if is_excluded_graph_path(file_path):
+                logger.debug("Skipping excluded graph file: %s", file_path)
+                continue
+            files.append(file_path)
     logger.debug("Discovered %d markdown files in graph %s", len(files), graph_path)
     return files
 

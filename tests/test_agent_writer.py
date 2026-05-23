@@ -77,6 +77,7 @@ def test_append_child_to_node_inserts_indented_bullet(tmp_path: Path) -> None:
     page_path = pages / "Splice.md"
     page_path.write_text(
         "- Parent block\n"
+        "  id:: 11111111-1111-1111-1111-111111111111\n"
         "  - Existing child\n",
         encoding="utf-8",
     )
@@ -90,6 +91,7 @@ def test_append_child_to_node_inserts_indented_bullet(tmp_path: Path) -> None:
     lines = updated.splitlines()
     assert lines == [
         "- Parent block",
+        "  id:: 11111111-1111-1111-1111-111111111111",
         "  - Existing child",
         "  - Appended by headless writer",
     ]

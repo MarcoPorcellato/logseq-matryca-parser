@@ -11,6 +11,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from logseq_matryca_parser.logseq_paths import derive_page_title_from_source_path
+
 from .logos_core import LogseqNode, LogseqPage
 
 LOGSEQ_PATTERNS: dict[str, re.Pattern[str]] = {
@@ -696,12 +698,16 @@ class StackMachineParser:
         content = path.read_text(encoding="utf-8")
         if not content.strip():
             logger.warning("Il file %s è vuoto.", path)
+            page_title = derive_page_title_from_source_path(path)
+            title_segments = [segment for segment in page_title.split("/") if segment]
+            namespace_chain = title_segments[:-1] if len(title_segments) > 1 else []
+            graph_root = self._derive_graph_root(path)
             return LogseqPage(
-                title=path.stem,
+                title=page_title,
                 raw_content=content,
-                namespace_chain=[],
+                namespace_chain=namespace_chain,
                 source_path=str(path.resolve()),
-                graph_root=str(path.resolve().parent),
+                graph_root=str(graph_root),
             )
 
         page_title = self._derive_page_title(path)
@@ -725,17 +731,7 @@ class StackMachineParser:
         )
 
     def _derive_page_title(self, path: Path) -> str:
-        resolved_path = path.resolve()
-        if resolved_path.suffix == ".md":
-            resolved_path = resolved_path.with_suffix("")
-        parts = list(resolved_path.parts)
-        if "pages" in parts:
-            page_index = parts.index("pages")
-            return "/".join(parts[page_index + 1 :])
-        if "journals" in parts:
-            journal_index = parts.index("journals")
-            return "/".join(parts[journal_index + 1 :])
-        return path.stem
+        return derive_page_title_from_source_path(path)
 
     def _derive_graph_root(self, path: Path) -> Path:
         resolved_path = path.resolve()
