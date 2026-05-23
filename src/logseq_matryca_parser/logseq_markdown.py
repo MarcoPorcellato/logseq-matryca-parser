@@ -58,7 +58,12 @@ def format_logseq_block_property_lines(
     if not node.properties:
         return []
     prop_indent = _block_property_indent(bullet_indent)
-    ordered_keys = list(node.properties_order) if node.properties_order else list(node.properties.keys())
+    if node.properties_order:
+        ordered_keys = list(node.properties_order)
+        missing_keys = [key for key in node.properties if key not in ordered_keys]
+        ordered_keys.extend(missing_keys)
+    else:
+        ordered_keys = list(node.properties.keys())
     lines: list[str] = []
     seen: set[str] = set()
     for key in ordered_keys:
@@ -66,10 +71,6 @@ def format_logseq_block_property_lines(
             continue
         seen.add(key)
         lines.append(f"{prop_indent}{key}:: {node.properties[key]}")
-    for key, value in node.properties.items():
-        if key in seen:
-            continue
-        lines.append(f"{prop_indent}{key}:: {value}")
     logger.debug(
         "Formatted %s block property lines for uuid=%s indent=%r",
         len(lines),
@@ -83,10 +84,11 @@ def _serialize_logseq_node_lines(node: LogseqNode, tab_size: int) -> list[str]:
     indent = " " * (node.indent_level * tab_size)
     content_lines = node.content.splitlines()
     first_line = content_lines[0] if content_lines else ""
+    continuation_indent = _block_property_indent(indent)
     lines = [f"{indent}- {first_line}"]
-    lines.extend(format_logseq_block_property_lines(node, indent))
     for continuation in content_lines[1:]:
-        lines.append(f"{_block_property_indent(indent)}{continuation}")
+        lines.append(f"{continuation_indent}{continuation}")
+    lines.extend(format_logseq_block_property_lines(node, indent))
     for child in node.children:
         lines.extend(_serialize_logseq_node_lines(child, tab_size))
     return lines

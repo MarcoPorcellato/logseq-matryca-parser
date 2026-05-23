@@ -935,6 +935,25 @@ def test_properties_order_preserves_source_sequence(parser: StackMachineParser) 
     assert root.properties_order == ["zeta", "alpha", "beta"]
 
 
+def test_parser_strips_carriage_return_from_windows_edited_graph(parser: StackMachineParser) -> None:
+    """CRLF and stray CR bytes must not leak into parsed property values or block text."""
+    content = (
+        "tags:: parser,logseq\r\n"
+        "\r\n"
+        "- Windows block\r\n"
+        "  status:: WIP\r\n"
+        "  Soft-break line\r\n"
+    )
+    page = parser.parse(content, page_title="windows-graph")
+    root = page.root_nodes[0]
+
+    assert page.properties["tags"] == "parser,logseq"
+    assert root.properties["status"] == "WIP"
+    assert "Soft-break line" in root.content
+    assert "\r" not in root.content
+    assert "\r" not in root.properties["status"]
+
+
 def test_resolve_asset_path_nested_namespace_page(tmp_path: Path) -> None:
     """Nested namespace pages resolve ../assets links from graph root."""
     graph_root = tmp_path / "graph"

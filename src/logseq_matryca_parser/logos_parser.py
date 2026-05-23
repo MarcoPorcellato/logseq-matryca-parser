@@ -54,6 +54,11 @@ BULLET_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)[-*]\s+(.*)$")
 HEADING_BLOCK_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)(#{1,6}\s+.+)$")
 logger = logging.getLogger(__name__)
 
+
+def _sanitize_line(raw_line: str) -> str:
+    """Strip stray CR bytes from Windows-edited graph lines before tokenization."""
+    return raw_line.rstrip("\r")
+
 CREATED_AT_KEYS: tuple[str, ...] = ("created_at", "created-at", "createdat")
 UPDATED_AT_KEYS: tuple[str, ...] = ("updated_at", "updated-at", "updatedat")
 REPEATER_PATTERN: re.Pattern[str] = re.compile(r"(\.\+|\+\+|\+)\d+[hdwmy]")
@@ -445,6 +450,7 @@ class StackMachineParser:
         in_drawer = False
 
         for line_number, raw_line in enumerate(text.splitlines(), start=1):
+            raw_line = _sanitize_line(raw_line)
             stripped_line = raw_line.strip()
 
             if in_code_block and current_node is not None:
@@ -613,6 +619,7 @@ class StackMachineParser:
             property_match = LOGSEQ_PATTERNS["property"].match(raw_line.strip())
             if property_match:
                 key, value = property_match.groups()
+                value = value.rstrip("\r")
 
                 if current_node is None and frontmatter_active:
                     page_properties[key] = value
