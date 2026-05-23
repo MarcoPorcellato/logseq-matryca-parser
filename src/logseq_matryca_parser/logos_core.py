@@ -89,6 +89,7 @@ class LogseqPage(BaseModel):
     title: str
     raw_content: str
     properties: dict[str, Any] = Field(default_factory=dict)
+    properties_order: list[str] = Field(default_factory=list)
     refs: list[str] = Field(default_factory=list)
     created_at: int | None = None
     updated_at: int | None = None
@@ -138,11 +139,9 @@ class LogseqPage(BaseModel):
             return None
 
         source_path = Path(self.source_path).resolve()
-        marker_dirs = {"pages", "journals", "assets", "logseq"}
-        for parent in source_path.parents:
-            if parent.name in marker_dirs:
-                return parent.parent.resolve()
-        return None
+        from logseq_matryca_parser.logseq_paths import derive_graph_root_from_source_path
+
+        return derive_graph_root_from_source_path(source_path)
 
 
 class SovereignNotePackage(BaseModel):

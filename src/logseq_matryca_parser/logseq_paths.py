@@ -9,7 +9,8 @@ from urllib.parse import quote, unquote
 logger = logging.getLogger(__name__)
 
 _NAMESPACE_SEPARATOR = "___"
-_LOGSEQ_URI_SAFE = "-_.!~*'()"
+# Logseq percent-encodes reserved OS chars; ``*`` must not remain in ``safe``.
+_LOGSEQ_URI_SAFE = "-_.!~'()"
 _EXCLUDED_PATH_PARTS: frozenset[str] = frozenset({"logseq", ".recycle", ".git"})
 
 
@@ -50,6 +51,26 @@ def _last_part_index(parts: tuple[str, ...] | list[str], token: str) -> int | No
         if parts[index] == token:
             return index
     return None
+
+
+def derive_graph_root_from_source_path(path: Path) -> Path:
+    """Return the Logseq graph root for a markdown file under ``pages/`` or ``journals/``."""
+    resolved = path.resolve()
+    parts = list(resolved.parts)
+    for marker in ("pages", "journals"):
+        marker_index = _last_part_index(parts, marker)
+        if marker_index is not None:
+            graph_root = Path(*parts[:marker_index])
+            logger.debug(
+                "Derived graph root %s from marker=%s path=%s",
+                graph_root,
+                marker,
+                resolved,
+            )
+            return graph_root.resolve()
+    fallback = resolved.parent.resolve()
+    logger.debug("Derived graph root fallback=%s path=%s", fallback, resolved)
+    return fallback
 
 
 def derive_page_title_from_source_path(path: Path) -> str:

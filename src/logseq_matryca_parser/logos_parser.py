@@ -11,7 +11,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from logseq_matryca_parser.logseq_paths import derive_page_title_from_source_path
+from logseq_matryca_parser.logseq_paths import (
+    derive_graph_root_from_source_path,
+    derive_page_title_from_source_path,
+)
 
 from .logos_core import LogseqNode, LogseqPage
 
@@ -443,6 +446,7 @@ class StackMachineParser:
         stack_indents: list[str] = []
         root_nodes: list[LogseqNode] = []
         page_properties: dict[str, Any] = {}
+        page_properties_order: list[str] = []
         current_node: LogseqNode | None = None
         frontmatter_active = True
         property_list_indent_level: int | None = None
@@ -619,10 +623,12 @@ class StackMachineParser:
             property_match = LOGSEQ_PATTERNS["property"].match(raw_line.strip())
             if property_match:
                 key, value = property_match.groups()
-                value = value.rstrip("\r")
+                value = _sanitize_line(value)
 
                 if current_node is None and frontmatter_active:
                     page_properties[key] = value
+                    if key not in page_properties_order:
+                        page_properties_order.append(key)
                     continue
 
                 if current_node is None:
@@ -687,6 +693,7 @@ class StackMachineParser:
             title=page_title,
             raw_content=text,
             properties=page_properties,
+            properties_order=page_properties_order,
             refs=page_refs,
             created_at=created_at,
             updated_at=updated_at,
@@ -741,12 +748,7 @@ class StackMachineParser:
         return derive_page_title_from_source_path(path)
 
     def _derive_graph_root(self, path: Path) -> Path:
-        resolved_path = path.resolve()
-        marker_dirs = {"pages", "journals", "assets", "logseq"}
-        for parent in resolved_path.parents:
-            if parent.name in marker_dirs:
-                return parent.parent.resolve()
-        return resolved_path.parent.resolve()
+        return derive_graph_root_from_source_path(path)
 
     def _apply_source_path(self, nodes: list[LogseqNode], source_path: str) -> list[LogseqNode]:
         return [

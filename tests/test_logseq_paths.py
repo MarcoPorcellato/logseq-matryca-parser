@@ -7,6 +7,7 @@ import pytest
 from logseq_matryca_parser.kinetic import _discover_graph_files
 from logseq_matryca_parser.logseq_paths import (
     decode_page_title_segment,
+    derive_graph_root_from_source_path,
     derive_page_title_from_source_path,
     encode_page_title_segment,
     filename_to_page_title,
@@ -23,6 +24,9 @@ from logseq_matryca_parser.logseq_paths import (
         ("Progetti/AI/Matryca", "Progetti___AI___Matryca"),
         ("What?", "What%3F"),
         ('File:Name', "File%3AName"),
+        ("Star*Path", "Star%2APath"),
+        ('Pipe|Name', "Pipe%7CName"),
+        ('Quote"Name', "Quote%22Name"),
     ],
 )
 def test_page_title_to_filename_encodes_namespaces_and_reserved_chars(
@@ -60,6 +64,13 @@ def test_derive_page_title_from_source_path_ignores_deceptive_parent_pages_dir(
     page_path = tmp_path / "pages" / "my_graph" / "pages" / "Idea.md"
     page_path.parent.mkdir(parents=True)
     assert derive_page_title_from_source_path(page_path) == "Idea"
+    assert derive_graph_root_from_source_path(page_path) == (tmp_path / "pages" / "my_graph").resolve()
+
+
+def test_derive_graph_root_from_journals_path(tmp_path: Path) -> None:
+    journal_path = tmp_path / "vault" / "journals" / "2026_05_23.md"
+    journal_path.parent.mkdir(parents=True)
+    assert derive_graph_root_from_source_path(journal_path) == (tmp_path / "vault").resolve()
 
 
 def test_derive_page_title_from_folder_namespace(tmp_path: Path) -> None:

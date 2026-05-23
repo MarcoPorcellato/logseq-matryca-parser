@@ -29,6 +29,51 @@ def test_page_properties_serialize_python_lists_as_comma_separated_values() -> N
     )
 
 
+def test_page_properties_append_runtime_keys_missing_from_properties_order() -> None:
+    rendered = format_logseq_page_properties(
+        {
+            "alias": "Demo",
+            "tags": "parser,logseq",
+            "matryca-badge": "true",
+        },
+        properties_order=["alias", "tags"],
+    )
+    assert rendered == (
+        "alias:: Demo\n"
+        "tags:: parser,logseq\n"
+        "matryca-badge:: true\n"
+        "\n"
+    )
+
+
+def test_serialize_logseq_page_formats_list_tags_and_preserves_missing_page_keys() -> None:
+    page = LogseqPage(
+        title="Runtime Page",
+        raw_content="",
+        properties={
+            "alias": ["[[Demo Page]]", "#Alt"],
+            "tags": ["#AI", "parser"],
+            "matryca-badge": "true",
+        },
+        properties_order=["alias", "tags"],
+        root_nodes=[
+            LogseqNode(
+                uuid="root",
+                content="Root block",
+                indent_level=0,
+            )
+        ],
+    )
+    rendered = serialize_logseq_page(page)
+    assert rendered == (
+        "alias:: Demo Page, Alt\n"
+        "tags:: AI, parser\n"
+        "matryca-badge:: true\n"
+        "\n"
+        "- Root block\n"
+    )
+
+
 def test_page_properties_are_raw_frontmatter_not_bullets() -> None:
     rendered = format_logseq_page_properties({"alias": "Demo", "tags": "parser,logseq"})
     assert rendered == "alias:: Demo\ntags:: parser,logseq\n\n"

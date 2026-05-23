@@ -926,6 +926,13 @@ def test_leaf_path_resolution(parser: StackMachineParser) -> None:
     assert leaf.path == [root.uuid, child.uuid, leaf.uuid]
 
 
+def test_page_properties_order_preserves_source_sequence(parser: StackMachineParser) -> None:
+    content = "zeta:: 1\nalpha:: 2\nbeta:: 3\n\n- Root block"
+    page = parser.parse(content, page_title="ordered-frontmatter")
+    assert page.properties_order == ["zeta", "alpha", "beta"]
+    assert page.properties == {"zeta": "1", "alpha": "2", "beta": "3"}
+
+
 def test_properties_order_preserves_source_sequence(parser: StackMachineParser) -> None:
     """Properties order mirrors original key::value appearance."""
     content = "- Node\n  zeta:: 1\n  alpha:: 2\n  beta:: 3"

@@ -33,14 +33,33 @@ def _format_page_property_value(key: str, value: Any) -> str:
     return str(value)
 
 
-def format_logseq_page_properties(properties: dict[str, Any]) -> str:
+def _ordered_property_keys(
+    properties: dict[str, Any],
+    properties_order: list[str] | None = None,
+) -> list[str]:
+    """Merge declared property order with any runtime keys missing from the list."""
+    if properties_order:
+        ordered_keys = list(properties_order)
+        missing_keys = [key for key in properties if key not in ordered_keys]
+        ordered_keys.extend(missing_keys)
+        return ordered_keys
+    return list(properties.keys())
+
+
+def format_logseq_page_properties(
+    properties: dict[str, Any],
+    properties_order: list[str] | None = None,
+) -> str:
     """Render page properties as raw ``key:: value`` lines followed by a blank line."""
     if not properties:
         return ""
-    lines = [
-        f"{key}:: {_format_page_property_value(key, value)}"
-        for key, value in properties.items()
-    ]
+    lines: list[str] = []
+    seen: set[str] = set()
+    for key in _ordered_property_keys(properties, properties_order):
+        if key not in properties or key in seen:
+            continue
+        seen.add(key)
+        lines.append(f"{key}:: {_format_page_property_value(key, properties[key])}")
     logger.debug("Formatted %s page property lines", len(lines))
     return "\n".join(lines) + "\n\n"
 
@@ -59,9 +78,7 @@ def format_logseq_block_property_lines(
         return []
     prop_indent = _block_property_indent(bullet_indent)
     if node.properties_order:
-        ordered_keys = list(node.properties_order)
-        missing_keys = [key for key in node.properties if key not in ordered_keys]
-        ordered_keys.extend(missing_keys)
+        ordered_keys = _ordered_property_keys(node.properties, node.properties_order)
     else:
         ordered_keys = list(node.properties.keys())
     lines: list[str] = []
@@ -98,8 +115,14 @@ def serialize_logseq_page(page: LogseqPage, tab_size: int = 2) -> str:
     """Serialize a parsed page back into Logseq-compatible markdown."""
     parts: list[str] = []
     if page.properties:
-        parts.extend(f"{key}:: {value}" for key, value in page.properties.items())
-        parts.append("")
+        parts.append(
+            format_logseq_page_properties(
+                page.properties,
+                page.properties_order or None,
+            ).rstrip("\n")
+        )
+        if page.root_nodes:
+            parts.append("")
     for root in page.root_nodes:
         parts.extend(_serialize_logseq_node_lines(root, tab_size))
     if not parts:
