@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from logseq_matryca_parser.graph import GraphQuery, LogseqGraph
 
 
@@ -251,6 +253,7 @@ def test_graph_incremental_page_invalidation(tmp_path: Path) -> None:
 
 def test_graph_watcher_filesystem_events(tmp_path: Path) -> None:
     """Watchdog handler routes ``on_modified`` / ``on_created`` into incremental invalidation."""
+    pytest.importorskip("watchdog")
     from unittest.mock import MagicMock, patch
 
     graph_root = tmp_path / "vault"
