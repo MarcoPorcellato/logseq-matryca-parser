@@ -2,9 +2,34 @@
 # (Nota: Cursor ignora già automaticamente tutto ciò che è nel .gitignore)
 
 # =========================
+# Python & Virtual Environments
+# =========================
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# =========================
+# Linter & Test Caches
+# =========================
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Build Artifacts
+# =========================
+dist/
+build/
+*.egg-info/
+
+# =========================
 # Lockfiles (Letali per il Codebase Indexing)
 # =========================
-# I lockfile devono stare su Git, ma l'IA non deve MAI leggerli, 
+# I lockfile devono stare su Git, ma l'IA non deve MAI leggerli,
 # sono solo un muro di versioni incomprensibili.
 poetry.lock
 uv.lock
@@ -33,7 +58,7 @@ tests/fixtures/*.md
 # =========================
 # Assets Vettoriali
 # =========================
-# Le immagini PNG/JPG Cursor le ignora da solo, ma gli SVG sono file di testo! 
+# Le immagini PNG/JPG Cursor le ignora da solo, ma gli SVG sono file di testo!
 # Se l'IA legge un SVG, legge migliaia di coordinate matematiche inutili.
 *.svg
 
