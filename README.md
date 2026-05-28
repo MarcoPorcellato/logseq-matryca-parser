@@ -7,7 +7,8 @@
 [![CI/CD Status](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/workflows/ci.yml/badge.svg)](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-install%20via%20GitHub-3775A9?logo=pypi&logoColor=white)](https://github.com/MarcoPorcellato/logseq-matryca-parser#-quickstart)
+[![PyPI version](https://img.shields.io/pypi/v/logseq-matryca-parser.svg)](https://pypi.org/project/logseq-matryca-parser/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/logseq-matryca-parser.svg)](https://pypi.org/project/logseq-matryca-parser/)
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
@@ -223,8 +224,8 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from GitHub (PyPI distribution tracked on roadmap)
-pip install git+https://github.com/MarcoPorcellato/logseq-matryca-parser.git
+# Install from PyPI (latest: v1.1.1)
+pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates
 pip install 'logseq-matryca-parser[watch]'

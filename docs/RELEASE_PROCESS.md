@@ -1,6 +1,11 @@
 # Release process
 
-**Logseq Matryca Parser** (The Logos Protocol · Marco Porcellato · [Matryca.ai](https://matryca.ai)) uses a **curated** [`CHANGELOG.md`](../CHANGELOG.md) (Keep a Changelog). PyPI publishing is triggered when you push a `v*` git tag.
+**Logseq Matryca Parser** (The Logos Protocol · Marco Porcellato · [Matryca.ai](https://matryca.ai)) uses a **curated** [`CHANGELOG.md`](../CHANGELOG.md) (Keep a Changelog). Pushing a `v*` git tag triggers **two** workflows:
+
+| Workflow | Result |
+|----------|--------|
+| [`.github/workflows/pypi_publish.yml`](../.github/workflows/pypi_publish.yml) | Builds and publishes the package to **PyPI** (OIDC). |
+| [`.github/workflows/github_release.yml`](../.github/workflows/github_release.yml) | Creates a **GitHub Release** with notes extracted from `CHANGELOG.md`. |
 
 ---
 
@@ -43,10 +48,21 @@ git push origin vX.Y.Z
 
 ### 4. CI does the rest
 
-On tag push, [`.github/workflows/pypi_publish.yml`](../.github/workflows/pypi_publish.yml):
+On tag push:
 
-1. Builds sdist and wheel with `python -m build`
-2. Publishes to PyPI (trusted publishing)
+1. **PyPI** — builds sdist/wheel and publishes (trusted publishing).
+2. **GitHub Release** — publishes release notes from `scripts/extract_changelog.py`.
+
+Verify both under **Actions** on GitHub (`Publish to PyPI` and `GitHub Release`).
+
+#### Retroactive release (tag already pushed)
+
+If the tag exists but no GitHub Release was created (e.g. before `github_release.yml` existed):
+
+1. Open **Actions → GitHub Release → Run workflow**
+2. Enter the tag (e.g. `v1.1.1`) and run.
+
+PyPI cannot be re-published for the same version; use a patch bump if the wheel upload failed.
 
 ---
 
@@ -54,6 +70,7 @@ On tag push, [`.github/workflows/pypi_publish.yml`](../.github/workflows/pypi_pu
 
 | Problem | Fix |
 |---------|-----|
+| Tag on GitHub but no **Release** page | Run **GitHub Release** workflow manually (`workflow_dispatch`) with that tag. |
 | PyPI version already exists | Bump patch version; never re-use a published version. |
 | Notes look wrong | Re-run locally: `python scripts/extract_changelog.py vX.Y.Z` and compare to `CHANGELOG.md`. |
 | CI fails on tests | Run `make all` locally before tagging. |
