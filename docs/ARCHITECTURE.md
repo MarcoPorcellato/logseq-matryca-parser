@@ -187,9 +187,17 @@ Auxiliary **FORGE** serialization (JSON / flat Markdown / Obsidian) appears as a
   - **Push** the freshly built `LogseqNode` onto the stack and register its UUID with `PageRegistry` for deterministic identity and future block-reference linkage.
   This yields **finite-state, linear-time** traversal with explicit ascend/descend behavior — not regex-driven whole-document guessing.
 
-- **Spatial indentation rules.** In Logseq, **indentation defines the AST**, not list decoration. Heading blocks and bullets both participate as first-class structural lines. Levels are **normalized post-pass** to tree depth (`_normalize_indent_levels`) so persisted `indent_level` reflects hierarchical depth independent of authoring quirks after stack repair.
+- **Spatial indentation rules.** In Logseq, **indentation defines the AST**, not list decoration. Heading blocks and bullets both participate as first-class structural lines. The bullet detector accepts **unordered markers** (`-`, `*`) and **ordered-list markers** (`1. `, `12. `, …) via a shared `BULLET_PATTERN`, so numbered outlines participate in the stack machine like standard bullets. Levels are **normalized post-pass** to tree depth (`_normalize_indent_levels`) so persisted `indent_level` reflects hierarchical depth independent of authoring quirks after stack repair.
 
-- **Block properties & `id::`.** Subsequent lines matching `key:: value` attach to **`current_node`** (or accumulate into **frontmatter-derived page properties** when no node exists yet). Parsed properties live in **`LogseqNode.properties`**. Native **`id::`** values are preserved in **`source_uuid`** (and in **`properties["id"]`** when applicable) so **`((uuid))`** references match Logseq; the parser’s stable **`uuid`** field remains the synthetic identity used for AST wiring and adapters.
+- **GFM task checkboxes (before Org-mode tasks).** On the first line of a block, GitHub-flavored checkboxes are recognized and mapped to **`task_status`** before Org-mode prefix fallback: `[ ]` → **`TODO`**, `[-]` → **`DOING`**, `[x]` / `[X]` → **`DONE`**. The checkbox token is stripped from **`clean_text`** so embeddings stay prose-only.
+
+- **Org-mode task prefixes (extended).** After checkbox handling, **`_extract_task_status`** matches longest-first Org prefixes (`TODO`, `DOING`, `DELEGATED`, `IN-PROGRESS`, …) at the start of the first line and promotes the remainder to **`clean_text`**.
+
+- **Protected regions (entity extraction dead zones).** Wikilink, tag, and block-reference harvesters run on **`_shield_inline_code`**-masked text so literals inside **fenced code** (backtick and tilde fences), **inline code**, **LaTeX** (`$…$` and `$$…$$`), **`#+BEGIN_QUERY` … `#+END_QUERY`** blocks (parse-loop state plus shielding), and **Org drawers** do not produce false graph tokens. **`{{embed [[Page]]}}`** and similar macros are **not** fully opaque: nested wikilinks inside embed bodies are harvested for graph indexing.
+
+- **Block properties & `id::`.** Subsequent lines matching `key:: value` attach to **`current_node`** only while **`properties_allowed`** remains true (contiguous property window immediately under the bullet). A **soft-break** continuation disables further property extraction; later `key::` lines merge into **`content`** as plain text. Keys are normalized with **`_normalize_property_key`** (lowercase) for Datomic parity. An empty value (`alias::` with no inline text) opens a **pending bullet-list** accumulator: indented `-` / `*` lines deeper than the property line become **`list[str]`** values without creating child **`LogseqNode`** entries. Page frontmatter uses the same key normalization (`TITLE::` ≡ `title::`). Parsed properties live in **`LogseqNode.properties`**. Native **`id::`** values are preserved in **`source_uuid`** (and in **`properties["id"]`** when applicable) so **`((uuid))`** references match Logseq; the parser’s stable **`uuid`** field remains the synthetic identity used for AST wiring and adapters.
+
+- **Aliased block references in `clean_text`.** Markdown links of the form **`[Visible](((uuid)))`** are reduced to **`Visible`** in **`clean_text`** (brackets stripped) while UUIDs still populate **`block_refs`** for graph resolution.
 
 #### Sovereign UUID architecture and zero-corruption guarantee
 
@@ -276,6 +284,24 @@ Both paths keep **existing topology intact** relative to their contract: append-
 
 The **in-memory graph** ([`graph.py`](../src/logseq_matryca_parser/graph.py)) is the runtime **RAM image** of the sovereign vault: `pages: dict[str, LogseqPage]`, a private **`_node_registry`** keyed by synthetic block UUID, and a **`_backlink_registry`** mapping normalized link targets to source node UUIDs.
 
+#### Page title overrides and alias indexing (`_enrich_pages_index`)
+
+After every bulk or incremental parse, the graph applies a **post-parse enrichment pass** before backlink construction:
+
+1. **Filename → canonical title.** Each markdown file is first keyed by **`derive_page_title_from_source_path`** (see §3.9).
+2. **`title::` override.** If page frontmatter contains a non-empty string **`title`**, the frozen `LogseqPage` is updated via **`model_copy(update={"title": custom})`**, the old filename key is removed from **`pages`**, and the page is re-inserted under the custom title (collision with another file’s title is skipped with a debug log).
+3. **Alias injection.** For each canonical dict entry where **`dict_key == page.title`**, values from **`alias::`** and **`aliases::`** are normalized (comma-separated strings or Python lists; `[[Page]]` / `#tag` adornments stripped using the same rules as [`logseq_markdown.py`](../src/logseq_matryca_parser/logseq_markdown.py)) and registered as **additional keys** pointing at the **same `LogseqPage` instance** — e.g. `pages["Dev"]` and `pages["Development"]` share identity.
+4. **Backlinks.** **`_build_backlink_registry`** walks **unique pages** (`id(page)` deduplication) so alias keys do not double-count outgoing links. Incoming wikilinks such as **`[[Dev]]`** normalize to lowercase registry keys and resolve through **`get_backlinks("Dev")`** like any other page title.
+
+**Incremental parity:** **`invalidate_and_reload_page`** drops **all** `pages` keys tied to the file’s `source_path` (not only the first alias hit), merges the freshly parsed page, re-runs **`_enrich_pages_index`**, then re-registers nodes and appends backlinks for the enriched instance. **`_page_title_for_source_path`** returns the canonical **`page.title`**, not an arbitrary alias key.
+
+```python
+graph = LogseqGraph.load_directory("/vault")
+dev = graph.pages["Dev"]              # alias key
+assert dev is graph.pages["Development"]
+assert linker in graph.get_backlinks("Dev")
+```
+
 #### Namespace shadowing (`resolve_relative_page_link`)
 
 Relative page resolution follows **Logseq-style longest-prefix wins**: for a current page title split on **`/`** (namespace segments), the resolver tries candidates **`prefix + "/" + link_target`** for prefixes from **full namespace down to empty**, and returns the **first title that exists** in `pages`. Only if no contextual page exists does it fall back to a **global** title match. Thus a contextual page **`Progetti/AI/Sviluppo`** **shadows** a global **`Sviluppo`** when resolving from **`Progetti/AI/Matryca`** — matching the **nested-namespace shadowing** semantics described in the scoping roadmap.
@@ -287,9 +313,9 @@ Full-directory loads are expensive for always-on agents. **`invalidate_and_reloa
 1. Ignore paths outside tracked **`pages/*.md`** and **`journals/*.md`**.
 2. Re-parse the file with **`StackMachineParser.parse_page_file`**, producing a fresh `LogseqPage`.
 3. If the path previously mapped to a page, collect **all synthetic UUIDs** from the old tree and call **`_purge_stale_page_uuids`**: remove each UUID from **`_node_registry`**, scrub those UUIDs from every **`_backlink_registry`** source list, and delete backlink keys that become empty.
-4. Replace the **`pages`** dict entry (title may change if the file moved), then **`_register_page_nodes`** and **`_append_page_backlinks`** for the new AST.
+4. Remove every **`pages`** key whose value shares the file’s **`source_path`**, insert the freshly parsed page under its filename title, run **`_enrich_pages_index`** (title + aliases), then **`_register_page_nodes`** and **`_append_page_backlinks`** for the enriched page.
 
-This keeps **global indexes consistent** without rebuilding the entire graph.
+This keeps **global indexes consistent** without rebuilding the entire graph — including alias keys and custom titles declared in frontmatter.
 
 #### Live filesystem watcher (`start_watching`)
 

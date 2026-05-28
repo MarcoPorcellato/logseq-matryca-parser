@@ -13,6 +13,7 @@ from typing import Any, Self
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from logseq_matryca_parser.kinetic import _discover_graph_files
+from logseq_matryca_parser.logseq_markdown import _normalize_logseq_ref_token
 from logseq_matryca_parser.logseq_paths import is_excluded_graph_path
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import StackMachineParser
@@ -87,10 +88,133 @@ def _append_backlink(registry: dict[str, list[str]], key: str, source_uuid: str)
     logger.debug("backlink index: %s <- source=%s", key, source_uuid)
 
 
+def _normalize_page_aliases(raw: Any) -> list[str]:
+    """Flatten one ``alias`` / ``aliases`` property value into deduped page title tokens."""
+    if isinstance(raw, str):
+        segments = [part.strip() for part in raw.split(",")]
+    elif isinstance(raw, (list, tuple, set)):
+        segments = [str(item) for item in raw]
+    else:
+        return []
+    result: list[str] = []
+    seen: set[str] = set()
+    for segment in segments:
+        token = _normalize_logseq_ref_token(segment)
+        if token and token not in seen:
+            seen.add(token)
+            result.append(token)
+    return result
+
+
+def _collect_page_alias_tokens(properties: dict[str, Any]) -> list[str]:
+    """Read ``alias`` and ``aliases`` page properties in Logseq order."""
+    tokens: list[str] = []
+    seen: set[str] = set()
+    for key in ("alias", "aliases"):
+        if key not in properties:
+            continue
+        for token in _normalize_page_aliases(properties[key]):
+            if token not in seen:
+                seen.add(token)
+                tokens.append(token)
+    return tokens
+
+
+def _apply_title_override(page: LogseqPage) -> tuple[LogseqPage, str | None]:
+    """Return an updated page when frontmatter ``title::`` overrides the filename title."""
+    raw = page.properties.get("title")
+    if not isinstance(raw, str):
+        return page, None
+    custom = raw.strip()
+    if not custom or custom == page.title:
+        return page, None
+    return page.model_copy(update={"title": custom}), page.title
+
+
+def _enrich_pages_index(pages: dict[str, LogseqPage]) -> None:
+    """Apply ``title::`` overrides and inject alias keys before backlink indexing."""
+    snapshot = sorted(pages.items(), key=lambda item: item[1].source_path or "")
+    seen_paths: set[str] = set()
+
+    for old_key, page in snapshot:
+        source_path = page.source_path
+        if source_path:
+            if source_path in seen_paths:
+                continue
+            seen_paths.add(source_path)
+
+        updated, replaced_title = _apply_title_override(page)
+        if replaced_title is None:
+            continue
+
+        new_key = updated.title
+        existing = pages.get(new_key)
+        if existing is not None and existing.source_path != updated.source_path:
+            logger.debug(
+                "pages index: title override skipped, %r already maps to another page",
+                new_key,
+            )
+            continue
+
+        if old_key in pages and pages[old_key] is page:
+            del pages[old_key]
+        pages[new_key] = updated
+
+    canonical = sorted(
+        ((key, page) for key, page in pages.items() if key == page.title),
+        key=lambda item: item[1].source_path or "",
+    )
+    for _canonical_key, page in canonical:
+        for alias in _collect_page_alias_tokens(page.properties):
+            if alias == page.title:
+                continue
+            if alias in pages and pages[alias] is not page:
+                logger.debug("pages index: alias %r collision, remapping", alias)
+            pages[alias] = page
+
+
+def _remove_page_keys_for_source_path(
+    pages: dict[str, LogseqPage],
+    resolved_file: Path,
+) -> LogseqPage | None:
+    """Drop every ``pages`` key that references ``resolved_file``; return one removed page."""
+    removed_page: LogseqPage | None = None
+    keys_to_drop = [
+        key
+        for key, page in pages.items()
+        if page.source_path and Path(page.source_path).resolve() == resolved_file
+    ]
+    for key in keys_to_drop:
+        if removed_page is None:
+            removed_page = pages[key]
+        del pages[key]
+    return removed_page
+
+
+def _page_for_source_path(pages: dict[str, LogseqPage], resolved_file: Path) -> LogseqPage | None:
+    """Return the unique page loaded from ``resolved_file`` after enrichment."""
+    found: LogseqPage | None = None
+    seen_ids: set[int] = set()
+    for page in pages.values():
+        pid = id(page)
+        if pid in seen_ids:
+            continue
+        if not page.source_path or Path(page.source_path).resolve() != resolved_file:
+            continue
+        seen_ids.add(pid)
+        found = page
+    return found
+
+
 def _build_backlink_registry(pages: dict[str, LogseqPage]) -> dict[str, list[str]]:
     """Map normalized targets (page title lower or block UUID) to source node UUIDs."""
     registry: dict[str, list[str]] = {}
+    seen_page_ids: set[int] = set()
     for page in pages.values():
+        page_id = id(page)
+        if page_id in seen_page_ids:
+            continue
+        seen_page_ids.add(page_id)
         for node in _flatten_nodes(page.root_nodes):
             for link in node.wikilinks:
                 key = _normalize_backlink_key(link)
@@ -176,6 +300,7 @@ class LogseqGraph(BaseModel):
             for node in _flatten_nodes(page.root_nodes):
                 node_registry[node.uuid] = node
 
+        _enrich_pages_index(pages)
         backlink_registry = _build_backlink_registry(pages)
 
         logger.debug(
@@ -366,12 +491,9 @@ class LogseqGraph(BaseModel):
         return False
 
     def _page_title_for_source_path(self, resolved_file: Path) -> str | None:
-        """Return the ``pages`` dict key for the page loaded from ``resolved_file``, if any."""
-        for title, page in self.pages.items():
-            sp = page.source_path
-            if sp and Path(sp).resolve() == resolved_file:
-                return title
-        return None
+        """Return the canonical page title for ``resolved_file``, if indexed."""
+        page = _page_for_source_path(self.pages, resolved_file)
+        return page.title if page is not None else None
 
     def _purge_stale_page_uuids(self, stale: set[str]) -> None:
         """Remove stale node UUIDs from the node registry and scrub backlink source lists."""
@@ -418,24 +540,23 @@ class LogseqGraph(BaseModel):
             logger.debug("invalidate_and_reload_page: skip non-tracked path=%s", resolved)
             return
         fresh = StackMachineParser().parse_page_file(resolved)
-        old_title = self._page_title_for_source_path(resolved)
+        new_pages = dict(self.pages)
+        old_page = _remove_page_keys_for_source_path(new_pages, resolved)
         stale: set[str] = set()
-        if old_title is not None:
-            old_page = self.pages[old_title]
+        if old_page is not None:
             stale = {n.uuid for n in _flatten_nodes(old_page.root_nodes)}
             self._purge_stale_page_uuids(stale)
-        new_pages = dict(self.pages)
-        if old_title is not None:
-            del new_pages[old_title]
         new_pages[fresh.title] = fresh
+        _enrich_pages_index(new_pages)
+        enriched = _page_for_source_path(new_pages, resolved) or fresh
         object.__setattr__(self, "pages", new_pages)
-        self._register_page_nodes(fresh)
-        self._append_page_backlinks(fresh)
+        self._register_page_nodes(enriched)
+        self._append_page_backlinks(enriched)
         logger.debug(
             "Stack-Machine incremental re-hydrate: path=%s title=%s nodes=%s",
             resolved,
-            fresh.title,
-            len(list(_flatten_nodes(fresh.root_nodes))),
+            enriched.title,
+            len(list(_flatten_nodes(enriched.root_nodes))),
         )
 
     def start_watching(self, callback: Callable[[Path], None] | None = None) -> LogseqGraphWatcher:

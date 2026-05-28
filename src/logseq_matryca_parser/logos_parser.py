@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from logseq_matryca_parser.logseq_markdown import _normalize_logseq_ref_token
 from logseq_matryca_parser.logseq_paths import (
     derive_graph_root_from_source_path,
     derive_page_title_from_source_path,
@@ -36,13 +37,22 @@ TASK_STATUSES: tuple[str, ...] = (
     "NOW",
     "WAITING",
     "CANCELED",
+    "DELEGATED",
+    "POSTPONED",
+    "IN-PROGRESS",
 )
 TIME_PATTERN: re.Pattern[str] = re.compile(r"\b(SCHEDULED|DEADLINE):\s*(<[^>]+>)")
 PRIORITY_PATTERN: re.Pattern[str] = re.compile(r"\[#([A-Z])\]")
 _SHIELD_TOKEN_PREFIX = "___LOGOS_SHIELD_TOKEN_"
+TAG_PATTERN: re.Pattern[str] = re.compile(
+    r"(?:^|(?<=[\s\(\[\*_=~^]))#([\w/-]+)",
+    re.MULTILINE,
+)
+BRACKETED_TAG_PATTERN: re.Pattern[str] = re.compile(r"#\[\[([^\]]+)\]\]")
+_IMPLICIT_REF_KEYS: frozenset[str] = frozenset({"tags", "alias", "aliases"})
 HEADING_PATTERN: re.Pattern[str] = re.compile(r"^(#{1,6})\s+(.+)$")
 ALIASED_BLOCK_REF_PATTERN: re.Pattern[str] = re.compile(
-    r"(\[[^\]]+\])\(\(\([a-f0-9\-]{36}\)\)\)"
+    r"\[([^\]]+)\]\(\(\([a-f0-9\-]{36}\)\)\)"
 )
 PLAIN_BLOCK_REF_PATTERN: re.Pattern[str] = re.compile(r"\(\(([a-f0-9\-]{36})\)\)")
 
@@ -53,7 +63,8 @@ SYSTEM_BLOCK_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"^\s*collapsed::", re.IGNORECASE),
 )
 
-BULLET_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)[-*]\s+(.*)$")
+BULLET_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)(?:[-*]|\d+\.)\s+(.*)$")
+MARKDOWN_TASK_PATTERN: re.Pattern[str] = re.compile(r"^\[([ xX\-])\]\s+(.*)$")
 HEADING_BLOCK_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)(#{1,6}\s+.+)$")
 logger = logging.getLogger(__name__)
 
@@ -61,6 +72,11 @@ logger = logging.getLogger(__name__)
 def _sanitize_line(raw_line: str) -> str:
     """Strip stray CR bytes from Windows-edited graph lines before tokenization."""
     return raw_line.rstrip("\r")
+
+
+def _normalize_property_key(key: str) -> str:
+    """Normalize Logseq property keys to lowercase (Datomic parity)."""
+    return key.lower().strip()
 
 CREATED_AT_KEYS: tuple[str, ...] = ("created_at", "created-at", "createdat")
 UPDATED_AT_KEYS: tuple[str, ...] = ("updated_at", "updated-at", "updatedat")
@@ -91,7 +107,9 @@ def clean_node_content(raw_content: str, properties: dict[str, Any]) -> str:
         if in_code_block:
             cleaned_lines.append(line)
             continue
-        if property_keys and any(stripped.startswith(f"{key}::") for key in property_keys):
+        if property_keys and any(
+            stripped.lower().startswith(f"{key}::") for key in property_keys
+        ):
             continue
         cleaned_line = TIME_PATTERN.sub("", line)
         cleaned_line = LOGSEQ_PATTERNS["inline_uuid_prop"].sub("", cleaned_line)
@@ -114,46 +132,66 @@ def clean_node_content(raw_content: str, properties: dict[str, Any]) -> str:
 
 
 def _is_code_fence_line(stripped_line: str) -> bool:
-    return stripped_line.startswith("```")
+    return stripped_line.startswith("```") or stripped_line.startswith("~~~")
 
 
-def _try_open_fence_line(content: str, line_start: int, n: int) -> tuple[int, int] | None:
-    """If the line starting at ``line_start`` opens a fenced code block, return (tick_index, tick_len)."""
+def _is_query_begin_line(stripped_line: str) -> bool:
+    return stripped_line == "#+BEGIN_QUERY" or stripped_line.startswith("#+BEGIN_QUERY ")
+
+
+def _is_query_end_line(stripped_line: str) -> bool:
+    return stripped_line == "#+END_QUERY" or stripped_line.startswith("#+END_QUERY ")
+
+
+def _query_region_end(content: str, begin_index: int, n: int) -> int:
+    """Return end index (exclusive) of a query block opened at ``begin_index``."""
+    end_marker = content.find("#+END_QUERY", begin_index)
+    if end_marker == -1:
+        return n
+    line_end = content.find("\n", end_marker)
+    return n if line_end == -1 else line_end + 1
+
+
+def _try_open_fence_line(content: str, line_start: int, n: int) -> tuple[str, int, int] | None:
+    """If the line starting at ``line_start`` opens a fenced code block, return (char, index, len)."""
     k = line_start
     while k < n and content[k] in " \t":
         k += 1
-    if k >= n or content[k] != "`":
+    if k >= n or content[k] not in ("`", "~"):
         return None
-    tick_end = k
-    while tick_end < n and content[tick_end] == "`":
-        tick_end += 1
-    tick_len = tick_end - k
-    if tick_len < 3:
+    fence_char = content[k]
+    fence_end = k
+    while fence_end < n and content[fence_end] == fence_char:
+        fence_end += 1
+    fence_len = fence_end - k
+    if fence_len < 3:
         return None
-    return (k, tick_len)
+    return (fence_char, k, fence_len)
 
 
-def _fence_line_is_closing(line: str, tick_len: int) -> bool:
+def _fence_line_is_closing(line: str, fence_char: str, fence_len: int) -> bool:
     stripped = line.strip()
-    if not stripped or stripped[0] != "`":
+    if not stripped or stripped[0] != fence_char:
         return False
     run = 0
-    while run < len(stripped) and stripped[run] == "`":
+    while run < len(stripped) and stripped[run] == fence_char:
         run += 1
     remainder = stripped[run:].strip()
-    return run >= tick_len and remainder == ""
+    return run >= fence_len and remainder == ""
 
 
-def _fence_region_end(content: str, tick_start: int, tick_len: int, n: int) -> int:
-    """Return end index (exclusive) of a fenced code region opened at ``tick_start``."""
-    line_end = content.find("\n", tick_start + tick_len)
+def _fence_region_end(
+    content: str, fence_start: int, fence_char: str, fence_len: int, n: int
+) -> int:
+    """Return end index (exclusive) of a fenced code region opened at ``fence_start``."""
+    line_end = content.find("\n", fence_start + fence_len)
     if line_end == -1:
         return n
     pos = line_end + 1
     while pos < n:
         next_nl = content.find("\n", pos)
         segment = content[pos:] if next_nl == -1 else content[pos:next_nl]
-        if _fence_line_is_closing(segment, tick_len):
+        if _fence_line_is_closing(segment, fence_char, fence_len):
             return n if next_nl == -1 else next_nl + 1
         if next_nl == -1:
             return n
@@ -186,8 +224,29 @@ def _consume_inline_code_span(content: str, i: int, n: int) -> tuple[str, int]:
     return content[i:close], close
 
 
+def _consume_block_math_span(content: str, i: int, n: int) -> tuple[str, int]:
+    """Return a ``$$...$$`` span (non-greedy) and exclusive end index."""
+    close = content.find("$$", i + 2)
+    if close == -1:
+        return content[i:n], n
+    return content[i : close + 2], close + 2
+
+
+def _consume_inline_math_span(content: str, i: int, n: int) -> tuple[str, int]:
+    """Return a ``$...$`` span (non-greedy) and exclusive end index."""
+    j = i + 1
+    while j < n:
+        if content[j] == "$":
+            if j + 1 < n and content[j + 1] == "$":
+                j += 2
+                continue
+            return content[i : j + 1], j + 1
+        j += 1
+    return content[i:n], n
+
+
 def _shield_inline_code(content: str) -> tuple[str, list[str]]:
-    """Mask inline code, fenced code, and ``{{...}}`` macros for entity extraction only."""
+    """Mask inline code, fenced code, math, and queries for entity extraction."""
     literals: list[str] = []
     parts: list[str] = []
     i = 0
@@ -201,21 +260,34 @@ def _shield_inline_code(content: str) -> tuple[str, list[str]]:
         at_line_start = i == 0 or content[i - 1] == "\n"
         if at_line_start:
             line_start = i
+            line_end = content.find("\n", line_start)
+            if line_end == -1:
+                line_end = n
+            stripped_line = content[line_start:line_end].strip()
+            if _is_query_begin_line(stripped_line):
+                query_end = _query_region_end(content, line_start, n)
+                emit_placeholder(content[i:query_end])
+                i = query_end
+                continue
+
             fence_open = _try_open_fence_line(content, line_start, n)
             if fence_open is not None:
-                tick_start, tick_len = fence_open
-                fence_end = _fence_region_end(content, tick_start, tick_len, n)
+                fence_char, fence_start, fence_len = fence_open
+                fence_end = _fence_region_end(content, fence_start, fence_char, fence_len, n)
                 emit_placeholder(content[i:fence_end])
                 i = fence_end
                 continue
 
-        if i + 1 < n and content[i] == "{" and content[i + 1] == "{":
-            close = content.find("}}", i + 2)
-            if close == -1:
-                emit_placeholder(content[i:n])
-                break
-            emit_placeholder(content[i : close + 2])
-            i = close + 2
+        if i + 1 < n and content[i] == "$" and content[i + 1] == "$":
+            segment, end = _consume_block_math_span(content, i, n)
+            emit_placeholder(segment)
+            i = end
+            continue
+
+        if content[i] == "$":
+            segment, end = _consume_inline_math_span(content, i, n)
+            emit_placeholder(segment)
+            i = end
             continue
 
         if content[i] == "`":
@@ -231,7 +303,13 @@ def _shield_inline_code(content: str) -> tuple[str, list[str]]:
 
 
 def _extract_task_status(first_line: str) -> tuple[str | None, str]:
-    for status in TASK_STATUSES:
+    md_match = MARKDOWN_TASK_PATTERN.match(first_line)
+    if md_match:
+        marker = md_match.group(1)
+        remainder = md_match.group(2).strip()
+        status_map = {" ": "TODO", "-": "DOING", "x": "DONE", "X": "DONE"}
+        return status_map[marker], remainder
+    for status in sorted(TASK_STATUSES, key=len, reverse=True):
         prefix = f"{status} "
         if first_line.startswith(prefix):
             return status, first_line[len(prefix) :].strip()
@@ -272,10 +350,12 @@ def _extract_time_properties(raw_content: str) -> dict[str, Any]:
 def _extract_tags(raw_content: str) -> list[str]:
     tags: list[str] = []
     shielded, _ = _shield_inline_code(raw_content)
-    for bracketed, simple in LOGSEQ_PATTERNS["tag"].findall(shielded):
-        tag = bracketed or simple
-        if tag:
-            tags.append(tag.rstrip(".,;:"))
+    for bracketed in BRACKETED_TAG_PATTERN.findall(shielded):
+        if bracketed:
+            tags.append(bracketed)
+    for simple in TAG_PATTERN.findall(shielded):
+        if simple:
+            tags.append(simple.rstrip(".,;:"))
     return tags
 
 
@@ -398,13 +478,32 @@ def _merge_refs(wikilinks: list[str], tags: list[str]) -> list[str]:
     return merged
 
 
+def _iter_implicit_ref_tokens(value: Any) -> list[str]:
+    """Yield normalized tokens from comma-separated strings or bullet-list property values."""
+    if isinstance(value, str):
+        return [segment for segment in value.split(",")]
+    if isinstance(value, (list, tuple, set)):
+        return [str(item) for item in value]
+    return []
+
+
 def _extract_property_graph_tokens(
     properties: dict[str, Any],
 ) -> tuple[list[str], list[str], list[str]]:
     property_wikilinks: list[str] = []
     property_tags: list[str] = []
     property_block_refs: list[str] = []
-    for value in properties.values():
+    for key, value in properties.items():
+        if key in _IMPLICIT_REF_KEYS:
+            for segment in _iter_implicit_ref_tokens(value):
+                token = _normalize_logseq_ref_token(segment)
+                if not token:
+                    continue
+                if key == "tags":
+                    property_tags.append(token)
+                else:
+                    property_wikilinks.append(token)
+            continue
         if not isinstance(value, str):
             continue
         property_wikilinks.extend(_extract_wikilinks(value))
@@ -439,6 +538,34 @@ class StackMachineParser:
         self.tab_size = tab_size
         self.registry = PageRegistry()
 
+    def _finalize_pending_property_list(
+        self,
+        current_node: LogseqNode | None,
+        pending_list_key: str | None,
+        pending_list_items: list[str],
+        stack: list[LogseqNode],
+        root_nodes: list[LogseqNode],
+        line_number: int,
+    ) -> LogseqNode | None:
+        """Commit accumulated bullet-list property values onto the active block."""
+        if current_node is None or pending_list_key is None:
+            return current_node
+        properties = dict(current_node.properties)
+        properties[pending_list_key] = list(pending_list_items)
+        properties_order = list(current_node.properties_order)
+        if pending_list_key not in properties_order:
+            properties_order.append(pending_list_key)
+        updated = self._refresh_node(
+            current_node,
+            current_node.content,
+            properties_override=properties,
+            properties_order_override=properties_order,
+            line_end=line_number,
+        )
+        self._replace_stack_tail_node(stack, root_nodes, updated)
+        self.registry.register(updated)
+        return updated
+
     def parse(self, text: str, page_title: str = "untitled") -> LogseqPage:
         """Parse Logseq markdown text into a `LogseqPage`."""
         stack: list[LogseqNode] = []
@@ -449,13 +576,31 @@ class StackMachineParser:
         page_properties_order: list[str] = []
         current_node: LogseqNode | None = None
         frontmatter_active = True
-        property_list_indent_level: int | None = None
+        properties_allowed = True
+        pending_list_key: str | None = None
+        pending_list_items: list[str] = []
+        pending_list_indent: int | None = None
         in_code_block = False
+        in_query_block = False
         in_drawer = False
+        line_number = 0
 
         for line_number, raw_line in enumerate(text.splitlines(), start=1):
             raw_line = _sanitize_line(raw_line)
             stripped_line = raw_line.strip()
+
+            if in_query_block and current_node is not None:
+                merged_content = f"{current_node.content}\n{raw_line}"
+                updated = self._refresh_node(current_node, merged_content, line_end=line_number)
+                self._replace_stack_tail_node(stack, root_nodes, updated)
+                current_node = updated
+                if _is_query_end_line(stripped_line):
+                    in_query_block = False
+                frontmatter_active = False
+                pending_list_key = None
+                pending_list_items = []
+                pending_list_indent = None
+                continue
 
             if in_code_block and current_node is not None:
                 merged_content = f"{current_node.content}\n{raw_line}"
@@ -465,7 +610,9 @@ class StackMachineParser:
                 if _is_code_fence_line(stripped_line):
                     in_code_block = False
                 frontmatter_active = False
-                property_list_indent_level = None
+                pending_list_key = None
+                pending_list_items = []
+                pending_list_indent = None
                 continue
 
             if in_drawer:
@@ -539,13 +686,46 @@ class StackMachineParser:
             if not stripped_line or is_system_block(raw_line):
                 continue
 
+            if pending_list_key is not None and current_node is not None:
+                pending_bullet = BULLET_PATTERN.match(raw_line)
+                if pending_bullet is not None:
+                    pending_indent = self._compute_indent_level(pending_bullet.group(1))
+                    if (
+                        pending_list_indent is not None
+                        and pending_indent > pending_list_indent
+                    ):
+                        pending_list_items.append(pending_bullet.group(2).strip())
+                        properties = dict(current_node.properties)
+                        properties[pending_list_key] = list(pending_list_items)
+                        properties_order = list(current_node.properties_order)
+                        if pending_list_key not in properties_order:
+                            properties_order.append(pending_list_key)
+                        updated = self._refresh_node(
+                            current_node,
+                            current_node.content,
+                            properties_override=properties,
+                            properties_order_override=properties_order,
+                            line_end=line_number,
+                        )
+                        self._replace_stack_tail_node(stack, root_nodes, updated)
+                        current_node = updated
+                        self.registry.register(updated)
+                        continue
+                current_node = self._finalize_pending_property_list(
+                    current_node,
+                    pending_list_key,
+                    pending_list_items,
+                    stack,
+                    root_nodes,
+                    line_number,
+                )
+                pending_list_key = None
+                pending_list_items = []
+                pending_list_indent = None
+
             bullet_match = BULLET_PATTERN.match(raw_line)
             if bullet_match:
                 indent_level = self._compute_indent_level(bullet_match.group(1))
-                if property_list_indent_level is not None and indent_level > property_list_indent_level:
-                    indent_level -= 1
-                else:
-                    property_list_indent_level = None
 
                 raw_indent = bullet_match.group(1)
                 if (
@@ -583,12 +763,12 @@ class StackMachineParser:
                 current_node = node
                 self.registry.register(node)
                 frontmatter_active = False
+                properties_allowed = True
                 continue
 
             heading_match = HEADING_BLOCK_PATTERN.match(raw_line)
             if heading_match:
                 indent_level = self._compute_indent_level(heading_match.group(1))
-                property_list_indent_level = None
 
                 raw_indent = heading_match.group(1)
 
@@ -618,11 +798,13 @@ class StackMachineParser:
                 current_node = node
                 self.registry.register(node)
                 frontmatter_active = False
+                properties_allowed = True
                 continue
 
             property_match = LOGSEQ_PATTERNS["property"].match(raw_line.strip())
             if property_match:
                 key, value = property_match.groups()
+                key = _normalize_property_key(key)
                 value = _sanitize_line(value)
 
                 if current_node is None and frontmatter_active:
@@ -635,33 +817,69 @@ class StackMachineParser:
                     frontmatter_active = False
                     continue
 
-                properties = dict(current_node.properties)
-                properties[key] = value
-                properties_order = list(current_node.properties_order)
-                if key not in properties_order:
-                    properties_order.append(key)
-
-                updated = self._refresh_node(
-                    current_node,
-                    current_node.content,
-                    properties_override=properties,
-                    properties_order_override=properties_order,
-                    line_end=line_number,
-                )
-                if key == "id":
-                    updated = updated.model_copy(
-                        update={"source_uuid": value, "synthetic_id": False}
+                block = current_node
+                if not properties_allowed:
+                    pass
+                elif pending_list_key is not None:
+                    finalized = self._finalize_pending_property_list(
+                        block,
+                        pending_list_key,
+                        pending_list_items,
+                        stack,
+                        root_nodes,
+                        line_number,
                     )
-                self._replace_stack_tail_node(stack, root_nodes, updated)
-                current_node = updated
-                self.registry.register(updated)
+                    if finalized is not None:
+                        block = finalized
+                        current_node = block
+                    pending_list_key = None
+                    pending_list_items = []
+                    pending_list_indent = None
 
-                raw_indent = raw_line[: len(raw_line) - len(raw_line.lstrip(" \t"))]
-                property_list_indent_level = (
-                    self._compute_indent_level(raw_indent) if value.strip() == "" else None
-                )
-                frontmatter_active = False
-                continue
+                if properties_allowed and value.strip() == "":
+                    pending_list_key = key
+                    pending_list_items = []
+                    raw_prop_indent = raw_line[: len(raw_line) - len(raw_line.lstrip(" \t"))]
+                    pending_list_indent = self._compute_indent_level(raw_prop_indent)
+                    properties_order = list(block.properties_order)
+                    if key not in properties_order:
+                        properties_order.append(key)
+                        updated = self._refresh_node(
+                            block,
+                            block.content,
+                            properties_order_override=properties_order,
+                            line_end=line_number,
+                        )
+                        self._replace_stack_tail_node(stack, root_nodes, updated)
+                        block = updated
+                        current_node = block
+                        self.registry.register(updated)
+                    frontmatter_active = False
+                    continue
+
+                if properties_allowed:
+                    properties = dict(block.properties)
+                    properties[key] = value
+                    properties_order = list(block.properties_order)
+                    if key not in properties_order:
+                        properties_order.append(key)
+
+                    updated = self._refresh_node(
+                        block,
+                        block.content,
+                        properties_override=properties,
+                        properties_order_override=properties_order,
+                        line_end=line_number,
+                    )
+                    if key == "id":
+                        updated = updated.model_copy(
+                            update={"source_uuid": value, "synthetic_id": False}
+                        )
+                    self._replace_stack_tail_node(stack, root_nodes, updated)
+                    current_node = updated
+                    self.registry.register(updated)
+                    frontmatter_active = False
+                    continue
 
             if not stack:
                 frontmatter_active = False
@@ -678,9 +896,21 @@ class StackMachineParser:
                 len(stack),
             )
             frontmatter_active = False
-            property_list_indent_level = None
+            properties_allowed = False
             if _is_code_fence_line(stripped_line):
                 in_code_block = True
+            if _is_query_begin_line(stripped_line):
+                in_query_block = True
+
+        if pending_list_key is not None and current_node is not None:
+            current_node = self._finalize_pending_property_list(
+                current_node,
+                pending_list_key,
+                pending_list_items,
+                stack,
+                root_nodes,
+                line_number,
+            )
 
         self._validate_references(root_nodes)
         root_nodes = self._normalize_indent_levels(root_nodes)

@@ -146,20 +146,20 @@ def test_multiline_block_roundtrip_preserves_soft_breaks() -> None:
     )
     parser = StackMachineParser()
     page = parser.parse(source, page_title="multiline-roundtrip")
-    rendered = serialize_logseq_page(page)
-
-    assert rendered == (
-        "- Checklist item\n"
-        "  Second soft-break line\n"
-        "  id:: 33333333-3333-3333-3333-333333333333\n"
-    )
-
-    reparsed = parser.parse(rendered, page_title="multiline-roundtrip")
-    root = reparsed.root_nodes[0]
+    root = page.root_nodes[0]
 
     assert "Checklist item" in root.content
     assert "Second soft-break line" in root.content
-    assert root.properties["id"] == "33333333-3333-3333-3333-333333333333"
+    assert "id:: 33333333-3333-3333-3333-333333333333" in root.content
+    assert "id" not in root.properties
+
+    rendered = serialize_logseq_page(page)
+    reparsed = parser.parse(rendered, page_title="multiline-roundtrip")
+    roundtrip_root = reparsed.root_nodes[0]
+
+    assert "Checklist item" in roundtrip_root.content
+    assert "Second soft-break line" in roundtrip_root.content
+    assert "id" not in roundtrip_root.properties
 
 
 def test_serialize_logseq_page_roundtrip_matches_logseq_layout() -> None:

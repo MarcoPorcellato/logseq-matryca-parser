@@ -94,6 +94,67 @@ def test_journals_directory_is_discovered(tmp_path: Path) -> None:
     assert len(graph.get_nodes_by_tag("daily")) == 1
 
 
+def test_page_title_override_in_graph_index(tmp_path: Path) -> None:
+    """``title::`` frontmatter re-keys the page in ``graph.pages`` and updates ``page.title``."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "file_name.md").write_text(
+        "title:: Custom Title\n\n- Root block\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    page = graph.pages["Custom Title"]
+
+    assert "file_name" not in graph.pages
+    assert page.title == "Custom Title"
+    assert page.root_nodes[0].content == "Root block"
+
+
+def test_case_insensitive_property_keys(tmp_path: Path) -> None:
+    """``TITLE::`` frontmatter normalizes to ``title`` and overrides the graph page key."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "file_name.md").write_text(
+        "TITLE:: Custom Page\n\n- Root block\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    page = graph.pages["Custom Page"]
+
+    assert page.title == "Custom Page"
+    assert page.properties.get("title") == "Custom Page"
+    assert "file_name" not in graph.pages
+
+
+def test_page_aliases_and_backlink_resolution(tmp_path: Path) -> None:
+    """``alias::`` keys resolve to the canonical page and receive incoming wikilink backlinks."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Development.md").write_text(
+        "alias:: Dev, Coding\n\n- Hub block\n",
+        encoding="utf-8",
+    )
+    (pages / "Linker.md").write_text(
+        "- Links [[Dev]] and [[Coding]]\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    development = graph.pages["Development"]
+    linker = graph.pages["Linker"].root_nodes[0]
+
+    assert graph.pages["Dev"] is development
+    assert graph.pages["Coding"] is development
+    assert linker in graph.get_backlinks("Dev")
+    assert linker in graph.get_backlinks("Coding")
+    assert graph.get_backlinks("dev") == graph.get_backlinks("Dev")
+
+
 def test_graph_backlink_resolution_cross_page(tmp_path: Path) -> None:
     """Backlinks resolve for page wikilinks and native block UUIDs referenced across pages."""
     graph_root = tmp_path / "vault"

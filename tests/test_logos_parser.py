@@ -41,7 +41,7 @@ def test_is_system_block_detection(line: str, expected: bool) -> None:
 
 
 def test_inline_entity_extraction_shields_code_spans(parser: StackMachineParser) -> None:
-    """Inline code and macro-shielded spans must not yield wikilinks, tags, or block refs."""
+    """Inline code spans must not yield wikilinks, tags, or block refs."""
     content = (
         "- Investigate code block `[[FalseLink]]` and tag `#[[NotATag]]` "
         "then cite [[GoodPage]] and #GoodTag"
@@ -67,14 +67,105 @@ def test_fenced_code_shields_graph_tokens(parser: StackMachineParser) -> None:
     assert "inner-tag" not in root.tags
 
 
-def test_macro_shields_embedded_link_syntax(parser: StackMachineParser) -> None:
-    """Macros are opaque for entity extraction."""
-    content = "- Before {{fake [[NoPage]] #no-tag}} after [[After]]"
-    page = parser.parse(content, page_title="macro-shield")
+def test_macro_embed_extracts_nested_wikilinks(parser: StackMachineParser) -> None:
+    """Embed macros expose nested page references for graph extraction."""
+    content = "- {{embed [[Project Alpha]]}}"
+    page = parser.parse(content, page_title="macro-embed")
     root = page.root_nodes[0]
-    assert "NoPage" not in root.wikilinks
-    assert "no-tag" not in root.tags
-    assert "After" in root.wikilinks
+    assert "Project Alpha" in root.wikilinks
+
+
+def test_tag_markdown_formatting_boundaries(parser: StackMachineParser) -> None:
+    """Tags inside markdown formatting delimiters are extracted."""
+    content = "- **#AI** and ==#highlight=="
+    page = parser.parse(content, page_title="tag-boundaries")
+    root = page.root_nodes[0]
+    assert "AI" in root.tags
+    assert "highlight" in root.tags
+
+
+def test_unicode_tag_extraction(parser: StackMachineParser) -> None:
+    """Unicode tag names are extracted via Python \\w."""
+    content = "- #società and #アイデア"
+    page = parser.parse(content, page_title="unicode-tags")
+    root = page.root_nodes[0]
+    assert "società" in root.tags
+    assert "アイデア" in root.tags
+
+
+def test_implicit_tags_property_comma_split(parser: StackMachineParser) -> None:
+    """Comma-separated tags:: values are implicit page/tag references."""
+    content = "- Root\n  tags:: python, data science"
+    page = parser.parse(content, page_title="implicit-tags")
+    root = page.root_nodes[0]
+    assert "python" in root.tags
+    assert "data science" in root.tags
+    assert "python" in root.refs
+    assert "data science" in root.refs
+
+
+def test_tilde_fence_shields_graph_tokens(parser: StackMachineParser) -> None:
+    """Tilde code fences shield internal wikilinks and tags from graph metadata."""
+    content = "- Visible [[Outer]]\n  ~~~python\n  [[Inner]]\n  ~~~"
+    page = parser.parse(content, page_title="tilde-fence")
+    root = page.root_nodes[0]
+    assert "Outer" in root.wikilinks
+    assert "Inner" not in root.wikilinks
+
+
+@pytest.mark.parametrize(
+    ("content", "forbidden_wikilink", "allowed_wikilink"),
+    [
+        (
+            "- Formula $$\text{Array} [[1, 2]]$$ and cite [[Real]]",
+            "1, 2",
+            "Real",
+        ),
+        (
+            "- Inline $\\alpha$ with [[Real]]",
+            None,
+            "Real",
+        ),
+    ],
+)
+def test_math_shielding_ignores_wikilinks_inside_equations(
+    parser: StackMachineParser,
+    content: str,
+    forbidden_wikilink: str | None,
+    allowed_wikilink: str,
+) -> None:
+    """Block and inline LaTeX math must not yield wikilinks from equation syntax."""
+    page = parser.parse(content, page_title="math-shield")
+    root = page.root_nodes[0]
+    if forbidden_wikilink is not None:
+        assert forbidden_wikilink not in root.wikilinks
+    assert allowed_wikilink in root.wikilinks
+
+
+@pytest.mark.parametrize(
+    "query_body",
+    [
+        '[?p :block/name "[[My Target]]"]',
+        '#datalog-tag [[My Target]]',
+    ],
+)
+def test_query_block_shields_graph_tokens(
+    parser: StackMachineParser,
+    query_body: str,
+) -> None:
+    """Advanced query regions must not contribute wikilinks or tags to graph metadata."""
+    content = (
+        "- Query block\n"
+        "#+BEGIN_QUERY\n"
+        f"{query_body}\n"
+        "#+END_QUERY"
+    )
+    page = parser.parse(content, page_title="query-shield")
+    root = page.root_nodes[0]
+    assert "My Target" not in root.wikilinks
+    assert "My Target" not in root.tags
+    assert "datalog-tag" not in root.tags
+    assert "+BEGIN_QUERY" not in root.tags
 
 
 def test_zero_to_four_space_fracture_binds_to_root(parser: StackMachineParser) -> None:
@@ -243,21 +334,67 @@ def test_multiline_clean_text_strips_property_lines_only(parser: StackMachinePar
     assert root.clean_text == "First line\nThird line"
 
 
+def test_misplaced_properties_treated_as_plain_text(parser: StackMachineParser) -> None:
+    """key:: lines after a soft-break stay in block text, not in properties."""
+    content = "- Body line\n  plain continuation\n  fake:: not metadata"
+    page = parser.parse(content, page_title="misplaced-props")
+    root = page.root_nodes[0]
+
+    assert "fake" not in root.properties
+    assert "fake:: not metadata" in root.content
+    assert "fake:: not metadata" in root.clean_text
+
+
+def test_property_bullet_list_serialization(parser: StackMachineParser) -> None:
+    """Empty alias:: followed by indented bullets becomes a list property without child nodes."""
+    content = "- Root\n  alias::\n    - First\n    - Second"
+    page = parser.parse(content, page_title="alias-list")
+    root = page.root_nodes[0]
+
+    assert root.properties["alias"] == ["First", "Second"]
+    assert len(root.children) == 0
+
+
+def test_extended_task_markers(parser: StackMachineParser) -> None:
+    """Extended Org-mode task prefixes extract status and clean remainder text."""
+    page = parser.parse("- DELEGATED Important task", page_title="delegated-task")
+    root = page.root_nodes[0]
+
+    assert root.task_status == "DELEGATED"
+    assert root.clean_text == "Important task"
+
+
+def test_aliased_block_ref_clean_text_strips_brackets(parser: StackMachineParser) -> None:
+    """Aliased block refs ((uuid)) collapse to visible alias text without square brackets."""
+    block_uuid = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+    content = f"- See [My Text]((({block_uuid}))) here"
+    page = parser.parse(content, page_title="aliased-ref")
+    root = page.root_nodes[0]
+
+    assert root.clean_text == "See My Text here"
+    assert "[" not in root.clean_text
+    assert "]" not in root.clean_text
+
+
 @pytest.mark.parametrize(
-    "content",
+    ("content", "property_key", "expected_values"),
     [
-        "- Root\n  tags::\n    - Alpha\n    - Beta",
-        "- Root\n  aliases::\n    - One",
+        ("- Root\n  tags::\n    - Alpha\n    - Beta", "tags", ["Alpha", "Beta"]),
+        ("- Root\n  aliases::\n    - One", "aliases", ["One"]),
     ],
 )
 def test_list_properties_do_not_crash_and_keep_children(
-    parser: StackMachineParser, content: str
+    parser: StackMachineParser,
+    content: str,
+    property_key: str,
+    expected_values: list[str],
 ) -> None:
-    """Property keys followed by bullet lists remain parseable and keep child blocks."""
+    """Property keys followed by bullet lists serialize as lists without AST child nodes."""
     page = parser.parse(content, page_title="list-property")
     root = page.root_nodes[0]
 
-    assert len(root.children) >= 1
+    assert root.properties[property_key] == expected_values
+    assert len(root.children) == 0
 
 
 @pytest.mark.parametrize(
@@ -297,6 +434,56 @@ def test_task_marker_extraction(
 ) -> None:
     """Known task markers are extracted and removed from clean text."""
     page = parser.parse(f"- {raw_block}", page_title="tasks")
+    root = page.root_nodes[0]
+
+    assert root.task_status == expected_status
+    assert root.clean_text == expected_clean
+
+
+def test_numbered_list_root_and_nested_blocks(parser: StackMachineParser) -> None:
+    """Ordered-list markers open blocks; plain lines still soft-break into the active block."""
+    content = (
+        "1. First item\n"
+        "continuation without marker\n"
+        "  12. Nested item"
+    )
+    page = parser.parse(content, page_title="numbered-lists")
+    root = page.root_nodes[0]
+
+    assert len(page.root_nodes) == 1
+    assert root.content.splitlines() == ["First item", "continuation without marker"]
+    assert len(root.children) == 1
+    assert root.children[0].content == "Nested item"
+    assert root.children[0].indent_level == 1
+
+
+def test_numbered_list_siblings_are_separate_roots(parser: StackMachineParser) -> None:
+    """Sibling ordered items at the same indent are separate root blocks, not one soft-break paragraph."""
+    content = "1. First item\n2. Second item"
+    page = parser.parse(content, page_title="numbered-siblings")
+
+    assert len(page.root_nodes) == 2
+    assert page.root_nodes[0].content == "First item"
+    assert page.root_nodes[1].content == "Second item"
+
+
+@pytest.mark.parametrize(
+    ("raw_block", "expected_status", "expected_clean"),
+    [
+        ("[ ] Buy milk", "TODO", "Buy milk"),
+        ("[x] Read book", "DONE", "Read book"),
+        ("[X] Upper", "DONE", "Upper"),
+        ("[-] Coding", "DOING", "Coding"),
+    ],
+)
+def test_markdown_checkbox_task_marker_extraction(
+    parser: StackMachineParser,
+    raw_block: str,
+    expected_status: str,
+    expected_clean: str,
+) -> None:
+    """Markdown [ ] / [x] / [-] checkboxes map to TODO / DONE / DOING before Org-mode fallback."""
+    page = parser.parse(f"- {raw_block}", page_title="markdown-tasks")
     root = page.root_nodes[0]
 
     assert root.task_status == expected_status
@@ -752,7 +939,7 @@ def test_official_complex_tag_aliasing_multiword(
         (
             "- Check [My Alias](((64c752b0-d33b-4448-a261-e4dc2bbe12d3))) for context.",
             "64c752b0-d33b-4448-a261-e4dc2bbe12d3",
-            "[My Alias]",
+            "My Alias",
         ),
     ],
 )
