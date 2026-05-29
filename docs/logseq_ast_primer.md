@@ -129,15 +129,28 @@ tags: parser, logseq
 - First root block
 ```
 
-Both map into **`LogseqPage.properties`** with **lowercase keys**. Matryca’s **native serializer** (`serialize_logseq_page`) still **writes** `key::` lines only — not YAML wrappers. YAML appears in **Obsidian FORGE** export, not sovereign round-trip writes.
+Both map into **`LogseqPage.properties`** with **lowercase keys**. **`serialize_logseq_page`** is **format-preserving**: pages that began with `---` re-emit YAML frontmatter; otherwise the serializer writes native `key::` lines. **Obsidian FORGE** export may add YAML even on natively `key::` pages — that is a separate projection, not sovereign round-trip output.
 
 **`page-tags::`** at page or block level is treated like **`tags::`** for implicit graph token injection.
 
 ### Parsing rules
 
-1. Keys and values are stored in **`LogseqPage.properties`** with **lowercase keys**; the parser does **not** automatically change **`LogseqPage.title`** (that remains filename-derived until graph load).
+1. Keys and values are stored in **`LogseqPage.properties`** with **lowercase keys**. A non-empty **`title`** property (YAML `title:` or `title::`) sets **`LogseqPage.title`** at parse time (overriding the filename-derived default). **`LogseqGraph.load_directory`** re-applies **`title::`** enrichment when indexing the vault.
 2. **`alias::`** and **`aliases::`** accept comma-separated strings, **bullet-list** values (`alias::` followed by indented `-` lines), or Python `list` values after parse. Serialization strips `[[wikilink]]` and `#tag` adornments from each token.
 3. Harvested page wikilinks/tags merge into **`LogseqPage.refs`** for graph indexing.
+
+### Serialization round-trip
+
+[`serialize_logseq_page`](../src/logseq_matryca_parser/logseq_markdown.py) rebuilds sovereign Spatial Markdown from a parsed **`LogseqPage`**:
+
+| Behavior | Detail |
+| :--- | :--- |
+| **Page header** | YAML `---` preserved when `raw_content` started with `---`; else `key::` lines via `format_logseq_page_properties`. |
+| **List block properties** | `tags::` / `page-tags::` (and ref keys) with list values emit `key::` plus indented `-` bullets — not Python repr. |
+| **`:LOGBOOK:`** | Drawer blocks re-emit as `:LOGBOOK:` / `:END:`, not `logbook::` lines. |
+| **Derived temporal keys** | `scheduled::`, `repeater::`, and related parsed fields are omitted from serialized `key::` output. |
+| **Soft-break bodies** | Continuation lines keep single alignment at `parent + 2` spaces without double-indent. |
+| **Block UUIDs** | Parse → serialize → parse preserves block UUIDs on the same outline (see `tests/test_pre_release_roundtrip.py`). |
 
 ### `LogseqGraph` enrichment
 

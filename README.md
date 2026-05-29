@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.2.0** — Graph parity & multimodal assets (see [CHANGELOG](CHANGELOG.md)) — **226 tests**, YAML frontmatter ingest, asset path resolution, case-insensitive page routing, and extended LOGOS shielding; ready for production Enterprise integration.
+**v1.2.0** — Graph parity, multimodal assets & format-preserving round-trip (see [CHANGELOG](CHANGELOG.md)) — **233 tests**, YAML frontmatter ingest/serialize, asset path resolution, case-insensitive page routing, and extended LOGOS shielding; ready for production Enterprise integration.
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -113,11 +113,21 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 | Area | Capability |
 | :--- | :--- |
 | **Asset extraction** | `LogseqNode.assets` collects markdown images, `{{pdf}}` macros, and local `[label](path)` attachments; `LogseqPage.resolve_asset_path` maps to absolute paths (`%20` decode, graph-root relative). |
-| **YAML frontmatter** | `---` blocks at file start populate `LogseqPage.properties` like native `key::` page properties (native **serialize** still emits `key::` only). |
+| **YAML frontmatter** | `---` blocks at file start populate `LogseqPage.properties` like native `key::` lines; **`title:`** in YAML sets `page.title` at parse; **`serialize_logseq_page`** preserves `---` fences on round-trip when the source file used YAML. |
 | **`page-tags::`** | Block and page `page-tags::` inject implicit graph tokens like `tags::`; list-shaped values feed `refs`. |
 | **Case-insensitive routing** | `LogseqGraph.get_page` and `resolve_relative_page_link` resolve titles via a lowercase index (Datomic parity). |
 | **Extended shielding** | HTML comments, `{{query}}` / `{{advancedquery}}`, and escaped `\#` / `\[\[` do not emit false graph tokens (embed macros still harvest nested wikilinks). |
 | **Property & temporal fixes** | Comma-split ignores commas inside `[[wikilinks]]`; properties after code fences; quoted value stripping; `SCHEDULED`/`DEADLINE` ranges, repeaters, and Org warning periods; legacy `___` / `%2F` / Dendron filenames; UTF-8 BOM via `utf-8-sig`. |
+
+### Round-trip serialization (v1.2.0)
+
+| Area | Capability |
+| :--- | :--- |
+| **Soft-break bodies** | Multiline block continuations serialize without double-indenting alignment spaces. |
+| **List-shaped block props** | `tags::` / `page-tags::` with indented `-` bullets round-trip as Logseq lists (not Python repr). |
+| **`:LOGBOOK:` drawers** | Org drawers re-emit as `:LOGBOOK:` / `:END:` blocks, not bogus `logbook::` property lines. |
+| **Derived temporal keys** | Parsed `scheduled::`, `repeater::`, and related derived fields are omitted from serialized `key::` output. |
+| **Stable block UUIDs** | Parse → `serialize_logseq_page` → parse preserves block `id::` / UUIDs on the same outline. |
 
 ```python
 from logseq_matryca_parser.graph import LogseqGraph
@@ -202,7 +212,7 @@ For graph hygiene, **`LogseqGraph.get_broken_references()`** flags nodes whose `
 
 | Feature | Description |
 | :--- | :--- |
-| **LOGOS Engine** | Deterministic AST parsing. YAML + native frontmatter ingest, **assets**, property contiguity (incl. post-fence), comma-safe wikilink splits, temporal ranges/repeaters, legacy filename decode, BOM-safe reads, and **shielded** code/math/query/HTML/escape regions. |
+| **LOGOS Engine** | Deterministic AST parsing. YAML + native frontmatter ingest, **format-preserving** `serialize_logseq_page` (YAML vs `key::` by source), list-shaped block property layout, **assets**, property contiguity (incl. post-fence), comma-safe wikilink splits, temporal ranges/repeaters, legacy filename decode, BOM-safe reads, and **shielded** code/math/query/HTML/escape regions. |
 | **Multimodal assets** | **`LogseqNode.assets`** + **`LogseqPage.resolve_asset_path`** for PDFs and images relative to the graph root (Vision / document RAG). |
 | **LogseqGraph** | In-memory vault: `pages` index (with **title/alias enrichment** and **case-insensitive lookup**), backlinks, effective properties, namespace resolution, fluent `GraphQuery`, optional **watchdog** invalidation. |
 | **Advanced Task Extraction** | Task **state** (TODO / DOING / DELEGATED / IN-PROGRESS / …), **priority** markers `[#A]`–`[#C]` promoted to `task_priority`, and **SCHEDULED** / **DEADLINE** Logseq timestamps normalized to **UTC Unix epoch seconds** on `scheduled_at` / `deadline_at` for temporal graph and retrieval pipelines. |
@@ -210,7 +220,7 @@ For graph hygiene, **`LogseqGraph.get_broken_references()`** flags nodes whose `
 | **FORGE** | JSON, clean Markdown, and **Obsidian** vault serialization (`ObsidianForgeVisitor`, `ForgeExporter.to_obsidian_markdown`). |
 | **LENS Visualizer** | 60FPS interactive graph rendering (10k+ nodes) with Glassmorphism HUD. |
 | **Agent-Native Printing Press** | [`agent_press.py`](src/logseq_matryca_parser/agent_press.py): **`SessionAliasRegistry`** maps session aliases ↔ block UUIDs; **`to_xray_markdown`** emits token-minimal outline text for autonomous agents (`matryca-parse agent-read`). |
-| **Native Markdown Serialization** | [`logseq_markdown.py`](src/logseq_matryca_parser/logseq_markdown.py) + [`logseq_paths.py`](src/logseq_matryca_parser/logseq_paths.py): rebuild and write Logseq-compliant markdown pages from an AST—page properties as raw `key:: value` lines, block properties indented at **parent whitespace + exactly 2 spaces**, and namespace titles mapped via **`___`** pathing rules. |
+| **Native Markdown Serialization** | [`logseq_markdown.py`](src/logseq_matryca_parser/logseq_markdown.py) + [`logseq_paths.py`](src/logseq_matryca_parser/logseq_paths.py): rebuild and write Logseq-compliant markdown from an AST—page header preserves **YAML `---` or native `key::`** by source format, block properties at **parent whitespace + 2 spaces** (including bullet-list `tags::`), `:LOGBOOK:` drawers, and namespace titles via **`___`** pathing rules. |
 | **Headless Write Engine** | [`agent_writer.py`](src/logseq_matryca_parser/agent_writer.py): **`append_child_to_node`** splices child bullets into on-disk Markdown from AST topology; **`serialize_logseq_page`** / **`write_logseq_page`** emit full pages; **`matryca-parse agent-write`** resolves aliases via **`.matryca_xray_state.json`**. |
 | **AST Linters** | **`LogseqGraph.get_broken_references()`** returns originating nodes when `block_refs` target UUIDs absent from the global registry. |
 | **Sovereign AI** | 100% Local. Zero telemetry. Private by design. |

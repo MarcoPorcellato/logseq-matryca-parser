@@ -417,25 +417,30 @@ Wave 12 established **surgical writes** (single-line splices); v1.0 completes th
 1. **Native Logseq frontmatter** — raw `key:: value` lines (no leading `- `), blank line, then bullets.
 2. **YAML frontmatter** — `---` delimited block with `key: value` lines mapped into **`LogseqPage.properties`** (same lowercase key normalization).
 
-**Write path:** [`serialize_logseq_page`](../src/logseq_matryca_parser/logseq_markdown.py) always emits **native `key::` lines** only (see below). YAML wrappers appear only in **FORGE Obsidian** export (§3.5), not in sovereign round-trip writes.
+**Write path:** [`serialize_logseq_page`](../src/logseq_matryca_parser/logseq_markdown.py) is **format-preserving** for page headers. If `page.raw_content` began with `---`, page properties re-emit as a YAML fence via [`_format_yaml_frontmatter`](../src/logseq_matryca_parser/logseq_markdown.py); otherwise [`format_logseq_page_properties`](../src/logseq_matryca_parser/logseq_markdown.py) writes native **`key:: value`** lines. At parse time, a non-empty **`title`** property (YAML or `title::`) sets **`LogseqPage.title`**; [`LogseqGraph`](../src/logseq_matryca_parser/graph.py) re-applies **`title::`** overrides when loading a vault directory.
+
+**Obsidian FORGE** (§3.5) may emit YAML frontmatter on export even for pages that were natively `key::` on disk — that projection is separate from sovereign round-trip writes.
 
 #### Page properties (file header)
 
-Page-level metadata is emitted as **raw `key:: value` lines** at the top of the file — no YAML frontmatter wrapper. [`format_logseq_page_properties`](../src/logseq_matryca_parser/logseq_markdown.py) renders each entry on its own line (list-valued keys such as `tags::` are flattened to comma-separated tokens), followed by a **blank separator line** before the first outline bullet. This mirrors how Logseq stores page properties in vanilla `.md` exports and keeps Git diffs line-granular.
+- **Native:** [`format_logseq_page_properties`](../src/logseq_matryca_parser/logseq_markdown.py) renders `key:: value` lines (list-valued keys such as `tags::` flatten to comma-separated tokens), then a blank line before the first bullet.
+- **YAML:** [`_format_yaml_frontmatter`](../src/logseq_matryca_parser/logseq_markdown.py) renders `key: value` lines inside `---` fences when the ingested file used YAML.
 
 #### Block properties (strict indentation contract)
 
-Block-scoped properties are serialized **immediately after the bullet text line**, never interleaved with child bullets. The indent rule is strict and deterministic:
+Block-scoped properties are serialized **immediately after the bullet text line** (and after `:LOGBOOK:` drawers when present), never interleaved with child bullets. The indent rule is strict and deterministic:
 
 ```text
 {parent_leading_whitespace}  {key}:: {value}
 ```
 
-That is, take the **exact leading whitespace** of the parent bullet line and append **exactly two additional spaces** (`_block_property_indent`). Continuation lines of multiline block bodies use the same `parent + 2` column. [`format_logseq_block_property_lines`](../src/logseq_matryca_parser/logseq_markdown.py) respects **`properties_order`** when present so round-trips preserve author ordering.
+That is, take the **exact leading whitespace** of the parent bullet line and append **exactly two additional spaces** (`_block_property_indent`). Continuation lines of multiline block bodies use the same `parent + 2` column; [`_serialize_logseq_node_lines`](../src/logseq_matryca_parser/logseq_markdown.py) strips redundant alignment prefix on soft-break lines so continuations do not double-indent on round-trip.
+
+[`format_logseq_block_property_lines`](../src/logseq_matryca_parser/logseq_markdown.py) respects **`properties_order`** when present. **List-shaped** keys (`tags`, `alias`, `aliases`, `page-tags`) with list values emit `key::` plus indented `-` item lines via [`_format_block_property_list_lines`](../src/logseq_matryca_parser/logseq_markdown.py). **`:LOGBOOK:`** metadata re-emits as Org drawers via [`_format_logbook_drawer_lines`](../src/logseq_matryca_parser/logseq_markdown.py), not as `logbook::` property lines. Keys in **`_DERIVED_BLOCK_PROPERTY_KEYS`** (`scheduled`, `repeater`, `logbook`, etc.) are parsed into AST fields or drawers and are **not** written back as bogus `key::` lines.
 
 #### Full-page emission
 
-[`serialize_logseq_page`](../src/logseq_matryca_parser/logseq_markdown.py) walks `page.root_nodes` depth-first, emitting `- {first_line}` bullets scaled by `indent_level × tab_size`, then property lines, then continuations, then children. [`write_logseq_page`](../src/logseq_matryca_parser/logseq_markdown.py) persists the result with UTF-8 encoding. Together with §3.4’s **`append_child_to_node`**, the stack now supports **point mutations** and **whole-page regeneration** from the same AST — bidirectional I/O without Logseq’s HTTP API.
+[`serialize_logseq_page`](../src/logseq_matryca_parser/logseq_markdown.py) walks `page.root_nodes` depth-first, emitting `- {first_line}` bullets scaled by `indent_level × tab_size`, then continuations, then drawers/properties, then children. [`write_logseq_page`](../src/logseq_matryca_parser/logseq_markdown.py) persists the result with UTF-8 encoding. Together with §3.4’s **`append_child_to_node`**, the stack now supports **point mutations** and **whole-page regeneration** from the same AST — bidirectional I/O without Logseq’s HTTP API.
 
 ### 3.9 Namespace & Path Translation
 
