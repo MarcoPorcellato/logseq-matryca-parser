@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-05-29
+
 ### Added
 
 - **Asset extraction** — `LogseqNode.assets` collects markdown images, `{{pdf}}` macros, and local `[label](path)` attachments; `resolve_asset_path` decodes percent-encoded paths (`%20`).

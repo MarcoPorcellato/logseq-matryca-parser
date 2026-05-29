@@ -193,11 +193,25 @@ Auxiliary **FORGE** serialization (JSON / flat Markdown / Obsidian) appears as a
 
 - **Org-mode task prefixes (extended).** After checkbox handling, **`_extract_task_status`** matches longest-first Org prefixes (`TODO`, `DOING`, `DELEGATED`, `IN-PROGRESS`, …) at the start of the first line and promotes the remainder to **`clean_text`**.
 
-- **Protected regions (entity extraction dead zones).** Wikilink, tag, and block-reference harvesters run on **`_shield_inline_code`**-masked text so literals inside **fenced code** (backtick and tilde fences), **inline code**, **LaTeX** (`$…$` and `$$…$$`), **`#+BEGIN_QUERY` … `#+END_QUERY`** blocks (parse-loop state plus shielding), and **Org drawers** do not produce false graph tokens. **`{{embed [[Page]]}}`** and similar macros are **not** fully opaque: nested wikilinks inside embed bodies are harvested for graph indexing.
+- **Protected regions (entity extraction dead zones).** Wikilink, tag, and block-reference harvesters run on **`_shield_inline_code`**-masked text so literals inside **fenced code** (backtick and tilde fences), **inline code**, **LaTeX** (`$…$` and `$$…$$`), **`#+BEGIN_QUERY` … `#+END_QUERY`** blocks (parse-loop state plus shielding), **HTML comments** (`<!-- … -->`), **escaped Markdown** (`\#`, `\[\[`), and **Org drawers** do not produce false graph tokens. **`{{query}}`** and **`{{advancedquery}}`** inline macros are fully shielded (no nested wikilink harvest). **`{{embed [[Page]]}}`** and similar embed macros are **not** fully opaque: nested wikilinks inside embed bodies are still harvested for graph indexing.
 
-- **Block properties & `id::`.** Subsequent lines matching `key:: value` attach to **`current_node`** only while **`properties_allowed`** remains true (contiguous property window immediately under the bullet). A **soft-break** continuation disables further property extraction; later `key::` lines merge into **`content`** as plain text. Keys are normalized with **`_normalize_property_key`** (lowercase) for Datomic parity. An empty value (`alias::` with no inline text) opens a **pending bullet-list** accumulator: indented `-` / `*` lines deeper than the property line become **`list[str]`** values without creating child **`LogseqNode`** entries. Page frontmatter uses the same key normalization (`TITLE::` ≡ `title::`). Parsed properties live in **`LogseqNode.properties`**. Native **`id::`** values are preserved in **`source_uuid`** (and in **`properties["id"]`** when applicable) so **`((uuid))`** references match Logseq; the parser’s stable **`uuid`** field remains the synthetic identity used for AST wiring and adapters.
+- **Block properties & `id::`.** Subsequent lines matching `key:: value` attach to **`current_node`** only while **`properties_allowed`** remains true (contiguous property window immediately under the bullet). A **soft-break** continuation disables further property extraction; later `key::` lines merge into **`content`** as plain text — **except** the Logseq contiguity exception: a `key::` line immediately after a closing code fence is still parsed as block metadata when contiguous under the bullet. Outer **`"`** / **`'`** on property values are stripped in the AST. Keys are normalized with **`_normalize_property_key`** (lowercase) for Datomic parity. Comma-separated **`tags::`**, **`alias::`**, **`aliases::`**, and **`page-tags::`** values split on commas but **ignore commas inside `[[wikilink]]` tokens**. An empty value (`alias::` with no inline text) opens a **pending bullet-list** accumulator: indented `-` / `*` lines deeper than the property line become **`list[str]`** values without creating child **`LogseqNode`** entries; list-shaped values also feed implicit graph tokens on **`LogseqNode.refs`**. Page frontmatter uses the same key normalization (`TITLE::` ≡ `title::`). Parsed properties live in **`LogseqNode.properties`**. Native **`id::`** values are preserved in **`source_uuid`** (and in **`properties["id"]`** when applicable) so **`((uuid))`** references match Logseq; the parser’s stable **`uuid`** field remains the synthetic identity used for AST wiring and adapters.
+
+- **Structural edge cases.** Bare `-` or `*` lines (no text after the marker) parse as **empty blocks** instead of failing the bullet detector. **`[[Page#Section]]`** wikilinks contribute **`Page`** only (header anchor stripped) for graph routing. **`[Alias]([[Page]])`** hybrid alias links are wikilinks, not file **assets**.
 
 - **Aliased block references in `clean_text`.** Markdown links of the form **`[Visible](((uuid)))`** are reduced to **`Visible`** in **`clean_text`** (brackets stripped) while UUIDs still populate **`block_refs`** for graph resolution.
+
+#### Asset extraction and path resolution
+
+During node build, **`_extract_assets`** scans block **`content`** for multimodal references:
+
+| Source | Example | `LogseqNode.assets` entry |
+| ------ | ------- | --------------------------- |
+| Markdown image | `![label](../assets/scan.png)` | `../assets/scan.png` |
+| PDF macro | `{{pdf mydoc.pdf}}` | `mydoc.pdf` |
+| Local attachment link | `[spec](../assets/specs.pdf)` | `../assets/specs.pdf` (not hybrid `[[wikilink]]` links) |
+
+**`LogseqPage.resolve_asset_path(asset_link)`** ([`logos_core.py`](../src/logseq_matryca_parser/logos_core.py)) decodes percent-encoded paths (`%20`), normalizes `../assets/` and `assets/` against the inferred **graph root**, and falls back to **`graph_root/assets/<filename>`** when needed — the contract Vision and document-ingestion pipelines use to map AST tokens to absolute filesystem paths.
 
 #### Sovereign UUID architecture and zero-corruption guarantee
 
@@ -213,7 +227,7 @@ The Logos protocol uses a **dual-track identity system** so vanilla Logseq compa
 
 - **Task priority (`PRIORITY_PATTERN`).** Priority tags match `\[#([A-Z])\]` (Logseq’s A/B/C style). On the **first line** of a block, a match sets **`LogseqNode.task_priority`** to the captured letter and **`PRIORITY_PATTERN.sub("", …)`** removes the marker from **`clean_text`** so priority is a **typed attribute**, not redundant surface noise in retrieval text.
 
-- **Temporal markers (`TIME_PATTERN`) → epoch fields.** Lines matching `\b(SCHEDULED|DEADLINE):\s*(<[^>]+>)` are parsed by **`_extract_time_properties`**: the `<…>` payload is interpreted through **`_parse_logseq_datetime`** (multiple Logseq date formats), then normalized to **UTC Unix epoch seconds** and assigned to **`LogseqNode.scheduled_at`** and **`LogseqNode.deadline_at`** respectively. Auxiliary keys (`scheduled_iso`, `deadline_journal_day`, repeaters, etc.) may still land in **`properties`** for human/debug parity, but the **integer epoch pair on the node** is the stable contract for **temporal graph edges**, range filters, and **GraphRAG** planners—without forcing downstream graph databases to re-scan Markdown.
+- **Temporal markers (`TIME_PATTERN`) → epoch fields.** Lines matching `\b(SCHEDULED|DEADLINE):\s*(<[^>]+>)` are parsed by **`_extract_time_properties`**: the `<…>` payload is interpreted through **`_parse_logseq_datetime`** (multiple Logseq date formats, **time ranges** `HH:MM - HH:MM` using the start time, **repeater** tokens such as `.+1w` / `++1d` stripped before parsing, and **Org warning periods** like `-3d` handled without datetime failures), then normalized to **UTC Unix epoch seconds** and assigned to **`LogseqNode.scheduled_at`** and **`LogseqNode.deadline_at`** respectively. Auxiliary keys (`scheduled_iso`, `deadline_journal_day`, repeaters, etc.) may still land in **`properties`** for human/debug parity, but the **integer epoch pair on the node** is the stable contract for **temporal graph edges**, range filters, and **GraphRAG** planners—without forcing downstream graph databases to re-scan Markdown.
 
 #### Node anatomy — raw Markdown to temporal `LogseqNode`
 
@@ -292,6 +306,14 @@ After every bulk or incremental parse, the graph applies a **post-parse enrichme
 2. **`title::` override.** If page frontmatter contains a non-empty string **`title`**, the frozen `LogseqPage` is updated via **`model_copy(update={"title": custom})`**, the old filename key is removed from **`pages`**, and the page is re-inserted under the custom title (collision with another file’s title is skipped with a debug log).
 3. **Alias injection.** For each canonical dict entry where **`dict_key == page.title`**, values from **`alias::`** and **`aliases::`** are normalized (comma-separated strings or Python lists; `[[Page]]` / `#tag` adornments stripped using the same rules as [`logseq_markdown.py`](../src/logseq_matryca_parser/logseq_markdown.py)) and registered as **additional keys** pointing at the **same `LogseqPage` instance** — e.g. `pages["Dev"]` and `pages["Development"]` share identity.
 4. **Backlinks.** **`_build_backlink_registry`** walks **unique pages** (`id(page)` deduplication) so alias keys do not double-count outgoing links. Incoming wikilinks such as **`[[Dev]]`** normalize to lowercase registry keys and resolve through **`get_backlinks("Dev")`** like any other page title.
+
+#### Case-insensitive page routing
+
+**`LogseqGraph`** maintains **`_lower_title_map`**: canonical display titles keyed by lowercase form. **`get_page(title)`** returns a direct **`pages[title]`** hit when present, otherwise resolves via the lowercase index (Datomic / Logseq parity). **`resolve_relative_page_link`** uses the same lookup when testing namespace candidates. **`get_backlinks`** normalizes page-title targets case-insensitively.
+
+#### Implicit graph tokens (`refs`)
+
+**`LogseqPage.refs`** merges wikilinks and tags harvested from page-level properties (native `key::` frontmatter and **YAML `---` blocks** at parse time). **`page-tags::`** is treated like **`tags::`** for implicit injection. Block-level list-shaped **`tags::`** / **`page-tags::`** values also contribute tokens to **`LogseqNode.refs`** so list bullets and comma-separated strings stay aligned with Logseq’s graph indexing semantics.
 
 **Incremental parity:** **`invalidate_and_reload_page`** drops **all** `pages` keys tied to the file’s `source_path` (not only the first alias hit), merges the freshly parsed page, re-runs **`_enrich_pages_index`**, then re-registers nodes and appends backlinks for the enriched instance. **`_page_title_for_source_path`** returns the canonical **`page.title`**, not an arbitrary alias key.
 
@@ -388,6 +410,15 @@ This complements §3.4 **AGENT WRITER** (weekly append + headless splice) and §
 
 Wave 12 established **surgical writes** (single-line splices); v1.0 completes the loop with **full page round-tripping**. [`logseq_markdown.py`](../src/logseq_matryca_parser/logseq_markdown.py) is the native serializer that projects a parsed **`LogseqPage`** back onto sovereign Spatial Markdown — the inverse of LOGOS ingestion.
 
+#### Ingestion vs native serialization
+
+**Read path:** **`StackMachineParser.parse_page_file`** reads files with **`encoding="utf-8-sig"`** so a UTF-8 BOM from Windows sync tools does not break the first bullet. Page metadata at file start may be either:
+
+1. **Native Logseq frontmatter** — raw `key:: value` lines (no leading `- `), blank line, then bullets.
+2. **YAML frontmatter** — `---` delimited block with `key: value` lines mapped into **`LogseqPage.properties`** (same lowercase key normalization).
+
+**Write path:** [`serialize_logseq_page`](../src/logseq_matryca_parser/logseq_markdown.py) always emits **native `key::` lines** only (see below). YAML wrappers appear only in **FORGE Obsidian** export (§3.5), not in sovereign round-trip writes.
+
 #### Page properties (file header)
 
 Page-level metadata is emitted as **raw `key:: value` lines** at the top of the file — no YAML frontmatter wrapper. [`format_logseq_page_properties`](../src/logseq_matryca_parser/logseq_markdown.py) renders each entry on its own line (list-valued keys such as `tags::` are flattened to comma-separated tokens), followed by a **blank separator line** before the first outline bullet. This mirrors how Logseq stores page properties in vanilla `.md` exports and keeps Git diffs line-granular.
@@ -412,12 +443,13 @@ Semantic page titles and OS filesystem paths speak different dialects. [`logseq_
 
 #### Title ↔ filename mapping
 
-Logseq namespaces use **`/`** in titles (e.g. `Projects/AI`). On disk, each segment is flattened into a single filename stem with the **`___`** separator and percent-encoding for reserved characters — e.g. `Projects/AI` → `Projects___AI.md`. The inverse helpers **`filename_to_page_title`** and **`derive_page_title_from_source_path`** reconstruct semantic titles from `pages/` or `journals/` paths, including nested directory layouts when namespace segments are stored as folders.
+Logseq namespaces use **`/`** in titles (e.g. `Projects/AI`). On disk, each segment is flattened into a single filename stem with the **`___`** separator (modern Logseq) and percent-encoding for reserved characters — e.g. `Projects/AI` → `Projects___AI.md`. The inverse helpers **`filename_to_page_title`** and **`derive_page_title_from_source_path`** reconstruct semantic titles from `pages/` or `journals/` paths, including nested directory layouts when namespace segments are stored as folders. **`filename_to_page_title`** also decodes **legacy** encodings: URL-encoded **`%2F`** namespace separators and Dendron-style **`.` → `/`** segment splits when reconstructing titles from flat stems.
 
 | Direction | Function | Example |
 | --------- | -------- | ------- |
 | Title → stem | `page_title_to_filename` | `Projects/AI` → `Projects___AI` |
 | Stem → title | `filename_to_page_title` | `Projects___AI` → `Projects/AI` |
+| Legacy stem | `filename_to_page_title` | `Work%2FTasks` → `Work/Tasks`; Dendron `a.b.c` → `a/b/c` |
 | Title → relative path | `page_title_to_relative_path` | `pages/Projects___AI.md` |
 
 #### Graph discovery filters

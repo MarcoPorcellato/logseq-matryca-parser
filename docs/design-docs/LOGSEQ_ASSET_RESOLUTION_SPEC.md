@@ -1,4 +1,6 @@
 > **Note for Contributors:** This document is part of the original *Document-Driven Development* phase. It was generated as a structural blueprint during the initial scaffolding of the Logos Protocol. It is preserved here for historical context and to explain the initial design intent. For the current, active architecture, please refer to the main `ARCHITECTURE.md` at the root of the `/docs` folder.
+>
+> **Implementation (v1.2.0+):** Runtime asset harvesting and resolution live in `LogseqNode.assets`, `LogseqPage.resolve_asset_path`, and `_extract_assets` in `logos_parser.py` — see [Architecture §3.1 — Asset extraction](../ARCHITECTURE.md#asset-extraction-and-path-resolution).
 
 # **LOGSEQ\_ASSET\_RESOLUTION\_SPEC.md**
 

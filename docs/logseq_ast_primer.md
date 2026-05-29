@@ -29,6 +29,8 @@ In standard Markdown, lists are just formatting. In Logseq, **indentation dictat
 
 If you delete the parent, this child loses its context. Standard chunkers will split these lines into different vector embeddings, destroying the semantic link. The Logos engine preserves this topology via exact `parent_id` and `path` lineage.
 
+**Empty bullets:** A bare `-` or `*` line (marker only) parses as an empty block instead of failing the bullet detector.
+
 ---
 
 ## 2. Block Properties (The Metadata Layer)
@@ -48,10 +50,12 @@ Logseq allows injecting metadata directly into blocks. These are not standard Ma
 ### Parsing Rules for Logos
 
 1. Properties (like `id::`) belong to the block above them and must appear **contiguously** immediately after the bullet line (or after other property lines in the same window).
-2. If a **soft-break** plain-text line appears in the block body, the property window **closes**: later `key:: value` lines are **plain text**, not metadata.
+2. If a **soft-break** plain-text line appears in the block body, the property window **closes**: later `key:: value` lines are **plain text**, not metadata — **unless** the line sits immediately after a closing code fence (Logseq contiguity exception).
 3. Property keys are stored **lowercase** (`Title::` → `title`) to match Logseq’s case-insensitive Datomic attributes.
-4. They must be stripped from the raw text content to avoid polluting the AI's context window (`clean_node_content` uses case-insensitive matching).
-5. The `id::` property is sacred: it overrides any deterministic UUID generation because it is the native anchor for Logseq's internal block-references `((uuid))`.
+4. Outer **`"`** / **`'`** on property values are stripped in the AST.
+5. Comma-separated **`tags::`**, **`alias::`**, **`aliases::`**, and **`page-tags::`** split on commas but **ignore commas inside `[[wikilink]]` tokens**.
+6. They must be stripped from the raw text content to avoid polluting the AI's context window (`clean_node_content` uses case-insensitive matching).
+7. The `id::` property is sacred: it overrides any deterministic UUID generation because it is the native anchor for Logseq's internal block-references `((uuid))`.
 
 **Bullet-list property values** (Logseq-native):
 
@@ -62,7 +66,7 @@ Logseq allows injecting metadata directly into blocks. These are not standard Ma
     - Beta
 ```
 
-When `key::` has no inline value, indented bullet children are absorbed into **`properties["tags"] == ["Alpha", "Beta"]`** — they do **not** become outline child nodes.
+When `key::` has no inline value, indented bullet children are absorbed into **`properties["tags"] == ["Alpha", "Beta"]`** — they do **not** become outline child nodes. List-shaped **`tags::`** / **`page-tags::`** values also feed implicit graph tokens on **`LogseqNode.refs`**.
 
 ---
 
@@ -88,15 +92,21 @@ If a line does not start with a bullet (`-` or `*`), and is not a property (`key
 
 **Org-mode task markers:** Prefixes such as `TODO`, `DOING`, `DELEGATED`, `POSTPONED`, and `IN-PROGRESS` (longest match first) set `task_status` and are removed from `clean_text`.
 
+**Temporal markers:** `SCHEDULED` / `DEADLINE` payloads support time ranges (`HH:MM - HH:MM`, start time used), repeater tokens (`.+1w`, `++1d`), and Org warning periods (`-3d`) without parse failures.
+
 **Aliased block references:** `[My Label](((block-uuid)))` resolves the UUID for `block_refs` but `clean_text` exposes only `My Label` (no square brackets).
+
+**Wikilink anchors:** `[[Page#Section]]` resolves to **`Page`** only for graph routing (section header stripped).
 
 ---
 
 ## 4. Page Properties (Frontmatter) and Graph Indexing
 
-Unlike block properties, **page properties** live at the **top of the file** as raw `key:: value` lines (no leading `- `), followed by a blank line before the first outline bullet.
+Unlike block properties, **page properties** live at the **top of the file**, followed by a blank line before the first outline bullet. LOGOS accepts two formats at **read** time:
 
-**Example:**
+### Native Logseq frontmatter
+
+Raw `key:: value` lines (no leading `- `):
 
 ```markdown
 title:: Custom Title
@@ -106,10 +116,28 @@ tags:: parser, logseq
 - First root block
 ```
 
+### YAML frontmatter
+
+A `---` delimited block at file start (common in tools that export YAML metadata):
+
+```markdown
+---
+title: Custom Title
+tags: parser, logseq
+---
+
+- First root block
+```
+
+Both map into **`LogseqPage.properties`** with **lowercase keys**. Matryca’s **native serializer** (`serialize_logseq_page`) still **writes** `key::` lines only — not YAML wrappers. YAML appears in **Obsidian FORGE** export, not sovereign round-trip writes.
+
+**`page-tags::`** at page or block level is treated like **`tags::`** for implicit graph token injection.
+
 ### Parsing rules
 
 1. Keys and values are stored in **`LogseqPage.properties`** with **lowercase keys**; the parser does **not** automatically change **`LogseqPage.title`** (that remains filename-derived until graph load).
 2. **`alias::`** and **`aliases::`** accept comma-separated strings, **bullet-list** values (`alias::` followed by indented `-` lines), or Python `list` values after parse. Serialization strips `[[wikilink]]` and `#tag` adornments from each token.
+3. Harvested page wikilinks/tags merge into **`LogseqPage.refs`** for graph indexing.
 
 ### `LogseqGraph` enrichment
 
@@ -118,8 +146,11 @@ When you call **`LogseqGraph.load_directory`**, a post-parse pass:
 - Applies **`title::`** → updates **`page.title`** and re-keys **`graph.pages`**
 - Injects **alias keys** → `graph.pages["Dev"]` points to the same object as `graph.pages["Development"]`
 - Builds **backlinks** so `[[Dev]]` resolves like a canonical page link
+- Resolves **`get_page`** and relative links **case-insensitively** (Datomic parity)
 
 See [Architecture §3.6](ARCHITECTURE.md#36-logseqgraph--namespace-scoping-o1-invalidation-live-watch) for the full pipeline.
+
+**File encoding:** `parse_page_file` uses **`utf-8-sig`** so a UTF-8 BOM from Windows-synced files does not corrupt the first bullet.
 
 ---
 
@@ -132,6 +163,9 @@ Logseq markdown often contains syntax that **looks** like links or tags but must
 | Fenced / inline code | Literals such as `[[not-a-page]]` inside samples |
 | LaTeX `$…$` and `$$…$$` | Equations may contain bracket-heavy notation |
 | `#+BEGIN_QUERY` … `#+END_QUERY` | Datalog snippets reference `[[pages]]` symbolically |
+| HTML comments `<!-- … -->` | Hidden markup must not emit ghost wikilinks |
+| Escaped Markdown `\#`, `\[\[` | Backslash escapes must not become tags or wikilinks |
+| `{{query}}` / `{{advancedquery}}` | Query macros must not harvest nested wikilinks |
 | Org drawers (`:LOGBOOK:`, etc.) | System metadata, not prose |
 | `{{embed [[Page]]}}` macros | Nested wikilinks inside embed bodies **are** extracted for the graph |
 
@@ -139,7 +173,25 @@ The LOGOS engine masks these spans before wikilink/tag/block-ref extraction (see
 
 ---
 
-## 6. The Matryca Moat: Why Standard RAG Fails
+## 6. Assets and Multimodal Links
+
+Logseq attachments are not wikilinks. During parse, **`_extract_assets`** collects local file references into **`LogseqNode.assets`**:
+
+| Syntax | Example | Stored value |
+| :--- | :--- | :--- |
+| Markdown image | `![scan](../assets/scan.png)` | `../assets/scan.png` |
+| PDF macro | `{{pdf report.pdf}}` | `report.pdf` |
+| Local link | `[spec](../assets/specs.pdf)` | `../assets/specs.pdf` |
+
+**Not assets:** `[Alias]([[Target Page]])` — that is a hybrid wikilink alias, not a filesystem attachment.
+
+At page scope, **`LogseqPage.resolve_asset_path(link)`** maps a stored asset string to an absolute path (graph-root relative, percent-decoding, `/assets` fallback). Set **`graph_root`** on the page (via parse context) for resolution to succeed.
+
+See [Architecture §3.1 — Asset extraction](ARCHITECTURE.md#asset-extraction-and-path-resolution) and the design note [`LOGSEQ_ASSET_RESOLUTION_SPEC.md`](design-docs/LOGSEQ_ASSET_RESOLUTION_SPEC.md).
+
+---
+
+## 7. The Matryca Moat: Why Standard RAG Fails
 
 If you feed Logseq Markdown into `RecursiveCharacterTextSplitter` (LangChain) or similar naive chunkers:
 
@@ -149,4 +201,4 @@ If you feed Logseq Markdown into `RecursiveCharacterTextSplitter` (LangChain) or
 
 The **Logos Protocol** solves this by walking the AST deterministically, isolating properties, shielding dead-zone literals, and using the `SYNAPSE` adapter to export native LangChain `Document` or LlamaIndex `TextNode` objects. Every generated object retains its exact hierarchical lineage in the metadata, feeding your local LLM perfectly structured data.
 
-For vault-wide navigation (aliases, backlinks, namespace shadowing), load the graph with **`LogseqGraph`** — see the [README](../README.md) and [CHANGELOG](../CHANGELOG.md) (**v1.1.1** OG parity).
+For vault-wide navigation (aliases, backlinks, namespace shadowing, assets), load the graph with **`LogseqGraph`** — see the [README](../README.md) and [CHANGELOG](../CHANGELOG.md) (**v1.2.0** graph parity release).

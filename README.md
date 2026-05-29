@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.1.1** — Logseq OG parity release (see [CHANGELOG](CHANGELOG.md)) — **200+ tests**, full bidirectional Headless CRUD engine, native markdown serialization, and static typing; ready for production Enterprise integration.
+**v1.2.0** — Graph parity & multimodal assets (see [CHANGELOG](CHANGELOG.md)) — **226 tests**, YAML frontmatter ingest, asset path resolution, case-insensitive page routing, and extended LOGOS shielding; ready for production Enterprise integration.
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -66,6 +66,8 @@ It acts as the strict **File System Driver** for your LLM OS. By using a determi
 | **Property inheritance** | Page-level frontmatter at best | **`get_effective_properties`**: page + ancestor outline keys merged top-down (Org-mode style), then exposed on enriched chunks |
 | **Live sync** | Re-read whole tree or poll | **`LogseqGraph.start_watching()`** (optional `watchdog`): **per-file invalidation** — re-parse one page, purge stale UUIDs from registries, refresh backlinks |
 | **Page aliases & titles** | Filename-only or manual link maps | **`title::`**, **`alias::`** / **`aliases::`** re-key `graph.pages` and wire **backlinks** for alias wikilinks |
+| **Case-insensitive pages** | Exact string match on filenames | **`get_page`** / **`resolve_relative_page_link`** use a lowercase index (Datomic / Logseq parity) |
+| **Attachments & assets** | Opaque `![](...)` text in chunks | **`LogseqNode.assets`** + **`LogseqPage.resolve_asset_path`** for graph-root PDFs and images |
 
 ---
 
@@ -104,37 +106,47 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 
 ---
 
-## ⚡ Recent superpowers (v1.1.1)
+## ⚡ Recent superpowers (v1.2.0)
 
-### Native parity (parser + graph)
+### Graph parity, assets, and parser hardening
 
 | Area | Capability |
 | :--- | :--- |
-| **Graph index** | `title::` / `TITLE::` overrides the filename-derived page title; `alias::` / `aliases::` inject extra keys into `graph.pages` (comma-separated strings, bullet-list values, or Python lists). |
-| **Backlinks** | `[[Dev]]` resolves against alias keys the same way as canonical titles (`get_backlinks("Dev")`). |
-| **Incremental reload** | `invalidate_and_reload_page` re-applies title/alias enrichment after watcher edits. |
-| **Parser shields** | LaTeX `$…$` / `$$…$$`, `#+BEGIN_QUERY` … `#+END_QUERY`, fenced code (` ``` ` and `~~~`), drawers, and `{{embed [[Page]]}}` macros do not emit false wikilinks/tags. |
-| **Property contiguity** | `key:: value` lines apply only while contiguous under the bullet; after a soft-break, later property syntax stays in block text. |
-| **Property bullet lists** | `alias::` / `tags::` with indented `-` children become `list[str]` properties — no spurious AST child nodes. |
-| **Outliner bullets** | Ordered-list markers (`1. `, `12. `, …) are first-class bullets alongside `-` and `*`. |
-| **Tasks** | GFM checkboxes (`[ ]`, `[-]`, `[x]`) plus Org-mode markers including `DELEGATED`, `POSTPONED`, `IN-PROGRESS`. |
-| **Aliased block refs** | `[Label](((uuid)))` cleans to `Label` in `clean_text` for RAG-friendly prose. |
+| **Asset extraction** | `LogseqNode.assets` collects markdown images, `{{pdf}}` macros, and local `[label](path)` attachments; `LogseqPage.resolve_asset_path` maps to absolute paths (`%20` decode, graph-root relative). |
+| **YAML frontmatter** | `---` blocks at file start populate `LogseqPage.properties` like native `key::` page properties (native **serialize** still emits `key::` only). |
+| **`page-tags::`** | Block and page `page-tags::` inject implicit graph tokens like `tags::`; list-shaped values feed `refs`. |
+| **Case-insensitive routing** | `LogseqGraph.get_page` and `resolve_relative_page_link` resolve titles via a lowercase index (Datomic parity). |
+| **Extended shielding** | HTML comments, `{{query}}` / `{{advancedquery}}`, and escaped `\#` / `\[\[` do not emit false graph tokens (embed macros still harvest nested wikilinks). |
+| **Property & temporal fixes** | Comma-split ignores commas inside `[[wikilinks]]`; properties after code fences; quoted value stripping; `SCHEDULED`/`DEADLINE` ranges, repeaters, and Org warning periods; legacy `___` / `%2F` / Dendron filenames; UTF-8 BOM via `utf-8-sig`. |
 
 ```python
 from logseq_matryca_parser.graph import LogseqGraph
+from logseq_matryca_parser.logos_parser import LogosParser
 
 graph = LogseqGraph.load_directory("/path/to/logseq/graph")
 
-# file_name.md with frontmatter: title:: Custom Title
-page = graph.pages["Custom Title"]
+# Case-insensitive page lookup
+page = graph.get_page("my page")  # same object as graph.pages["My Page"]
 
-# Development.md with alias:: Dev, Coding — wikilinks to aliases resolve
-assert graph.pages["Dev"] is graph.pages["Development"]
-linker = graph.pages["Linker"].root_nodes[0]
-assert linker in graph.get_backlinks("Dev")
+# Assets on a parsed block (Vision / document pipelines)
+single = LogosParser().parse_page_file("pages/Notes.md")
+block = single.root_nodes[0]
+if block.assets:
+    abs_path = single.resolve_asset_path(block.assets[0])
 ```
 
-Deep dive: [Architecture §3.6 — LogseqGraph](docs/ARCHITECTURE.md#36-logseqgraph--namespace-scoping-o1-invalidation-live-watch) and [AST primer — page properties](docs/logseq_ast_primer.md#5-page-properties-title-aliases-and-graph-indexing).
+Deep dive: [Architecture §3.1 — LOGOS](docs/ARCHITECTURE.md#31-logos--deterministic-stack-machine-parsing) · [§3.6 — LogseqGraph](docs/ARCHITECTURE.md#36-logseqgraph--namespace-scoping-o1-invalidation-live-watch) · [AST primer](docs/logseq_ast_primer.md).
+
+### Still included from v1.1.1
+
+| Area | Capability |
+| :--- | :--- |
+| **Graph index** | `title::` / `TITLE::` overrides filename titles; `alias::` / `aliases::` inject extra `graph.pages` keys. |
+| **Backlinks** | `[[Dev]]` resolves against alias keys (`get_backlinks("Dev")`). |
+| **Incremental reload** | `invalidate_and_reload_page` re-applies title/alias enrichment after watcher edits. |
+| **Parser shields** | LaTeX, `#+BEGIN_QUERY`, fenced code, drawers; `{{embed [[Page]]}}` harvests nested wikilinks. |
+| **Property contiguity** | `key::` contiguous under bullets; soft-break closes the window (fence exception in v1.2.0). |
+| **Tasks & bullets** | GFM checkboxes, extended Org markers, ordered-list bullets, aliased `((uuid))` clean text. |
 
 ### Obsidian-native export
 Compile an entire Logseq graph into an **Obsidian vault layout**: YAML frontmatter from page properties, list body preserved, Logseq `((uuid))` links rewritten to **`[[Page#^anchor]]`**, and trailing **`^block-id`** on referenced blocks. Namespace titles become nested folders (e.g. `Projects/AI/Demo.md`).
@@ -190,8 +202,9 @@ For graph hygiene, **`LogseqGraph.get_broken_references()`** flags nodes whose `
 
 | Feature | Description |
 | :--- | :--- |
-| **LOGOS Engine** | Deterministic AST parsing. Property contiguity, bullet-list properties, lowercase keys, multiline blocks, extended task markers, GFM checkboxes, numbered bullets, and **shielded** code/math/query regions. |
-| **LogseqGraph** | In-memory vault: `pages` index (with **title/alias enrichment**), backlinks, effective properties, namespace resolution, fluent `GraphQuery`, optional **watchdog** invalidation. |
+| **LOGOS Engine** | Deterministic AST parsing. YAML + native frontmatter ingest, **assets**, property contiguity (incl. post-fence), comma-safe wikilink splits, temporal ranges/repeaters, legacy filename decode, BOM-safe reads, and **shielded** code/math/query/HTML/escape regions. |
+| **Multimodal assets** | **`LogseqNode.assets`** + **`LogseqPage.resolve_asset_path`** for PDFs and images relative to the graph root (Vision / document RAG). |
+| **LogseqGraph** | In-memory vault: `pages` index (with **title/alias enrichment** and **case-insensitive lookup**), backlinks, effective properties, namespace resolution, fluent `GraphQuery`, optional **watchdog** invalidation. |
 | **Advanced Task Extraction** | Task **state** (TODO / DOING / DELEGATED / IN-PROGRESS / …), **priority** markers `[#A]`–`[#C]` promoted to `task_priority`, and **SCHEDULED** / **DEADLINE** Logseq timestamps normalized to **UTC Unix epoch seconds** on `scheduled_at` / `deadline_at` for temporal graph and retrieval pipelines. |
 | **SYNAPSE Adapter** | Native exports for **LangChain** and **LlamaIndex** with automated lineage metadata; **context-enriched** chunks with breadcrumbs, embed expansion, and inherited properties. |
 | **FORGE** | JSON, clean Markdown, and **Obsidian** vault serialization (`ObsidianForgeVisitor`, `ForgeExporter.to_obsidian_markdown`). |
@@ -224,7 +237,7 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from PyPI (latest: v1.1.1)
+# Install from PyPI (latest: v1.2.0)
 pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates
@@ -249,12 +262,15 @@ from logseq_matryca_parser.graph import LogseqGraph
 from logseq_matryca_parser.logos_parser import LogosParser
 from logseq_matryca_parser.synapse import SynapseAdapter
 
-# Parse a single page to AST
+# Parse a single page to AST (YAML or native frontmatter; utf-8-sig BOM-safe)
 page = LogosParser().parse_page_file("page.md")
+if page.root_nodes[0].assets:
+    absolute = page.resolve_asset_path(page.root_nodes[0].assets[0])
 
 # Load the whole vault (pages, backlinks, node registry)
 graph = LogseqGraph.load_directory("/path/to/logseq/graph")
-effective = graph.get_effective_properties(graph.pages["My Page"].root_nodes[0].uuid)
+page_obj = graph.get_page("My Page")  # case-insensitive
+effective = graph.get_effective_properties(page_obj.root_nodes[0].uuid)
 
 # Export to LangChain with lineage metadata
 docs = SynapseAdapter.to_langchain_documents(page.root_nodes, source_name=page.title)
