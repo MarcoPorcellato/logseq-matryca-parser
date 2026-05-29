@@ -665,6 +665,9 @@ class StackMachineParser:
                 if stripped_line == "---":
                     in_yaml_frontmatter = False
                     frontmatter_active = False
+                    yaml_title = page_properties.get("title")
+                    if isinstance(yaml_title, str) and yaml_title.strip():
+                        page_title = yaml_title.strip()
                     continue
                 yaml_match = YAML_FRONTMATTER_PROPERTY_PATTERN.match(stripped_line)
                 if yaml_match:
@@ -903,6 +906,8 @@ class StackMachineParser:
                     page_properties[key] = value
                     if key not in page_properties_order:
                         page_properties_order.append(key)
+                    if key == "title" and value.strip():
+                        page_title = value.strip()
                     continue
 
                 if current_node is None:

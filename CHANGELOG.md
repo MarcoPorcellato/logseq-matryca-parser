@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Round-trip serialization** — soft-break continuations no longer double-indent; list-shaped block properties (`tags::` + bullets) serialize as Logseq bullet lists instead of Python repr; `:LOGBOOK:` drawers and derived temporal fields (`scheduled::`, `repeater::`, …) are not emitted as bogus `key::` lines; YAML frontmatter pages round-trip with `---` fences and stable block UUIDs; `title` from YAML or `title::` frontmatter overrides the graph page title for deterministic IDs.
+
 ## [1.2.0] - 2026-05-29
 
 ### Added
