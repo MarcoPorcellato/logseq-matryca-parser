@@ -21,10 +21,10 @@ from .logos_core import LogseqNode, LogseqPage
 
 LOGSEQ_PATTERNS: dict[str, re.Pattern[str]] = {
     "property": re.compile(r"^([\w-]+)::\s*(.*)$"),
-    "wikilink": re.compile(r"\[\[(.*?)\]\]"),
+    "wikilink": re.compile(r"(?<!\\)\[\[(.*?)\]\]"),
     "tag": re.compile(r"#\[\[([^\]]+)\]\]|#([^\s#\]]+)"),
     "block_ref": re.compile(
-        r"(?:\[[^\]]+\])?\(\(\(([a-f0-9\-]{36})\)\)\)|\(\(([a-f0-9\-]{36})\)\)"
+        r"(?:\[[^\]]+\])?(?<!\\)\(\(\(([a-f0-9\-]{36})\)\)\)|(?<!\\)\(\(([a-f0-9\-]{36})\)\)"
     ),
     "uuid_prop": re.compile(r"^id::\s*([a-f0-9\-]{36})$"),
     "inline_uuid_prop": re.compile(r"\bid::\s*([a-f0-9\-]{36})\b"),
@@ -45,11 +45,25 @@ TIME_PATTERN: re.Pattern[str] = re.compile(r"\b(SCHEDULED|DEADLINE):\s*(<[^>]+>)
 PRIORITY_PATTERN: re.Pattern[str] = re.compile(r"\[#([A-Z])\]")
 _SHIELD_TOKEN_PREFIX = "___LOGOS_SHIELD_TOKEN_"
 TAG_PATTERN: re.Pattern[str] = re.compile(
-    r"(?:^|(?<=[\s\(\[\*_=~^]))#([\w/-]+)",
+    r"(?:^|(?<=[\s\(\[\*_=~^>]))(?<!\\)#([^\s#,;:\.\]\(\)\[]+)",
     re.MULTILINE,
 )
-BRACKETED_TAG_PATTERN: re.Pattern[str] = re.compile(r"#\[\[([^\]]+)\]\]")
-_IMPLICIT_REF_KEYS: frozenset[str] = frozenset({"tags", "alias", "aliases"})
+_TAG_TRAILING_MARKDOWN = ".,;:*="
+BRACKETED_TAG_PATTERN: re.Pattern[str] = re.compile(
+    r"(?:^|(?<=[\s\(\[\*_=~^>]))(?<!\\)#\[\[(.*?)\]\]"
+)
+_MARKDOWN_IMAGE_PATTERN: re.Pattern[str] = re.compile(r"!\[.*?\]\((.*?)\)")
+_MARKDOWN_LINK_PATTERN: re.Pattern[str] = re.compile(r"(?<!!)\[.*?\]\((.*?)\)")
+_PDF_MACRO_PATTERN: re.Pattern[str] = re.compile(r"\{\{\s*pdf\s+(.*?)\s*\}\}", re.IGNORECASE)
+_LOCAL_ASSET_PREFIXES: tuple[str, ...] = ("http://", "https://", "#", "mailto:")
+YAML_FRONTMATTER_PROPERTY_PATTERN: re.Pattern[str] = re.compile(r"^([\w-]+):\s*(.*)$")
+_IMPLICIT_REF_KEYS: frozenset[str] = frozenset({"tags", "page-tags", "alias", "aliases"})
+_HTML_COMMENT_PATTERN: re.Pattern[str] = re.compile(r"<!--.*?-->", re.DOTALL)
+_IMPLICIT_REF_COMMA_SPLIT: re.Pattern[str] = re.compile(r",\s*(?![^\[]*\]\])")
+_INLINE_QUERY_MACRO_PATTERN: re.Pattern[str] = re.compile(
+    r"\{\{\s*(?:advanced)?query\s+.*?\}\}",
+    re.IGNORECASE,
+)
 HEADING_PATTERN: re.Pattern[str] = re.compile(r"^(#{1,6})\s+(.+)$")
 ALIASED_BLOCK_REF_PATTERN: re.Pattern[str] = re.compile(
     r"\[([^\]]+)\]\(\(\([a-f0-9\-]{36}\)\)\)"
@@ -63,7 +77,7 @@ SYSTEM_BLOCK_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"^\s*collapsed::", re.IGNORECASE),
 )
 
-BULLET_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)(?:[-*]|\d+\.)\s+(.*)$")
+BULLET_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)(?:[-*+]|\d+\.)(?:[ \t]+(.*))?$")
 MARKDOWN_TASK_PATTERN: re.Pattern[str] = re.compile(r"^\[([ xX\-])\]\s+(.*)$")
 HEADING_BLOCK_PATTERN: re.Pattern[str] = re.compile(r"^(\s*)(#{1,6}\s+.+)$")
 logger = logging.getLogger(__name__)
@@ -246,15 +260,28 @@ def _consume_inline_math_span(content: str, i: int, n: int) -> tuple[str, int]:
 
 
 def _shield_inline_code(content: str) -> tuple[str, list[str]]:
-    """Mask inline code, fenced code, math, and queries for entity extraction."""
+    """Mask inline code, fenced code, math, HTML comments, and queries for entity extraction."""
     literals: list[str] = []
+
+    def _placeholder_for(segment: str) -> str:
+        literals.append(segment)
+        return f"{_SHIELD_TOKEN_PREFIX}{len(literals) - 1}___"
+
+    content = _HTML_COMMENT_PATTERN.sub(
+        lambda match: _placeholder_for(match.group(0)),
+        content,
+    )
+    content = _INLINE_QUERY_MACRO_PATTERN.sub(
+        lambda match: _placeholder_for(match.group(0)),
+        content,
+    )
+
     parts: list[str] = []
     i = 0
     n = len(content)
 
     def emit_placeholder(segment: str) -> None:
-        literals.append(segment)
-        parts.append(f"{_SHIELD_TOKEN_PREFIX}{len(literals) - 1}___")
+        parts.append(_placeholder_for(segment))
 
     while i < n:
         at_line_start = i == 0 or content[i - 1] == "\n"
@@ -347,6 +374,32 @@ def _extract_time_properties(raw_content: str) -> dict[str, Any]:
     return properties
 
 
+def _is_local_asset_path(url: str) -> bool:
+    lower = url.lower()
+    return not any(lower.startswith(prefix) for prefix in _LOCAL_ASSET_PREFIXES)
+
+
+def _extract_assets(raw_content: str) -> list[str]:
+    """Collect markdown image paths and Logseq PDF macro targets for Vision LLM pipelines."""
+    assets: list[str] = []
+    shielded, _ = _shield_inline_code(raw_content)
+    for image_path in _MARKDOWN_IMAGE_PATTERN.findall(shielded):
+        stripped_path = image_path.strip()
+        if stripped_path:
+            assets.append(stripped_path)
+    for pdf_path in _PDF_MACRO_PATTERN.findall(shielded):
+        stripped_path = pdf_path.strip()
+        if stripped_path:
+            assets.append(stripped_path)
+    for link_path in _MARKDOWN_LINK_PATTERN.findall(shielded):
+        stripped_path = link_path.strip()
+        if stripped_path.startswith("[[") and stripped_path.endswith("]]"):
+            continue
+        if stripped_path and _is_local_asset_path(stripped_path):
+            assets.append(stripped_path)
+    return assets
+
+
 def _extract_tags(raw_content: str) -> list[str]:
     tags: list[str] = []
     shielded, _ = _shield_inline_code(raw_content)
@@ -355,7 +408,7 @@ def _extract_tags(raw_content: str) -> list[str]:
             tags.append(bracketed)
     for simple in TAG_PATTERN.findall(shielded):
         if simple:
-            tags.append(simple.rstrip(".,;:"))
+            tags.append(simple.rstrip(_TAG_TRAILING_MARKDOWN))
     return tags
 
 
@@ -383,6 +436,8 @@ def _strip_ordinal_suffix(value: str) -> str:
 
 def _parse_logseq_datetime(raw_value: str) -> datetime | None:
     candidate = _strip_ordinal_suffix(raw_value.strip())
+    candidate = re.sub(r"\s*[-+]\.?\+?\d+[dwmy]\b", "", candidate)
+    candidate = re.sub(r"(\d{2}:\d{2})\s*-\s*\d{2}:\d{2}", r"\1", candidate)
     datetime_formats = (
         "%Y-%m-%d %a %H:%M",
         "%Y-%m-%d %H:%M",
@@ -481,9 +536,18 @@ def _merge_refs(wikilinks: list[str], tags: list[str]) -> list[str]:
 def _iter_implicit_ref_tokens(value: Any) -> list[str]:
     """Yield normalized tokens from comma-separated strings or bullet-list property values."""
     if isinstance(value, str):
-        return [segment for segment in value.split(",")]
+        return [segment for segment in _IMPLICIT_REF_COMMA_SPLIT.split(value) if segment]
     if isinstance(value, (list, tuple, set)):
         return [str(item) for item in value]
+    return []
+
+
+def _iter_property_string_fragments(value: Any) -> list[str]:
+    """Yield string fragments from scalar or list-shaped property values."""
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, str)]
     return []
 
 
@@ -499,22 +563,29 @@ def _extract_property_graph_tokens(
                 token = _normalize_logseq_ref_token(segment)
                 if not token:
                     continue
-                if key == "tags":
+                if key in ("tags", "page-tags"):
                     property_tags.append(token)
                 else:
                     property_wikilinks.append(token)
+                property_wikilinks.extend(_extract_wikilinks(segment))
+                property_tags.extend(_extract_tags(segment))
+                property_block_refs.extend(_extract_block_refs(segment))
             continue
-        if not isinstance(value, str):
-            continue
-        property_wikilinks.extend(_extract_wikilinks(value))
-        property_tags.extend(_extract_tags(value))
-        property_block_refs.extend(_extract_block_refs(value))
+        for fragment in _iter_property_string_fragments(value):
+            property_wikilinks.extend(_extract_wikilinks(fragment))
+            property_tags.extend(_extract_tags(fragment))
+            property_block_refs.extend(_extract_block_refs(fragment))
     return property_wikilinks, property_tags, property_block_refs
 
 
 def _extract_wikilinks(raw_content: str) -> list[str]:
     shielded, _ = _shield_inline_code(raw_content)
-    return LOGSEQ_PATTERNS["wikilink"].findall(shielded)
+    wikilinks: list[str] = []
+    for token in LOGSEQ_PATTERNS["wikilink"].findall(shielded):
+        target = token.split("#", 1)[0]
+        if target:
+            wikilinks.append(target)
+    return wikilinks
 
 
 class PageRegistry:
@@ -583,11 +654,30 @@ class StackMachineParser:
         in_code_block = False
         in_query_block = False
         in_drawer = False
+        in_yaml_frontmatter = False
         line_number = 0
 
         for line_number, raw_line in enumerate(text.splitlines(), start=1):
             raw_line = _sanitize_line(raw_line)
             stripped_line = raw_line.strip()
+
+            if in_yaml_frontmatter:
+                if stripped_line == "---":
+                    in_yaml_frontmatter = False
+                    frontmatter_active = False
+                    continue
+                yaml_match = YAML_FRONTMATTER_PROPERTY_PATTERN.match(stripped_line)
+                if yaml_match:
+                    key = _normalize_property_key(yaml_match.group(1))
+                    value = yaml_match.group(2).strip()
+                    page_properties[key] = value
+                    if key not in page_properties_order:
+                        page_properties_order.append(key)
+                continue
+
+            if line_number == 1 and stripped_line == "---":
+                in_yaml_frontmatter = True
+                continue
 
             if in_query_block and current_node is not None:
                 merged_content = f"{current_node.content}\n{raw_line}"
@@ -609,6 +699,7 @@ class StackMachineParser:
                 current_node = updated
                 if _is_code_fence_line(stripped_line):
                     in_code_block = False
+                    properties_allowed = True
                 frontmatter_active = False
                 pending_list_key = None
                 pending_list_items = []
@@ -694,7 +785,7 @@ class StackMachineParser:
                         pending_list_indent is not None
                         and pending_indent > pending_list_indent
                     ):
-                        pending_list_items.append(pending_bullet.group(2).strip())
+                        pending_list_items.append((pending_bullet.group(2) or "").strip())
                         properties = dict(current_node.properties)
                         properties[pending_list_key] = list(pending_list_items)
                         properties_order = list(current_node.properties_order)
@@ -744,7 +835,7 @@ class StackMachineParser:
 
                 parent_uuid = self._resolve_parent_uuid_for_synthetic(stack)
                 node = self._build_node(
-                    block_text=bullet_match.group(2),
+                    block_text=bullet_match.group(2) or "",
                     indent_level=indent_level,
                     page_title=page_title,
                     line_start=line_number,
@@ -806,6 +897,7 @@ class StackMachineParser:
                 key, value = property_match.groups()
                 key = _normalize_property_key(key)
                 value = _sanitize_line(value)
+                value = value.strip().strip('"').strip("'")
 
                 if current_node is None and frontmatter_active:
                     page_properties[key] = value
@@ -915,6 +1007,18 @@ class StackMachineParser:
         self._validate_references(root_nodes)
         root_nodes = self._normalize_indent_levels(root_nodes)
         page_refs = self._collect_page_refs(root_nodes)
+        page_prop_wikilinks, page_prop_tags, page_prop_block_refs = _extract_property_graph_tokens(
+            page_properties
+        )
+        seen_page_refs = set(page_refs)
+        for token in _merge_refs(page_prop_wikilinks, page_prop_tags):
+            if token not in seen_page_refs:
+                seen_page_refs.add(token)
+                page_refs.append(token)
+        for block_ref in page_prop_block_refs:
+            if block_ref not in seen_page_refs:
+                seen_page_refs.add(block_ref)
+                page_refs.append(block_ref)
         created_at = _first_normalized_timestamp(page_properties, CREATED_AT_KEYS)
         updated_at = _first_normalized_timestamp(page_properties, UPDATED_AT_KEYS)
         title_segments = [segment for segment in page_title.split("/") if segment]
@@ -939,7 +1043,7 @@ class StackMachineParser:
     def parse_page_file(self, path: Path | str) -> LogseqPage:
         """Parse a markdown file and return a graph-native page model."""
         path = Path(path)
-        content = path.read_text(encoding="utf-8")
+        content = path.read_text(encoding="utf-8-sig")
         if not content.strip():
             logger.warning("Il file %s è vuoto.", path)
             page_title = derive_page_title_from_source_path(path)
@@ -1074,6 +1178,7 @@ class StackMachineParser:
             properties_order=properties_order,
             wikilinks=wikilinks,
             tags=tags,
+            assets=_extract_assets(stripped_text),
             refs=_merge_refs(wikilinks, tags),
             block_refs=[*_extract_block_refs(stripped_text), *property_block_refs],
             task_status=task_status,
@@ -1258,6 +1363,7 @@ class StackMachineParser:
                 ),
                 "wikilinks": wikilinks,
                 "tags": tags,
+                "assets": _extract_assets(content),
                 "refs": _merge_refs(wikilinks, tags),
                 "block_refs": [*_extract_block_refs(content), *property_block_refs],
                 "line_end": line_end if line_end is not None else node.line_end,

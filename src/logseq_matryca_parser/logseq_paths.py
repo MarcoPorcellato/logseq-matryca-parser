@@ -42,7 +42,8 @@ def page_title_to_filename(title: str) -> str:
 def filename_to_page_title(name: str) -> str:
     """Translate a flat filename stem back into a semantic page title."""
     decoded = unquote(name)
-    return decoded.replace(_NAMESPACE_SEPARATOR, "/")
+    with_slashes = decoded.replace(_NAMESPACE_SEPARATOR, "/")
+    return with_slashes.replace(".", "/")
 
 
 def _last_part_index(parts: tuple[str, ...] | list[str], token: str) -> int | None:

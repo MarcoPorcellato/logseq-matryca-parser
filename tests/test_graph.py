@@ -130,6 +130,21 @@ def test_case_insensitive_property_keys(tmp_path: Path) -> None:
     assert "file_name" not in graph.pages
 
 
+def test_case_insensitive_graph_routing(tmp_path: Path) -> None:
+    """Lowercase wikilink titles resolve to the canonical-cased page object."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "JavaScript.md").write_text("- Language notes\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    page = graph.get_page("javascript")
+
+    assert page is not None
+    assert page.title == "JavaScript"
+    assert graph.pages["JavaScript"] is page
+
+
 def test_page_aliases_and_backlink_resolution(tmp_path: Path) -> None:
     """``alias::`` keys resolve to the canonical page and receive incoming wikilink backlinks."""
     graph_root = tmp_path / "vault"

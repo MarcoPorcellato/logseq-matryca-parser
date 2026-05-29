@@ -75,6 +75,16 @@ def test_macro_embed_extracts_nested_wikilinks(parser: StackMachineParser) -> No
     assert "Project Alpha" in root.wikilinks
 
 
+def test_query_macro_does_not_yield_graph_tokens(parser: StackMachineParser) -> None:
+    """Inline query macros must not contribute wikilinks to the graph."""
+    content = "- {{query [[Ghost Tag]]}}"
+    page = parser.parse(content, page_title="query-macro-shield")
+    root = page.root_nodes[0]
+
+    assert "Ghost Tag" not in root.wikilinks
+    assert "Ghost Tag" not in root.refs
+
+
 def test_tag_markdown_formatting_boundaries(parser: StackMachineParser) -> None:
     """Tags inside markdown formatting delimiters are extracted."""
     content = "- **#AI** and ==#highlight=="
@@ -102,6 +112,37 @@ def test_implicit_tags_property_comma_split(parser: StackMachineParser) -> None:
     assert "data science" in root.tags
     assert "python" in root.refs
     assert "data science" in root.refs
+
+
+def test_property_split_ignores_commas_in_wikilinks(parser: StackMachineParser) -> None:
+    """Commas inside wikilinks in tags:: must not split implicit ref tokens."""
+    content = "- Root\n  tags:: [[New York, NY]], Tech"
+    page = parser.parse(content, page_title="wikilink-comma-tags")
+    root = page.root_nodes[0]
+
+    assert root.tags == ["New York, NY", "Tech"]
+
+
+def test_page_tags_implicit_links(parser: StackMachineParser) -> None:
+    """``page-tags::`` is treated like ``tags::`` for implicit graph tokens."""
+    content = "- Root\n  page-tags:: python, AI"
+    page = parser.parse(content, page_title="page-tags-property")
+    root = page.root_nodes[0]
+
+    assert "python" in root.tags
+    assert "AI" in root.tags
+    assert "python" in root.refs
+    assert "AI" in root.refs
+
+
+def test_html_comment_shielding(parser: StackMachineParser) -> None:
+    """Wikilinks inside HTML comments are not extracted as graph tokens."""
+    content = "- <!-- [[Ghost]] -->"
+    page = parser.parse(content, page_title="html-comment-shield")
+    root = page.root_nodes[0]
+
+    assert "Ghost" not in root.wikilinks
+    assert "Ghost" not in root.refs
 
 
 def test_tilde_fence_shields_graph_tokens(parser: StackMachineParser) -> None:
@@ -324,6 +365,79 @@ def test_frontmatter_properties_are_stored_at_page_level(
     assert page.root_nodes[0].content == "Root block"
 
 
+def test_yaml_frontmatter_is_parsed_as_page_properties(parser: StackMachineParser) -> None:
+    """Obsidian-style YAML frontmatter delimited by --- maps to page.properties."""
+    content = "---\ntitle: YAML Test\nalias: test\n---\n- Root"
+    page = parser.parse(content, page_title="yaml-frontmatter")
+    assert page.properties == {"title": "YAML Test", "alias": "test"}
+    assert page.properties_order == ["title", "alias"]
+    assert len(page.root_nodes) == 1
+    assert page.root_nodes[0].content == "Root"
+
+
+def test_emoji_tags_and_blockquote_boundaries(parser: StackMachineParser) -> None:
+    """Emoji tags and blockquote-prefixed tags are extracted with extended boundaries."""
+    content = "- > #💡idea"
+    page = parser.parse(content, page_title="emoji-blockquote-tags")
+    root = page.root_nodes[0]
+    assert "💡idea" in root.tags
+
+
+def test_plus_bullet_starts_new_block(parser: StackMachineParser) -> None:
+    """Plus list markers create hierarchical nodes like dash bullets."""
+    content = "+ Root\n  + Child"
+    page = parser.parse(content, page_title="plus-bullets")
+    root = page.root_nodes[0]
+    assert root.content == "Root"
+    assert len(root.children) == 1
+    assert root.children[0].content == "Child"
+
+
+def test_asset_extraction_vision_ready(parser: StackMachineParser) -> None:
+    """Markdown images and Logseq PDF macros populate node.assets for Vision LLMs."""
+    content = "- Block with ![img](../assets/test.png) and {{pdf mydoc.pdf}}"
+    page = parser.parse(content, page_title="asset-extraction")
+    root = page.root_nodes[0]
+    assert root.assets == ["../assets/test.png", "mydoc.pdf"]
+
+
+def test_empty_bullet_without_trailing_space(parser: StackMachineParser) -> None:
+    """A bare bullet marker without trailing text parses as an empty root block."""
+    page = parser.parse("-", page_title="empty-bullet")
+    root = page.root_nodes[0]
+
+    assert len(page.root_nodes) == 1
+    assert root.clean_text == ""
+
+
+def test_markdown_escape_shielding(parser: StackMachineParser) -> None:
+    """Backslash-escaped #tags and [[wikilinks]] must not populate graph metadata."""
+    content = r"- \#FakeTag and \[\[FakeLink\]\]"
+    page = parser.parse(content, page_title="escape-shield")
+    root = page.root_nodes[0]
+
+    assert root.tags == []
+    assert root.wikilinks == []
+
+
+def test_header_anchors_are_stripped_from_wikilinks(parser: StackMachineParser) -> None:
+    """Wikilinks with header anchors resolve to the canonical page name only."""
+    content = "- See [[Project X#Meeting]]"
+    page = parser.parse(content, page_title="header-anchor")
+    root = page.root_nodes[0]
+
+    assert root.wikilinks == ["Project X"]
+
+
+def test_hybrid_wikilink_alias_is_not_an_asset(parser: StackMachineParser) -> None:
+    """Markdown alias links to wikilinks must not be collected as file assets."""
+    content = "- [Alias]([[Target Page]])"
+    page = parser.parse(content, page_title="hybrid-alias")
+    root = page.root_nodes[0]
+
+    assert "[[Target Page]]" not in root.assets
+
+
 def test_multiline_clean_text_strips_property_lines_only(parser: StackMachineParser) -> None:
     """Shift+Enter style multiline content drops property lines but keeps text newlines."""
     content = "- First line\n  body:: hidden metadata\n  Third line"
@@ -415,6 +529,18 @@ def test_code_block_immunity_preserves_literal_lines(
     assert "id::" in root.content or "collapsed::" in root.content
     assert "CLOCK:" in root.content or "SELECT * FROM table;" in root.content
     assert root.properties == {}
+
+
+def test_properties_allowed_after_code_fence(parser: StackMachineParser) -> None:
+    """Properties on the line after a closing fence are parsed into block metadata."""
+    source_uuid = "33333333-3333-3333-3333-333333333333"
+    content = f"- Block\n  ```\n  x = 1\n  ```\n  id:: {source_uuid}"
+    page = parser.parse(content, page_title="post-fence-id")
+    root = page.root_nodes[0]
+
+    assert root.properties["id"] == source_uuid
+    assert root.source_uuid == source_uuid
+    assert root.synthetic_id is False
 
 
 @pytest.mark.parametrize(
@@ -723,6 +849,15 @@ def test_official_inline_uuid_property_binding(
     assert root.properties["id"] == expected_uuid
     assert "id::" not in root.content
     assert "id::" not in root.clean_text
+
+
+def test_property_value_quote_stripping(parser: StackMachineParser) -> None:
+    """Quoted property values are stored without surrounding quote characters."""
+    content = '- Root\n  title:: "Project X"'
+    page = parser.parse(content, page_title="quoted-property")
+    root = page.root_nodes[0]
+
+    assert root.properties["title"] == "Project X"
 
 
 def test_property_uuid_is_preserved_as_source_uuid(parser: StackMachineParser) -> None:
@@ -1194,11 +1329,44 @@ def test_parse_page_file_uses_filesystem_times_when_missing(tmp_path: Path) -> N
     [
         ("[[Apr 25th, 2024]]", 20240425),
         ("2024_04_25.md", 20240425),
+        ("May 20th, 2026", 20260520),
     ],
 )
 def test_resolve_journal_day_parses_logseq_formats(value: str, expected: int) -> None:
     """Journal day resolver normalizes links and filenames to YYYYMMDD ints."""
     assert resolve_journal_day(value) == expected
+
+
+def test_journal_date_ordinals() -> None:
+    """Ordinal journal titles (``20th``) resolve to YYYYMMDD."""
+    assert resolve_journal_day("May 20th, 2026") == 20260520
+
+
+def test_temporal_repeater_tolerance(parser: StackMachineParser) -> None:
+    """DEADLINE markers with ``++1w`` repeaters still parse the embedded date."""
+    content = "- TODO Task DEADLINE: <2026-05-18 Mon ++1w>"
+    page = parser.parse(content, page_title="deadline-repeater")
+    root = page.root_nodes[0]
+    expected_deadline_at = int(
+        datetime(2026, 5, 18, 0, 0, 0, tzinfo=timezone.utc).timestamp()
+    )
+
+    assert root.properties["deadline_journal_day"] == 20260518
+    assert root.deadline_at == expected_deadline_at
+    assert root.properties["repeater"] == "++1w"
+
+
+def test_temporal_warning_period_tolerance(parser: StackMachineParser) -> None:
+    """DEADLINE markers with Org-mode warning periods (``-3d``) still parse the date."""
+    content = "- TODO Task DEADLINE: <2026-05-18 Mon -3d>"
+    page = parser.parse(content, page_title="deadline-warning")
+    root = page.root_nodes[0]
+    expected_deadline_at = int(
+        datetime(2026, 5, 18, 0, 0, 0, tzinfo=timezone.utc).timestamp()
+    )
+
+    assert root.properties["deadline_journal_day"] == 20260518
+    assert root.deadline_at == expected_deadline_at
 
 
 def test_scheduled_marker_parses_time_and_repeater(parser: StackMachineParser) -> None:
@@ -1233,3 +1401,56 @@ def test_clock_marker_extracts_start_end_and_duration(parser: StackMachineParser
     assert clock_entry["end_iso"] == "2024-04-25T11:30:00"
     assert clock_entry["duration"] == "01:30:00"
     assert clock_entry["duration_seconds"] == 5400
+
+
+def test_list_properties_yield_graph_tokens(parser: StackMachineParser) -> None:
+    """List-shaped property values contribute wikilinks to the graph token registry."""
+    content = "- Root\n  tags::\n    - [[AI]]"
+    page = parser.parse(content, page_title="list-wikilink-property")
+    root = page.root_nodes[0]
+
+    assert "AI" in root.wikilinks
+
+
+def test_time_range_tolerance(parser: StackMachineParser) -> None:
+    """SCHEDULED time ranges parse using the range start time."""
+    content = "- TODO Task SCHEDULED: <2026-05-18 Mon 10:00 - 11:30>"
+    page = parser.parse(content, page_title="time-range")
+    root = page.root_nodes[0]
+    expected_scheduled_at = int(
+        datetime(2026, 5, 18, 10, 0, 0, tzinfo=timezone.utc).timestamp()
+    )
+
+    assert root.scheduled_at == expected_scheduled_at
+
+
+def test_page_properties_yield_page_refs(parser: StackMachineParser) -> None:
+    """YAML frontmatter page properties merge wikilinks into page-level refs."""
+    content = "---\ntype: [[Architecture]]\n---\n- Root"
+    page = parser.parse(content, page_title="frontmatter-refs")
+
+    assert "Architecture" in page.refs
+
+
+def test_markdown_attachment_asset_extraction(parser: StackMachineParser) -> None:
+    """Standard markdown file links are collected as local assets."""
+    content = "- [My Specs](../assets/specs.pdf)"
+    page = parser.parse(content, page_title="markdown-attachment")
+    root = page.root_nodes[0]
+
+    assert "../assets/specs.pdf" in root.assets
+
+
+def test_resolve_asset_path_decodes_percent_encoding(tmp_path: Path) -> None:
+    """Percent-encoded asset paths resolve to spaced filenames on disk."""
+    graph_root = tmp_path / "graph"
+    page_path = graph_root / "pages" / "Assets.md"
+    asset_path = graph_root / "assets" / "my document.pdf"
+    page_path.parent.mkdir(parents=True, exist_ok=True)
+    asset_path.parent.mkdir(parents=True, exist_ok=True)
+    page_path.write_text("- [doc](../assets/my%20document.pdf)\n", encoding="utf-8")
+    asset_path.write_bytes(b"%PDF-1.4")
+
+    page = LogosParser().parse_page_file(page_path)
+
+    assert page.resolve_asset_path("../assets/my%20document.pdf") == str(asset_path.resolve())

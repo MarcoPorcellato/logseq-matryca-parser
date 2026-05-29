@@ -6,6 +6,7 @@ import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -41,6 +42,7 @@ class LogseqNode(BaseModel):
     properties: dict[str, Any] = Field(default_factory=dict)
     wikilinks: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
+    assets: list[str] = Field(default_factory=list)
     block_refs: list[str] = Field(default_factory=list)
     refs: list[str] = Field(default_factory=list)
     task_status: str | None = None
@@ -100,7 +102,7 @@ class LogseqPage(BaseModel):
 
     def resolve_asset_path(self, asset_link: str) -> str | None:
         """Resolve a Logseq asset link to an absolute filesystem path."""
-        normalized_link = asset_link.strip().replace("\\", "/")
+        normalized_link = unquote(asset_link.strip()).replace("\\", "/")
         if not normalized_link:
             return None
 

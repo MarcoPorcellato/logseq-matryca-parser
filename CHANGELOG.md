@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Asset extraction** — `LogseqNode.assets` collects markdown images, `{{pdf}}` macros, and local `[label](path)` attachments; `resolve_asset_path` decodes percent-encoded paths (`%20`).
+- **YAML frontmatter** — `---` blocks at file start populate `LogseqPage.properties` like native Logseq page properties.
+- **`page-tags::`** — block and page properties named `page-tags` inject implicit graph tokens like `tags::`.
+
+### Fixed
+
+- **Property comma-split in wikilinks** — `tags::` / `alias::` comma separation ignores commas inside `[[...]]` tokens.
+- **Properties after code fences** — `key::` lines immediately following a closing fence are parsed into block properties (Logseq contiguity exception).
+- **Org warning periods** — `DEADLINE` / `SCHEDULED` payloads with `-3d`-style warning periods parse without datetime failures.
+- **Quoted property values** — outer `"` / `'` are stripped from block property values in the AST.
+- **Query macro shielding** — `{{query}}` / `{{advancedquery}}` inline macros do not emit false wikilink graph tokens (embed macros still do).
+- **Case-insensitive page routing** — `LogseqGraph.get_page` and `resolve_relative_page_link` resolve titles via a lowercase index (Datomic / Logseq parity).
+- **HTML comment shielding** — wikilinks and tags inside `<!-- ... -->` are masked before entity extraction (no ghost graph links).
+- **Graph token parity** — list-shaped block properties (`tags::` with bullets) feed wikilinks/tags into the AST; page-level properties (YAML and `key::` frontmatter) merge into `page.refs`.
+- **Temporal ranges and repeaters** — `SCHEDULED` / `DEADLINE` markers with `HH:MM - HH:MM` ranges parse using the start time; repeater tokens (`.+1w`, `++1d`) are stripped before datetime parsing.
+- **Legacy namespace filenames** — `filename_to_page_title` decodes `___`, `%2F`, and Dendron-style `.` separators.
+- **BOM-prefixed graph files** — `parse_page_file` reads with `utf-8-sig` so Windows-synced BOM bytes do not break the first bullet.
+- **Markdown escape shielding** — `\#` and `\[\[` no longer yield tags or wikilinks in graph metadata.
+- **Empty bullets** — bare `-` / `*` lines parse as empty blocks instead of failing `BULLET_PATTERN`.
+- **Wikilink header anchors** — `[[Page#Section]]` resolves to the page name only for graph routing.
+- **Hybrid alias links** — `[Alias]([[Page]])` is no longer treated as a file asset.
+
 ## [1.1.1] - 2026-05-28
 
 ### Added

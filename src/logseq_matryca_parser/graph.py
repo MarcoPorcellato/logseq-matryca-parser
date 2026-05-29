@@ -206,6 +206,30 @@ def _page_for_source_path(pages: dict[str, LogseqPage], resolved_file: Path) -> 
     return found
 
 
+def _build_lower_title_map(pages: dict[str, LogseqPage]) -> dict[str, str]:
+    """Map lowercased page titles to canonical ``page.title`` (Logseq case-insensitive routing)."""
+    title_map: dict[str, str] = {}
+    seen_page_ids: set[int] = set()
+    for page in pages.values():
+        page_id = id(page)
+        if page_id in seen_page_ids:
+            continue
+        seen_page_ids.add(page_id)
+        canonical = page.title
+        lower = canonical.lower()
+        if lower in title_map and title_map[lower] != canonical:
+            logger.debug(
+                "lower title map: collision %r vs %r, keeping %r",
+                title_map[lower],
+                canonical,
+                title_map[lower],
+            )
+            continue
+        title_map[lower] = canonical
+    logger.debug("lower title map built: %s entries", len(title_map))
+    return title_map
+
+
 def _build_backlink_registry(pages: dict[str, LogseqPage]) -> dict[str, list[str]]:
     """Map normalized targets (page title lower or block UUID) to source node UUIDs."""
     registry: dict[str, list[str]] = {}
@@ -247,6 +271,7 @@ class LogseqGraph(BaseModel):
 
     _node_registry: dict[str, LogseqNode] = PrivateAttr(default_factory=dict)
     _backlink_registry: dict[str, list[str]] = PrivateAttr(default_factory=dict)
+    _lower_title_map: dict[str, str] = PrivateAttr(default_factory=dict)
 
     def __init__(
         self,
@@ -255,11 +280,17 @@ class LogseqGraph(BaseModel):
         *,
         node_registry: dict[str, LogseqNode] | None = None,
         backlink_registry: dict[str, list[str]] | None = None,
+        lower_title_map: dict[str, str] | None = None,
     ) -> None:
         super().__init__(graph_path=graph_path, pages=pages)
         self._node_registry = dict(node_registry) if node_registry is not None else {}
         self._backlink_registry = (
             dict(backlink_registry) if backlink_registry is not None else {}
+        )
+        self._lower_title_map = (
+            dict(lower_title_map)
+            if lower_title_map is not None
+            else _build_lower_title_map(pages)
         )
 
     @classmethod
@@ -302,6 +333,7 @@ class LogseqGraph(BaseModel):
 
         _enrich_pages_index(pages)
         backlink_registry = _build_backlink_registry(pages)
+        lower_title_map = _build_lower_title_map(pages)
 
         logger.debug(
             "LogseqGraph.load_directory: indexed %s pages, %s nodes",
@@ -313,6 +345,7 @@ class LogseqGraph(BaseModel):
             pages=pages,
             node_registry=node_registry,
             backlink_registry=backlink_registry,
+            lower_title_map=lower_title_map,
         )
 
     @property
@@ -361,8 +394,24 @@ class LogseqGraph(BaseModel):
         """Return a fluent query over all nodes registered in the graph."""
         return GraphQuery(self, list(self._node_registry.values()))
 
+    def get_page(self, title: str) -> LogseqPage | None:
+        """Return a page by title, using case-insensitive routing when needed."""
+        stripped = title.strip()
+        if not stripped:
+            return None
+        direct = self.pages.get(stripped)
+        if direct is not None:
+            return direct
+        canonical = self._lower_title_map.get(stripped.lower())
+        if canonical is None:
+            return None
+        return self.pages.get(canonical)
+
     def get_backlinks(self, target: str) -> list[LogseqNode]:
-        """Return nodes that reference ``target`` via wikilinks, tags, or block refs."""
+        """Return nodes that reference ``target`` via wikilinks, tags, or block refs.
+
+        Page-title targets are matched case-insensitively (Datomic / Logseq parity).
+        """
         key = _normalize_backlink_key(target)
         if not key:
             return []
@@ -433,21 +482,23 @@ class LogseqGraph(BaseModel):
         segments = [part for part in current_page_title.split("/") if part]
         for prefix_len in range(len(segments), 0, -1):
             candidate = "/".join([*segments[:prefix_len], target])
-            if candidate in self.pages:
+            page = self.get_page(candidate)
+            if page is not None:
                 logger.debug(
                     "resolve_relative_page_link: contextual hit current=%s target=%s -> %s",
                     current_page_title,
                     link_target,
-                    candidate,
+                    page.title,
                 )
-                return candidate
-        if target in self.pages:
+                return page.title
+        page = self.get_page(target)
+        if page is not None:
             logger.debug(
                 "resolve_relative_page_link: global fallback current=%s target=%s",
                 current_page_title,
                 link_target,
             )
-            return target
+            return page.title
         return None
 
     def get_namespace_children(self, namespace_prefix: str) -> list[LogseqPage]:
@@ -550,6 +601,7 @@ class LogseqGraph(BaseModel):
         _enrich_pages_index(new_pages)
         enriched = _page_for_source_path(new_pages, resolved) or fresh
         object.__setattr__(self, "pages", new_pages)
+        self._lower_title_map = _build_lower_title_map(new_pages)
         self._register_page_nodes(enriched)
         self._append_page_backlinks(enriched)
         logger.debug(

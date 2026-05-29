@@ -53,6 +53,18 @@ def test_title_filename_roundtrip_preserves_reserved_characters() -> None:
     assert filename_to_page_title(page_title_to_filename(title)) == title
 
 
+@pytest.mark.parametrize(
+    ("stem", "expected_title"),
+    [
+        ("Projects.Secret", "Projects/Secret"),
+        ("Projects%2FSecret", "Projects/Secret"),
+    ],
+)
+def test_legacy_namespace_filename_resolution(stem: str, expected_title: str) -> None:
+    """Legacy dot and percent-encoded slash filename separators decode to canonical titles."""
+    assert filename_to_page_title(stem) == expected_title
+
+
 def test_encode_and_decode_page_title_segment() -> None:
     assert encode_page_title_segment("A#B") == "A%23B"
     assert decode_page_title_segment("A%23B") == "A#B"
