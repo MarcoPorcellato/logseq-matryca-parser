@@ -2,8 +2,8 @@ name: Daily Metrics Saver
 
 on:
   schedule:
-    - cron: '0 3 * * *' # Esecuzione automatica ogni giorno alle 03:00 UTC (05:00 italiane)
-  workflow_dispatch: # Permette l'attivazione manuale con un click dall'interfaccia di GitHub
+    - cron: '0 3 * * *' # Esecuzione automatica ogni giorno alle 03:00 UTC
+  workflow_dispatch: # Esecuzione manuale ad un click
 
 permissions:
   contents: write
@@ -30,14 +30,15 @@ jobs:
           python -c "
           import os, json, sys, datetime
           from urllib.request import Request, urlopen
+          from urllib.error import HTTPError
           token = os.environ.get('GITHUB_TOKEN')
           repo = os.environ.get('REPO_SLUG')
           if not token:
-              print('Errore critico: METRICS_TOKEN non trovato nei Secrets del repository!')
+              print('Errore critico: METRICS_TOKEN non trovato nei Secrets!')
               sys.exit(1)
 
           headers = {
-              'Authorization': f'token {token}',
+              'Authorization': f'Bearer {token}',
               'Accept': 'application/vnd.github.v3+json'
           }
 
@@ -46,11 +47,14 @@ jobs:
                   req = Request(url, headers=headers)
                   with urlopen(req) as response:
                       return json.loads(response.read().decode())
+              except HTTPError as e:
+                  print(f'Errore API HTTP {e.code} per {url}: {e.reason}')
+                  return None
               except Exception as e:
-                  print(f'Errore nel fetching di {url}: {e}')
+                  print(f'Errore generico nel fetching di {url}: {e}')
                   return None
 
-          # 1. Recupera i dati freschi da GitHub API (ultimi 14 giorni completi)
+          # 1. Recupera i dati freschi da GitHub API
           views_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/views')
           clones_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/clones')
           releases_data = fetch_api(f'https://api.github.com/repos/{repo}/releases')
@@ -79,7 +83,7 @@ jobs:
                   day = v['timestamp'][:10]
                   history['views'][day] = {'count': v['count'], 'uniques': v['uniques']}
                   v_days_added.append(day)
-          print(f'-> [INFO] Recuperate {len(v_days_added)} giornate di traffico (Views): {v_days_added}')
+          print(f'-> [INFO] Rilevate {len(v_days_added)} giornate di traffico (Views): {v_days_added}')
 
           # 4. Unisci e storicizza i dati di Clonazione (Clones)
           c_days_added = []
@@ -88,7 +92,7 @@ jobs:
                   day = c['timestamp'][:10]
                   history['clones'][day] = {'count': c['count'], 'uniques': c['uniques']}
                   c_days_added.append(day)
-          print(f'-> [INFO] Recuperate {len(c_days_added)} giornate di clonazione (Clones): {c_days_added}')
+          print(f'-> [INFO] Rilevate {len(c_days_added)} giornate di clonazione (Clones): {c_days_added}')
 
           # 5. Salva lo snapshot cumulativo dei download delle release
           if releases_data:
