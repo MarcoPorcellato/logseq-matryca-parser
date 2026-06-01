@@ -68,3 +68,6 @@ tests/fixtures/*.md
 .vscode/
 .idea/
 .clinerules
+
+# Esclude lo storico delle metriche per preservare il contesto LLM
+metrics/history.json
