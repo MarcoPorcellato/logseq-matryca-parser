@@ -55,6 +55,10 @@
     "2026-05-30": {
       "count": 0,
       "uniques": 0
+    },
+    "2026-05-31": {
+      "count": 0,
+      "uniques": 0
     }
   },
   "clones": {
@@ -113,6 +117,10 @@
     "2026-05-30": {
       "count": 5,
       "uniques": 2
+    },
+    "2026-05-31": {
+      "count": 14,
+      "uniques": 9
     }
   },
   "releases": {
@@ -163,7 +171,7 @@
     "2026-06-01": [
       {
         "referrer": "github.com",
-        "count": 28,
+        "count": 26,
         "uniques": 5
       },
       {
@@ -173,11 +181,6 @@
       },
       {
         "referrer": "discuss.logseq.com",
-        "count": 2,
-        "uniques": 2
-      },
-      {
-        "referrer": "reddit.com",
         "count": 2,
         "uniques": 2
       },
@@ -193,8 +196,8 @@
       {
         "path": "/MarcoPorcellato/logseq-matryca-parser",
         "title": "Overview",
-        "count": 43,
-        "uniques": 19
+        "count": 37,
+        "uniques": 16
       },
       {
         "path": "/MarcoPorcellato/logseq-matryca-parser/stargazers",
