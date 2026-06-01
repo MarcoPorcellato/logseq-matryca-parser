@@ -2,11 +2,15 @@ name: Daily Metrics Saver
 
 on:
   schedule:
-    - cron: '0 3 * * *' # Esecuzione automatica ogni giorno alle 03:00 UTC
-  workflow_dispatch: # Esecuzione manuale ad un click
+    - cron: '0 3 * * *' # Gira ogni giorno alle 03:00 UTC
+  workflow_dispatch: # Permette l'avvio manuale con un click
 
 permissions:
   contents: write
+
+env:
+  # Forza l'ambiente di esecuzione su Node.js 24 per prevenire i warning di deprecazione di giugno 2026
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   save-metrics:
@@ -54,12 +58,14 @@ jobs:
                   print(f'Errore generico nel fetching di {url}: {e}')
                   return None
 
-          # 1. Recupera i dati freschi da GitHub API
+          # 1. Recupera tutti i dati di traffico (inclusi i nuovi endpoint)
           views_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/views')
           clones_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/clones')
+          referrers_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/popular/referrers')
+          paths_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/popular/paths')
           releases_data = fetch_api(f'https://api.github.com/repos/{repo}/releases')
 
-          # 2. Prepara la cartella e il file storico
+          # 2. Prepara la cartella e la struttura dello storico
           os.makedirs('metrics', exist_ok=True)
           history_file = 'metrics/history.json'
 
@@ -68,35 +74,53 @@ jobs:
                   try:
                       history = json.load(f)
                   except:
-                      history = {'views': {}, 'clones': {}, 'releases': {}}
+                      history = {}
           else:
-              history = {'views': {}, 'clones': {}, 'releases': {}}
+              history = {}
 
-          if 'views' not in history: history['views'] = {}
-          if 'clones' not in history: history['clones'] = {}
-          if 'releases' not in history: history['releases'] = {}
+          # Inizializza i nodi se mancanti
+          for key in ['views', 'clones', 'releases', 'referrers', 'popular_content']:
+              if key not in history:
+                  history[key] = {}
 
-          # 3. Unisci e storicizza i dati di Visualizzazione (Views)
+          today = datetime.datetime.utcnow().strftime('%Y-%m-%d')
+
+          # 3. Storicizza le Views (Ultimi 14 giorni)
           v_days_added = []
           if views_data and 'views' in views_data:
               for v in views_data['views']:
                   day = v['timestamp'][:10]
                   history['views'][day] = {'count': v['count'], 'uniques': v['uniques']}
                   v_days_added.append(day)
-          print(f'-> [INFO] Rilevate {len(v_days_added)} giornate di traffico (Views): {v_days_added}')
+          print(f'-> [INFO] Rilevate {len(v_days_added)} giornate di traffico (Views).')
 
-          # 4. Unisci e storicizza i dati di Clonazione (Clones)
+          # 4. Storicizza i Clones (Ultimi 14 giorni)
           c_days_added = []
           if clones_data and 'clones' in clones_data:
               for c in clones_data['clones']:
                   day = c['timestamp'][:10]
                   history['clones'][day] = {'count': c['count'], 'uniques': c['uniques']}
                   c_days_added.append(day)
-          print(f'-> [INFO] Rilevate {len(c_days_added)} giornate di clonazione (Clones): {c_days_added}')
+          print(f'-> [INFO] Rilevate {len(c_days_added)} giornate di clonazione (Clones).')
 
-          # 5. Salva lo snapshot cumulativo dei download delle release
+          # 5. Nuovo: Snapshot quotidiano dei Referring Sites (Siti di provenienza)
+          if referrers_data:
+              history['referrers'][today] = [
+                  {'referrer': r['referrer'], 'count': r['count'], 'uniques': r['uniques']}
+                  for r in referrers_data
+              ]
+              print(f'-> [INFO] Snapshot dei Referring Sites archiviato per la data: {today}')
+
+          # 6. Nuovo: Snapshot quotidiano dei Popular Paths (Contenuto popolare)
+          if paths_data:
+              history['popular_content'][today] = [
+                  {'path': p['path'], 'title': p['title'], 'count': p['count'], 'uniques': p['uniques']}
+                  for p in paths_data
+              ]
+              print(f'-> [INFO] Snapshot del Popular Content archiviato per la data: {today}')
+
+          # 7. Snapshot cumulativo dei download delle release
           if releases_data:
-              today = datetime.datetime.utcnow().strftime('%Y-%m-%d')
               history['releases'][today] = [
                   {
                       'tag': r['tag_name'],
@@ -104,13 +128,13 @@ jobs:
                   }
                   for r in releases_data
               ]
-              print(f'-> [INFO] Snapshot dei download per le release catturato per la data odierna: {today}')
+              print(f'-> [INFO] Snapshot dei download release registrato.')
 
-          # 6. Scrivi lo storico aggiornato su disco
+          # 8. Scrivi lo storico aggiornato su disco
           with open(history_file, 'w') as f:
               json.dump(history, f, indent=2)
           
-          print('✓ Database JSON delle metriche aggiornato con successo!')
+          print('✓ Database JSON delle metriche aggiornato con successo con i nuovi tracciamenti!')
           "
 
       - name: Commit & Push Changes
@@ -118,4 +142,4 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
           git add metrics/history.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(analytics): archive daily repository metrics [skip ci]" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(analytics): archive comprehensive repository metrics [skip ci]" && git push)
