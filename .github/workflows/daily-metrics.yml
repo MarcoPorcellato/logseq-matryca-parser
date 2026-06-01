@@ -1,0 +1,117 @@
+name: Daily Metrics Saver
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # Esecuzione automatica ogni giorno alle 03:00 UTC (05:00 italiane)
+  workflow_dispatch: # Permette l'attivazione manuale con un click dall'interfaccia di GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  save-metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch and Merge Metrics
+        env:
+          GITHUB_TOKEN: ${{ secrets.METRICS_TOKEN }}
+          REPO_SLUG: ${{ github.repository }}
+        run: |
+          python -c "
+          import os, json, sys, datetime
+          from urllib.request import Request, urlopen
+          token = os.environ.get('GITHUB_TOKEN')
+          repo = os.environ.get('REPO_SLUG')
+          if not token:
+              print('Errore critico: METRICS_TOKEN non trovato nei Secrets del repository!')
+              sys.exit(1)
+
+          headers = {
+              'Authorization': f'token {token}',
+              'Accept': 'application/vnd.github.v3+json'
+          }
+
+          def fetch_api(url):
+              try:
+                  req = Request(url, headers=headers)
+                  with urlopen(req) as response:
+                      return json.loads(response.read().decode())
+              except Exception as e:
+                  print(f'Errore nel fetching di {url}: {e}')
+                  return None
+
+          # 1. Recupera i dati freschi da GitHub API (ultimi 14 giorni completi)
+          views_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/views')
+          clones_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/clones')
+          releases_data = fetch_api(f'https://api.github.com/repos/{repo}/releases')
+
+          # 2. Prepara la cartella e il file storico
+          os.makedirs('metrics', exist_ok=True)
+          history_file = 'metrics/history.json'
+
+          if os.path.exists(history_file):
+              with open(history_file, 'r') as f:
+                  try:
+                      history = json.load(f)
+                  except:
+                      history = {'views': {}, 'clones': {}, 'releases': {}}
+          else:
+              history = {'views': {}, 'clones': {}, 'releases': {}}
+
+          if 'views' not in history: history['views'] = {}
+          if 'clones' not in history: history['clones'] = {}
+          if 'releases' not in history: history['releases'] = {}
+
+          # 3. Unisci e storicizza i dati di Visualizzazione (Views)
+          v_days_added = []
+          if views_data and 'views' in views_data:
+              for v in views_data['views']:
+                  day = v['timestamp'][:10]
+                  history['views'][day] = {'count': v['count'], 'uniques': v['uniques']}
+                  v_days_added.append(day)
+          print(f'-> [INFO] Recuperate {len(v_days_added)} giornate di traffico (Views): {v_days_added}')
+
+          # 4. Unisci e storicizza i dati di Clonazione (Clones)
+          c_days_added = []
+          if clones_data and 'clones' in clones_data:
+              for c in clones_data['clones']:
+                  day = c['timestamp'][:10]
+                  history['clones'][day] = {'count': c['count'], 'uniques': c['uniques']}
+                  c_days_added.append(day)
+          print(f'-> [INFO] Recuperate {len(c_days_added)} giornate di clonazione (Clones): {c_days_added}')
+
+          # 5. Salva lo snapshot cumulativo dei download delle release
+          if releases_data:
+              today = datetime.datetime.utcnow().strftime('%Y-%m-%d')
+              history['releases'][today] = [
+                  {
+                      'tag': r['tag_name'],
+                      'assets': [{a['name']: a['download_count']} for a in r.get('assets', [])]
+                  }
+                  for r in releases_data
+              ]
+              print(f'-> [INFO] Snapshot dei download per le release catturato per la data odierna: {today}')
+
+          # 6. Scrivi lo storico aggiornato su disco
+          with open(history_file, 'w') as f:
+              json.dump(history, f, indent=2)
+          
+          print('✓ Database JSON delle metriche aggiornato con successo!')
+          "
+
+      - name: Commit & Push Changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Bot"
+          git add metrics/history.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(analytics): archive daily repository metrics [skip ci]" && git push)
