@@ -63,6 +63,10 @@
     "2026-06-01": {
       "count": 37,
       "uniques": 1
+    },
+    "2026-06-02": {
+      "count": 1,
+      "uniques": 1
     }
   },
   "clones": {
@@ -129,6 +133,10 @@
     "2026-06-01": {
       "count": 134,
       "uniques": 52
+    },
+    "2026-06-02": {
+      "count": 39,
+      "uniques": 20
     }
   },
   "releases": {
@@ -215,6 +223,48 @@
         "tag": "v0.2.0",
         "assets": []
       }
+    ],
+    "2026-06-03": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
     ]
   },
   "referrers": {
@@ -258,6 +308,28 @@
       },
       {
         "referrer": "com.reddit.frontpage",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-03": [
+      {
+        "referrer": "github.com",
+        "count": 30,
+        "uniques": 5
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
         "count": 1,
         "uniques": 1
       }
@@ -384,6 +456,68 @@
       {
         "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728",
         "title": "/actions/runs/26322807728",
+        "count": 3,
+        "uniques": 1
+      }
+    ],
+    "2026-06-03": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 32,
+        "uniques": 10
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/stargazers",
+        "title": "/stargazers",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/12",
+        "title": "/pull/12",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728/job/77494916562",
+        "title": "/actions/runs/26322807728/job/77494916562",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728",
+        "title": "/actions/runs/26322807728",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
         "count": 3,
         "uniques": 1
       }
