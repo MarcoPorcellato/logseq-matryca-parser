@@ -5,10 +5,9 @@ import re
 import shutil
 import urllib.request
 from datetime import datetime
-from typing import Any, Dict, Literal, TypeVar
+from typing import Any, Literal, TypeVar
 
 from pydantic import BaseModel, ValidationError
-
 from smart_router.core.ingestion_engine import IngestionEngine
 from smart_router.core.librarian_models import (
     EntityNodeSchema,
@@ -31,7 +30,7 @@ async def emit_note_package(
     slug: str,
     content: str,
     ontology_class: NodeType,
-    metadata: Dict[str, str],
+    metadata: dict[str, str],
     indentation_level: int,
 ) -> None:
     package = SovereignNotePackage(
@@ -90,9 +89,7 @@ class LogseqASTParser:
                     trees.append("\n".join(current_tree))
                 current_tree = [line]
             else:
-                if current_tree:
-                    current_tree.append(line)
-                elif line.strip():
+                if current_tree or line.strip():
                     current_tree.append(line)
         if current_tree:
             trees.append("\n".join(current_tree))
@@ -122,7 +119,7 @@ T = TypeVar("T", bound=BaseModel)
 def call_local_llm(
     system_prompt: str, user_content: str, response_model: type[T]
 ) -> T | None:
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "model": "local-model",
         "messages": [
             {"role": "system", "content": system_prompt},
@@ -204,7 +201,7 @@ async def main() -> None:
         if filename.startswith("."):
             continue
         filepath = os.path.join(INBOX_DIR, filename)
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             global_skeleton = f.read()
         macro_buckets = LogseqASTParser.chunk_into_buckets(
             global_skeleton, max_chars=15000
@@ -247,7 +244,7 @@ async def main() -> None:
                     if not note_filename.endswith(".md"):
                         note_filename += ".md"
                     try:
-                        metadata: Dict[str, str] = {
+                        metadata: dict[str, str] = {
                             "source_filename": filename,
                             "confidence": str(extracted_base.confidence),
                             "extracted_at": datetime.now().isoformat(),

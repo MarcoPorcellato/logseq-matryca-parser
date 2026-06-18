@@ -179,10 +179,7 @@ def _replace_block_refs_in_text(
 
 def _obsidian_line_source(node: LogseqNode) -> str:
     """Prefer the first line of ``content`` so ``((uuid))`` survives when stripped from ``clean_text``."""
-    if node.content:
-        first = node.content.split("\n", 1)[0]
-    else:
-        first = node.clean_text
+    first = node.content.split("\n", 1)[0] if node.content else node.clean_text
     stripped = LOGSEQ_PATTERNS["inline_uuid_prop"].sub("", first)
     return stripped.replace("\n", " ").strip()
 

@@ -6,7 +6,11 @@ from unittest.mock import patch
 
 import pytest
 
-from logseq_matryca_parser.agent_writer import LogseqConfigReader, append_child_to_node, logseq_agent_write
+from logseq_matryca_parser.agent_writer import (
+    LogseqConfigReader,
+    append_child_to_node,
+    logseq_agent_write,
+)
 from logseq_matryca_parser.graph import LogseqGraph
 
 

@@ -15,11 +15,11 @@ class ASTVisitor(ABC):
     """Visitor interface used by adapters and exporters."""
 
     @abstractmethod
-    def visit_node(self, node: "LogseqNode") -> None:
+    def visit_node(self, node: LogseqNode) -> None:
         """Called when entering a node."""
 
     @abstractmethod
-    def depart_node(self, node: "LogseqNode") -> None:
+    def depart_node(self, node: LogseqNode) -> None:
         """Called when leaving a node."""
 
 
@@ -60,7 +60,7 @@ class LogseqNode(BaseModel):
     properties_order: list[str] = Field(default_factory=list)
     created_at: int | None = None
     updated_at: int | None = None
-    children: list["LogseqNode"] = Field(default_factory=list)
+    children: list[LogseqNode] = Field(default_factory=list)
 
     @model_validator(mode="before")
     @classmethod
@@ -78,7 +78,7 @@ class LogseqNode(BaseModel):
             child.accept(visitor)
         visitor.depart_node(self)
 
-    def add_child(self, node: "LogseqNode") -> "LogseqNode":
+    def add_child(self, node: LogseqNode) -> LogseqNode:
         """Return a copy with one additional child."""
         return self.model_copy(update={"children": [*self.children, node]})
 
@@ -164,7 +164,7 @@ class LogosNode(LogseqNode):
 
     model_config = ConfigDict(strict=True, frozen=False)
 
-    def add_child(self, node: "LogseqNode") -> "LogseqNode":
+    def add_child(self, node: LogseqNode) -> LogseqNode:
         self.children.append(node)
         return self
 

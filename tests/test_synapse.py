@@ -38,10 +38,14 @@ def build_ast() -> list[LogseqNode]:
         clean_text="Child clean",
         indent_level=1,
         parent_id="root-1",
+        source_uuid="native-child-uuid",
         refs=["[[ref-child]]"],
         path=["Root", "Child"],
         left_id="left-child",
         task_status="TODO",
+        task_priority="A",
+        scheduled_at=1_700_000_000,
+        deadline_at=1_800_000_000,
         repeater="+1w",
         created_at=111,
     )
@@ -76,16 +80,20 @@ def test_to_langchain_documents_uses_visitor_and_graph_metadata() -> None:
 
     assert root_doc.page_content == "Root clean"
     assert root_doc.metadata["source"] == "graph.md"
-    assert root_doc.metadata["path"] == ["Root"]
+    assert root_doc.metadata["path"] == "Root"
     assert root_doc.metadata["left_id"] == "left-root"
-    assert root_doc.metadata["refs"] == ["[[ref-root]]"]
+    assert root_doc.metadata["refs"] == "[[ref-root]]"
     assert root_doc.metadata["created_at"] == 100
     assert root_doc.metadata["topic"] == "alpha"
 
     assert child_doc.metadata["parent_id"] == "root-1"
     assert child_doc.metadata["task_status"] == "TODO"
+    assert child_doc.metadata["task_priority"] == "A"
+    assert child_doc.metadata["scheduled_at"] == 1_700_000_000
+    assert child_doc.metadata["deadline_at"] == 1_800_000_000
+    assert child_doc.metadata["source_uuid"] == "native-child-uuid"
     assert child_doc.metadata["repeater"] == "+1w"
-    assert child_doc.metadata["path"] == ["Root", "Child"]
+    assert child_doc.metadata["path"] == "Root > Child"
 
 
 def test_to_llamaindex_nodes_raises_when_dependency_missing() -> None:
@@ -99,22 +107,78 @@ def test_to_llamaindex_nodes_raises_when_dependency_missing() -> None:
 
 
 def test_to_llamaindex_nodes_injects_parent_child_relationships() -> None:
-    fake_relationship = SimpleNamespace(PARENT="PARENT", CHILD="CHILD")
+    fake_relationship = SimpleNamespace(
+        PARENT="PARENT",
+        CHILD="CHILD",
+        SOURCE="SOURCE",
+        NEXT="NEXT",
+        PREVIOUS="PREVIOUS",
+    )
+    page_source_id = "page-source-uuid"
     with (
         patch("logseq_matryca_parser.synapse.TextNode", FakeTextNode),
         patch("logseq_matryca_parser.synapse.NodeRelationship", fake_relationship),
         patch("logseq_matryca_parser.synapse.RelatedNodeInfo", FakeRelatedNodeInfo),
     ):
-        nodes = SynapseAdapter.to_llamaindex_nodes(build_ast())
+        nodes = SynapseAdapter.to_llamaindex_nodes(
+            build_ast(),
+            page_title="graph.md",
+            page_source_id=page_source_id,
+        )
 
     assert len(nodes) == 2
     root_node = nodes[0]
     child_node = nodes[1]
 
+    assert root_node.relationships["SOURCE"].node_id == page_source_id
+    assert child_node.relationships["SOURCE"].node_id == page_source_id
     assert child_node.relationships["PARENT"].node_id == "root-1"
     assert root_node.relationships["CHILD"][0].node_id == "child-1"
-    assert root_node.metadata["path"] == ["Root"]
+    assert root_node.metadata["path"] == "Root"
     assert child_node.metadata["task_status"] == "TODO"
+    assert child_node.metadata["task_priority"] == "A"
+
+
+def test_to_llamaindex_nodes_wires_sibling_next_and_previous() -> None:
+    fake_relationship = SimpleNamespace(
+        PARENT="PARENT",
+        CHILD="CHILD",
+        SOURCE="SOURCE",
+        NEXT="NEXT",
+        PREVIOUS="PREVIOUS",
+    )
+    first = LogseqNode(
+        uuid="sibling-a",
+        content="First",
+        clean_text="First",
+        indent_level=1,
+        parent_id="root-1",
+    )
+    second = LogseqNode(
+        uuid="sibling-b",
+        content="Second",
+        clean_text="Second",
+        indent_level=1,
+        parent_id="root-1",
+        left_id="sibling-a",
+    )
+    root = LogseqNode(
+        uuid="root-1",
+        content="Root",
+        clean_text="Root",
+        indent_level=0,
+        children=[first, second],
+    )
+    with (
+        patch("logseq_matryca_parser.synapse.TextNode", FakeTextNode),
+        patch("logseq_matryca_parser.synapse.NodeRelationship", fake_relationship),
+        patch("logseq_matryca_parser.synapse.RelatedNodeInfo", FakeRelatedNodeInfo),
+    ):
+        nodes = SynapseAdapter.to_llamaindex_nodes([root], page_source_id="page-doc")
+
+    by_id = {node.id_: node for node in nodes}
+    assert by_id["sibling-b"].relationships["PREVIOUS"].node_id == "sibling-a"
+    assert by_id["sibling-a"].relationships["NEXT"].node_id == "sibling-b"
 
 
 def test_to_context_enriched_chunks_raises_when_dependency_missing(tmp_path: Path) -> None:

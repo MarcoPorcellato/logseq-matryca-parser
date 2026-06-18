@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Sprint 1 architectural quick wins** — **`discover_graph_files`** moved from `kinetic.py` to `logseq_paths.py` (decouples CLI from `LogseqGraph`); KINETIC optional-dependency errors now recommend **`uv sync --extra ai|viz`**; **`lens.py`** lazy-imports NetworkX/PyVis; **SYNAPSE** exports vector-store-safe metadata via **`SynapseMetadata`** / **`build_synapse_metadata`** (`task_priority`, temporal epochs, `source_uuid`, joined `path`/`refs`); explicit **`[tool.ruff]`** config in `pyproject.toml`.
+- **Sprint 2 runtime robustness** — **`LogseqGraphWatcher`** debounces filesystem events (~500ms) and ignores editor temp/swap files; **`StackMachineParser(strict_refs=True)`** raises **`BlockReferenceError`** for unresolved same-page `((uuid))` refs (default off); **KINETIC** adds **`@app.callback()`** with **`--verbose`** / **`--graph`**, **`rich_markup_mode="rich"`**, and shared graph-path resolution.
+- **Sprint 3 architecture** — **`LogseqGraph`** uses **`validate_assignment=True`** (no frozen/`object.__setattr__` hack); **SYNAPSE** **`LlamaIndexVisitor`** adds **`SOURCE`**, **`NEXT`**, and **`PREVIOUS`** relationships; package root **`__init__.py`** exports **`SynapseAdapter`**, **`SessionAliasRegistry`**, **`GraphVisualizer`**, and core LOGOS symbols via explicit **`__all__`**.
+
 ### Security
 
 - **Transitive dependency hardening** — `uv` constraints pin `aiohttp>=3.14.1` (11 Dependabot alerts); `nltk` overridden to `v3.10.0-rc1` from upstream Git until NLTK 3.10.0 ships on PyPI (GHSA-p4gq-832x-fm9v). Affects optional `[ai]` / `[all]` extras only; core install unchanged.

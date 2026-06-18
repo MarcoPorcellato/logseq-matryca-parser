@@ -7,7 +7,7 @@ import logging
 import re
 import sys
 from collections.abc import Iterable
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -23,36 +23,70 @@ from logseq_matryca_parser import logseq_agent_write
 from logseq_matryca_parser.forge import ForgeExporter
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import LogosParser
-from logseq_matryca_parser.logseq_paths import is_excluded_graph_path
+from logseq_matryca_parser.logseq_paths import discover_graph_files
 from logseq_matryca_parser.synapse import SynapseAdapter
 
 logger = logging.getLogger(__name__)
-app = typer.Typer(help="KINETIC CLI for parsing and exporting Logseq graphs.", no_args_is_help=True)
+app = typer.Typer(
+    help="KINETIC CLI for parsing and exporting Logseq graphs.",
+    no_args_is_help=True,
+    rich_markup_mode="rich",
+)
 console = Console()
 
 
-class ExportFormat(str, Enum):
+@app.callback()
+def main(
+    ctx: typer.Context,
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable debug logging."),
+    graph: Path | None = typer.Option(
+        None,
+        "--graph",
+        help="Default Logseq graph root (used when a command omits the positional graph path).",
+        exists=True,
+        file_okay=False,
+        dir_okay=True,
+        readable=True,
+    ),
+) -> None:
+    """Matryca KINETIC — deterministic Logseq graph tooling."""
+    ctx.ensure_object(dict)
+    ctx.obj["verbose"] = verbose
+    ctx.obj["graph"] = graph.resolve() if graph is not None else None
+    if verbose:
+        logging.getLogger("logseq_matryca_parser").setLevel(logging.DEBUG)
+
+
+def _cli_context(ctx: typer.Context) -> dict[str, Any]:
+    obj = ctx.obj
+    return obj if isinstance(obj, dict) else {}
+
+
+def _resolve_graph_path(ctx: typer.Context, graph_path: Path | None) -> Path:
+    """Resolve graph root from positional argument or global ``--graph`` callback option."""
+    if graph_path is not None:
+        candidate = graph_path.expanduser()
+    else:
+        default_graph = _cli_context(ctx).get("graph")
+        if default_graph is None:
+            console.print(
+                "[bold red]Graph path required:[/] pass a positional path or set "
+                "[cyan]--graph[/]."
+            )
+            raise typer.Exit(code=1)
+        candidate = Path(str(default_graph)).expanduser()
+    if not candidate.exists() or not candidate.is_dir():
+        console.print(f"[bold red]Invalid graph path:[/] {candidate}")
+        raise typer.Exit(code=1)
+    return candidate.resolve()
+
+
+class ExportFormat(StrEnum):
     JSON = "json"
     MARKDOWN = "markdown"
     LANGCHAIN = "langchain"
     LANGCHAIN_ENRICHED = "langchain-enriched"
     OBSIDIAN = "obsidian"
-
-
-def _discover_graph_files(graph_path: Path) -> list[Path]:
-    files: list[Path] = []
-    for folder_name in ("pages", "journals"):
-        target = graph_path / folder_name
-        if not target.exists():
-            logger.debug("Skipping missing graph subdirectory: %s", target)
-            continue
-        for file_path in sorted(target.rglob("*.md")):
-            if is_excluded_graph_path(file_path):
-                logger.debug("Skipping excluded graph file: %s", file_path)
-                continue
-            files.append(file_path)
-    logger.debug("Discovered %d markdown files in graph %s", len(files), graph_path)
-    return files
 
 
 def _iter_nodes(nodes: Iterable[LogseqNode]) -> Iterable[LogseqNode]:
@@ -64,7 +98,7 @@ def _iter_nodes(nodes: Iterable[LogseqNode]) -> Iterable[LogseqNode]:
 
 def _parse_graph(graph_path: Path) -> list[LogseqPage]:
     parser = LogosParser()
-    files = _discover_graph_files(graph_path)
+    files = discover_graph_files(graph_path)
     if not files:
         return []
 
@@ -174,13 +208,17 @@ def _build_official_logseq_demo_pages() -> list[LogseqPage]:
 
 
 @app.command()
-def scan(graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root.")) -> None:
+def scan(
+    ctx: typer.Context,
+    graph_path: Path | None = typer.Argument(
+        None,
+        help="Path to the Logseq graph root.",
+    ),
+) -> None:
     """Scan a graph and print aggregate parsing statistics."""
-    if not graph_path.exists() or not graph_path.is_dir():
-        console.print(f"[bold red]Invalid graph path:[/] {graph_path}")
-        raise typer.Exit(code=1)
+    resolved = _resolve_graph_path(ctx, graph_path)
 
-    pages = _parse_graph(graph_path.resolve())
+    pages = _parse_graph(resolved)
     if not pages:
         console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
         raise typer.Exit(code=0)
@@ -190,15 +228,17 @@ def scan(graph_path: Path = typer.Argument(..., help="Path to the Logseq graph r
 
 @app.command()
 def visualize(
-    graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root."),
+    ctx: typer.Context,
+    graph_path: Path | None = typer.Argument(
+        None,
+        help="Path to the Logseq graph root.",
+    ),
     output_html: Path = typer.Argument(..., help="Output HTML path for network visualization."),
 ) -> None:
     """Parse a graph, compute deep topology stats, and export an interactive HTML network."""
-    if not graph_path.exists() or not graph_path.is_dir():
-        console.print(f"[bold red]Invalid graph path:[/] {graph_path}")
-        raise typer.Exit(code=1)
+    resolved = _resolve_graph_path(ctx, graph_path)
 
-    pages = _parse_graph(graph_path.resolve())
+    pages = _parse_graph(resolved)
     if not pages:
         console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
         raise typer.Exit(code=0)
@@ -210,7 +250,7 @@ def visualize(
     except ImportError:
         console.print(
             "[bold red]Missing visualization dependencies.[/] Please install them using: "
-            "[cyan]pip install 'logseq-matryca-parser[viz]'[/]"
+            "[cyan]uv sync --extra viz[/]"
         )
         raise typer.Exit(1) from None
 
@@ -228,12 +268,14 @@ def visualize(
 
 @app.command()
 def demo(
+    ctx: typer.Context,
     output_html: Path = typer.Argument(
         Path("showcase.html"),
         help="Path for the standalone showcase HTML (default: showcase.html in cwd).",
     ),
 ) -> None:
     """Build a sample graph from the official Logseq demo topology and write showcase HTML (no graph files read)."""
+    _ = ctx
     pages = _build_official_logseq_demo_pages()
     try:
         from logseq_matryca_parser.lens import GraphVisualizer
@@ -242,7 +284,7 @@ def demo(
     except ImportError:
         console.print(
             "[bold red]Missing visualization dependencies.[/] Please install them using: "
-            "[cyan]pip install 'logseq-matryca-parser[viz]'[/]"
+            "[cyan]uv sync --extra viz[/]"
         )
         raise typer.Exit(1) from None
 
@@ -374,16 +416,16 @@ def _export_obsidian(graph: LogseqGraph, output_path: Path) -> int:
 
 @app.command()
 def export(
-    graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root."),
+    ctx: typer.Context,
+    graph_path: Path | None = typer.Argument(
+        None,
+        help="Path to the Logseq graph root.",
+    ),
     output_path: Path = typer.Argument(..., help="Output directory for exported artifacts."),
     format: ExportFormat = typer.Option(ExportFormat.JSON, "--format", "-f", help="Export format."),
 ) -> None:
     """Parse an entire graph and export it to the selected format."""
-    if not graph_path.exists() or not graph_path.is_dir():
-        console.print(f"[bold red]Invalid graph path:[/] {graph_path}")
-        raise typer.Exit(code=1)
-
-    resolved_graph = graph_path.resolve()
+    resolved_graph = _resolve_graph_path(ctx, graph_path)
 
     if format is ExportFormat.LANGCHAIN_ENRICHED:
         from logseq_matryca_parser.graph import LogseqGraph
@@ -398,7 +440,7 @@ def export(
         except ImportError:
             console.print(
                 "[bold red]Missing AI export dependencies.[/] Please install them using: "
-                "[cyan]pip install 'logseq-matryca-parser[ai]'[/]"
+                "[cyan]uv sync --extra ai[/]"
             )
             raise typer.Exit(1) from None
         console.print(
@@ -439,7 +481,7 @@ def export(
         except ImportError:
             console.print(
                 "[bold red]Missing AI export dependencies.[/] Please install them using: "
-                "[cyan]pip install 'logseq-matryca-parser[ai]'[/]"
+                "[cyan]uv sync --extra ai[/]"
             )
             raise typer.Exit(1) from None
 
@@ -456,6 +498,7 @@ def _require_absolute_path(path: Path, label: str) -> Path:
 
 @app.command()
 def append(
+    ctx: typer.Context,
     content: str = typer.Argument(..., help="Markdown text to append to the agent file."),
     config: Path = typer.Option(
         ...,
@@ -476,6 +519,7 @@ def append(
     ),
 ) -> None:
     """Append a block to the weekly agent page via logseq_agent_write."""
+    _ = ctx
     config_path = _require_absolute_path(config, "--config")
     pages_dir = _require_absolute_path(pages, "--pages")
 
@@ -503,23 +547,24 @@ def append(
 
 @app.command()
 def agent_read(
-    graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root."),
+    ctx: typer.Context,
+    graph_path: Path | None = typer.Argument(
+        None,
+        help="Path to the Logseq graph root.",
+    ),
     tag: str | None = typer.Option(None, "--tag", help="Filter nodes by tag."),
     query: str | None = typer.Option(None, "--query", help="Substring search on clean_text."),
 ) -> None:
     """Load a graph, filter nodes, and print ultra-dense X-Ray text to stdout (no Rich)."""
+    resolved = _resolve_graph_path(ctx, graph_path)
     from logseq_matryca_parser.agent_press import (
-        SessionAliasRegistry,
         XRAY_STATE_FILENAME,
+        SessionAliasRegistry,
         to_xray_markdown,
     )
     from logseq_matryca_parser.graph import LogseqGraph
 
-    if not graph_path.exists() or not graph_path.is_dir():
-        print(f"Invalid graph path: {graph_path}", file=sys.stderr)
-        raise typer.Exit(code=1)
-
-    graph = LogseqGraph.load_directory(graph_path.resolve())
+    graph = LogseqGraph.load_directory(resolved)
     if tag is not None:
         nodes = graph.query().has_tag(tag).execute()
     elif query is not None:
@@ -529,7 +574,7 @@ def agent_read(
 
     registry = SessionAliasRegistry()
     registry.generate_aliases(nodes)
-    state_path = graph_path.resolve() / XRAY_STATE_FILENAME
+    state_path = resolved / XRAY_STATE_FILENAME
     registry.save_to_disk(state_path)
 
     output = to_xray_markdown(nodes, registry)
@@ -541,7 +586,11 @@ def agent_read(
 
 @app.command("agent-write")
 def agent_write(
-    graph_path: Path = typer.Argument(..., help="Path to the Logseq graph root."),
+    ctx: typer.Context,
+    graph_path: Path | None = typer.Argument(
+        None,
+        help="Path to the Logseq graph root.",
+    ),
     content: str = typer.Option(..., "--content", help="Markdown body for the new child bullet."),
     alias: int | None = typer.Option(
         None,
@@ -560,9 +609,11 @@ def agent_write(
     ),
 ) -> None:
     """Append a child block under a parent via headless AST markdown splicing."""
-    from logseq_matryca_parser.agent_press import SessionAliasRegistry, XRAY_STATE_FILENAME
+    from logseq_matryca_parser.agent_press import XRAY_STATE_FILENAME, SessionAliasRegistry
     from logseq_matryca_parser.agent_writer import append_child_to_node
     from logseq_matryca_parser.graph import LogseqGraph
+
+    resolved = _resolve_graph_path(ctx, graph_path)
 
     if alias is None and target_uuid is None:
         print("Provide --alias or --target-uuid.", file=sys.stderr)
@@ -571,15 +622,11 @@ def agent_write(
         print("Use only one of --alias or --target-uuid.", file=sys.stderr)
         raise typer.Exit(code=1)
 
-    if not graph_path.exists() or not graph_path.is_dir():
-        print(f"Invalid graph path: {graph_path}", file=sys.stderr)
-        raise typer.Exit(code=1)
-
-    graph = LogseqGraph.load_directory(graph_path.resolve())
+    graph = LogseqGraph.load_directory(resolved)
 
     parent_uuid = target_uuid
     if alias is not None:
-        registry_path = state_file or (graph_path.resolve() / XRAY_STATE_FILENAME)
+        registry_path = state_file or (resolved / XRAY_STATE_FILENAME)
         if not registry_path.is_file():
             print(f"Alias state file not found: {registry_path}", file=sys.stderr)
             raise typer.Exit(code=1)

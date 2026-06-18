@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
 from typer.testing import CliRunner
 
 from logseq_matryca_parser.kinetic import app
@@ -46,6 +48,31 @@ def test_scan_command_prints_graph_statistics(tmp_path: Path) -> None:
     assert "Total Pages" in result.output
     assert "2" in result.output
     assert "Total Tasks found" in result.output
+
+
+def test_scan_command_accepts_global_graph_option(tmp_path: Path) -> None:
+    graph_root = _create_graph(tmp_path)
+
+    result = runner.invoke(app, ["--graph", str(graph_root), "scan"])
+
+    assert result.exit_code == 0
+    assert "Graph Scan Statistics" in result.output
+
+
+def test_cli_help_uses_rich_markup_mode() -> None:
+    result = runner.invoke(app, ["--help"])
+    assert result.exit_code == 0
+    assert "KINETIC" in result.output or "Logseq" in result.output
+
+
+def test_verbose_flag_enables_debug_logging(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
+    graph_root = _create_graph(tmp_path)
+    caplog.set_level(logging.DEBUG, logger="logseq_matryca_parser")
+
+    result = runner.invoke(app, ["--verbose", "scan", str(graph_root)])
+
+    assert result.exit_code == 0
+    assert any(record.levelno == logging.DEBUG for record in caplog.records)
 
 
 def test_export_command_json_writes_output_file(tmp_path: Path) -> None:

@@ -11,10 +11,11 @@ root_dir = Path(__file__).parent.parent
 sys.path.append(str(root_dir / "src"))
 
 try:
-    from logseq_matryca_parser.logos_parser import LogosParser
-    from logseq_matryca_parser.forge import ForgeExporter
     from rich.console import Console
     from rich.panel import Panel
+
+    from logseq_matryca_parser.forge import ForgeExporter
+    from logseq_matryca_parser.logos_parser import LogosParser
 except ImportError as e:
     print(f"Errore: Assicurati di aver installato le dipendenze (pip install rich typer pydantic). {e}")
     sys.exit(1)

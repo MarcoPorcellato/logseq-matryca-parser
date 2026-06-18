@@ -23,6 +23,23 @@ def is_excluded_graph_path(path: Path) -> bool:
     return False
 
 
+def discover_graph_files(graph_path: Path) -> list[Path]:
+    """Discover sovereign Markdown files under ``pages/`` and ``journals/``."""
+    files: list[Path] = []
+    for folder_name in ("pages", "journals"):
+        target = graph_path / folder_name
+        if not target.exists():
+            logger.debug("Skipping missing graph subdirectory: %s", target)
+            continue
+        for file_path in sorted(target.rglob("*.md")):
+            if is_excluded_graph_path(file_path):
+                logger.debug("Skipping excluded graph file: %s", file_path)
+                continue
+            files.append(file_path)
+    logger.debug("Discovered %d markdown files in graph %s", len(files), graph_path)
+    return files
+
+
 def encode_page_title_segment(segment: str) -> str:
     """Percent-encode reserved OS characters within a single title segment."""
     return quote(segment, safe=_LOGSEQ_URI_SAFE)

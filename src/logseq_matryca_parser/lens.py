@@ -7,9 +7,6 @@ import re
 from pathlib import Path
 from typing import Any
 
-import networkx as nx  # type: ignore[import-untyped]
-from pyvis.network import Network  # type: ignore[import-untyped]
-
 from logseq_matryca_parser.logos_core import ASTVisitor, LogseqNode, LogseqPage
 
 logger = logging.getLogger(__name__)
@@ -18,7 +15,7 @@ logger = logging.getLogger(__name__)
 class NetworkXVisitor(ASTVisitor):
     """Populate a NetworkX graph from Logseq node references."""
 
-    def __init__(self, graph: nx.Graph, page_title: str) -> None:
+    def __init__(self, graph: Any, page_title: str) -> None:
         self._graph = graph
         self._page_title = page_title
 
@@ -47,14 +44,18 @@ class GraphVisualizer:
     """Build and visualize a Logseq topology graph."""
 
     def __init__(self, pages: list[LogseqPage]) -> None:
+        import networkx as nx  # type: ignore[import-untyped]
+
         self._pages = pages
-        self._graph: nx.Graph = nx.Graph()
+        self._graph: Any = nx.Graph()
 
     @property
-    def graph(self) -> nx.Graph:
+    def graph(self) -> Any:
         return self._graph
 
     def build_network(self) -> None:
+        import networkx as nx  # type: ignore[import-untyped]
+
         self._graph = nx.Graph()
         page_block_counts = {page.title: self._count_page_blocks(page) for page in self._pages}
         for page in self._pages:
@@ -152,6 +153,8 @@ class GraphVisualizer:
         return bool(re.match(r"^\[\[[A-Za-z]{3} \d{1,2}(st|nd|rd|th), \d{4}\]\]$", node_name))
 
     def export_html(self, output_path: Path) -> None:
+        from pyvis.network import Network  # type: ignore[import-untyped]
+
         output_path.parent.mkdir(parents=True, exist_ok=True)
         network = Network(height="100vh", width="100%", bgcolor="#111827", font_color="white")
         network.from_nx(self._graph)

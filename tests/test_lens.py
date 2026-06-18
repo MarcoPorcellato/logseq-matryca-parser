@@ -63,6 +63,14 @@ def test_graph_visualizer_build_network_creates_expected_topology() -> None:
     assert stats["top_connected_nodes"][0]["degree"] == 3
 
 
+def test_lens_module_imports_without_viz_dependencies() -> None:
+    import importlib
+
+    module = importlib.import_module("logseq_matryca_parser.lens")
+    assert module.GraphVisualizer is not None
+    assert module.NetworkXVisitor is not None
+
+
 def test_export_html_calls_save_graph_with_mocked_pyvis(tmp_path: Path) -> None:
     visualizer = GraphVisualizer(pages=[_build_fake_page()])
     visualizer.build_network()
@@ -71,7 +79,7 @@ def test_export_html_calls_save_graph_with_mocked_pyvis(tmp_path: Path) -> None:
     def _fake_save_graph(path: str) -> None:
         Path(path).write_text('<div id="loadingBar"></div>', encoding="utf-8")
 
-    with patch("logseq_matryca_parser.lens.Network.save_graph") as save_graph_mock:
+    with patch("pyvis.network.Network.save_graph") as save_graph_mock:
         save_graph_mock.side_effect = _fake_save_graph
         visualizer.export_html(destination)
 

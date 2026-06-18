@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 
+from logseq_matryca_parser.exceptions import BlockReferenceError
 from logseq_matryca_parser.logos_parser import (
     LogosParser,
     StackMachineParser,
@@ -277,6 +278,30 @@ def test_resolved_block_reference_does_not_raise(parser: StackMachineParser) -> 
     assert len(page.root_nodes) == 1
     assert page.root_nodes[0].uuid != existing_uuid
     assert page.root_nodes[0].source_uuid == existing_uuid
+    assert page.root_nodes[0].children[0].block_refs == [existing_uuid]
+
+
+def test_strict_refs_raises_on_unresolved_block_reference() -> None:
+    """Opt-in strict mode surfaces broken ((uuid)) references at parse time."""
+    missing_uuid = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    parser = StackMachineParser(strict_refs=True)
+    content = f"- Root with missing ref (({missing_uuid}))"
+
+    with pytest.raises(BlockReferenceError, match=missing_uuid):
+        parser.parse(content, page_title="strict-missing")
+
+
+def test_strict_refs_allows_resolved_block_reference() -> None:
+    """Strict mode accepts references resolvable on the same page."""
+    existing_uuid = "22222222-2222-2222-2222-222222222222"
+    parser = StackMachineParser(strict_refs=True)
+    content = (
+        "- Root\n"
+        f"  id:: {existing_uuid}\n"
+        f"  - Child referencing parent (({existing_uuid}))"
+    )
+
+    page = parser.parse(content, page_title="strict-resolved")
     assert page.root_nodes[0].children[0].block_refs == [existing_uuid]
 
 
@@ -633,14 +658,14 @@ def test_task_priority_extraction(parser: StackMachineParser) -> None:
         (
             "- TODO Plan launch SCHEDULED: <2026-04-30 Thu>\n  Details",
             {"scheduled": "<2026-04-30 Thu>"},
-            int(datetime(2026, 4, 30, 0, 0, 0, tzinfo=timezone.utc).timestamp()),
+            int(datetime(2026, 4, 30, 0, 0, 0, tzinfo=UTC).timestamp()),
             None,
         ),
         (
             "- DONE Finish draft DEADLINE: <2026-05-01 Fri>",
             {"deadline": "<2026-05-01 Fri>"},
             None,
-            int(datetime(2026, 5, 1, 0, 0, 0, tzinfo=timezone.utc).timestamp()),
+            int(datetime(2026, 5, 1, 0, 0, 0, tzinfo=UTC).timestamp()),
         ),
     ],
 )
@@ -1110,7 +1135,7 @@ def test_official_empty_logbook_with_scheduled_tolerance(
     root = page.root_nodes[0]
     assert root.task_status == "TODO"
     assert root.properties["scheduled"] == expected_scheduled
-    expected_scheduled_at = int(datetime(2022, 1, 8, 0, 0, 0, tzinfo=timezone.utc).timestamp())
+    expected_scheduled_at = int(datetime(2022, 1, 8, 0, 0, 0, tzinfo=UTC).timestamp())
     assert root.scheduled_at == expected_scheduled_at
     assert root.properties["logbook"] == []
 
@@ -1304,7 +1329,7 @@ def test_page_temporal_properties_are_normalized(parser: StackMachineParser) -> 
     """Page timestamps normalize millis and ISO date strings to epoch seconds."""
     content = "created_at:: 1714065600000\nupdated_at:: 2026-04-25T17:00:00Z\n- Root"
     page = parser.parse(content, page_title="Projects/AI/Logos")
-    expected_updated_at = int(datetime(2026, 4, 25, 17, 0, 0, tzinfo=timezone.utc).timestamp())
+    expected_updated_at = int(datetime(2026, 4, 25, 17, 0, 0, tzinfo=UTC).timestamp())
 
     assert page.created_at == 1714065600
     assert page.updated_at == expected_updated_at
@@ -1348,7 +1373,7 @@ def test_temporal_repeater_tolerance(parser: StackMachineParser) -> None:
     page = parser.parse(content, page_title="deadline-repeater")
     root = page.root_nodes[0]
     expected_deadline_at = int(
-        datetime(2026, 5, 18, 0, 0, 0, tzinfo=timezone.utc).timestamp()
+        datetime(2026, 5, 18, 0, 0, 0, tzinfo=UTC).timestamp()
     )
 
     assert root.properties["deadline_journal_day"] == 20260518
@@ -1362,7 +1387,7 @@ def test_temporal_warning_period_tolerance(parser: StackMachineParser) -> None:
     page = parser.parse(content, page_title="deadline-warning")
     root = page.root_nodes[0]
     expected_deadline_at = int(
-        datetime(2026, 5, 18, 0, 0, 0, tzinfo=timezone.utc).timestamp()
+        datetime(2026, 5, 18, 0, 0, 0, tzinfo=UTC).timestamp()
     )
 
     assert root.properties["deadline_journal_day"] == 20260518
@@ -1380,7 +1405,7 @@ def test_scheduled_marker_parses_time_and_repeater(parser: StackMachineParser) -
     assert root.properties["scheduled_iso"] == "2024-04-25T17:00:00"
     assert root.properties["repeater"] == "++1w"
     assert root.repeater == "++1w"
-    expected_scheduled_at = int(datetime(2024, 4, 25, 17, 0, 0, tzinfo=timezone.utc).timestamp())
+    expected_scheduled_at = int(datetime(2024, 4, 25, 17, 0, 0, tzinfo=UTC).timestamp())
     assert root.scheduled_at == expected_scheduled_at
 
 
@@ -1418,7 +1443,7 @@ def test_time_range_tolerance(parser: StackMachineParser) -> None:
     page = parser.parse(content, page_title="time-range")
     root = page.root_nodes[0]
     expected_scheduled_at = int(
-        datetime(2026, 5, 18, 10, 0, 0, tzinfo=timezone.utc).timestamp()
+        datetime(2026, 5, 18, 10, 0, 0, tzinfo=UTC).timestamp()
     )
 
     assert root.scheduled_at == expected_scheduled_at

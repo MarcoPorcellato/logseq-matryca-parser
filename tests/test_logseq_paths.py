@@ -4,11 +4,11 @@ from pathlib import Path
 
 import pytest
 
-from logseq_matryca_parser.kinetic import _discover_graph_files
 from logseq_matryca_parser.logseq_paths import (
     decode_page_title_segment,
     derive_graph_root_from_source_path,
     derive_page_title_from_source_path,
+    discover_graph_files,
     encode_page_title_segment,
     filename_to_page_title,
     is_excluded_graph_path,
@@ -135,7 +135,7 @@ def test_discover_graph_files_skips_backup_and_recycle_dirs(tmp_path: Path) -> N
     (pages / ".recycle").mkdir(parents=True)
     (pages / ".recycle" / "Old.md").write_text("- old\n", encoding="utf-8")
 
-    discovered = _discover_graph_files(graph_root)
+    discovered = discover_graph_files(graph_root)
 
     assert len(discovered) == 1
     assert discovered[0].name == "Real.md"

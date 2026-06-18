@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 import os
+import re
+import threading
 import uuid
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -12,15 +14,68 @@ from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
-from logseq_matryca_parser.kinetic import _discover_graph_files
-from logseq_matryca_parser.logseq_markdown import _normalize_logseq_ref_token
-from logseq_matryca_parser.logseq_paths import is_excluded_graph_path
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import StackMachineParser
+from logseq_matryca_parser.logseq_markdown import _normalize_logseq_ref_token
+from logseq_matryca_parser.logseq_paths import discover_graph_files, is_excluded_graph_path
 
 logger = logging.getLogger(__name__)
 
 _DEFAULT_MAX_WORKERS = min(32, (os.cpu_count() or 1) + 4)
+_WATCHER_DEBOUNCE_SECONDS = 0.5
+_WATCHER_IGNORE_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"\.swp$"),
+    re.compile(r"~$"),
+    re.compile(r"\.tmp$"),
+    re.compile(r"^\.DS_Store$"),
+)
+
+
+def _is_ignored_watcher_path(path: Path) -> bool:
+    """Return True for editor swap/temp files that must not trigger graph reloads."""
+    name = path.name
+    return any(pattern.search(name) for pattern in _WATCHER_IGNORE_PATTERNS)
+
+
+class _DebouncedGraphEventRouter:
+    """Coalesce rapid filesystem events per path before invoking the reload callback."""
+
+    def __init__(
+        self,
+        route: Callable[[Path], None],
+        *,
+        debounce_seconds: float = _WATCHER_DEBOUNCE_SECONDS,
+    ) -> None:
+        self._route = route
+        self._debounce_seconds = debounce_seconds
+        self._timers: dict[str, threading.Timer] = {}
+        self._lock = threading.Lock()
+
+    def schedule(self, path: Path) -> None:
+        resolved = path.expanduser().resolve()
+        if self._debounce_seconds <= 0:
+            self._route(resolved)
+            return
+        key = str(resolved)
+        with self._lock:
+            existing = self._timers.pop(key, None)
+            if existing is not None:
+                existing.cancel()
+            timer = threading.Timer(self._debounce_seconds, self._fire, args=(key, resolved))
+            self._timers[key] = timer
+            timer.daemon = True
+            timer.start()
+
+    def _fire(self, key: str, path: Path) -> None:
+        with self._lock:
+            self._timers.pop(key, None)
+        self._route(path)
+
+    def cancel_all(self) -> None:
+        with self._lock:
+            for timer in self._timers.values():
+                timer.cancel()
+            self._timers.clear()
 
 
 class GraphQuery:
@@ -264,7 +319,7 @@ def _parse_page_file_worker(path: Path) -> LogseqPage:
 class LogseqGraph(BaseModel):
     """Bulk-loaded Logseq vault: pages plus O(1) node lookup by synthetic UUID."""
 
-    model_config = ConfigDict(strict=True, frozen=True)
+    model_config = ConfigDict(strict=True, validate_assignment=True)
 
     graph_path: Path
     pages: dict[str, LogseqPage]
@@ -297,7 +352,7 @@ class LogseqGraph(BaseModel):
     def load_directory(cls, graph_path: Path) -> LogseqGraph:
         """Discover markdown under ``pages/`` and ``journals/``, parse concurrently, build indexes."""
         resolved = graph_path.expanduser().resolve()
-        files = _discover_graph_files(resolved)
+        files = discover_graph_files(resolved)
         pages: dict[str, LogseqPage] = {}
         node_registry: dict[str, LogseqNode] = {}
 
@@ -431,9 +486,8 @@ class LogseqGraph(BaseModel):
             return None
         node_path = Path(node.source_path).resolve()
         for page in self.pages.values():
-            if page.source_path:
-                if Path(page.source_path).resolve() == node_path:
-                    return page
+            if page.source_path and Path(page.source_path).resolve() == node_path:
+                return page
         return None
 
     def get_effective_properties(self, node_uuid: str) -> dict[str, Any]:
@@ -600,7 +654,7 @@ class LogseqGraph(BaseModel):
         new_pages[fresh.title] = fresh
         _enrich_pages_index(new_pages)
         enriched = _page_for_source_path(new_pages, resolved) or fresh
-        object.__setattr__(self, "pages", new_pages)
+        self.pages = new_pages
         self._lower_title_map = _build_lower_title_map(new_pages)
         self._register_page_nodes(enriched)
         self._append_page_backlinks(enriched)
@@ -611,18 +665,31 @@ class LogseqGraph(BaseModel):
             len(list(_flatten_nodes(enriched.root_nodes))),
         )
 
-    def start_watching(self, callback: Callable[[Path], None] | None = None) -> LogseqGraphWatcher:
+    def start_watching(
+        self,
+        callback: Callable[[Path], None] | None = None,
+        *,
+        debounce_seconds: float = _WATCHER_DEBOUNCE_SECONDS,
+    ) -> LogseqGraphWatcher:
         """Start a recursive filesystem observer over the graph (requires optional ``watchdog``)."""
-        return LogseqGraphWatcher(self, callback).start()
+        return LogseqGraphWatcher(self, callback, debounce_seconds=debounce_seconds).start()
 
 
 class LogseqGraphWatcher:
     """Background ``watchdog`` observer that incremental-reloads touched Markdown pages."""
 
-    def __init__(self, graph: LogseqGraph, callback: Callable[[Path], None] | None = None) -> None:
+    def __init__(
+        self,
+        graph: LogseqGraph,
+        callback: Callable[[Path], None] | None = None,
+        *,
+        debounce_seconds: float = _WATCHER_DEBOUNCE_SECONDS,
+    ) -> None:
         self._graph = graph
         self._callback = callback
+        self._debounce_seconds = debounce_seconds
         self._observer: Any = None
+        self._debouncer: _DebouncedGraphEventRouter | None = None
 
     def start(self) -> LogseqGraphWatcher:
         from watchdog.events import FileSystemEventHandler
@@ -631,10 +698,7 @@ class LogseqGraphWatcher:
         graph = self._graph
         user_callback = self._callback
 
-        def _route_event(event: Any) -> None:
-            if getattr(event, "is_directory", False):
-                return
-            path = Path(str(event.src_path))
+        def _route_event(path: Path) -> None:
             if not graph._resolved_path_is_tracked_markdown(path):
                 logger.debug("Stack-Machine watcher: ignore path=%s", path)
                 return
@@ -643,12 +707,27 @@ class LogseqGraphWatcher:
             if user_callback is not None:
                 user_callback(path)
 
+        debouncer = _DebouncedGraphEventRouter(
+            _route_event,
+            debounce_seconds=self._debounce_seconds,
+        )
+        self._debouncer = debouncer
+
+        def _enqueue_event(event: Any) -> None:
+            if getattr(event, "is_directory", False):
+                return
+            path = Path(str(event.src_path))
+            if _is_ignored_watcher_path(path):
+                logger.debug("Stack-Machine watcher: ignore temp path=%s", path)
+                return
+            debouncer.schedule(path)
+
         class _MarkdownGraphHandler(FileSystemEventHandler):
             def on_modified(self, event: Any) -> None:
-                _route_event(event)
+                _enqueue_event(event)
 
             def on_created(self, event: Any) -> None:
-                _route_event(event)
+                _enqueue_event(event)
 
         observer = Observer()
         observer.schedule(
@@ -662,6 +741,9 @@ class LogseqGraphWatcher:
         return self
 
     def stop(self) -> None:
+        if self._debouncer is not None:
+            self._debouncer.cancel_all()
+            self._debouncer = None
         if self._observer is not None:
             self._observer.stop()
             self._observer.join(timeout=5)

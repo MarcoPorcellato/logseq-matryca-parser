@@ -347,7 +347,7 @@ def test_graph_watcher_filesystem_events(tmp_path: Path) -> None:
 
     mock_observer = MagicMock()
     with patch("watchdog.observers.Observer", return_value=mock_observer):
-        watcher = graph.start_watching(callback=cb)
+        watcher = graph.start_watching(callback=cb, debounce_seconds=0)
         handler = mock_observer.schedule.call_args[0][0]
         mock_observer.start.assert_called_once()
 
@@ -376,6 +376,70 @@ def test_graph_watcher_filesystem_events(tmp_path: Path) -> None:
 
     watcher.stop()
     mock_observer.stop.assert_called_once()
+
+
+def test_watcher_ignores_temp_and_swap_files(tmp_path: Path) -> None:
+    """Swap/temp filenames must not enqueue incremental reloads."""
+    pytest.importorskip("watchdog")
+    from unittest.mock import MagicMock, patch
+
+    from logseq_matryca_parser.graph import _is_ignored_watcher_path
+
+    assert _is_ignored_watcher_path(Path("notes.swp")) is True
+    assert _is_ignored_watcher_path(Path("draft~")) is True
+    assert _is_ignored_watcher_path(Path("cache.tmp")) is True
+    assert _is_ignored_watcher_path(Path(".DS_Store")) is True
+    assert _is_ignored_watcher_path(Path("Real.md")) is False
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    path_doc = pages / "Live.md"
+    path_doc.write_text("- v1\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+
+    routed: list[Path] = []
+
+    mock_observer = MagicMock()
+    with patch("watchdog.observers.Observer", return_value=mock_observer):
+        watcher = graph.start_watching(
+            callback=lambda p: routed.append(p.resolve()),
+            debounce_seconds=0,
+        )
+        handler = mock_observer.schedule.call_args[0][0]
+
+    class _Ev:
+        is_directory = False
+
+    for temp_name in ("Ghost.swp", "Ghost~", "Ghost.tmp", ".DS_Store"):
+
+        class _TempEv:
+            is_directory = False
+            src_path = str(pages / temp_name)
+
+        handler.on_modified(_TempEv())
+
+    assert routed == []
+    watcher.stop()
+
+
+def test_debounced_graph_event_router_coalesces_rapid_events(tmp_path: Path) -> None:
+    """Multiple schedules for the same path should invoke the route callback once."""
+    import time
+
+    from logseq_matryca_parser.graph import _DebouncedGraphEventRouter
+
+    target = tmp_path / "pages" / "Live.md"
+    target.parent.mkdir(parents=True)
+    hits: list[Path] = []
+    router = _DebouncedGraphEventRouter(hits.append, debounce_seconds=0.05)
+
+    router.schedule(target)
+    router.schedule(target)
+    time.sleep(0.12)
+
+    assert hits == [target.resolve()]
+    router.cancel_all()
 
 
 def test_get_broken_references_flags_missing_uuid(tmp_path: Path) -> None:

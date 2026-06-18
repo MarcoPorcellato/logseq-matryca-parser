@@ -18,3 +18,20 @@ def test_package_version_is_public_semver_string() -> None:
 def test_package_version_matches_distribution_metadata() -> None:
     """Runtime __version__ must match the installed distribution metadata."""
     assert __version__ == importlib.metadata.version("logseq-matryca-parser")
+
+
+def test_public_api_exports_are_importable() -> None:
+    """Core symbols are reachable from the package root without deep import paths."""
+    import logseq_matryca_parser as pkg
+
+    for name in (
+        "StackMachineParser",
+        "LogseqGraph",
+        "LogseqPage",
+        "LogseqNode",
+        "SynapseAdapter",
+        "SessionAliasRegistry",
+        "GraphVisualizer",
+    ):
+        assert hasattr(pkg, name), f"missing public export: {name}"
+    assert pkg.StackMachineParser is pkg.LogosParser

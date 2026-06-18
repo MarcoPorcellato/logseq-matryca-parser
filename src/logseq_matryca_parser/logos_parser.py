@@ -7,7 +7,7 @@ import logging
 import os
 import re
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +17,7 @@ from logseq_matryca_parser.logseq_paths import (
     derive_page_title_from_source_path,
 )
 
+from .exceptions import BlockReferenceError
 from .logos_core import LogseqNode, LogseqPage
 
 LOGSEQ_PATTERNS: dict[str, re.Pattern[str]] = {
@@ -367,7 +368,7 @@ def _extract_time_properties(raw_content: str) -> dict[str, Any]:
                 properties[f"{marker_lower}_journal_day"] = int(parsed_dt.strftime("%Y%m%d"))
                 properties[f"{marker_lower}_iso"] = parsed_dt.isoformat(timespec="seconds")
                 properties[f"{marker_lower}_at"] = int(
-                    parsed_dt.replace(tzinfo=timezone.utc).timestamp()
+                    parsed_dt.replace(tzinfo=UTC).timestamp()
                 )
             if repeater is not None:
                 properties["repeater"] = repeater
@@ -494,19 +495,19 @@ def normalize_logseq_timestamp(value: Any) -> int | None:
         try:
             parsed_datetime = datetime.fromisoformat(iso_candidate)
             if parsed_datetime.tzinfo is None:
-                parsed_datetime = parsed_datetime.replace(tzinfo=timezone.utc)
+                parsed_datetime = parsed_datetime.replace(tzinfo=UTC)
             return int(parsed_datetime.timestamp())
         except ValueError:
             pass
 
         parsed_logseq_date = _parse_logseq_datetime(candidate)
         if parsed_logseq_date is not None:
-            return int(parsed_logseq_date.replace(tzinfo=timezone.utc).timestamp())
+            return int(parsed_logseq_date.replace(tzinfo=UTC).timestamp())
 
         date_formats = ("%Y/%m/%d", "%Y%m%d")
         for fmt in date_formats:
             try:
-                parsed_date = datetime.strptime(candidate, fmt).replace(tzinfo=timezone.utc)
+                parsed_date = datetime.strptime(candidate, fmt).replace(tzinfo=UTC)
                 return int(parsed_date.timestamp())
             except ValueError:
                 continue
@@ -605,8 +606,9 @@ class PageRegistry:
 class StackMachineParser:
     """O(N) indentation parser that builds a strict immutable AST."""
 
-    def __init__(self, tab_size: int = 2) -> None:
+    def __init__(self, tab_size: int = 2, *, strict_refs: bool = False) -> None:
         self.tab_size = tab_size
+        self.strict_refs = strict_refs
         self.registry = PageRegistry()
 
     def _finalize_pending_property_list(
@@ -1213,7 +1215,7 @@ class StackMachineParser:
             line_start,
             page_title,
         )
-        payload = f"{page_title}:{line_start}:{parent_token}:{content}".encode("utf-8")
+        payload = f"{page_title}:{line_start}:{parent_token}:{content}".encode()
         digest = hashlib.sha256(payload).hexdigest()
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, digest))
 
@@ -1310,8 +1312,35 @@ class StackMachineParser:
         visit(roots)
         return collected
 
+    def _resolve_block_ref_on_page(self, block_ref: str) -> LogseqNode | None:
+        """Resolve a block UUID against the current page registry (synthetic, ``source_uuid``, ``id``)."""
+        stripped = block_ref.strip()
+        if not stripped:
+            return None
+        direct = self.registry.resolve(stripped)
+        if direct is not None:
+            return direct
+        for node in self.registry.blocks.values():
+            if node.source_uuid == stripped:
+                return node
+            if node.properties.get("id") == stripped:
+                return node
+        return None
+
     def _validate_references(self, roots: list[LogseqNode]) -> None:
-        _ = roots
+        if not self.strict_refs:
+            return
+
+        def visit(nodes: list[LogseqNode]) -> None:
+            for node in nodes:
+                for ref in node.block_refs:
+                    if self._resolve_block_ref_on_page(ref) is None:
+                        raise BlockReferenceError(
+                            f"Unresolved block reference (({ref})) on node {node.uuid}"
+                        )
+                visit(node.children)
+
+        visit(roots)
 
     def _refresh_node(
         self,
