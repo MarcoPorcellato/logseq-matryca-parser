@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Transitive dependency hardening** — `uv` constraints pin `aiohttp>=3.14.1` (11 Dependabot alerts); `nltk` overridden to `v3.10.0-rc1` from upstream Git until NLTK 3.10.0 ships on PyPI (GHSA-p4gq-832x-fm9v). Affects optional `[ai]` / `[all]` extras only; core install unchanged.
+
+### Changed
+
+- **Optional AI stack** — `llama-index-core` bumped to `0.14.22` via lock refresh.
+
 ## [1.2.2] - 2026-06-18
 
 ### Fixed

@@ -76,6 +76,14 @@ dev = [
     "ruff>=0.15.12",
 ]
 
+[tool.uv]
+constraint-dependencies = [
+    "aiohttp>=3.14.1",
+]
+override-dependencies = [
+    "nltk @ git+https://github.com/nltk/nltk@v3.10.0-rc1",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
