@@ -17,7 +17,7 @@ try:
     from logseq_matryca_parser.forge import ForgeExporter
     from logseq_matryca_parser.logos_parser import LogosParser
 except ImportError as e:
-    print(f"Errore: Assicurati di aver installato le dipendenze (pip install rich typer pydantic). {e}")
+    print(f"Errore: Assicurati di aver installato le dipendenze (uv sync --all-extras). {e}")
     sys.exit(1)
 
 console = Console()

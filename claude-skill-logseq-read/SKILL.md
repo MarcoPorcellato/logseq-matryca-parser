@@ -79,5 +79,5 @@ Lo script installa `logseq-matryca-parser` automaticamente se mancante.
 In caso di errore di installazione, esegui manualmente:
 
 ```bash
-pip install logseq-matryca-parser
+uv pip install logseq-matryca-parser
 ```
