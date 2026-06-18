@@ -1,5 +1,7 @@
 # 📜 Architectural Contract: Synthetic UUID Hardening & Graph Orchestration Module
 **Contract Status:** Completed (Autonomous Execution)
+
+> **Implementation note (v1.3.0):** `discover_graph_files` lives in `logseq_paths.py` (not `kinetic.py`); `LogseqGraph` uses `validate_assignment=True` instead of `frozen=True`. Historical spec text below describes the original contract.
 **Target Stack:** Python 3.12+ | Pydantic V2 (Strict/Frozen Models) | Local-First No-DB
 
 **Execution checklist**

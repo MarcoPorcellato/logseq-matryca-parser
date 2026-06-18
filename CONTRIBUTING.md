@@ -15,7 +15,7 @@ User-facing behavior is documented in:
 - [`README.md`](README.md) — overview, quickstart, and feature matrix
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — LOGOS, SYNAPSE, `LogseqGraph`, agents, and data flow
 - [`docs/logseq_ast_primer.md`](docs/logseq_ast_primer.md) — Logseq Spatial Markdown domain rules
-- [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.2.2**) and **Unreleased** changes (Keep a Changelog)
+- [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.3.0**) and **Unreleased** changes (Keep a Changelog)
 - [`docs/RELEASE_PROCESS.md`](docs/RELEASE_PROCESS.md) — version bump, tag, and PyPI publish checklist
 - [`docs/CODEQL.md`](docs/CODEQL.md) — CodeQL default setup (no custom `codeql.yml`)
 

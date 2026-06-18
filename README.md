@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.2.2** — CodeQL CI fix & docs (see [CHANGELOG](CHANGELOG.md)) — **234 tests**, no parser API changes; SAST via GitHub CodeQL **default setup** ([`docs/CODEQL.md`](docs/CODEQL.md)).
+**v1.3.0** — Architecture & runtime hardening (see [CHANGELOG](CHANGELOG.md)) — **244 tests**, public API exports, watcher debounce, `strict_refs`, LlamaIndex spatial edges; SAST via GitHub CodeQL **default setup** ([`docs/CODEQL.md`](docs/CODEQL.md)).
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -106,6 +106,23 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 
 ---
 
+## ⚡ Release highlights (v1.3.0)
+
+Minor release — architectural quick wins, runtime robustness, and expanded public API. No breaking changes to default parser behavior.
+
+| Area | Change |
+| :--- | :--- |
+| **Public API** | Root **`logseq_matryca_parser`** exports **`SynapseAdapter`**, **`SessionAliasRegistry`**, **`GraphVisualizer`**, **`discover_graph_files`**, and core LOGOS symbols via explicit **`__all__`**. |
+| **Graph model** | **`LogseqGraph`** uses **`validate_assignment=True`** instead of frozen/`object.__setattr__` for incremental reloads. |
+| **Live watcher** | **`start_watching()`** debounces filesystem events (~500ms) and ignores editor temp/swap files (`.swp`, `~`, `.tmp`, `.DS_Store`). |
+| **Strict refs** | **`StackMachineParser(strict_refs=True)`** raises **`BlockReferenceError`** for unresolved same-page `((uuid))` refs (default off). |
+| **SYNAPSE** | **`SynapseMetadata`** / **`build_synapse_metadata`** for vector-store-safe fields; **LlamaIndex** adds **`SOURCE`**, **`NEXT`**, **`PREVIOUS`** relationships. |
+| **KINETIC CLI** | Global **`--verbose`** / **`--graph`** via **`@app.callback()`**; optional-dependency hints recommend **`uv sync --extra ai\|viz`**. |
+| **LENS** | Lazy-imports NetworkX/PyVis so core installs stay lightweight. |
+| **Security** | Transitive **`aiohttp`** / **`nltk`** constraints for optional **`[ai]`** extras. |
+
+---
+
 ## ⚡ Release highlights (v1.2.2)
 
 Patch release — fixes a failing CodeQL GitHub Actions workflow; **no parser or public API changes**.
@@ -195,7 +212,7 @@ matryca-parse export /path/to/logseq/graph /path/to/obsidian/vault --format obsi
 > **Note:** Wikilinks currently use the **Logseq page title** (e.g. `[[Target#^…]]`). Vault files may live under namespace folders (`Projects/AI/Demo.md`). Obsidian usually resolves unique titles; aligning link text to folder paths is a possible future refinement.
 
 ### Live incremental watcher
-`LogseqGraph` supports **surgical file invalidation** (optional dependency: `pip install 'logseq-matryca-parser[watch]'`). `start_watching()` runs a recursive **watchdog** observer: on `created` / `modified` under `pages/` or `journals/`, only that file is re-parsed; stale synthetic UUIDs are purged from `_node_registry` and scrubbed from `_backlink_registry`—no full-graph cold reload.
+`LogseqGraph` supports **surgical file invalidation** (optional dependency: `uv sync --extra watch`). `start_watching()` runs a recursive **watchdog** observer with **~500ms debounce** and ignores editor temp/swap files: on `created` / `modified` under `pages/` or `journals/`, only that file is re-parsed; stale synthetic UUIDs are purged from `_node_registry` and scrubbed from `_backlink_registry`—no full-graph cold reload.
 
 ### Fluent topological queries
 Filter the global node registry with a **chainable** API (tags, task state, ancestry under a parent UUID):
@@ -274,12 +291,17 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from PyPI (latest: v1.2.2)
-pip install logseq-matryca-parser
+# Install from PyPI (latest: v1.3.0)
+uv pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates
-pip install 'logseq-matryca-parser[watch]'
+uv pip install 'logseq-matryca-parser[watch]'
 
+# Or clone and sync all extras locally
+uv sync --all-extras
+```
+
+```bash
 # 1. Visualize your local graph (LENS)
 matryca-parse visualize /path/to/logseq/graph my-map.html
 
@@ -291,13 +313,23 @@ matryca-parse export /path/to/logseq/graph output --format langchain-enriched
 
 # 4. Obsidian vault (YAML frontmatter + ^ block ids)
 matryca-parse export /path/to/logseq/graph output --format obsidian
+
+# Global options (all subcommands): --verbose, --graph /path/to/vault
+matryca-parse --graph /path/to/logseq/graph --verbose export output --format json
 ```
 
 ### Python API
+
+Prefer the package root for stable imports (see **`__all__`** in **`logseq_matryca_parser`**):
+
 ```python
-from logseq_matryca_parser.graph import LogseqGraph
-from logseq_matryca_parser.logos_parser import LogosParser
-from logseq_matryca_parser.synapse import SynapseAdapter
+from logseq_matryca_parser import (
+    LogseqGraph,
+    LogosParser,
+    SynapseAdapter,
+    SessionAliasRegistry,
+    discover_graph_files,
+)
 
 # Parse a single page to AST (YAML or native frontmatter; utf-8-sig BOM-safe)
 page = LogosParser().parse_page_file("page.md")
@@ -311,6 +343,11 @@ effective = graph.get_effective_properties(page_obj.root_nodes[0].uuid)
 
 # Export to LangChain with lineage metadata
 docs = SynapseAdapter.to_langchain_documents(page.root_nodes, source_name=page.title)
+
+# Optional strict same-page block-ref validation at parse time
+from logseq_matryca_parser import StackMachineParser
+
+strict_page = StackMachineParser(strict_refs=True).parse_page_file("page.md")
 ```
 
 ### 🤖 Agentic Write Access (Append-Only)

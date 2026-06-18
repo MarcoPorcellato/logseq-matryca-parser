@@ -1,5 +1,7 @@
 # 📜 Architectural Contract: Live Incremental Invalidation & File Watcher
 **Contract Status:** Wave 7 — Implemented (incremental invalidation + lazy watchdog watcher)
+
+> **Implementation note (v1.3.0):** `LogseqGraph` now uses `validate_assignment=True` (not `frozen=True`); the watcher debounces events (~500ms) and ignores editor temp files. Historical spec text below describes the original contract.
 **Target Stack:** Python 3.12+ | Pydantic V2 | Watchdog (Optional/Lazy Dependency)
 **Inspiration Architectures:**
 - `Microsoft/language-server-protocol` (Incremental text document synchronization and dependency invalidation)
