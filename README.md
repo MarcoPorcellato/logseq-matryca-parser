@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.3.0** — Architecture & runtime hardening (see [CHANGELOG](CHANGELOG.md)) — **244 tests**, public API exports, watcher debounce, `strict_refs`, LlamaIndex spatial edges; SAST via GitHub CodeQL **default setup** ([`docs/CODEQL.md`](docs/CODEQL.md)).
+**v1.3.1** — Documentation patch: `uv` install hints in examples and Claude skill (see [CHANGELOG](CHANGELOG.md)) — **244 tests**, no parser or API changes.
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -103,6 +103,17 @@ graph TD
 
 ### 🔱 The Solution
 Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as the **File System Driver** for your LLM. It preserves the true topology of your thoughts, ensuring AI understands spatial hierarchy, time, and block-lineage—including **structured task state** and **first-class temporal attributes** you can query in downstream graph databases and GraphRAG engines without re-parsing raw Markdown.
+
+---
+
+## ⚡ Release highlights (v1.3.1)
+
+Patch release — aligns example and skill install docs with the project's **`uv`** workflow. No parser or public API changes.
+
+| Area | Change |
+| :--- | :--- |
+| **Examples** | `examples/run_demo.py` error hint uses **`uv sync --all-extras`**. |
+| **Claude skill** | **`claude-skill-logseq-read/SKILL.md`** recommends **`uv pip install`**. |
 
 ---
 
@@ -291,7 +302,7 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from PyPI (latest: v1.3.0)
+# Install from PyPI (latest: v1.3.1)
 uv pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates

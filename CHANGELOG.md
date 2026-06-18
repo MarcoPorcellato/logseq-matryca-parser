@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-06-19
+
+### Changed
+
+- **Documentation** — `examples/run_demo.py` and **`claude-skill-logseq-read/SKILL.md`** recommend **`uv sync --all-extras`** / **`uv pip install`** instead of legacy **`pip install`** hints.
+
 ## [1.3.0] - 2026-06-19
 
 ### Changed
