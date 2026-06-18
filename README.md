@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.2.1** — OSS hardening & Python **3.12 | 3.13** CI matrix (see [CHANGELOG](CHANGELOG.md)) — **234 tests**, 80% coverage gate, GitHub CodeQL default setup, `uv`-aligned toolchain, GitHub Community Standards, and PyPI pre-flight quality checks.
+**v1.2.2** — CodeQL CI fix & docs (see [CHANGELOG](CHANGELOG.md)) — **234 tests**, no parser API changes; SAST via GitHub CodeQL **default setup** ([`docs/CODEQL.md`](docs/CODEQL.md)).
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -22,7 +22,7 @@
 
 [👉 **TRY THE LIVE INTERACTIVE DEMO**](https://MarcoPorcellato.github.io/logseq-matryca-parser/)
 
-[📘 **ARCHITECTURE**](docs/ARCHITECTURE.md) · [AST Primer](docs/logseq_ast_primer.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASE_PROCESS.md)
+[📘 **ARCHITECTURE**](docs/ARCHITECTURE.md) · [AST Primer](docs/logseq_ast_primer.md) · [CodeQL](docs/CODEQL.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASE_PROCESS.md)
 
 </div>
 
@@ -103,6 +103,17 @@ graph TD
 
 ### 🔱 The Solution
 Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as the **File System Driver** for your LLM. It preserves the true topology of your thoughts, ensuring AI understands spatial hierarchy, time, and block-lineage—including **structured task state** and **first-class temporal attributes** you can query in downstream graph databases and GraphRAG engines without re-parsing raw Markdown.
+
+---
+
+## ⚡ Release highlights (v1.2.2)
+
+Patch release — fixes a failing CodeQL GitHub Actions workflow; **no parser or public API changes**.
+
+| Area | Change |
+| :--- | :--- |
+| **CodeQL** | Removed duplicate `.github/workflows/codeql.yml`; scanning continues via GitHub **default setup** (Node 24 runners). |
+| **Docs** | New [`docs/CODEQL.md`](docs/CODEQL.md) explains default vs advanced setup and troubleshooting. |
 
 ---
 
@@ -263,7 +274,7 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from PyPI (latest: v1.2.1)
+# Install from PyPI (latest: v1.2.2)
 pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates

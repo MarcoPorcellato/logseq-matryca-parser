@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-06-18
+
 ### Fixed
 
 - **CodeQL CI conflict** — removed `.github/workflows/codeql.yml`; SAST runs via GitHub **CodeQL default setup** only (advanced workflow + default setup cannot coexist). See [`docs/CODEQL.md`](docs/CODEQL.md).
@@ -14,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **README** — CodeQL references updated to default setup; link to `docs/CODEQL.md`.
+- **Documentation** — `docs/CODEQL.md` added; CONTRIBUTING and SECURITY updated for **1.2.2**.
 
 ## [1.2.1] - 2026-06-18
 

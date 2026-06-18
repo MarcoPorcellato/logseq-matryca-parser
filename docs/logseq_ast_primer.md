@@ -214,4 +214,4 @@ If you feed Logseq Markdown into `RecursiveCharacterTextSplitter` (LangChain) or
 
 The **Logos Protocol** solves this by walking the AST deterministically, isolating properties, shielding dead-zone literals, and using the `SYNAPSE` adapter to export native LangChain `Document` or LlamaIndex `TextNode` objects. Every generated object retains its exact hierarchical lineage in the metadata, feeding your local LLM perfectly structured data.
 
-For vault-wide navigation (aliases, backlinks, namespace shadowing, assets), load the graph with **`LogseqGraph`** — see the [README](../README.md) and [CHANGELOG](../CHANGELOG.md) (graph parity from **v1.2.0**; latest **v1.2.1** adds CI/OSS hardening and Python 3.13 support).
+For vault-wide navigation (aliases, backlinks, namespace shadowing, assets), load the graph with **`LogseqGraph`** — see the [README](../README.md) and [CHANGELOG](../CHANGELOG.md) (graph parity from **v1.2.0**; **v1.2.1** adds CI/OSS hardening; **v1.2.2** fixes CodeQL CI and documents default setup).

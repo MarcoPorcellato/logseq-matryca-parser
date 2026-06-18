@@ -1,6 +1,6 @@
 # CodeQL code scanning
 
-**Logseq Matryca Parser** uses **GitHub CodeQL default setup** for static analysis (SAST) on Python.
+**Logseq Matryca Parser** (v1.2.2+) uses **GitHub CodeQL default setup** for static analysis (SAST) on Python.
 
 ## Why there is no `codeql.yml` workflow
 
