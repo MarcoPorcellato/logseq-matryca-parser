@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.2.1** — OSS hardening & Python **3.12 | 3.13** CI matrix (see [CHANGELOG](CHANGELOG.md)) — **234 tests**, 80% coverage gate, CodeQL SAST, `uv`-aligned toolchain, GitHub Community Standards, and PyPI pre-flight quality checks.
+**v1.2.1** — OSS hardening & Python **3.12 | 3.13** CI matrix (see [CHANGELOG](CHANGELOG.md)) — **234 tests**, 80% coverage gate, GitHub CodeQL default setup, `uv`-aligned toolchain, GitHub Community Standards, and PyPI pre-flight quality checks.
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -114,11 +114,11 @@ Infrastructure and contributor experience — no parser API breaks.
 | :--- | :--- |
 | **Python matrix** | CI and PyPI pre-flight test **3.12** and **3.13**; PyPI classifier for 3.13. |
 | **Quality gates** | `make all` parity in GitHub Actions (`uv sync --all-extras` → lint, mypy, pytest with **≥80%** coverage). |
-| **Security** | CodeQL SAST, `pip-audit` on production deps, expanded `SECURITY.md`, PyPI publish blocked until pre-flight passes. |
+| **Security** | GitHub CodeQL default setup (SAST), `pip-audit` on production deps, expanded `SECURITY.md`, PyPI publish blocked until pre-flight passes. |
 | **Community** | `CODE_OF_CONDUCT.md`, `CODEOWNERS`, issue-template config, CONTRIBUTING with `uv` workflow. |
 | **Docs** | Root `ROADMAP_*.md` consolidated under [`docs/roadmaps/`](docs/roadmaps/). |
 
-Contributor setup: [`CONTRIBUTING.md`](CONTRIBUTING.md) · Security: [`SECURITY.md`](SECURITY.md)
+Contributor setup: [`CONTRIBUTING.md`](CONTRIBUTING.md) · Security: [`SECURITY.md`](SECURITY.md) · CodeQL: [`docs/CODEQL.md`](docs/CODEQL.md)
 
 ---
 
