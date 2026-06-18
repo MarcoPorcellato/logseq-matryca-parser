@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -25,6 +29,11 @@ jobs:
 
     - name: Sync dependencies
       run: uv sync --all-extras
+
+    - name: Audit dependencies
+      run: |
+        uv export --no-dev --no-emit-workspace --no-hashes -o "${{ runner.temp }}/requirements-audit.txt"
+        uv run pip-audit -r "${{ runner.temp }}/requirements-audit.txt"
 
     - name: Lint
       run: make lint

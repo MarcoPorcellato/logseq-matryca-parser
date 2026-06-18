@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Community health files** — `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `.github/CODEOWNERS`, and `.github/ISSUE_TEMPLATE/config.yml` for GitHub Community Standards compliance.
 - **PyPI project URLs** — `Repository`, `Source`, `Documentation`, and `Changelog` links in `pyproject.toml`.
+- **Coverage gate** — `pytest-cov` in the dev group; `make test` enforces `--cov-fail-under=80` with `[tool.coverage.*]` in `pyproject.toml`.
+- **CodeQL workflow** — `.github/workflows/codeql.yml` for Python SAST on push/PR to `main`.
+- **PyPI pre-flight** — `pypi_publish.yml` runs `make all` via `uv` before building and publishing a tag.
 
 ### Changed
 
@@ -18,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CONTRIBUTING.md** — development setup documents `uv sync --all-extras` instead of `pip install -e .`.
 - **Pre-commit** — Ruff and Mypy hook versions aligned with the `dev` dependency group in `pyproject.toml`.
 - **Mypy scope** — unified to `src/`, `tests/`, and `examples/` in the Makefile, CI, CONTRIBUTING, and pre-commit.
+- **CI security** — `pip-audit` on exported production requirements and `concurrency` cancel-in-progress on the same ref.
+- **Version sync test** — `tests/test_package_version.py` asserts `__version__` matches `importlib.metadata.version(...)`.
 
 ## [1.2.0] - 2026-05-29
 

@@ -68,9 +68,23 @@ Changelog = "https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/
 dev = [
     "logseq-matryca-parser[all,watch]",
     "mypy>=1.20.2",
+    "pip-audit>=2.10.1",
+    "pre-commit>=4.6.0",
     "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
     "ruff>=0.15.12",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src/logseq_matryca_parser"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_empty = true
 
 [tool.mypy]
 python_version = "3.12"
