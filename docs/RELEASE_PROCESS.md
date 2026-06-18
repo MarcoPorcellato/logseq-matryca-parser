@@ -23,7 +23,7 @@ Replace `X.Y.Z` with the semver you are shipping (no `v` prefix in `pyproject.to
 
 - [ ] Move everything from `[Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD` in `CHANGELOG.md`
 - [ ] Leave an empty `## [Unreleased]` section at the top
-- [ ] Set `version = "X.Y.Z"` in `pyproject.toml`
+- [ ] Set `version = "X.Y.Z"` in `pyproject.toml` and `__version__` in `src/logseq_matryca_parser/__init__.py`
 - [ ] Run `make all` (ruff, mypy, pytest)
 
 **Cursor shortcut:** ask the agent to *“prepare release vX.Y.Z”* (see [`.cursor/rules/04-release-preparation.mdc`](../.cursor/rules/04-release-preparation.mdc)).
@@ -39,7 +39,7 @@ You should see exactly the section that will appear on GitHub if you attach rele
 ### 3. Commit, tag, push
 
 ```bash
-git add CHANGELOG.md pyproject.toml
+git add CHANGELOG.md pyproject.toml src/logseq_matryca_parser/__init__.py README.md CONTRIBUTING.md SECURITY.md docs/logseq_ast_primer.md
 git commit -m "chore: release X.Y.Z"
 git tag vX.Y.Z
 git push origin main

@@ -6,7 +6,7 @@ Security fixes are provided **only for the latest released version** on [PyPI](h
 
 | Version | Supported |
 | ------- | --------- |
-| Latest (`1.x`) | Yes |
+| **1.2.1** (latest) | Yes |
 | Older releases | No |
 
 We recommend always running the current release and upgrading promptly when a security advisory is published.

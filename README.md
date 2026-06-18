@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.2.0** — Graph parity, multimodal assets & format-preserving round-trip (see [CHANGELOG](CHANGELOG.md)) — **233 tests**, YAML frontmatter ingest/serialize, asset path resolution, case-insensitive page routing, and extended LOGOS shielding; ready for production Enterprise integration.
+**v1.2.1** — OSS hardening & Python **3.12 | 3.13** CI matrix (see [CHANGELOG](CHANGELOG.md)) — **234 tests**, 80% coverage gate, CodeQL SAST, `uv`-aligned toolchain, GitHub Community Standards, and PyPI pre-flight quality checks.
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -103,6 +103,22 @@ graph TD
 
 ### 🔱 The Solution
 Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as the **File System Driver** for your LLM. It preserves the true topology of your thoughts, ensuring AI understands spatial hierarchy, time, and block-lineage—including **structured task state** and **first-class temporal attributes** you can query in downstream graph databases and GraphRAG engines without re-parsing raw Markdown.
+
+---
+
+## ⚡ Release highlights (v1.2.1)
+
+Infrastructure and contributor experience — no parser API breaks.
+
+| Area | Capability |
+| :--- | :--- |
+| **Python matrix** | CI and PyPI pre-flight test **3.12** and **3.13**; PyPI classifier for 3.13. |
+| **Quality gates** | `make all` parity in GitHub Actions (`uv sync --all-extras` → lint, mypy, pytest with **≥80%** coverage). |
+| **Security** | CodeQL SAST, `pip-audit` on production deps, expanded `SECURITY.md`, PyPI publish blocked until pre-flight passes. |
+| **Community** | `CODE_OF_CONDUCT.md`, `CODEOWNERS`, issue-template config, CONTRIBUTING with `uv` workflow. |
+| **Docs** | Root `ROADMAP_*.md` consolidated under [`docs/roadmaps/`](docs/roadmaps/). |
+
+Contributor setup: [`CONTRIBUTING.md`](CONTRIBUTING.md) · Security: [`SECURITY.md`](SECURITY.md)
 
 ---
 
@@ -247,7 +263,7 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from PyPI (latest: v1.2.0)
+# Install from PyPI (latest: v1.2.1)
 pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates

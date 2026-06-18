@@ -15,7 +15,7 @@ User-facing behavior is documented in:
 - [`README.md`](README.md) — overview, quickstart, and feature matrix
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — LOGOS, SYNAPSE, `LogseqGraph`, agents, and data flow
 - [`docs/logseq_ast_primer.md`](docs/logseq_ast_primer.md) — Logseq Spatial Markdown domain rules
-- [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.2.0**) and **Unreleased** changes (Keep a Changelog)
+- [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.2.1**) and **Unreleased** changes (Keep a Changelog)
 - [`docs/RELEASE_PROCESS.md`](docs/RELEASE_PROCESS.md) — version bump, tag, and PyPI publish checklist
 
 When you add or change observable parser or graph behavior, update the relevant doc sections and add a bullet under **`## [Unreleased]`** in `CHANGELOG.md` (see [`.cursor/rules/05-auto-changelog.mdc`](.cursor/rules/05-auto-changelog.mdc)).
