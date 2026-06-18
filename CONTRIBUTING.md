@@ -131,6 +131,8 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/). Your com
 
 ## 🤝 Code of Conduct
 
-We expect all contributors to maintain a professional, respectful, and constructive tone. We are building the future of sovereign knowledge management together.
+This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md). By participating, you agree to uphold a professional, respectful, and constructive community.
+
+Report unacceptable behavior to [marco@marcoporcellato.it](mailto:marco@marcoporcellato.it).
 
 > *By contributing to this project, you agree that your contributions will be licensed under its Apache 2.0 License.*

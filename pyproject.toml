@@ -57,6 +57,10 @@ matryca-parse = "logseq_matryca_parser.kinetic:app"
 
 [project.urls]
 Homepage = "https://github.com/MarcoPorcellato/logseq-matryca-parser"
+Repository = "https://github.com/MarcoPorcellato/logseq-matryca-parser"
+Source = "https://github.com/MarcoPorcellato/logseq-matryca-parser"
+Documentation = "https://github.com/MarcoPorcellato/logseq-matryca-parser/tree/main/docs"
+Changelog = "https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/CHANGELOG.md"
 "Bug Tracker" = "https://github.com/MarcoPorcellato/logseq-matryca-parser/issues"
 "Matryca.ai" = "https://matryca.ai"
 

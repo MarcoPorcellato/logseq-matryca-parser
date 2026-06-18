@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/MarcoPorcellato/logseq-matryca-parser/security/policy
+    about: Report a security issue privately — do not open a public issue
+  - name: Contributing guidelines
+    url: https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/CONTRIBUTING.md
+    about: Read how to set up your environment, run tests, and open a pull request
+  - name: Code of Conduct
+    url: https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/CODE_OF_CONDUCT.md
+    about: Community standards and how to report unacceptable behavior

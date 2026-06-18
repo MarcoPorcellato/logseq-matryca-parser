@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Community health files** — `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `.github/CODEOWNERS`, and `.github/ISSUE_TEMPLATE/config.yml` for GitHub Community Standards compliance.
+- **PyPI project URLs** — `Repository`, `Source`, `Documentation`, and `Changelog` links in `pyproject.toml`.
+
+### Changed
+
+- **SECURITY.md** — expanded disclosure process, supported versions table, and GitHub Private Vulnerability Reporting guidance.
+- **README** — footer section linking Contributing, Code of Conduct, and Security policies.
+
 ## [1.2.0] - 2026-05-29
 
 ### Added

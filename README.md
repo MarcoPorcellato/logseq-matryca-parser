@@ -318,5 +318,15 @@ Logseq Matryca Parser is open-source. If it powers your pipeline, consider a sta
 
 Need custom RAG integrations or consulting? Contact: [marco@marcoporcellato.it](mailto:marco@marcoporcellato.it)
 
+## 🤝 Contributing & Community
+
+We welcome issues, pull requests, and constructive feedback.
+
+| Resource | Link |
+| :--- | :--- |
+| **Contributing** | [CONTRIBUTING.md](CONTRIBUTING.md) — setup, tests, PR workflow |
+| **Code of Conduct** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — community standards |
+| **Security** | [SECURITY.md](SECURITY.md) — report vulnerabilities privately |
+
 ---
 Architected by **Marco Porcellato** | Powered by **Matryca.ai**
