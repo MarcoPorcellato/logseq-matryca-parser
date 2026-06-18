@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Coverage gate** — `pytest-cov` in the dev group; `make test` enforces `--cov-fail-under=80` with `[tool.coverage.*]` in `pyproject.toml`.
 - **CodeQL workflow** — `.github/workflows/codeql.yml` for Python SAST on push/PR to `main`.
 - **PyPI pre-flight** — `pypi_publish.yml` runs `make all` via `uv` before building and publishing a tag.
+- **CI Python matrix** — GitHub Actions tests Python **3.12** and **3.13** in `ci.yml` and PyPI pre-flight.
 
 ### Changed
 
@@ -23,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Mypy scope** — unified to `src/`, `tests/`, and `examples/` in the Makefile, CI, CONTRIBUTING, and pre-commit.
 - **CI security** — `pip-audit` on exported production requirements and `concurrency` cancel-in-progress on the same ref.
 - **Version sync test** — `tests/test_package_version.py` asserts `__version__` matches `importlib.metadata.version(...)`.
+- **Documentation layout** — root `ROADMAP_*.md` files consolidated under `docs/roadmaps/`.
+- **README badges** — Python support badge updated to **3.12 | 3.13**; CI badge links directly to the workflow.
+- **PyPI classifiers** — `Programming Language :: Python :: 3.13` added in `pyproject.toml`.
 
 ## [1.2.0] - 2026-05-29
 
