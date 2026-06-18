@@ -6,7 +6,7 @@ lint:
 	uv run ruff check . --fix
 
 check:
-	uv run mypy src/ tests/
+	uv run mypy src/ tests/ examples/
 
 test:
 	uv run pytest -v tests/

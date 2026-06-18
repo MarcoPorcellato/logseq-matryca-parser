@@ -14,8 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **SECURITY.md** — expanded disclosure process, supported versions table, and GitHub Private Vulnerability Reporting guidance.
-- **README** — footer section linking Contributing, Code of Conduct, and Security policies.
+- **CI toolchain** — `.github/workflows/ci.yml` uses `astral-sh/setup-uv` and runs `uv sync --all-extras` followed by `make lint`, `make check`, and `make test` (parity with local `make all`).
+- **CONTRIBUTING.md** — development setup documents `uv sync --all-extras` instead of `pip install -e .`.
+- **Pre-commit** — Ruff and Mypy hook versions aligned with the `dev` dependency group in `pyproject.toml`.
+- **Mypy scope** — unified to `src/`, `tests/`, and `examples/` in the Makefile, CI, CONTRIBUTING, and pre-commit.
 
 ## [1.2.0] - 2026-05-29
 

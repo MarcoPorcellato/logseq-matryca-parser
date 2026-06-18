@@ -36,7 +36,7 @@ Before writing any code, please understand our core principles:
 
 ## 🛠️ Development Setup
 
-To set up your local environment:
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management and a virtual environment in `.venv/`. Do not use `pip install -e .` — CI and local workflows both go through `uv`.
 
 1. **Fork and Clone:**
    ```bash
@@ -44,18 +44,21 @@ To set up your local environment:
    cd logseq-matryca-parser
    ```
 
-2. **Create an Isolated Environment:**
+2. **Install uv** (if not already installed):
    ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
 
-3. **Install the Project in Editable Mode:**
-   *(Includes development dependencies)*
+3. **Sync the environment** (project + optional extras + dev tools from `pyproject.toml`):
    ```bash
-   pip install -e .
-   pip install pytest mypy ruff
+   uv sync --all-extras
    ```
+
+4. **Optional — install pre-commit hooks** (Ruff + Mypy, aligned with CI):
+   ```bash
+   uv run pre-commit install
+   ```
+   If `pre-commit` is not yet available, add it once with `uv tool install pre-commit` or `uv add --dev pre-commit`.
 
 ---
 
@@ -85,31 +88,26 @@ git checkout -b feat/add-html-exporter
 
 ### 4. Code Quality & Linting (Mandatory)
 
-We run a strict CI pipeline. Before committing, you must ensure your code passes static analysis and tests.
-
-We provide a `Makefile` to simplify running these commands. You can execute them individually or all at once:
+CI runs the same commands as your local environment: `uv sync --all-extras`, then `make lint`, `make check`, and `make test`. Before committing, run the full gate:
 
 ```bash
-# Run all checks (linting, static typing, and tests)
 make all
-
-# Or run them individually:
-make lint   # Check formatting and linting with Ruff
-make check  # Check static typing with Mypy
-make test   # Run unit tests with Pytest
 ```
 
-Alternatively, you can run the commands directly:
+Or run each step individually:
 
 ```bash
-# Check formatting and linting
-ruff check .
+make lint   # Ruff (with auto-fix)
+make check  # Mypy on src/, tests/, examples/
+make test   # Pytest on tests/
+```
 
-# Check static typing
-mypy src/ tests/ examples/
+Equivalent `uv run` invocations:
 
-# Run tests
-pytest
+```bash
+uv run ruff check . --fix
+uv run mypy src/ tests/ examples/
+uv run pytest -v tests/
 ```
 
 ### 5. Commit Standards
