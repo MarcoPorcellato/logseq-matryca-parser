@@ -55,6 +55,78 @@
     "2026-05-30": {
       "count": 0,
       "uniques": 0
+    },
+    "2026-05-31": {
+      "count": 0,
+      "uniques": 0
+    },
+    "2026-06-01": {
+      "count": 37,
+      "uniques": 1
+    },
+    "2026-06-02": {
+      "count": 1,
+      "uniques": 1
+    },
+    "2026-06-03": {
+      "count": 0,
+      "uniques": 0
+    },
+    "2026-06-04": {
+      "count": 3,
+      "uniques": 3
+    },
+    "2026-06-05": {
+      "count": 1,
+      "uniques": 1
+    },
+    "2026-06-06": {
+      "count": 1,
+      "uniques": 1
+    },
+    "2026-06-07": {
+      "count": 1,
+      "uniques": 1
+    },
+    "2026-06-08": {
+      "count": 1,
+      "uniques": 1
+    },
+    "2026-06-09": {
+      "count": 1,
+      "uniques": 1
+    },
+    "2026-06-10": {
+      "count": 5,
+      "uniques": 2
+    },
+    "2026-06-11": {
+      "count": 13,
+      "uniques": 4
+    },
+    "2026-06-12": {
+      "count": 2,
+      "uniques": 1
+    },
+    "2026-06-13": {
+      "count": 1,
+      "uniques": 1
+    },
+    "2026-06-14": {
+      "count": 0,
+      "uniques": 0
+    },
+    "2026-06-15": {
+      "count": 1,
+      "uniques": 1
+    },
+    "2026-06-16": {
+      "count": 3,
+      "uniques": 2
+    },
+    "2026-06-17": {
+      "count": 1,
+      "uniques": 1
     }
   },
   "clones": {
@@ -113,6 +185,78 @@
     "2026-05-30": {
       "count": 5,
       "uniques": 2
+    },
+    "2026-05-31": {
+      "count": 14,
+      "uniques": 9
+    },
+    "2026-06-01": {
+      "count": 134,
+      "uniques": 52
+    },
+    "2026-06-02": {
+      "count": 39,
+      "uniques": 20
+    },
+    "2026-06-03": {
+      "count": 23,
+      "uniques": 8
+    },
+    "2026-06-04": {
+      "count": 27,
+      "uniques": 8
+    },
+    "2026-06-05": {
+      "count": 29,
+      "uniques": 11
+    },
+    "2026-06-06": {
+      "count": 29,
+      "uniques": 14
+    },
+    "2026-06-07": {
+      "count": 46,
+      "uniques": 21
+    },
+    "2026-06-08": {
+      "count": 28,
+      "uniques": 13
+    },
+    "2026-06-09": {
+      "count": 26,
+      "uniques": 9
+    },
+    "2026-06-10": {
+      "count": 25,
+      "uniques": 10
+    },
+    "2026-06-11": {
+      "count": 11,
+      "uniques": 7
+    },
+    "2026-06-12": {
+      "count": 26,
+      "uniques": 8
+    },
+    "2026-06-13": {
+      "count": 35,
+      "uniques": 15
+    },
+    "2026-06-14": {
+      "count": 43,
+      "uniques": 15
+    },
+    "2026-06-15": {
+      "count": 29,
+      "uniques": 12
+    },
+    "2026-06-16": {
+      "count": 11,
+      "uniques": 8
+    },
+    "2026-06-17": {
+      "count": 48,
+      "uniques": 18
     }
   },
   "releases": {
@@ -156,6 +300,2206 @@
       {
         "tag": "v0.2.0",
         "assets": []
+      }
+    ],
+    "2026-06-02": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-03": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-04": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-05": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-06": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-07": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-08": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-09": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-10": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-11": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-12": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-13": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-14": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-15": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-16": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-17": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-06-18": [
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ]
+  },
+  "referrers": {
+    "2026-06-01": [
+      {
+        "referrer": "github.com",
+        "count": 26,
+        "uniques": 5
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-02": [
+      {
+        "referrer": "github.com",
+        "count": 30,
+        "uniques": 5
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-03": [
+      {
+        "referrer": "github.com",
+        "count": 30,
+        "uniques": 5
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-04": [
+      {
+        "referrer": "github.com",
+        "count": 27,
+        "uniques": 5
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-05": [
+      {
+        "referrer": "github.com",
+        "count": 27,
+        "uniques": 5
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-06": [
+      {
+        "referrer": "github.com",
+        "count": 23,
+        "uniques": 6
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-07": [
+      {
+        "referrer": "github.com",
+        "count": 21,
+        "uniques": 6
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-08": [
+      {
+        "referrer": "github.com",
+        "count": 17,
+        "uniques": 4
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-09": [
+      {
+        "referrer": "github.com",
+        "count": 17,
+        "uniques": 4
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-10": [
+      {
+        "referrer": "github.com",
+        "count": 15,
+        "uniques": 3
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-11": [
+      {
+        "referrer": "github.com",
+        "count": 15,
+        "uniques": 3
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-12": [
+      {
+        "referrer": "github.com",
+        "count": 15,
+        "uniques": 3
+      },
+      {
+        "referrer": "Google",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 5,
+        "uniques": 2
+      }
+    ],
+    "2026-06-13": [
+      {
+        "referrer": "github.com",
+        "count": 14,
+        "uniques": 3
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 5,
+        "uniques": 2
+      },
+      {
+        "referrer": "Bing",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-14": [
+      {
+        "referrer": "github.com",
+        "count": 14,
+        "uniques": 3
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 5,
+        "uniques": 2
+      },
+      {
+        "referrer": "Bing",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-15": [
+      {
+        "referrer": "github.com",
+        "count": 14,
+        "uniques": 3
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 5,
+        "uniques": 2
+      },
+      {
+        "referrer": "Bing",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-16": [
+      {
+        "referrer": "github.com",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 5,
+        "uniques": 2
+      },
+      {
+        "referrer": "Bing",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-17": [
+      {
+        "referrer": "github.com",
+        "count": 9,
+        "uniques": 4
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "referrer": "Bing",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-18": [
+      {
+        "referrer": "github.com",
+        "count": 9,
+        "uniques": 4
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "referrer": "Bing",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "chat.qwen.ai",
+        "count": 1,
+        "uniques": 1
+      }
+    ]
+  },
+  "popular_content": {
+    "2026-06-01": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 37,
+        "uniques": 16
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/stargazers",
+        "title": "/stargazers",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/LICENSE",
+        "title": "/blob/main/LICENSE",
+        "count": 5,
+        "uniques": 5
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 5,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/12",
+        "title": "/pull/12",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728/job/77494916562",
+        "title": "/actions/runs/26322807728/job/77494916562",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/releases",
+        "title": "/releases",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728",
+        "title": "/actions/runs/26322807728",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/security",
+        "title": "/security",
+        "count": 3,
+        "uniques": 1
+      }
+    ],
+    "2026-06-02": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 40,
+        "uniques": 16
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/stargazers",
+        "title": "/stargazers",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 7,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/LICENSE",
+        "title": "/blob/main/LICENSE",
+        "count": 5,
+        "uniques": 5
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/12",
+        "title": "/pull/12",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728/job/77494916562",
+        "title": "/actions/runs/26322807728/job/77494916562",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/releases",
+        "title": "/releases",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728",
+        "title": "/actions/runs/26322807728",
+        "count": 3,
+        "uniques": 1
+      }
+    ],
+    "2026-06-03": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 32,
+        "uniques": 10
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/stargazers",
+        "title": "/stargazers",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/12",
+        "title": "/pull/12",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728/job/77494916562",
+        "title": "/actions/runs/26322807728/job/77494916562",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728",
+        "title": "/actions/runs/26322807728",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      }
+    ],
+    "2026-06-04": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 30,
+        "uniques": 9
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/stargazers",
+        "title": "/stargazers",
+        "count": 6,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/12",
+        "title": "/pull/12",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728/job/77494916562",
+        "title": "/actions/runs/26322807728/job/77494916562",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728",
+        "title": "/actions/runs/26322807728",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      }
+    ],
+    "2026-06-05": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 30,
+        "uniques": 9
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/stargazers",
+        "title": "/stargazers",
+        "count": 6,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/12",
+        "title": "/pull/12",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728/job/77494916562",
+        "title": "/actions/runs/26322807728/job/77494916562",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728",
+        "title": "/actions/runs/26322807728",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      }
+    ],
+    "2026-06-06": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 32,
+        "uniques": 12
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/12",
+        "title": "/pull/12",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728/job/77494916562",
+        "title": "/actions/runs/26322807728/job/77494916562",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/stargazers",
+        "title": "/stargazers",
+        "count": 3,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/26322807728",
+        "title": "/actions/runs/26322807728",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      }
+    ],
+    "2026-06-07": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 23,
+        "uniques": 12
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/stargazers",
+        "title": "/stargazers",
+        "count": 3,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/network/dependencies",
+        "title": "/network/dependencies",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulse",
+        "title": "/pulse",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/.github/workflows",
+        "title": "/tree/main/.github/workflows",
+        "count": 2,
+        "uniques": 1
+      }
+    ],
+    "2026-06-08": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 19,
+        "uniques": 10
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/stargazers",
+        "title": "/stargazers",
+        "count": 3,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/network/dependencies",
+        "title": "/network/dependencies",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulse",
+        "title": "/pulse",
+        "count": 2,
+        "uniques": 1
+      }
+    ],
+    "2026-06-09": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 19,
+        "uniques": 10
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/stargazers",
+        "title": "/stargazers",
+        "count": 3,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/network/dependencies",
+        "title": "/network/dependencies",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulse",
+        "title": "/pulse",
+        "count": 2,
+        "uniques": 1
+      }
+    ],
+    "2026-06-10": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 20,
+        "uniques": 11
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/network/dependencies",
+        "title": "/network/dependencies",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulse",
+        "title": "/pulse",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/.github/workflows",
+        "title": "/tree/main/.github/workflows",
+        "count": 2,
+        "uniques": 1
+      }
+    ],
+    "2026-06-11": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 20,
+        "uniques": 11
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/network/dependencies",
+        "title": "/network/dependencies",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulse",
+        "title": "/pulse",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/.github/workflows",
+        "title": "/tree/main/.github/workflows",
+        "count": 2,
+        "uniques": 1
+      }
+    ],
+    "2026-06-12": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 18,
+        "uniques": 9
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/network/dependencies",
+        "title": "/network/dependencies",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulse",
+        "title": "/pulse",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/.github/workflows",
+        "title": "/tree/main/.github/workflows",
+        "count": 2,
+        "uniques": 1
+      }
+    ],
+    "2026-06-13": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 19,
+        "uniques": 11
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulse",
+        "title": "/pulse",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/3",
+        "title": "/issues/3",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/network/dependencies",
+        "title": "/network/dependencies",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/metrics/performance",
+        "title": "/actions/metrics/performance",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-14": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 19,
+        "uniques": 11
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulse",
+        "title": "/pulse",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/3",
+        "title": "/issues/3",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/network/dependencies",
+        "title": "/network/dependencies",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/metrics/performance",
+        "title": "/actions/metrics/performance",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-15": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 19,
+        "uniques": 11
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/metrics",
+        "title": "/tree/main/metrics",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/daily-metrics.yml",
+        "title": "/actions/workflows/daily-metrics.yml",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/metrics/history.json",
+        "title": "/blob/main/metrics/history.json",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulse",
+        "title": "/pulse",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions",
+        "title": "/actions",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/3",
+        "title": "/issues/3",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/network/dependencies",
+        "title": "/network/dependencies",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/metrics/performance",
+        "title": "/actions/metrics/performance",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-16": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 15,
+        "uniques": 11
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/3",
+        "title": "/issues/3",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/LICENSE",
+        "title": "/blob/main/LICENSE",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/src/logseq_matryca_parser/logos_parser.py",
+        "title": "/blob/main/src/logseq_matryca_parser/logos_parser.py",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/commit/905e99af631ec6b38c0643287031372ecd7f9c04",
+        "title": "/commit/905e99af631ec6b38c0643287031372ecd7f9c04",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/commit/d7c66ec4ac8e53c2c006b2b75392c1c531c0e333",
+        "title": "/commit/d7c66ec4ac8e53c2c006b2b75392c1c531c0e333",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/5",
+        "title": "/issues/5",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-17": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 14,
+        "uniques": 10
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/5",
+        "title": "/issues/5",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/3",
+        "title": "/issues/3",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/LICENSE",
+        "title": "/blob/main/LICENSE",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/src/logseq_matryca_parser/logos_parser.py",
+        "title": "/blob/main/src/logseq_matryca_parser/logos_parser.py",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/commit/905e99af631ec6b38c0643287031372ecd7f9c04",
+        "title": "/commit/905e99af631ec6b38c0643287031372ecd7f9c04",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/commit/d7c66ec4ac8e53c2c006b2b75392c1c531c0e333",
+        "title": "/commit/d7c66ec4ac8e53c2c006b2b75392c1c531c0e333",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-18": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 15,
+        "uniques": 11
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/5",
+        "title": "/issues/5",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/3",
+        "title": "/issues/3",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/LICENSE",
+        "title": "/blob/main/LICENSE",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/src/logseq_matryca_parser/logos_parser.py",
+        "title": "/blob/main/src/logseq_matryca_parser/logos_parser.py",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/commit/905e99af631ec6b38c0643287031372ecd7f9c04",
+        "title": "/commit/905e99af631ec6b38c0643287031372ecd7f9c04",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/commit/d7c66ec4ac8e53c2c006b2b75392c1c531c0e333",
+        "title": "/commit/d7c66ec4ac8e53c2c006b2b75392c1c531c0e333",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/graphs/traffic",
+        "title": "/graphs/traffic",
+        "count": 1,
+        "uniques": 1
       }
     ]
   }
