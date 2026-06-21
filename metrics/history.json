@@ -135,6 +135,10 @@
     "2026-06-19": {
       "count": 5,
       "uniques": 3
+    },
+    "2026-06-20": {
+      "count": 0,
+      "uniques": 0
     }
   },
   "clones": {
@@ -273,6 +277,10 @@
     "2026-06-19": {
       "count": 33,
       "uniques": 12
+    },
+    "2026-06-20": {
+      "count": 45,
+      "uniques": 21
     }
   },
   "releases": {
@@ -1147,6 +1155,64 @@
         "tag": "v0.2.0",
         "assets": []
       }
+    ],
+    "2026-06-21": [
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
     ]
   },
   "referrers": {
@@ -1539,6 +1605,33 @@
       }
     ],
     "2026-06-20": [
+      {
+        "referrer": "github.com",
+        "count": 13,
+        "uniques": 4
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "referrer": "Bing",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "DuckDuckGo",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "chat.qwen.ai",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-06-21": [
       {
         "referrer": "github.com",
         "count": 13,
@@ -2751,6 +2844,68 @@
         "title": "Overview",
         "count": 26,
         "uniques": 10
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/ci.yml",
+        "title": "/actions/workflows/ci.yml",
+        "count": 3,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/CHANGELOG.md",
+        "title": "/blob/main/CHANGELOG.md",
+        "count": 3,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/docs",
+        "title": "/tree/main/docs",
+        "count": 3,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 3,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/5",
+        "title": "/issues/5",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/3",
+        "title": "/issues/3",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/security",
+        "title": "/security",
+        "count": 2,
+        "uniques": 1
+      }
+    ],
+    "2026-06-21": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 25,
+        "uniques": 9
       },
       {
         "path": "/MarcoPorcellato/logseq-matryca-parser/actions/workflows/ci.yml",
