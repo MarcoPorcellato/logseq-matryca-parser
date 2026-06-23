@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Daily metrics workflow** — `.github/workflows/daily-metrics.yml` syncs with `main` before archiving, uses `pull --rebase` with push retries, and serializes runs via `concurrency` so metric commits are not rejected when the branch moves during the job.
 - **BUG-017** — `StackMachineParser._refresh_node` no longer crashes on empty bullets with block properties (`IndexError`).
 - **BUG-001 / BUG-003** — SYNAPSE page/block embed expansion uses `get_page` (case-insensitive) and fail-safe empty replacement instead of infinite loops on unresolved embeds.
 - **BUG-016** — `append_child_to_node` calls `invalidate_and_reload_page` so the in-memory graph matches disk after agent-write.

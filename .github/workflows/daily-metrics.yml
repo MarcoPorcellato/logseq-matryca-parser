@@ -5,6 +5,10 @@ on:
     - cron: '0 3 * * *' # Gira ogni giorno alle 03:00 UTC
   workflow_dispatch: # Permette l'avvio manuale con un click
 
+concurrency:
+  group: daily-metrics-${{ github.repository }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -25,6 +29,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Sync latest branch before metrics
+        run: git pull --rebase origin "${GITHUB_REF_NAME}"
 
       - name: Fetch and Merge Metrics
         env:
@@ -70,10 +77,10 @@ jobs:
           history_file = 'metrics/history.json'
 
           if os.path.exists(history_file):
-              with open(history_file, 'r') as f:
+              with open(history_file, 'r', encoding='utf-8') as f:
                   try:
                       history = json.load(f)
-                  except:
+                  except json.JSONDecodeError:
                       history = {}
           else:
               history = {}
@@ -131,15 +138,33 @@ jobs:
               print(f'-> [INFO] Snapshot dei download release registrato.')
 
           # 8. Scrivi lo storico aggiornato su disco
-          with open(history_file, 'w') as f:
+          with open(history_file, 'w', encoding='utf-8') as f:
               json.dump(history, f, indent=2)
+              f.write('\n')
           
           print('✓ Database JSON delle metriche aggiornato con successo con i nuovi tracciamenti!')
           "
 
       - name: Commit & Push Changes
+        env:
+          BRANCH: ${{ github.ref_name }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
           git add metrics/history.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(analytics): archive comprehensive repository metrics [skip ci]" && git push)
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No metric changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(analytics): archive comprehensive repository metrics [skip ci]"
+          max_attempts=5
+          for attempt in $(seq 1 "$max_attempts"); do
+            if git pull --rebase origin "$BRANCH" && git push origin "HEAD:${BRANCH}"; then
+              echo "Pushed metrics archive (attempt ${attempt})."
+              exit 0
+            fi
+            echo "Push failed (attempt ${attempt}/${max_attempts}), retrying after backoff..."
+            sleep $((attempt * 3))
+          done
+          echo "Failed to push metrics after ${max_attempts} attempts."
+          exit 1
