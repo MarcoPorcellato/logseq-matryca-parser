@@ -71,8 +71,18 @@ class SessionAliasRegistry:
         """Reconstruct a registry from a JSON file written by :meth:`save_to_disk`."""
         raw = json.loads(filepath.read_text(encoding="utf-8"))
         registry = cls()
-        for alias_str, node_uuid in raw.items():
+        seen_uuids: set[str] = set()
+        for alias_str in sorted(raw.keys(), key=int):
+            node_uuid = raw[alias_str]
+            if node_uuid in seen_uuids:
+                logger.warning(
+                    "SessionAliasRegistry.load_from_disk: skip duplicate uuid=%s alias=%s",
+                    node_uuid,
+                    alias_str,
+                )
+                continue
             alias = int(alias_str)
+            seen_uuids.add(node_uuid)
             registry._alias_to_uuid[alias] = node_uuid
             registry._uuid_to_alias[node_uuid] = alias
         logger.debug("SessionAliasRegistry loaded %s aliases from %s", len(registry._alias_to_uuid), filepath)

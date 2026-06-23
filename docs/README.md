@@ -12,7 +12,7 @@ Use this page to find **active** documentation. Files under [`design-docs/`](des
 | [`COOKBOOK.md`](COOKBOOK.md) | Integrators | Copy-paste recipes (Synapse, graph query, watcher, agents) |
 | [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) | Maintainers | Semver, tag, and PyPI publish checklist |
 | [`CODEQL.md`](CODEQL.md) | Maintainers | CodeQL default setup notes |
-| [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) | Maintainers, contributors | GitNexus-assisted bug audit (Clean Architecture lens, runtime evidence) |
+| [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) | Maintainers, contributors | Local static analysis bug audit (Clean Architecture lens, runtime evidence) |
 | [`rfc/OLLAMA_RAG.md`](rfc/OLLAMA_RAG.md) | Integrators | Draft RFC for local Ollama RAG (issue [#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)) |
 | [`roadmaps/`](roadmaps/) | Historians | Executed architectural contracts (Waves 2–12) |
 

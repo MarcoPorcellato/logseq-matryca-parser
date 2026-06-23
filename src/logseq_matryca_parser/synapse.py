@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import re
 import uuid
+from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NotRequired, TypedDict
 
@@ -168,7 +169,8 @@ def _expand_macros_and_embeds_impl(
             break
         use_block = bm is not None and (pm is None or bm.start() <= pm.start())
         if use_block:
-            assert bm is not None
+            if bm is None:
+                continue
             match = bm
             uid = match.group("uuid")
             if uid in visited_uuids:
@@ -187,7 +189,8 @@ def _expand_macros_and_embeds_impl(
                     )
             result = result[: match.start()] + replacement + result[match.end() :]
         else:
-            assert pm is not None
+            if pm is None:
+                continue
             match = pm
             title = match.group("title").strip()
             page = graph.get_page(title)
@@ -219,7 +222,7 @@ def _expand_macros_and_embeds_impl(
 
 def _build_breadcrumbs(graph: LogseqGraph, node: LogseqNode) -> tuple[str, LogseqPage | None]:
     """Build `Page > ancestor clean_text ...` using ``node.path`` and the graph registry."""
-    page = graph._page_for_node(node)
+    page = graph.page_for_node(node)
     page_title = page.title if page is not None else ""
     parts: list[str] = []
     if page_title:
@@ -274,11 +277,13 @@ class LlamaIndexVisitor(ASTVisitor):
         related_node_info_cls: type[Any],
         *,
         page_source_id: str | None = None,
+        source_id_for_node: Callable[[LogseqNode], str] | None = None,
     ) -> None:
         self._text_node_cls = text_node_cls
         self._node_relationship = node_relationship
         self._related_node_info_cls = related_node_info_cls
         self._page_source_id = page_source_id
+        self._source_id_for_node = source_id_for_node
         self._nodes_by_id: dict[str, Any] = {}
         self._ordered_nodes: list[Any] = []
 
@@ -291,9 +296,12 @@ class LlamaIndexVisitor(ASTVisitor):
         if not hasattr(text_node, "relationships") or text_node.relationships is None:
             text_node.relationships = {}
 
-        if self._page_source_id is not None:
+        source_id = self._page_source_id
+        if self._source_id_for_node is not None:
+            source_id = self._source_id_for_node(node)
+        if source_id is not None:
             text_node.relationships[self._node_relationship.SOURCE] = self._related_node_info_cls(
-                node_id=self._page_source_id
+                node_id=source_id
             )
 
         if node.parent_id:
@@ -351,17 +359,29 @@ class SynapseAdapter:
         """Convert AST nodes to LlamaIndex nodes preserving topology links."""
         if TextNode is None or NodeRelationship is None or RelatedNodeInfo is None:
             raise ImportError("LlamaIndex non rilevato. Installa 'llama-index' per usare Synapse.")
+        flat = _flatten_nodes_for_export(nodes)
+        unique_paths = {node.source_path for node in flat if node.source_path}
+        use_per_node_source = len(unique_paths) > 1
+        source_ids_by_path: dict[str, str] = {}
+
+        def _source_id_for_node(node: LogseqNode) -> str:
+            path_key = node.source_path or ""
+            if path_key not in source_ids_by_path:
+                title_seed = page_title or (Path(path_key).stem if path_key else "untitled")
+                source_ids_by_path[path_key] = page_source_node_id(title_seed, path_key or None)
+            return source_ids_by_path[path_key]
+
         resolved_source_id = page_source_id
-        if resolved_source_id is None:
-            flat = _flatten_nodes_for_export(nodes)
-            first_path = next((node.source_path for node in flat if node.source_path), None)
+        if resolved_source_id is None and not use_per_node_source:
+            first_path = next(iter(unique_paths), None)
             title = page_title or "untitled"
             resolved_source_id = page_source_node_id(title, first_path)
         visitor = LlamaIndexVisitor(
             text_node_cls=TextNode,
             node_relationship=NodeRelationship,
             related_node_info_cls=RelatedNodeInfo,
-            page_source_id=resolved_source_id,
+            page_source_id=None if use_per_node_source else resolved_source_id,
+            source_id_for_node=_source_id_for_node if use_per_node_source else None,
         )
         for node in nodes:
             node.accept(visitor)
@@ -379,6 +399,9 @@ class SynapseAdapter:
         documents: list[Any] = []
         flat = _flatten_nodes_for_export(nodes)
         for node in flat:
+            if graph.page_for_node(node) is None:
+                logger.debug("context chunk skip orphan uuid=%s", node.uuid)
+                continue
             breadcrumbs, page = _build_breadcrumbs(graph, node)
             source_name = Path(node.source_path).name if node.source_path else str(graph.graph_path.name)
             expanded_content = _expand_macros_and_embeds(node.content, graph, set())

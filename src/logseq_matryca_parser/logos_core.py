@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -9,6 +10,8 @@ from typing import Any
 from urllib.parse import unquote
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+logger = logging.getLogger(__name__)
 
 
 class ASTVisitor(ABC):
@@ -98,6 +101,7 @@ class LogseqPage(BaseModel):
     namespace_chain: list[str] = Field(default_factory=list)
     source_path: str | None = None
     graph_root: str | None = None
+    tab_size: int = 2
     root_nodes: list[LogseqNode] = Field(default_factory=list)
 
     def resolve_asset_path(self, asset_link: str) -> str | None:
@@ -123,7 +127,21 @@ class LogseqPage(BaseModel):
             return str((graph_root / root_relative_path).resolve())
 
         if self.source_path:
+            if normalized_link.startswith("/"):
+                logger.debug("resolve_asset_path: reject absolute path %s", normalized_link)
+                return None
             local_candidate = (Path(self.source_path).parent / normalized_link).resolve()
+            graph_root = self._infer_graph_root()
+            if graph_root is not None:
+                try:
+                    local_candidate.relative_to(graph_root.resolve())
+                except ValueError:
+                    logger.debug(
+                        "resolve_asset_path: path %s escapes graph root %s",
+                        local_candidate,
+                        graph_root,
+                    )
+                    return None
             if local_candidate.exists():
                 return str(local_candidate)
 

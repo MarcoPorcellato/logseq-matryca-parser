@@ -182,6 +182,23 @@ def test_serialize_logseq_page_roundtrip_matches_logseq_layout() -> None:
     assert rendered.index("  id::") < rendered.index("  - Child block")
 
 
+def test_serialize_logseq_page_preserves_four_space_indent(tmp_path: Path) -> None:
+    """Detected ``tab_size`` round-trips four-space outline indentation."""
+    from logseq_matryca_parser.logos_parser import StackMachineParser
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    path = pages / "four.md"
+    source = "- root\n    - child\n"
+    path.write_text(source, encoding="utf-8")
+
+    page = StackMachineParser().parse_page_file(path)
+    assert page.tab_size == 4
+    rendered = serialize_logseq_page(page)
+    assert rendered == source
+
+
 def test_write_logseq_page_uses_utf8(tmp_path: Path) -> None:
     page = LogseqPage(
         title="Emoji 🚀",

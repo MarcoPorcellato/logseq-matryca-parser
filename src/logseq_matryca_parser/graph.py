@@ -7,13 +7,14 @@ import os
 import re
 import threading
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
+from logseq_matryca_parser.exceptions import BlockReferenceError
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import StackMachineParser
 from logseq_matryca_parser.logseq_markdown import _normalize_logseq_ref_token
@@ -78,6 +79,37 @@ class _DebouncedGraphEventRouter:
             self._timers.clear()
 
 
+def _normalize_tag_query(tag: str) -> str:
+    """Normalize a tag filter for case-insensitive ``#``-optional matching."""
+    stripped = tag.strip()
+    if stripped.startswith("#"):
+        stripped = stripped[1:]
+    return stripped.lower()
+
+
+def _normalize_relative_link_target(current_page_title: str, link_target: str) -> str:
+    """Resolve Logseq-style ``./`` and ``../`` segments against ``current_page_title``."""
+    target = link_target.strip()
+    segments = [part for part in current_page_title.split("/") if part]
+    if target.startswith("./"):
+        remainder = target[2:].lstrip("/")
+        if not remainder:
+            return current_page_title
+        parent_segments = segments[:-1]
+        return "/".join([*parent_segments, remainder]) if parent_segments else remainder
+    if not target.startswith(("../", "..")) and target not in {".", ".."}:
+        return target
+    for part in target.split("/"):
+        if part in {"", "."}:
+            continue
+        if part == "..":
+            if segments:
+                segments.pop()
+            continue
+        segments.append(part)
+    return "/".join(segments)
+
+
 class GraphQuery:
     """Fluent, chainable filter pipeline over a fixed slice of ``LogseqNode`` instances."""
 
@@ -91,7 +123,10 @@ class GraphQuery:
         )
 
     def has_tag(self, tag: str) -> Self:
-        self._nodes = [n for n in self._nodes if tag in n.tags]
+        needle = _normalize_tag_query(tag)
+        self._nodes = [
+            n for n in self._nodes if any(_normalize_tag_query(t) == needle for t in n.tags)
+        ]
         logger.debug("GraphQuery.has_tag tag=%s remaining=%s", tag, len(self._nodes))
         return self
 
@@ -141,6 +176,59 @@ def _append_backlink(registry: dict[str, list[str]], key: str, source_uuid: str)
         registry[key] = []
     registry[key].append(source_uuid)
     logger.debug("backlink index: %s <- source=%s", key, source_uuid)
+
+
+def iter_canonical_pages_from_dict(pages: dict[str, LogseqPage]) -> Iterator[LogseqPage]:
+    """Yield each physical ``LogseqPage`` once (dedupe alias keys in ``pages``)."""
+    seen_page_ids: set[int] = set()
+    for page in pages.values():
+        page_id = id(page)
+        if page_id in seen_page_ids:
+            continue
+        seen_page_ids.add(page_id)
+        yield page
+
+
+def _resolve_page_by_title(pages: dict[str, LogseqPage], title: str) -> LogseqPage | None:
+    """Resolve a page title with case-insensitive fallback (pre-``lower_title_map``)."""
+    stripped = title.strip()
+    if not stripped:
+        return None
+    direct = pages.get(stripped)
+    if direct is not None:
+        return direct
+    lower = stripped.lower()
+    for page in iter_canonical_pages_from_dict(pages):
+        if page.title.lower() == lower:
+            return page
+    return None
+
+
+def _wikilink_backlink_keys(pages: dict[str, LogseqPage], link: str) -> list[str]:
+    """Normalized backlink index keys for a wikilink (literal + canonical title + aliases)."""
+    keys: list[str] = []
+    seen: set[str] = set()
+    primary = _normalize_backlink_key(link)
+    if primary:
+        keys.append(primary)
+        seen.add(primary)
+    page = _resolve_page_by_title(pages, link)
+    if page is not None:
+        for candidate in (page.title, *_collect_page_alias_tokens(page.properties)):
+            key = _normalize_backlink_key(candidate)
+            if key and key not in seen:
+                keys.append(key)
+                seen.add(key)
+    return keys
+
+
+def _build_node_registry_from_pages(pages: dict[str, LogseqPage]) -> dict[str, LogseqNode]:
+    """Build the global node registry from indexed pages only (no title-collision ghosts)."""
+    registry: dict[str, LogseqNode] = {}
+    for page in iter_canonical_pages_from_dict(pages):
+        for node in _flatten_nodes(page.root_nodes):
+            registry[node.uuid] = node
+    return registry
 
 
 def _normalize_page_aliases(raw: Any) -> list[str]:
@@ -288,16 +376,10 @@ def _build_lower_title_map(pages: dict[str, LogseqPage]) -> dict[str, str]:
 def _build_backlink_registry(pages: dict[str, LogseqPage]) -> dict[str, list[str]]:
     """Map normalized targets (page title lower or block UUID) to source node UUIDs."""
     registry: dict[str, list[str]] = {}
-    seen_page_ids: set[int] = set()
-    for page in pages.values():
-        page_id = id(page)
-        if page_id in seen_page_ids:
-            continue
-        seen_page_ids.add(page_id)
+    for page in iter_canonical_pages_from_dict(pages):
         for node in _flatten_nodes(page.root_nodes):
             for link in node.wikilinks:
-                key = _normalize_backlink_key(link)
-                if key:
+                for key in _wikilink_backlink_keys(pages, link):
                     _append_backlink(registry, key, node.uuid)
             for tag in node.tags:
                 key = _normalize_backlink_key(tag)
@@ -349,8 +431,12 @@ class LogseqGraph(BaseModel):
         )
 
     @classmethod
-    def load_directory(cls, graph_path: Path) -> LogseqGraph:
-        """Discover markdown under ``pages/`` and ``journals/``, parse concurrently, build indexes."""
+    def load_directory(cls, graph_path: Path, *, strict_refs: bool = False) -> LogseqGraph:
+        """Discover markdown under ``pages/`` and ``journals/``, parse concurrently, build indexes.
+
+        When ``strict_refs`` is True, raise :class:`BlockReferenceError` if any block reference
+        in the vault cannot be resolved against the loaded node registry (cross-page validation).
+        """
         resolved = graph_path.expanduser().resolve()
         files = discover_graph_files(resolved)
         pages: dict[str, LogseqPage] = {}
@@ -383,10 +469,9 @@ class LogseqGraph(BaseModel):
         path_page_pairs.sort(key=lambda item: str(item[0].resolve()))
         for _path, page in path_page_pairs:
             pages[page.title] = page
-            for node in _flatten_nodes(page.root_nodes):
-                node_registry[node.uuid] = node
 
         _enrich_pages_index(pages)
+        node_registry = _build_node_registry_from_pages(pages)
         backlink_registry = _build_backlink_registry(pages)
         lower_title_map = _build_lower_title_map(pages)
 
@@ -395,31 +480,49 @@ class LogseqGraph(BaseModel):
             len(pages),
             len(node_registry),
         )
-        return cls(
+        graph = cls(
             graph_path=resolved,
             pages=pages,
             node_registry=node_registry,
             backlink_registry=backlink_registry,
             lower_title_map=lower_title_map,
         )
+        if strict_refs:
+            graph.raise_if_broken_references()
+        return graph
 
     @property
     def tab_size(self) -> int:
-        """Logseq outline tab width in spaces (matches ``StackMachineParser`` default)."""
+        """Default outline tab width in spaces (per-page ``LogseqPage.tab_size`` may differ)."""
         return 2
+
+    def tab_size_for_node(self, node: LogseqNode) -> int:
+        """Return the detected tab width for the page that owns ``node``."""
+        page = self._page_for_node(node)
+        return page.tab_size if page is not None else self.tab_size
 
     def get_node_by_uuid(self, uuid: str) -> LogseqNode | None:
         """Return the node for ``uuid`` if present in the global registry."""
         return self._node_registry.get(uuid)
 
+    def iter_canonical_pages(self) -> Iterator[LogseqPage]:
+        """Yield each physical page once (dedupe ``pages`` alias keys)."""
+        yield from iter_canonical_pages_from_dict(self.pages)
+
+    def _iter_attached_nodes(self) -> Iterator[LogseqNode]:
+        """Yield registry nodes that still belong to an indexed page (no collision ghosts)."""
+        for node in self._node_registry.values():
+            if self._page_for_node(node) is not None:
+                yield node
+
     def get_broken_references(self) -> list[LogseqNode]:
         """Return nodes whose ``block_refs`` point at UUIDs missing from the node registry."""
         broken: list[LogseqNode] = []
-        for node in self._node_registry.values():
+        for node in self._iter_attached_nodes():
             if not node.block_refs:
                 continue
             for ref in node.block_refs:
-                if ref not in self._node_registry:
+                if self.get_node_by_embed_ref(ref) is None:
                     broken.append(node)
                     logger.debug(
                         "get_broken_references origin=%s missing_ref=%s",
@@ -429,6 +532,23 @@ class LogseqGraph(BaseModel):
                     break
         return broken
 
+    def raise_if_broken_references(self) -> None:
+        """Raise :class:`BlockReferenceError` when any vault block reference is unresolved."""
+        broken = self.get_broken_references()
+        if not broken:
+            return
+        node = broken[0]
+        missing_ref = next(
+            ref for ref in node.block_refs if self.get_node_by_embed_ref(ref) is None
+        )
+        raise BlockReferenceError(
+            f"Unresolved block reference (({missing_ref})) on node {node.uuid}"
+        )
+
+    def page_for_node(self, node: LogseqNode) -> LogseqPage | None:
+        """Return the indexed page that owns ``node`` (public API for adapters)."""
+        return self._page_for_node(node)
+
     def get_node_by_embed_ref(self, block_ref: str) -> LogseqNode | None:
         """Resolve a Logseq block id: synthetic registry UUID, ``source_uuid``, or ``properties['id']``."""
         stripped = block_ref.strip()
@@ -437,17 +557,38 @@ class LogseqGraph(BaseModel):
         direct = self.get_node_by_uuid(stripped)
         if direct is not None:
             return direct
+        try:
+            canonical_uuid = str(uuid.UUID(stripped))
+        except ValueError:
+            canonical_uuid = None
+        if canonical_uuid is not None:
+            by_canonical = self.get_node_by_uuid(canonical_uuid)
+            if by_canonical is not None:
+                return by_canonical
         for node in self._node_registry.values():
             if node.source_uuid == stripped:
                 return node
             if node.properties.get("id") == stripped:
                 return node
+            if canonical_uuid is not None:
+                try:
+                    if node.source_uuid and str(uuid.UUID(node.source_uuid)) == canonical_uuid:
+                        return node
+                except ValueError:
+                    pass
+                prop_id = node.properties.get("id")
+                if isinstance(prop_id, str):
+                    try:
+                        if str(uuid.UUID(prop_id)) == canonical_uuid:
+                            return node
+                    except ValueError:
+                        pass
         logger.debug("get_node_by_embed_ref: no node for ref=%s", stripped)
         return None
 
     def query(self) -> GraphQuery:
         """Return a fluent query over all nodes registered in the graph."""
-        return GraphQuery(self, list(self._node_registry.values()))
+        return GraphQuery(self, list(self._iter_attached_nodes()))
 
     def get_page(self, title: str) -> LogseqPage | None:
         """Return a page by title, using case-insensitive routing when needed."""
@@ -484,11 +625,7 @@ class LogseqGraph(BaseModel):
         """Resolve the parsed page that owns ``node`` (same source file)."""
         if not node.source_path:
             return None
-        node_path = Path(node.source_path).resolve()
-        for page in self.pages.values():
-            if page.source_path and Path(page.source_path).resolve() == node_path:
-                return page
-        return None
+        return _page_for_source_path(self.pages, Path(node.source_path).resolve())
 
     def get_effective_properties(self, node_uuid: str) -> dict[str, Any]:
         """Merge page frontmatter with outline ancestors top-down; deeper blocks override."""
@@ -511,26 +648,28 @@ class LogseqGraph(BaseModel):
         return merged
 
     def get_nodes_by_tag(self, tag: str) -> list[LogseqNode]:
-        """Return all nodes whose ``tags`` contain ``tag``."""
+        """Return all nodes whose ``tags`` contain ``tag`` (case-insensitive, ``#`` optional)."""
+        needle = _normalize_tag_query(tag)
         matches: list[LogseqNode] = []
-        for node in self._node_registry.values():
-            if tag in node.tags:
+        for node in self._iter_attached_nodes():
+            if any(_normalize_tag_query(t) == needle for t in node.tags):
                 matches.append(node)
         return matches
 
     def search_content(self, query: str) -> list[LogseqNode]:
-        """Linear scan of ``clean_text`` for substring ``query``."""
+        """Linear scan of ``clean_text`` for substring ``query`` (case-insensitive)."""
         if not query:
             return []
+        needle = query.casefold()
         hits: list[LogseqNode] = []
-        for node in self._node_registry.values():
-            if query in node.clean_text:
+        for node in self._iter_attached_nodes():
+            if needle in node.clean_text.casefold():
                 hits.append(node)
         return hits
 
     def resolve_relative_page_link(self, current_page_title: str, link_target: str) -> str | None:
         """Resolve a relative page title like Logseq OG: nested namespace shadowing beats global."""
-        target = link_target.strip()
+        target = _normalize_relative_link_target(current_page_title, link_target.strip())
         if not target:
             return None
         segments = [part for part in current_page_title.split("/") if part]
@@ -560,12 +699,17 @@ class LogseqGraph(BaseModel):
         prefix = namespace_prefix.strip().rstrip("/")
         if not prefix:
             return []
-        needle = f"{prefix}/"
+        prefix_lower = prefix.lower()
+        needle_lower = f"{prefix_lower}/"
         children: list[LogseqPage] = []
-        for title, page in self.pages.items():
-            if not title.startswith(needle):
+        for page in self.iter_canonical_pages():
+            title = page.title
+            title_lower = title.lower()
+            if title_lower == prefix_lower:
                 continue
-            remainder = title[len(needle) :]
+            if not title_lower.startswith(needle_lower):
+                continue
+            remainder = title_lower[len(needle_lower) :]
             if remainder and "/" not in remainder:
                 children.append(page)
         children.sort(key=lambda p: p.title)
@@ -626,8 +770,7 @@ class LogseqGraph(BaseModel):
     def _append_page_backlinks(self, page: LogseqPage) -> None:
         for node in _flatten_nodes(page.root_nodes):
             for link in node.wikilinks:
-                key = _normalize_backlink_key(link)
-                if key:
+                for key in _wikilink_backlink_keys(self.pages, link):
                     _append_backlink(self._backlink_registry, key, node.uuid)
             for tag in node.tags:
                 key = _normalize_backlink_key(tag)
@@ -733,6 +876,23 @@ class LogseqGraphWatcher:
 
             def on_created(self, event: Any) -> None:
                 _enqueue_event(event)
+
+            def on_deleted(self, event: Any) -> None:
+                _enqueue_event(event)
+
+            def on_moved(self, event: Any) -> None:
+                if getattr(event, "is_directory", False):
+                    return
+                src = getattr(event, "src_path", None)
+                dest = getattr(event, "dest_path", None)
+                if src is not None:
+                    src_path = Path(str(src))
+                    if not _is_ignored_watcher_path(src_path):
+                        debouncer.schedule(src_path)
+                if dest is not None:
+                    dest_path = Path(str(dest))
+                    if not _is_ignored_watcher_path(dest_path):
+                        debouncer.schedule(dest_path)
 
         observer = Observer()
         observer.schedule(

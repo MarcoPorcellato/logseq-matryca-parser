@@ -119,6 +119,14 @@ def _parse_graph(graph_path: Path) -> list[LogseqPage]:
     return pages
 
 
+def _canonical_pages_from_graph(graph_path: Path) -> list[LogseqPage]:
+    """Load a graph directory and return deduplicated canonical pages for export."""
+    from logseq_matryca_parser.graph import LogseqGraph
+
+    graph = LogseqGraph.load_directory(graph_path)
+    return list(graph.iter_canonical_pages())
+
+
 def _build_stats_table(pages: list[LogseqPage]) -> Table:
     total_blocks = 0
     total_tags = 0
@@ -218,7 +226,7 @@ def scan(
     """Scan a graph and print aggregate parsing statistics."""
     resolved = _resolve_graph_path(ctx, graph_path)
 
-    pages = _parse_graph(resolved)
+    pages = _canonical_pages_from_graph(resolved)
     if not pages:
         console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
         raise typer.Exit(code=0)
@@ -238,7 +246,10 @@ def visualize(
     """Parse a graph, compute deep topology stats, and export an interactive HTML network."""
     resolved = _resolve_graph_path(ctx, graph_path)
 
-    pages = _parse_graph(resolved)
+    from logseq_matryca_parser.graph import LogseqGraph
+
+    loaded = LogseqGraph.load_directory(resolved)
+    pages = list(loaded.iter_canonical_pages())
     if not pages:
         console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
         raise typer.Exit(code=0)
@@ -246,7 +257,7 @@ def visualize(
     try:
         from logseq_matryca_parser.lens import GraphVisualizer
 
-        visualizer = GraphVisualizer(pages=pages)
+        visualizer = GraphVisualizer(pages=pages, graph=loaded)
     except ImportError:
         console.print(
             "[bold red]Missing visualization dependencies.[/] Please install them using: "
@@ -345,7 +356,7 @@ def _export_langchain(pages: list[LogseqPage], output_path: Path) -> Path:
 def _export_langchain_enriched(graph: LogseqGraph, output_path: Path) -> tuple[Path, int]:
     """Serialize context-enriched LangChain documents for the full loaded graph."""
     all_roots: list[LogseqNode] = []
-    for page in graph.pages.values():
+    for page in graph.iter_canonical_pages():
         all_roots.extend(page.root_nodes)
     docs = SynapseAdapter.to_context_enriched_chunks(all_roots, graph)
     payload: list[dict[str, Any]] = [
@@ -379,7 +390,7 @@ def _safe_obsidian_vault_relative_path(page_title: str) -> Path:
 
 def _export_obsidian(graph: LogseqGraph, output_path: Path) -> int:
     """Write one Obsidian-compatible Markdown file per page (namespace folders)."""
-    pages_list = list(graph.pages.values())
+    pages_list = list(graph.iter_canonical_pages())
     targets = ForgeExporter.vault_wide_embed_targets(pages_list)
     suffix_map = ForgeExporter.build_vault_obsidian_suffix_map(
         pages_list,
@@ -390,14 +401,14 @@ def _export_obsidian(graph: LogseqGraph, output_path: Path) -> int:
         node = graph.get_node_by_embed_ref(ref)
         if node is None:
             return None
-        for title, page in graph.pages.items():
+        for page in pages_list:
             if _page_tree_contains_node_uuid(page.root_nodes, node.uuid):
                 anchor = suffix_map.get(node.uuid, node.uuid.replace("-", "")[:8])
-                return title, anchor
+                return page.title, anchor
         return None
 
     count = 0
-    for page in graph.pages.values():
+    for page in pages_list:
         props = {**page.properties, "title": page.title}
         md = ForgeExporter.to_obsidian_markdown(
             page.root_nodes,
@@ -464,7 +475,7 @@ def export(
         )
         return
 
-    pages = _parse_graph(resolved_graph)
+    pages = _canonical_pages_from_graph(resolved_graph)
     if not pages:
         console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
         raise typer.Exit(code=0)

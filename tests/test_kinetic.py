@@ -185,6 +185,29 @@ def test_export_command_obsidian_writes_namespace_markdown(tmp_path: Path) -> No
     assert "^" in target_body
 
 
+def test_export_command_obsidian_dedupes_alias_pages(tmp_path: Path) -> None:
+    """Obsidian export writes one file per physical page when ``alias::`` is set (BUG-002)."""
+    graph_root = tmp_path / "graph"
+    pages_dir = graph_root / "pages"
+    journals_dir = graph_root / "journals"
+    pages_dir.mkdir(parents=True, exist_ok=True)
+    journals_dir.mkdir(parents=True, exist_ok=True)
+    (pages_dir / "Canonical.md").write_text(
+        "alias:: Alt\n\n- only block\n",
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "out-obsidian"
+
+    result = runner.invoke(
+        app, ["export", str(graph_root), str(output_dir), "--format", "obsidian"]
+    )
+
+    assert result.exit_code == 0
+    md_files = list(output_dir.rglob("*.md"))
+    assert len(md_files) == 1
+    assert md_files[0].name == "Canonical.md"
+
+
 def test_export_command_markdown_writes_output_file(tmp_path: Path) -> None:
     graph_root = _create_graph(tmp_path)
     output_dir = tmp_path / "out-markdown"

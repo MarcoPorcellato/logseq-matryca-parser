@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import logging
 import re
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from logseq_matryca_parser.logos_core import ASTVisitor, LogseqNode, LogseqPage
+
+if TYPE_CHECKING:
+    from logseq_matryca_parser.graph import LogseqGraph
 
 logger = logging.getLogger(__name__)
 
@@ -15,19 +19,32 @@ logger = logging.getLogger(__name__)
 class NetworkXVisitor(ASTVisitor):
     """Populate a NetworkX graph from Logseq node references."""
 
-    def __init__(self, graph: Any, page_title: str) -> None:
+    def __init__(
+        self,
+        graph: Any,
+        page_title: str,
+        *,
+        title_resolver: Callable[[str], str] | None = None,
+    ) -> None:
         self._graph = graph
         self._page_title = page_title
+        self._title_resolver = title_resolver
+
+    def _canonical_ref(self, ref: str) -> str:
+        if self._title_resolver is None:
+            return ref
+        return self._title_resolver(ref)
 
     def visit_node(self, node: LogseqNode) -> None:
         if not self._graph.has_node(self._page_title):
             self._graph.add_node(self._page_title, group="page")
 
         for ref in node.refs:
+            canonical = self._canonical_ref(ref)
             ref_group = "tag" if (ref in node.tags or ref.startswith("#")) else "page"
-            if not self._graph.has_node(ref):
-                self._graph.add_node(ref, group=ref_group)
-            self._graph.add_edge(self._page_title, ref)
+            if not self._graph.has_node(canonical):
+                self._graph.add_node(canonical, group=ref_group)
+            self._graph.add_edge(self._page_title, canonical)
 
         logger.debug(
             "LENS visit_node page=%s refs=%d cumulative_edges=%d",
@@ -43,10 +60,19 @@ class NetworkXVisitor(ASTVisitor):
 class GraphVisualizer:
     """Build and visualize a Logseq topology graph."""
 
-    def __init__(self, pages: list[LogseqPage]) -> None:
+    def __init__(self, pages: list[LogseqPage], graph: LogseqGraph | None = None) -> None:
         import networkx as nx  # type: ignore[import-untyped]
 
-        self._pages = pages
+        seen_page_ids: set[int] = set()
+        unique_pages: list[LogseqPage] = []
+        for page in pages:
+            page_id = id(page)
+            if page_id in seen_page_ids:
+                continue
+            seen_page_ids.add(page_id)
+            unique_pages.append(page)
+        self._pages = unique_pages
+        self._graph_ref = graph
         self._graph: Any = nx.Graph()
 
     @property
@@ -58,9 +84,20 @@ class GraphVisualizer:
 
         self._graph = nx.Graph()
         page_block_counts = {page.title: self._count_page_blocks(page) for page in self._pages}
+
+        def _resolve_ref_title(ref: str) -> str:
+            if self._graph_ref is None:
+                return ref
+            page = self._graph_ref.get_page(ref)
+            return page.title if page is not None else ref
+
         for page in self._pages:
             self._graph.add_node(page.title, group="page")
-            visitor = NetworkXVisitor(graph=self._graph, page_title=page.title)
+            visitor = NetworkXVisitor(
+                graph=self._graph,
+                page_title=page.title,
+                title_resolver=_resolve_ref_title if self._graph_ref is not None else None,
+            )
             for root_node in page.root_nodes:
                 root_node.accept(visitor)
 

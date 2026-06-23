@@ -66,6 +66,21 @@ def test_session_alias_registry_save_and_load_from_disk(tmp_path: Path) -> None:
     assert restored.alias_for_uuid(uuids[1]) == 1
 
 
+def test_session_alias_registry_load_skips_duplicate_uuids(tmp_path: Path) -> None:
+    """Duplicate UUID entries on disk keep the first alias mapping (BUG-009)."""
+    state_path = tmp_path / "alias_state.json"
+    state_path.write_text(
+        '{"0": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "1": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}',
+        encoding="utf-8",
+    )
+
+    registry = SessionAliasRegistry.load_from_disk(state_path)
+
+    assert registry.resolve_alias(0) == "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    assert registry.resolve_alias(1) is None
+    assert registry.alias_for_uuid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") == 0
+
+
 def test_to_xray_markdown_nested_properties_stripped() -> None:
     child_one = _make_node(
         "dddddddd-dddd-dddd-dddd-dddddddddddd",

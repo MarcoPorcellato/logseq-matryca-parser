@@ -141,7 +141,8 @@ def logseq_agent_write(
     reader = LogseqConfigReader(config_path)
     title = reader.format_timestamp(now)
     timestamp_tag = f"[[{title}]]"
-    week_id = now.strftime("%Y-W%W")
+    week_calendar = now.isocalendar()
+    week_id = f"{week_calendar.year}-W{week_calendar.week:02d}"
     filename = f"{week_id}-agent.md"
     file_path = os.path.join(pages_dir, filename)
 
@@ -190,7 +191,8 @@ def append_child_to_node(graph: LogseqGraph, target_uuid: str, content: str) -> 
     source_path = Path(target_node.source_path)
     insert_after_line = _insertion_line_after_node(target_node)
     child_level = target_node.indent_level + 1
-    indent = " " * (child_level * graph.tab_size)
+    tab_size = graph.tab_size_for_node(target_node)
+    indent = " " * (child_level * tab_size)
     new_line = f"{indent}- {content.rstrip()}"
 
     raw_text = source_path.read_text(encoding="utf-8-sig")

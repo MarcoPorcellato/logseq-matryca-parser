@@ -65,6 +65,18 @@ def test_legacy_namespace_filename_resolution(stem: str, expected_title: str) ->
     assert filename_to_page_title(stem) == expected_title
 
 
+def test_filename_to_page_title_preserves_dots_in_phrases_with_spaces() -> None:
+    """Titles like ``Dr. Smith`` keep literal dots (LIM-001)."""
+    assert filename_to_page_title("Dr. Smith") == "Dr. Smith"
+
+
+def test_page_title_to_filename_empty_title_uses_untitled() -> None:
+    """Empty titles map to the stable ``untitled`` stem (LIM-002)."""
+    assert page_title_to_filename("") == "untitled"
+    assert page_title_to_filename("   ") == "untitled"
+    assert page_title_to_relative_path("") == Path("untitled.md")
+
+
 def test_encode_and_decode_page_title_segment() -> None:
     assert encode_page_title_segment("A#B") == "A%23B"
     assert decode_page_title_segment("A%23B") == "A#B"

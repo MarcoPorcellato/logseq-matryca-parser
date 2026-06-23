@@ -28,122 +28,16 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Sync latest branch before metrics
         run: git pull --rebase origin "${GITHUB_REF_NAME}"
 
-      - name: Fetch and Merge Metrics
+      - name: Fetch and Archive Quarterly Metrics
         env:
           GITHUB_TOKEN: ${{ secrets.METRICS_TOKEN }}
           REPO_SLUG: ${{ github.repository }}
-        run: |
-          python -c "
-          import os, json, sys, datetime
-          from urllib.request import Request, urlopen
-          from urllib.error import HTTPError
-          token = os.environ.get('GITHUB_TOKEN')
-          repo = os.environ.get('REPO_SLUG')
-          if not token:
-              print('Errore critico: METRICS_TOKEN non trovato nei Secrets!')
-              sys.exit(1)
-
-          headers = {
-              'Authorization': f'Bearer {token}',
-              'Accept': 'application/vnd.github.v3+json'
-          }
-
-          def fetch_api(url):
-              try:
-                  req = Request(url, headers=headers)
-                  with urlopen(req) as response:
-                      return json.loads(response.read().decode())
-              except HTTPError as e:
-                  print(f'Errore API HTTP {e.code} per {url}: {e.reason}')
-                  return None
-              except Exception as e:
-                  print(f'Errore generico nel fetching di {url}: {e}')
-                  return None
-
-          # 1. Recupera tutti i dati di traffico (inclusi i nuovi endpoint)
-          views_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/views')
-          clones_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/clones')
-          referrers_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/popular/referrers')
-          paths_data = fetch_api(f'https://api.github.com/repos/{repo}/traffic/popular/paths')
-          releases_data = fetch_api(f'https://api.github.com/repos/{repo}/releases')
-
-          # 2. Prepara la cartella e la struttura dello storico
-          os.makedirs('metrics', exist_ok=True)
-          history_file = 'metrics/history.json'
-
-          if os.path.exists(history_file):
-              with open(history_file, 'r', encoding='utf-8') as f:
-                  try:
-                      history = json.load(f)
-                  except json.JSONDecodeError:
-                      history = {}
-          else:
-              history = {}
-
-          # Inizializza i nodi se mancanti
-          for key in ['views', 'clones', 'releases', 'referrers', 'popular_content']:
-              if key not in history:
-                  history[key] = {}
-
-          today = datetime.datetime.utcnow().strftime('%Y-%m-%d')
-
-          # 3. Storicizza le Views (Ultimi 14 giorni)
-          v_days_added = []
-          if views_data and 'views' in views_data:
-              for v in views_data['views']:
-                  day = v['timestamp'][:10]
-                  history['views'][day] = {'count': v['count'], 'uniques': v['uniques']}
-                  v_days_added.append(day)
-          print(f'-> [INFO] Rilevate {len(v_days_added)} giornate di traffico (Views).')
-
-          # 4. Storicizza i Clones (Ultimi 14 giorni)
-          c_days_added = []
-          if clones_data and 'clones' in clones_data:
-              for c in clones_data['clones']:
-                  day = c['timestamp'][:10]
-                  history['clones'][day] = {'count': c['count'], 'uniques': c['uniques']}
-                  c_days_added.append(day)
-          print(f'-> [INFO] Rilevate {len(c_days_added)} giornate di clonazione (Clones).')
-
-          # 5. Nuovo: Snapshot quotidiano dei Referring Sites (Siti di provenienza)
-          if referrers_data:
-              history['referrers'][today] = [
-                  {'referrer': r['referrer'], 'count': r['count'], 'uniques': r['uniques']}
-                  for r in referrers_data
-              ]
-              print(f'-> [INFO] Snapshot dei Referring Sites archiviato per la data: {today}')
-
-          # 6. Nuovo: Snapshot quotidiano dei Popular Paths (Contenuto popolare)
-          if paths_data:
-              history['popular_content'][today] = [
-                  {'path': p['path'], 'title': p['title'], 'count': p['count'], 'uniques': p['uniques']}
-                  for p in paths_data
-              ]
-              print(f'-> [INFO] Snapshot del Popular Content archiviato per la data: {today}')
-
-          # 7. Snapshot cumulativo dei download delle release
-          if releases_data:
-              history['releases'][today] = [
-                  {
-                      'tag': r['tag_name'],
-                      'assets': [{a['name']: a['download_count']} for a in r.get('assets', [])]
-                  }
-                  for r in releases_data
-              ]
-              print(f'-> [INFO] Snapshot dei download release registrato.')
-
-          # 8. Scrivi lo storico aggiornato su disco
-          with open(history_file, 'w', encoding='utf-8') as f:
-              json.dump(history, f, indent=2)
-              f.write('\n')
-          
-          print('✓ Database JSON delle metriche aggiornato con successo con i nuovi tracciamenti!')
-          "
+        run: python scripts/archive_repository_metrics.py
 
       - name: Commit & Push Changes
         env:
@@ -151,12 +45,12 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
-          git add metrics/history.json
+          git add metrics/
           if git diff --quiet && git diff --staged --quiet; then
             echo "No metric changes to commit."
             exit 0
           fi
-          git commit -m "chore(analytics): archive comprehensive repository metrics [skip ci]"
+          git commit -m "chore(analytics): archive quarterly repository metrics [skip ci]"
           max_attempts=5
           for attempt in $(seq 1 "$max_attempts"); do
             if git pull --rebase origin "$BRANCH" && git push origin "HEAD:${BRANCH}"; then

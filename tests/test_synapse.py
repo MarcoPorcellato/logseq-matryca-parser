@@ -139,6 +139,40 @@ def test_to_llamaindex_nodes_injects_parent_child_relationships() -> None:
     assert child_node.metadata["task_priority"] == "A"
 
 
+def test_to_llamaindex_nodes_assigns_distinct_source_per_page() -> None:
+    """Multi-page root lists receive independent LlamaIndex ``SOURCE`` ids (BUG-018)."""
+    fake_relationship = SimpleNamespace(
+        PARENT="PARENT",
+        CHILD="CHILD",
+        SOURCE="SOURCE",
+        NEXT="NEXT",
+        PREVIOUS="PREVIOUS",
+    )
+    root_a = LogseqNode(
+        uuid="root-a",
+        content="Page A",
+        clean_text="Page A",
+        indent_level=0,
+        source_path="/vault/pages/A.md",
+    )
+    root_b = LogseqNode(
+        uuid="root-b",
+        content="Page B",
+        clean_text="Page B",
+        indent_level=0,
+        source_path="/vault/pages/B.md",
+    )
+    with (
+        patch("logseq_matryca_parser.synapse.TextNode", FakeTextNode),
+        patch("logseq_matryca_parser.synapse.NodeRelationship", fake_relationship),
+        patch("logseq_matryca_parser.synapse.RelatedNodeInfo", FakeRelatedNodeInfo),
+    ):
+        nodes = SynapseAdapter.to_llamaindex_nodes([root_a, root_b])
+
+    source_ids = {nodes[0].relationships["SOURCE"].node_id, nodes[1].relationships["SOURCE"].node_id}
+    assert len(source_ids) == 2
+
+
 def test_to_llamaindex_nodes_wires_sibling_next_and_previous() -> None:
     fake_relationship = SimpleNamespace(
         PARENT="PARENT",

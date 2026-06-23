@@ -52,7 +52,10 @@ def decode_page_title_segment(segment: str) -> str:
 
 def page_title_to_filename(title: str) -> str:
     """Translate a page title into a flat Logseq filename stem (no ``.md`` suffix)."""
-    flattened = title.replace("/", _NAMESPACE_SEPARATOR)
+    stripped = title.strip()
+    if not stripped:
+        return "untitled"
+    flattened = stripped.replace("/", _NAMESPACE_SEPARATOR)
     return encode_page_title_segment(flattened)
 
 
@@ -60,7 +63,11 @@ def filename_to_page_title(name: str) -> str:
     """Translate a flat filename stem back into a semantic page title."""
     decoded = unquote(name)
     with_slashes = decoded.replace(_NAMESPACE_SEPARATOR, "/")
-    return with_slashes.replace(".", "/")
+    if " " in with_slashes:
+        return with_slashes
+    if "." in with_slashes:
+        return with_slashes.replace(".", "/")
+    return with_slashes
 
 
 def _last_part_index(parts: tuple[str, ...] | list[str], token: str) -> int | None:

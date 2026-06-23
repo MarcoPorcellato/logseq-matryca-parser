@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from logseq_matryca_parser.exceptions import BlockReferenceError
 from logseq_matryca_parser.graph import GraphQuery, LogseqGraph
 
 
@@ -167,6 +168,7 @@ def test_page_aliases_and_backlink_resolution(tmp_path: Path) -> None:
     assert graph.pages["Coding"] is development
     assert linker in graph.get_backlinks("Dev")
     assert linker in graph.get_backlinks("Coding")
+    assert linker in graph.get_backlinks("Development")
     assert graph.get_backlinks("dev") == graph.get_backlinks("Dev")
 
 
@@ -479,3 +481,185 @@ def test_invalidate_and_reload_purges_deleted_page(tmp_path: Path) -> None:
 
     assert graph.get_page("Gone") is None
     assert graph.get_node_by_uuid(stale_uuid) is None
+
+
+def test_title_collision_pages_journals_no_ghost_registry(tmp_path: Path) -> None:
+    """``pages/`` and ``journals/`` with the same title must not leave loser nodes in the registry."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    journals = graph_root / "journals"
+    pages.mkdir(parents=True)
+    journals.mkdir(parents=True)
+    (pages / "Daily.md").write_text("- from pages folder\n", encoding="utf-8")
+    (journals / "Daily.md").write_text("- from journals folder\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    winner = graph.pages["Daily"]
+
+    assert winner.source_path == str((pages / "Daily.md").resolve())
+    assert len(list(graph.iter_canonical_pages())) == 1
+    assert all(graph._page_for_node(n) is not None for n in graph._node_registry.values())
+    hits = graph.search_content("from journals folder")
+    assert hits == []
+    hits_pages = graph.search_content("from pages folder")
+    assert len(hits_pages) == 1
+
+
+def test_duplicate_title_override_no_ghost_registry(tmp_path: Path) -> None:
+    """Two files with the same ``title::`` must index only the path-sorted winner's nodes."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "A.md").write_text("title:: Shared\n\n- from-A\n", encoding="utf-8")
+    (pages / "B.md").write_text("title:: Shared\n\n- from-B\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    winner = graph.pages["Shared"]
+
+    assert winner.source_path == str((pages / "B.md").resolve())
+    assert graph.search_content("from-A") == []
+    assert len(graph.search_content("from-B")) == 1
+    assert len(list(graph.iter_canonical_pages())) == 1
+
+
+def test_get_namespace_children_case_insensitive_prefix(tmp_path: Path) -> None:
+    """Namespace child listing matches ``get_page`` case-insensitive routing."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Progetti" / "AI").mkdir(parents=True)
+    (pages / "Progetti" / "AI" / "Matryca.md").write_text("- hub\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    children = graph.get_namespace_children("progetti/ai")
+
+    assert {p.title for p in children} == {"Progetti/AI/Matryca"}
+
+
+def test_get_node_by_embed_ref_uuid_case_insensitive(tmp_path: Path) -> None:
+    """Block UUID lookup is case-insensitive for ``source_uuid`` and ``id::`` properties."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    block_uuid = "64c752b0-d33b-4448-a261-e4dc2bbe12d3"
+    upper_uuid = block_uuid.upper()
+    (pages / "Target.md").write_text(
+        f"- Block\n  id:: {block_uuid}\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    node = graph.get_node_by_embed_ref(upper_uuid)
+
+    assert node is not None
+    assert node.properties.get("id") == block_uuid
+
+
+def test_watcher_on_deleted_purges_page(tmp_path: Path) -> None:
+    """``on_deleted`` routes into incremental invalidation (BUG-014)."""
+    pytest.importorskip("watchdog")
+    from unittest.mock import MagicMock, patch
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    path_doc = pages / "Ephemeral.md"
+    path_doc.write_text("- live\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    stale_uuid = graph.pages["Ephemeral"].root_nodes[0].uuid
+
+    mock_observer = MagicMock()
+    with patch("watchdog.observers.Observer", return_value=mock_observer):
+        watcher = graph.start_watching(debounce_seconds=0)
+        handler = mock_observer.schedule.call_args[0][0]
+
+    path_doc.unlink()
+
+    class _DelEv:
+        is_directory = False
+        src_path = str(path_doc)
+
+    handler.on_deleted(_DelEv())
+    assert graph.get_page("Ephemeral") is None
+    assert graph.get_node_by_uuid(stale_uuid) is None
+    watcher.stop()
+
+
+def test_search_content_is_case_insensitive(tmp_path: Path) -> None:
+    """``search_content`` matches case-insensitively (aligned with ``get_page``)."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Doc.md").write_text("- Hello World note\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    assert len(graph.search_content("hello")) == 1
+    assert len(graph.search_content("HELLO")) == 1
+
+
+def test_get_nodes_by_tag_accepts_hash_prefix_and_case(tmp_path: Path) -> None:
+    """Tag queries accept ``#`` prefix and case-insensitive matching."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Tagged.md").write_text("- Block with #MyTag\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    assert len(graph.get_nodes_by_tag("mytag")) == 1
+    assert len(graph.get_nodes_by_tag("#MyTag")) == 1
+    hits = graph.query().has_tag("#mytag").execute()
+    assert len(hits) == 1
+
+
+def test_resolve_relative_page_link_supports_parent_segments(tmp_path: Path) -> None:
+    """``../`` and ``./`` segments resolve before namespace shadowing."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Global.md").write_text("- global\n", encoding="utf-8")
+    (pages / "NS").mkdir(parents=True)
+    (pages / "NS" / "Child.md").write_text("- child\n", encoding="utf-8")
+    (pages / "NS" / "Sibling.md").write_text("- sibling\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    assert graph.resolve_relative_page_link("NS/Child", "../Sibling") == "NS/Sibling"
+    assert graph.resolve_relative_page_link("NS/Child", "./Child") == "NS/Child"
+    assert graph.resolve_relative_page_link("NS/Child", "Global") == "Global"
+
+
+def test_get_namespace_children_dedupes_alias_keys(tmp_path: Path) -> None:
+    """Namespace listing must not duplicate pages reachable via ``alias::`` keys (BUG-007)."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "NS").mkdir(parents=True)
+    (pages / "NS" / "Leaf.md").write_text(
+        "alias:: NS/AliasLeaf\n\n- body\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    children = graph.get_namespace_children("NS")
+
+    assert len(children) == 1
+    assert children[0].title == "NS/Leaf"
+
+
+def test_load_directory_strict_refs_validates_cross_page(tmp_path: Path) -> None:
+    """``strict_refs=True`` accepts cross-page block refs but rejects vault-wide orphans."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    block_uuid = "64c752b0-d33b-4448-a261-e4dc2bbe12d3"
+    (pages / "Target.md").write_text(f"- anchor\n  id:: {block_uuid}\n", encoding="utf-8")
+    (pages / "Linker.md").write_text(f"- see (({block_uuid}))\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root, strict_refs=True)
+    assert len(graph.pages) == 2
+
+    (pages / "Broken.md").write_text(
+        "- missing ((00000000-0000-0000-0000-000000000099))\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(BlockReferenceError):
+        LogseqGraph.load_directory(graph_root, strict_refs=True)

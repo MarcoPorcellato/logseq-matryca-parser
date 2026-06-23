@@ -1,9 +1,11 @@
 # Bug Hunt Report — logseq-matryca-parser
 
-**Data:** 2026-06-23  
+**Data:** 2026-06-23 (audit) · **Risoluzione:** 2026-06-23  
 **Scope:** audit statico + dinamico del repository (The Logos Protocol)  
-**Strumenti:** GitNexus MCP (`user-gitnexus`), `make all`, `scripts/debug_pre_release.py`, probe Python ad hoc  
-**Riferimenti architetturali:** [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) (R. C. Martin), [`ARCHITECTURE.md`](ARCHITECTURE.md), skill [`.claude/skills/gitnexus-logseq-parser/SKILL.md`](../.claude/skills/gitnexus-logseq-parser/SKILL.md)
+**Strumenti:** analisi statica locale (graph-based), `make all`, `scripts/debug_pre_release.py`, probe Python ad hoc  
+**Riferimenti architetturali:** [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) (R. C. Martin), [`ARCHITECTURE.md`](ARCHITECTURE.md)
+
+> **Stato risoluzione (2026-06-23):** tutti i **BUG-001…031** e le limitazioni **LIM-001/002** sono stati affrontati nel codice (vedi `CHANGELOG.md` `[Unreleased]`). **DEBT-001** (`iter_canonical_pages`, `page_for_node`) è implementato; debito architetturale residuo (SRP su `kinetic.py`, OCP embed strategy) resta backlog non bloccante.
 
 ---
 
@@ -14,24 +16,24 @@
 | `make all` (Ruff + Mypy + 244 pytest) | **PASS** |
 | Coverage | **89.52%** (soglia 80%) |
 | Round-trip corpus (`debug_pre_release.py`) | **19/19 OK** |
-| GitNexus `check` (cicli IMPORTS) | **0 cicli** |
-| GitNexus index | `logseq-matryca-parser` — 1074 embeddings, commit `7d3f77b` |
+| analisi statica `check` (cicli IMPORTS) | **0 cicli** |
+| analisi statica index | `logseq-matryca-parser` — 1074 embeddings, commit `7d3f77b` |
 
-Nonostante la suite verde, l’analisi guidata da GitNexus e da probe runtime ha individuato **31 bug/issue ID** (3 Critical parser-crash, 15 Medium/High, 13 Low) e debiti architetturali (violazione *Interface Segregation* su `graph.pages`).
+Nonostante la suite verde, l’analisi guidata da analisi statica e da probe runtime ha individuato **31 bug/issue ID** (3 Critical parser-crash, 15 Medium/High, 13 Low) e debiti architetturali (violazione *Interface Segregation* su `graph.pages`).
 
 **Priorità immediata:** (1) **BUG-017** — `IndexError` su bullet vuoto + proprietà (crash `load_directory` / `scan`); (2) SYNAPSE embed hang (BUG-001); (3) collisione titoli in `load_directory` (BUG-010/013); (4) **grafo in-memory stale dopo `agent-write`** (BUG-016); (5) delete-safe invalidate (BUG-005).
 
-**Wave 2 (2026-06-23):** +4 bug confermati via GitNexus `query` su `_enrich_pages_index` / `invalidate_and_reload_page` e probe alias-heavy vaults.
+**Wave 2 (2026-06-23):** +4 bug confermati via analisi statica `query` su `_enrich_pages_index` / `invalidate_and_reload_page` e probe alias-heavy vaults.
 
-**Wave 3 (2026-06-23):** +3 bug confermati via GitNexus `context(load_directory)`, `impact(get_node_by_embed_ref)`, `query(append_child_to_node)` — integrità indice graph e headless writer.
+**Wave 3 (2026-06-23):** +3 bug confermati via analisi statica `context(load_directory)`, `impact(get_node_by_embed_ref)`, `query(append_child_to_node)` — integrità indice graph e headless writer.
 
-**Wave 4 (2026-06-23):** +4 bug via GitNexus `query(forge/agent_write)`, `context(LogseqGraphWatcher)` — grafo in-memory stale, watcher incompleto, `title::` collision cross-file.
+**Wave 4 (2026-06-23):** +4 bug via analisi statica `query(forge/agent_write)`, `context(LogseqGraphWatcher)` — grafo in-memory stale, watcher incompleto, `title::` collision cross-file.
 
-**Wave 5–6 (2026-06-23):** +4 bug via GitNexus `impact(_refresh_node)` risk **CRITICAL**, probe `load_directory` / `_parse_graph` / LENS / SYNAPSE — crash parser su outline Logseq reale, metadata RAG errati, statistiche LENS duplicate.
+**Wave 5–6 (2026-06-23):** +4 bug via analisi statica `impact(_refresh_node)` risk **CRITICAL**, probe `load_directory` / `_parse_graph` / LENS / SYNAPSE — crash parser su outline Logseq reale, metadata RAG errati, statistiche LENS duplicate.
 
-**Wave 7 (2026-06-23):** +5 bug via GitNexus `impact(search_content)` → `agent_read`, probe serialize / export markdown / ghost registry — round-trip 4 spazi, nodi orfani in search/agent-read/RAG, export markdown duplicato, `strict_refs` solo same-page.
+**Wave 7 (2026-06-23):** +5 bug via analisi statica `impact(search_content)` → `agent_read`, probe serialize / export markdown / ghost registry — round-trip 4 spazi, nodi orfani in search/agent-read/RAG, export markdown duplicato, `strict_refs` solo same-page.
 
-**Wave 8 (2026-06-23):** +6 bug via GitNexus `query(resolve_relative_page_link)`, `query(agent_press)`, probe backlink/namespace/tag case, `_export_json`, `resolve_asset_path` — chiusura mappatura moduli core.
+**Wave 8 (2026-06-23):** +6 bug via analisi statica `query(resolve_relative_page_link)`, `query(agent_press)`, probe backlink/namespace/tag case, `_export_json`, `resolve_asset_path` — chiusura mappatura moduli core.
 
 ---
 
@@ -77,7 +79,7 @@ flowchart TB
 
 ### 2.2 Pipeline di indagine
 
-1. **Bootstrap GitNexus** — `list_repos`, `check(cycles)`, `query`, `impact`, `context` su `StackMachineParser`, `serialize_logseq_page`, `LogseqGraph`, `logseq_agent_write`.
+1. **Bootstrap analisi statica locale** — `check(cycles)`, `query`, `impact`, `context` su `StackMachineParser`, `serialize_logseq_page`, `LogseqGraph`, `logseq_agent_write`.
 2. **Gate qualità** — `make all`.
 3. **Corpus round-trip** — `uv run python scripts/debug_pre_release.py`.
 4. **Probe mirati** — script Python isolati con `SIGALRM` per rilevare hang; confronto semantico settimane ISO vs `%W`.
@@ -85,7 +87,7 @@ flowchart TB
 
 ---
 
-## 3. GitNexus — evidenze strutturali
+## 3. Evidenze strutturali (analisi statica locale)
 
 | Query / tool | Risultato | Implicazione |
 | :--- | :--- | :--- |
@@ -103,7 +105,7 @@ flowchart TB
 | `impact(resolve_relative_page_link)` | **0 caller** upstream | API pubblica ma non usata internamente; BUG-029 gap `../`. |
 | `query(agent_press to_xray_markdown)` | `SessionAliasRegistry`, `agent_read` | Dup X-Ray solo se consumer passa `pages.values()` roots. |
 
-**Staleness:** l’indice GitNexus è allineato al commit indicizzato; dopo merge significativi eseguire `make gitnexus-index`.
+**Staleness:** l’indice locale è allineato al commit indicizzato; dopo merge significativi eseguire `refresh dell'indice locale`.
 
 ---
 
@@ -142,7 +144,7 @@ double-brace missing uuid INFINITE_LOOP
 2. Su risoluzione fallita: sostituire con stringa vuota o placeholder, **mai** con `match.group(0)`.
 3. Aggiungere test regressione in `tests/test_synapse.py` per: pagina mancante, casing errato, UUID block assente.
 
-**GitNexus blast radius:** `impact(SynapseAdapter.to_context_enriched_chunks, upstream)` prima del fix.
+**Blast radius (analisi statica):** `impact(SynapseAdapter.to_context_enriched_chunks, upstream)` prima del fix.
 
 ---
 
@@ -166,7 +168,7 @@ BUG-005 exception: FileNotFoundError .../pages/Gone.md
 
 **Fix raccomandato:** se `not resolved.exists()`, purgare chiavi/backlink/nodi per quel `source_path` (simmetrico a reload) e uscire senza parse.
 
-**GitNexus:** `context(invalidate_and_reload_page)` — caller diretto: watcher handler; test esistente copre solo *edit*, non *delete*.
+**Analisi statica:** `context(invalidate_and_reload_page)` — caller diretto: watcher handler; test esistente copre solo *edit*, non *delete*.
 
 ---
 
@@ -271,7 +273,7 @@ query().execute() → 2 nodi, uno orfano
 
 **Fix raccomandato:** chiave composta `(source_kind, title)` o namespace titoli journal (`[[Apr 25th, 2024]]`); oppure purge registry nodes non appartenenti alla pagina vincitrice dopo merge.
 
-**GitNexus:** `context(load_directory)` — 25+ test caller; `impact` risk alto su refactor.
+**Analisi statica:** `context(load_directory)` — 25+ test caller; `impact` risk alto su refactor.
 
 ---
 
@@ -294,7 +296,7 @@ append_child_to_node(..., 'appended')
 
 **Fix raccomandato:** derivare indent dal bullet parent nel file (`line_start` / regex sulle leading spaces) o da `node.indent_level` × indent width rilevato per pagina.
 
-**GitNexus:** `impact(append_child_to_node)` → `agent_write` CLI (7 process hits).
+**Analisi statica:** `impact(append_child_to_node)` → `agent_write` CLI (7 process hits).
 
 ---
 
@@ -317,7 +319,7 @@ get_node_by_embed_ref(lower) → miss
 
 **Fix raccomandato:** normalizzare a lowercase per confronto UUID (come `_node_identity_keys` in `forge.py`).
 
-**GitNexus:** `impact(get_node_by_embed_ref)` → `to_context_enriched_chunks`, `embed_resolver` Obsidian.
+**Analisi statica:** `impact(get_node_by_embed_ref)` → `to_context_enriched_chunks`, `embed_resolver` Obsidian.
 
 ---
 
@@ -353,7 +355,7 @@ winner: B.md / from-B
 
 **Evidenza:** ispezione sorgente `start()` — assenza `on_deleted`/`on_moved`; combinato con BUG-005 se un evento successivo tenta reload su path sparito.
 
-**GitNexus:** `context(LogseqGraphWatcher)` — processi `on_modified`/`on_created` only.
+**Analisi statica:** `context(LogseqGraphWatcher)` — processi `on_modified`/`on_created` only.
 
 **Fix:** aggiungere `on_deleted` → purge per `source_path`; `on_moved` → invalidate old + new path.
 
@@ -401,7 +403,7 @@ parent.children after append: 0   # AST non aggiornato
 
 **Fix:** dopo splice, `graph.invalidate_and_reload_page(source_path)` (o parse incrementale del sottoalbero).
 
-**GitNexus:** `impact(append_child_to_node)` → `agent_write` (7 process hits).
+**Analisi statica:** `impact(append_child_to_node)` → `agent_write` (7 process hits).
 
 ---
 
@@ -435,7 +437,7 @@ _parse_graph (kinetic scan) → IndexError a metà progress bar
 
 **Fix raccomandato:** riusare `first_line` (o `content.splitlines()[0] if content.splitlines() else ""`) anche per `_extract_task_status`; test regressione `test_empty_bullet_with_block_properties` (distinto da `test_empty_bullet_without_trailing_space` che copre solo `"-"`).
 
-**GitNexus:** `impact(_refresh_node, upstream)` → risk **CRITICAL**, processi `load_and_convert`, `scan`, `parse`, `parse_file`, `main` (debug_pre_release).
+**Analisi statica:** `impact(_refresh_node, upstream)` → risk **CRITICAL**, processi `load_and_convert`, `scan`, `parse`, `parse_file`, `main` (debug_pre_release).
 
 ---
 
@@ -459,7 +461,7 @@ to_llamaindex_nodes(all_roots) → SOURCE count: 1, nodes: 2
 
 **Fix raccomandato:** documentare che `to_llamaindex_nodes` è per-page; oppure derivare `SOURCE` per nodo da `node.source_path` / `page_source_node_id(page_title, path)`.
 
-**GitNexus:** `query(to_llamaindex_nodes SOURCE)` → `LlamaIndexVisitor`, test `test_to_llamaindex_nodes_injects_parent_child_relationships`.
+**Analisi statica:** `query(to_llamaindex_nodes SOURCE)` → `LlamaIndexVisitor`, test `test_to_llamaindex_nodes_injects_parent_child_relationships`.
 
 ---
 
@@ -527,7 +529,7 @@ serialize_logseq_page(page, tab_size=4) → match=True   # ma tab_size non è au
 
 **Fix raccomandato:** rilevare `tab_size` per pagina al parse (GCD degli incrementi di indent) e propagarlo su `LogseqPage` / `LogseqGraph.tab_size`; oppure memorizzare leading spaces originali.
 
-**Relazione:** stessa famiglia di BUG-011 (`append_child_to_node`); GitNexus `impact(serialize_logseq_page)` risk **LOW**.
+**Relazione:** stessa famiglia di BUG-011 (`append_child_to_node`); analisi statica `impact(serialize_logseq_page)` risk **LOW**.
 
 ---
 
@@ -554,7 +556,7 @@ get_nodes_by_tag('orphan') → 1 hit su nodo fantasma
 
 **Fix raccomandato:** unificare con BUG-010 purge; oppure `iter_attached_nodes()` che esclude orfani; `agent_read` dovrebbe usarlo di default.
 
-**GitNexus:** `impact(search_content, upstream)` → `agent_read` (6 process hits).
+**Analisi statica:** `impact(search_content, upstream)` → `agent_read` (6 process hits).
 
 ---
 
@@ -578,7 +580,7 @@ to_context_enriched_chunks([ghost_child], graph):
 
 **Fix:** dipende da BUG-010 purge; in alternativa saltare nodi orfani in export enriched.
 
-**GitNexus:** `impact(get_effective_properties)` → `to_context_enriched_chunks`.
+**Analisi statica:** `impact(get_effective_properties)` → `to_context_enriched_chunks`.
 
 ---
 
@@ -621,7 +623,7 @@ parse_page_file('- ((aaaaaaaa-...))') same-page missing strict_refs=True → Blo
 
 **Fix:** documentare il comportamento o estendere validazione cross-graph (con `LogseqGraph` caricato).
 
-**GitNexus:** `query(strict_refs BlockReferenceError)` → test `test_strict_refs_raises_on_unresolved_block_reference` copre solo same-page.
+**Analisi statica:** `query(strict_refs BlockReferenceError)` → test `test_strict_refs_raises_on_unresolved_block_reference` copre solo same-page.
 
 ---
 
@@ -704,7 +706,7 @@ current='NS/Child', target='../Global' → None
 current='NS/Child', target='./Global'  → None
 ```
 
-**Nota GitNexus:** `impact(resolve_relative_page_link)` → 0 caller diretti; API pubblica non usata internamente.
+**Nota analisi statica:** `impact(resolve_relative_page_link)` → 0 caller diretti; API pubblica non usata internamente.
 
 **Fix:** normalizzare path relativi Logseq (`../`, `./`) prima del loop namespace.
 
@@ -767,7 +769,7 @@ def iter_canonical_pages(self) -> Iterator[LogseqPage]:
 
 Usarlo in `kinetic._export_*`, `get_namespace_children`, e documentarlo in `ARCHITECTURE.md`.
 
-**GitNexus:** `query("pages.values alias enrich_pages_index")` → hub `_enrich_pages_index` collegato ad `agent_write`, `scan`, `_export_langchain_enriched`.
+**Analisi statica:** `query("pages.values alias enrich_pages_index")` → hub `_enrich_pages_index` collegato ad `agent_write`, `scan`, `_export_langchain_enriched`.
 
 ---
 
@@ -873,7 +875,7 @@ Valutazione secondo i principi di R. C. Martin, senza implicare che il codice si
 | **ISP / encapsulation** | Consumer iterano `graph.pages.values()` raw | `kinetic.py`, `graph.py` | `iter_canonical_pages()` — DEBT-001; radice di BUG-002/006/007. |
 | **Use case completeness** | Nessun ramo *delete* in invalidazione incrementale | `graph.py` L641 | BUG-005; watcher senza delete/move — BUG-014 |
 
-**Dependency rule:** nessun ciclo di import (GitNexus `check`); la violazione principale è **leaky abstraction** (accesso a membri privati e dizionario `pages` raw).
+**Dependency rule:** nessun ciclo di import (analisi statica `check`); la violazione principale è **leaky abstraction** (accesso a membri privati e dizionario `pages` raw).
 
 ---
 
@@ -919,7 +921,7 @@ Linee non coperte con **alto rischio funzionale** (non solo numeri):
 | P5 | Debito | `graph.page_for_node` pubblico; rimuovere `assert` | 2 h |
 | P6 | Coverage | Chiudere GFI-01, GFI-02, GFI-14 | backlog |
 
-Dopo ogni fix: `make all` + `make gitnexus-index` + `impact` sul simbolo modificato.
+Dopo ogni fix: `make all` + `refresh dell'indice locale` + `impact` sul simbolo modificato.
 
 ---
 
@@ -1190,7 +1192,7 @@ with tempfile.TemporaryDirectory() as d:
 
 Audit esauriente su tutti i moduli in `src/logseq_matryca_parser/` (wave 1–8). **Stato:** nessun sotto-sistema core rimasto senza probe mirato.
 
-| Modulo | Probe / GitNexus | Esito |
+| Modulo | Probe / analisi statica | Esito |
 | :--- | :--- | :--- |
 | `logos_parser.py` | `_refresh_node`, strict_refs, indent, deep nest, properties | BUG-017, BUG-025; altrimenti solido |
 | `logseq_markdown.py` | round-trip 4sp, list props | BUG-021; list props OK |
@@ -1240,4 +1242,4 @@ Prossima fase consigliata: **implementazione fix** — partire da BUG-017 → BU
 
 ---
 
-*Report generato con assistenza GitNexus MCP (`repo: logseq-matryca-parser`). Per aggiornare il grafo dopo fix: `make gitnexus-index`.*
+*Report generato con assistenza da analisi statica locale. Per aggiornare l'indice dopo fix: `refresh dell'indice locale`.*

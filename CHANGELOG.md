@@ -9,18 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Bug hunt report** — [`docs/BUG_HUNT_REPORT.md`](docs/BUG_HUNT_REPORT.md): GitNexus audit waves 1–8 complete (31 bug IDs, module inventory §10): parser crash, ghost registry, export dupes, API case/alias inconsistencies, SYNAPSE hang.
-- **GitNexus code intelligence** — `.gitnexusrc` (embeddings + `skipAgentsMd`/`skipSkills`), `scripts/gitnexus-analyze-embeddings.sh`, Makefile targets `gitnexus-index` / `gitnexus-status`, and project skill `.claude/skills/gitnexus-logseq-parser/SKILL.md` for graph-powered exploration (`query`, `impact`, `detect_changes`) via MCP `user-gitnexus`.
+- **Bug hunt report** — [`docs/BUG_HUNT_REPORT.md`](docs/BUG_HUNT_REPORT.md): local static analysis audit waves 1–8 complete (31 bug IDs, module inventory §10): parser crash, ghost registry, export dupes, API case/alias inconsistencies, SYNAPSE hang.
 - **Contributor onboarding** — [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) indexes 16 starter tasks ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)); [`docs/README.md`](docs/README.md) distinguishes active vs historical documentation; GitHub labels (`good first issue`, `help wanted`, `tests`, `documentation`, `cli`, `forge`) and issue-template contact link; **Your first PR** section in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 - **Integration cookbook & doc harmonization** — [`docs/COOKBOOK.md`](docs/COOKBOOK.md); [`docs/design-docs/README.md`](docs/design-docs/README.md); draft [`docs/rfc/OLLAMA_RAG.md`](docs/rfc/OLLAMA_RAG.md); cross-links across README, ARCHITECTURE, AST primer, RELEASE_PROCESS, CODEQL, SECURITY, and PR template; `examples/run_demo.py` English + package imports.
 
+### Changed
+
+- **Ghost Tooling policy** — Matryca.ai vendor-agnostic compliance: local static analysis tools excluded from CI, Makefile, and public documentation; see [`docs/internal/STATIC_ANALYSIS_POLICY.md`](docs/internal/STATIC_ANALYSIS_POLICY.md) and [`.cursorrules`](.cursorrules).
+- **Repository metrics archive** — `scripts/archive_repository_metrics.py` partitions traffic into `metrics/quarters/YYYY-QN.json` with `metrics/index.json` manifest; legacy `metrics/history.json` is migrated once on first run.
+
 ### Fixed
 
-- **Daily metrics workflow** — `.github/workflows/daily-metrics.yml` syncs with `main` before archiving, uses `pull --rebase` with push retries, and serializes runs via `concurrency` so metric commits are not rejected when the branch moves during the job.
+- **Daily metrics workflow** — `.github/workflows/daily-metrics.yml` syncs with `main` before archiving, uses `pull --rebase` with push retries, serializes runs via `concurrency`, and commits the quarterly metrics tree instead of a monolithic JSON file.
 - **BUG-017** — `StackMachineParser._refresh_node` no longer crashes on empty bullets with block properties (`IndexError`).
 - **BUG-001 / BUG-003** — SYNAPSE page/block embed expansion uses `get_page` (case-insensitive) and fail-safe empty replacement instead of infinite loops on unresolved embeds.
 - **BUG-016** — `append_child_to_node` calls `invalidate_and_reload_page` so the in-memory graph matches disk after agent-write.
 - **BUG-005** — `invalidate_and_reload_page` purges registry/backlinks when the markdown file was deleted instead of raising `FileNotFoundError`.
+- **BUG-010 / BUG-013 / BUG-022** — `load_directory` rebuilds `_node_registry` from indexed pages only (no ghost nodes after title collision or duplicate `title::`); `search_content`, `GraphQuery`, and `get_nodes_by_tag` iterate attached nodes.
+- **BUG-026** — Wikilink backlink index includes canonical title and `alias::` keys so `get_backlinks("Development")` matches `[[Dev]]`.
+- **BUG-012** — `get_node_by_embed_ref` resolves block UUIDs case-insensitively.
+- **BUG-014** — `LogseqGraphWatcher` handles `on_deleted` and `on_moved` filesystem events.
+- **BUG-028** — `get_namespace_children` uses case-insensitive namespace prefix matching.
+- **DEBT-001 / BUG-006** — `iter_canonical_pages()` deduplicates alias keys; KINETIC export paths use canonical pages (no duplicate Obsidian/langchain/json output).
+- **BUG-011 / BUG-021** — Per-page `tab_size` detection at parse time; `serialize_logseq_page` and `append_child_to_node` preserve four-space vault indentation.
+- **BUG-008 / BUG-015 / BUG-031** — `search_content`, `get_nodes_by_tag`, and `GraphQuery.has_tag` use case-insensitive matching with optional `#` prefix.
+- **BUG-009** — `SessionAliasRegistry.load_from_disk` skips duplicate UUID mappings instead of corrupting reverse lookup.
+- **BUG-018** — `to_llamaindex_nodes` assigns distinct `SOURCE` relationships per page when roots span multiple files.
+- **BUG-023** — `to_context_enriched_chunks` skips orphan registry nodes.
+- **BUG-019 / BUG-020** — LENS deduplicates alias pages and resolves wikilink refs to canonical titles when a `LogseqGraph` is provided.
+- **BUG-029** — `resolve_relative_page_link` supports `../` and `./` path segments.
+- **BUG-030** — `resolve_asset_path` rejects absolute paths and links that escape the graph root.
+- **BUG-004** — Weekly agent log files use ISO 8601 week numbers (`isocalendar`) instead of `strftime(%W)`.
+- **BUG-007 / BUG-025** — `get_namespace_children` dedupes alias keys; `LogseqGraph.load_directory(strict_refs=True)` validates cross-page block refs via `raise_if_broken_references()`.
+- **LIM-001** — `filename_to_page_title` preserves literal dots in titles with spaces (e.g. `Dr. Smith`).
+- **LIM-002** — Empty page titles map to stable `untitled` filename stem and `untitled.md` relative path.
+- **DEBT-001** — Public `LogseqGraph.page_for_node()`; SYNAPSE and KINETIC `scan` use canonical page iteration; production `assert` removed from embed expansion.
 
 ## [1.3.1] - 2026-06-19
 

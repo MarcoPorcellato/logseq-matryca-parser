@@ -42,7 +42,7 @@ def test_logseq_agent_write_append_only(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     fixed_now = datetime(2026, 5, 10, 12, 0, 0)
-    expected_file = pages_dir / "2026-W18-agent.md"
+    expected_file = pages_dir / "2026-W19-agent.md"
 
     tags = ["agent/hermes", "#review"]
 
@@ -118,3 +118,20 @@ def test_append_child_to_node_refreshes_in_memory_graph(tmp_path: Path) -> None:
     refreshed_parent = graph.pages["Splice"].root_nodes[0]
     assert len(refreshed_parent.children) == 1
     assert refreshed_parent.children[0].clean_text == "new child"
+
+
+def test_append_child_to_node_respects_four_space_tab_size(tmp_path: Path) -> None:
+    """Four-space vaults receive child bullets indented with the detected tab width."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    page_path = pages / "Wide.md"
+    page_path.write_text("- Parent block\n    - Existing four-space child\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    parent = graph.pages["Wide"].root_nodes[0]
+
+    append_child_to_node(graph, parent.uuid, "Appended with four spaces")
+
+    updated = page_path.read_text(encoding="utf-8")
+    assert "    - Appended with four spaces" in updated

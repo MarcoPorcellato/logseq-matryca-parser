@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import logging
+import math
+import re
 from pathlib import Path
 from typing import Any
 
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 
 logger = logging.getLogger(__name__)
+
+_BULLET_LEADING_RE = re.compile(r"^(\s*)-\s")
 
 _LOGSEQ_REF_PROPERTY_KEYS: frozenset[str] = frozenset({"tags", "alias", "aliases"})
 
@@ -51,6 +55,25 @@ def _format_page_property_value(key: str, value: Any) -> str:
             tokens = [_normalize_logseq_ref_token(token) for token in tokens]
         return ", ".join(tokens)
     return str(value)
+
+
+def detect_tab_size_from_markdown(text: str, *, default: int = 2) -> int:
+    """Infer outline tab width from bullet leading-space deltas (2 or 4 typical)."""
+    indents: list[int] = []
+    for line in text.splitlines():
+        match = _BULLET_LEADING_RE.match(line)
+        if match is None:
+            continue
+        leading = match.group(1).replace("\t", " " * default)
+        indents.append(len(leading))
+    if len(indents) < 2:
+        return default
+    unique = sorted(set(indents))
+    deltas = [right - left for left, right in zip(unique, unique[1:], strict=False) if right > left]
+    if not deltas:
+        return default
+    step = math.gcd(*deltas)
+    return step if step >= 1 else default
 
 
 def _ordered_property_keys(
@@ -208,8 +231,9 @@ def _format_yaml_frontmatter(
     return "\n".join(lines)
 
 
-def serialize_logseq_page(page: LogseqPage, tab_size: int = 2) -> str:
+def serialize_logseq_page(page: LogseqPage, tab_size: int | None = None) -> str:
     """Serialize a parsed page back into Logseq-compatible markdown."""
+    effective_tab = page.tab_size if tab_size is None else tab_size
     parts: list[str] = []
     if page.properties:
         if _page_uses_yaml_frontmatter(page):
@@ -229,13 +253,13 @@ def serialize_logseq_page(page: LogseqPage, tab_size: int = 2) -> str:
         if page.root_nodes:
             parts.append("")
     for root in page.root_nodes:
-        parts.extend(_serialize_logseq_node_lines(root, tab_size))
+        parts.extend(_serialize_logseq_node_lines(root, effective_tab))
     if not parts:
         return ""
     return "\n".join(parts) + "\n"
 
 
-def write_logseq_page(page: LogseqPage, destination: Path, tab_size: int = 2) -> None:
+def write_logseq_page(page: LogseqPage, destination: Path, tab_size: int | None = None) -> None:
     """Write ``page`` to ``destination`` using UTF-8 and Logseq layout rules."""
     destination.write_text(serialize_logseq_page(page, tab_size=tab_size), encoding="utf-8")
     logger.debug("Wrote Logseq page title=%s path=%s", page.title, destination)

@@ -11,7 +11,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from logseq_matryca_parser.logseq_markdown import _normalize_logseq_ref_token
+from logseq_matryca_parser.logseq_markdown import (
+    _normalize_logseq_ref_token,
+    detect_tab_size_from_markdown,
+)
 from logseq_matryca_parser.logseq_paths import (
     derive_graph_root_from_source_path,
     derive_page_title_from_source_path,
@@ -607,6 +610,12 @@ class StackMachineParser:
     """O(N) indentation parser that builds a strict immutable AST."""
 
     def __init__(self, tab_size: int = 2, *, strict_refs: bool = False) -> None:
+        """Parse Logseq markdown into AST pages.
+
+        ``strict_refs`` validates ``((uuid))`` references resolvable on the **current page**
+        only. For vault-wide validation use :meth:`LogseqGraph.load_directory` with
+        ``strict_refs=True``.
+        """
         self.tab_size = tab_size
         self.strict_refs = strict_refs
         self.registry = PageRegistry()
@@ -1039,6 +1048,7 @@ class StackMachineParser:
             created_at=created_at,
             updated_at=updated_at,
             namespace_chain=namespace_chain,
+            tab_size=self.tab_size,
             root_nodes=root_nodes,
         )
 
@@ -1051,6 +1061,7 @@ class StackMachineParser:
         """Parse a markdown file and return a graph-native page model."""
         path = Path(path)
         content = path.read_text(encoding="utf-8-sig")
+        detected_tab = detect_tab_size_from_markdown(content)
         if not content.strip():
             logger.warning("Il file %s è vuoto.", path)
             page_title = derive_page_title_from_source_path(path)
@@ -1063,10 +1074,15 @@ class StackMachineParser:
                 namespace_chain=namespace_chain,
                 source_path=str(path.resolve()),
                 graph_root=str(graph_root),
+                tab_size=detected_tab,
             )
 
         page_title = self._derive_page_title(path)
-        page = self.parse(content, page_title=page_title)
+        if detected_tab != self.tab_size:
+            parser = StackMachineParser(tab_size=detected_tab, strict_refs=self.strict_refs)
+            page = parser.parse(content, page_title=page_title)
+        else:
+            page = self.parse(content, page_title=page_title)
         graph_root = self._derive_graph_root(path)
         created_at = page.created_at
         updated_at = page.updated_at
@@ -1081,6 +1097,7 @@ class StackMachineParser:
                 "graph_root": str(graph_root),
                 "created_at": created_at,
                 "updated_at": updated_at,
+                "tab_size": detected_tab,
                 "root_nodes": self._apply_source_path(page.root_nodes, source_path),
             }
         )

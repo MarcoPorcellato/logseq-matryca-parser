@@ -22,8 +22,17 @@ User-facing behavior is documented in:
 - [`docs/COOKBOOK.md`](docs/COOKBOOK.md) — integration recipes (Synapse, graph query, watcher)
 - [`docs/README.md`](docs/README.md) — documentation index (active vs historical)
 - [`docs/rfc/OLLAMA_RAG.md`](docs/rfc/OLLAMA_RAG.md) — draft RFC for Ollama local RAG ([#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34))
+- [`docs/internal/STATIC_ANALYSIS_POLICY.md`](docs/internal/STATIC_ANALYSIS_POLICY.md) — Ghost Tooling policy (vendor-agnostic CI and public docs)
 
 When you add or change observable parser or graph behavior, update the relevant doc sections and add a bullet under **`## [Unreleased]`** in `CHANGELOG.md` (see [`.cursor/rules/05-auto-changelog.mdc`](.cursor/rules/05-auto-changelog.mdc)).
+
+### Tooling policy
+
+CI and automation in this repository are limited to the core runtime and standard open-source linters (Ruff, Mypy, Pytest, CodeQL). Do not add third-party AST indexers, experimental analysis scripts, or custom MCP servers to the public tree, workflows, or `pyproject.toml`. See [`docs/internal/STATIC_ANALYSIS_POLICY.md`](docs/internal/STATIC_ANALYSIS_POLICY.md).
+
+Maintainers closing PRs that propose such integrations may use:
+
+> *"Closing this PR. We've decided to keep our CI and automation scripts strictly focused on the core runtime and standard linters (e.g., ruff/mypy). Advanced local static analysis tools and experimental scripts will be maintained outside the main repository to keep the codebase lightweight, vendor-agnostic, and to reduce maintenance overhead."*
 
 ---
 
