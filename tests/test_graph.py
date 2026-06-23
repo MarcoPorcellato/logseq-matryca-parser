@@ -460,3 +460,22 @@ def test_get_broken_references_flags_missing_uuid(tmp_path: Path) -> None:
 
     assert linker in broken
     assert fake_uuid in linker.block_refs
+
+
+def test_invalidate_and_reload_purges_deleted_page(tmp_path: Path) -> None:
+    """Deleting a page file must purge registry entries without raising (BUG-005)."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    gone_path = pages / "Gone.md"
+    gone_path.write_text("- orphan content\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    stale_uuid = graph.pages["Gone"].root_nodes[0].uuid
+    assert graph.get_node_by_uuid(stale_uuid) is not None
+
+    gone_path.unlink()
+    graph.invalidate_and_reload_page(gone_path)
+
+    assert graph.get_page("Gone") is None
+    assert graph.get_node_by_uuid(stale_uuid) is None

@@ -1376,7 +1376,7 @@ class StackMachineParser:
         first_line = content.splitlines()[0].strip() if content.splitlines() else ""
         priority_match = PRIORITY_PATTERN.search(first_line)
         task_priority = priority_match.group(1) if priority_match else None
-        task_status, _ = _extract_task_status(content.splitlines()[0].strip())
+        task_status, _ = _extract_task_status(first_line)
         property_wikilinks, property_tags, property_block_refs = _extract_property_graph_tokens(
             properties
         )

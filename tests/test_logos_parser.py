@@ -435,6 +435,19 @@ def test_empty_bullet_without_trailing_space(parser: StackMachineParser) -> None
     assert root.clean_text == ""
 
 
+def test_empty_bullet_with_block_properties_parses_without_error(
+    parser: StackMachineParser,
+) -> None:
+    """Empty parent bullets with block properties must not crash ``_refresh_node``."""
+    page = parser.parse("- \n  id:: abc\n  - real\n", page_title="empty-parent")
+    parent = page.root_nodes[0]
+
+    assert parent.clean_text == ""
+    assert parent.properties.get("id") == "abc"
+    assert len(parent.children) == 1
+    assert parent.children[0].clean_text == "real"
+
+
 def test_markdown_escape_shielding(parser: StackMachineParser) -> None:
     """Backslash-escaped #tags and [[wikilinks]] must not populate graph metadata."""
     content = r"- \#FakeTag and \[\[FakeLink\]\]"

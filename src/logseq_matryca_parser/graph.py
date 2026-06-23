@@ -644,13 +644,18 @@ class LogseqGraph(BaseModel):
         if not self._resolved_path_is_tracked_markdown(resolved):
             logger.debug("invalidate_and_reload_page: skip non-tracked path=%s", resolved)
             return
-        fresh = StackMachineParser().parse_page_file(resolved)
         new_pages = dict(self.pages)
         old_page = _remove_page_keys_for_source_path(new_pages, resolved)
         stale: set[str] = set()
         if old_page is not None:
             stale = {n.uuid for n in _flatten_nodes(old_page.root_nodes)}
             self._purge_stale_page_uuids(stale)
+        if not resolved.exists():
+            self.pages = new_pages
+            self._lower_title_map = _build_lower_title_map(new_pages)
+            logger.debug("invalidate_and_reload_page: purged deleted path=%s", resolved)
+            return
+        fresh = StackMachineParser().parse_page_file(resolved)
         new_pages[fresh.title] = fresh
         _enrich_pages_index(new_pages)
         enriched = _page_for_source_path(new_pages, resolved) or fresh

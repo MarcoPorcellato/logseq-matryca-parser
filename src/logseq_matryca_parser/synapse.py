@@ -178,7 +178,7 @@ def _expand_macros_and_embeds_impl(
                 target = graph.get_node_by_embed_ref(uid)
                 if target is None:
                     logger.debug("Stack-Machine embed: unresolved block uuid=%s", uid)
-                    replacement = match.group(0)
+                    replacement = ""
                 else:
                     next_seen = set(visited_uuids)
                     next_seen.add(uid)
@@ -190,29 +190,29 @@ def _expand_macros_and_embeds_impl(
             assert pm is not None
             match = pm
             title = match.group("title").strip()
-            if title in visited_pages:
-                logger.debug("Stack-Machine embed: cyclic page title=%s", title)
+            page = graph.get_page(title)
+            canonical_title = page.title if page is not None else title
+            if canonical_title in visited_pages:
+                logger.debug("Stack-Machine embed: cyclic page title=%s", canonical_title)
+                replacement = ""
+            elif page is None:
+                logger.debug("Stack-Machine embed: unknown page title=%s", title)
                 replacement = ""
             else:
-                page = graph.pages.get(title)
-                if page is None:
-                    logger.debug("Stack-Machine embed: unknown page title=%s", title)
-                    replacement = match.group(0)
-                else:
-                    visited_pages.add(title)
-                    try:
-                        shared_blocks = set(visited_uuids)
-                        pieces: list[str] = []
-                        for n in _flatten_nodes_for_export(page.root_nodes):
-                            frag = _expand_macros_and_embeds_impl(
-                                n.content, graph, shared_blocks, visited_pages
-                            )
-                            stripped = frag.strip()
-                            if stripped:
-                                pieces.append(stripped)
-                        replacement = "\n".join(pieces)
-                    finally:
-                        visited_pages.discard(title)
+                visited_pages.add(canonical_title)
+                try:
+                    shared_blocks = set(visited_uuids)
+                    pieces: list[str] = []
+                    for n in _flatten_nodes_for_export(page.root_nodes):
+                        frag = _expand_macros_and_embeds_impl(
+                            n.content, graph, shared_blocks, visited_pages
+                        )
+                        stripped = frag.strip()
+                        if stripped:
+                            pieces.append(stripped)
+                    replacement = "\n".join(pieces)
+                finally:
+                    visited_pages.discard(canonical_title)
             result = result[: match.start()] + replacement + result[match.end() :]
     return result
 

@@ -227,6 +227,8 @@ def append_child_to_node(graph: LogseqGraph, target_uuid: str, content: str) -> 
             os.unlink(temp_path)
         raise
 
+    graph.invalidate_and_reload_page(source_path)
+
 
 def _demo() -> None:
     """Print a small table for manual checks (``python -m logseq_matryca_parser.agent_writer``)."""

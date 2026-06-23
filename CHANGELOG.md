@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Contributor onboarding** — [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) indexes 16 starter tasks ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)); [`docs/README.md`](docs/README.md) distinguishes active vs historical documentation; GitHub labels (`good first issue`, `help wanted`, `tests`, `documentation`, `cli`, `forge`) and issue-template contact link; **Your first PR** section in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 - **Integration cookbook & doc harmonization** — [`docs/COOKBOOK.md`](docs/COOKBOOK.md); [`docs/design-docs/README.md`](docs/design-docs/README.md); draft [`docs/rfc/OLLAMA_RAG.md`](docs/rfc/OLLAMA_RAG.md); cross-links across README, ARCHITECTURE, AST primer, RELEASE_PROCESS, CODEQL, SECURITY, and PR template; `examples/run_demo.py` English + package imports.
 
+### Fixed
+
+- **BUG-017** — `StackMachineParser._refresh_node` no longer crashes on empty bullets with block properties (`IndexError`).
+- **BUG-001 / BUG-003** — SYNAPSE page/block embed expansion uses `get_page` (case-insensitive) and fail-safe empty replacement instead of infinite loops on unresolved embeds.
+- **BUG-016** — `append_child_to_node` calls `invalidate_and_reload_page` so the in-memory graph matches disk after agent-write.
+- **BUG-005** — `invalidate_and_reload_page` purges registry/backlinks when the markdown file was deleted instead of raising `FileNotFoundError`.
+
 ## [1.3.1] - 2026-06-19
 
 ### Changed

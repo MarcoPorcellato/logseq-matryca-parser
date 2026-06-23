@@ -99,3 +99,22 @@ def test_append_child_to_node_inserts_indented_bullet(tmp_path: Path) -> None:
         "  - Existing child",
         "  - Appended by headless writer",
     ]
+
+
+def test_append_child_to_node_refreshes_in_memory_graph(tmp_path: Path) -> None:
+    """After splice, ``LogseqGraph`` must reflect the new child (BUG-016)."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    page_path = pages / "Splice.md"
+    page_path.write_text("- Parent block\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    parent = graph.pages["Splice"].root_nodes[0]
+    assert parent.children == []
+
+    append_child_to_node(graph, parent.uuid, "new child")
+
+    refreshed_parent = graph.pages["Splice"].root_nodes[0]
+    assert len(refreshed_parent.children) == 1
+    assert refreshed_parent.children[0].clean_text == "new child"

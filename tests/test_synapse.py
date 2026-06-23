@@ -262,3 +262,52 @@ def test_synapse_recursive_embed_expansion(tmp_path: Path) -> None:
     pe = page_embed_chunks[0].page_content
     assert "Line one from snippet" in pe and "Line two from snippet" in pe
     assert "{{embed [[" not in pe
+
+
+def test_expand_embed_missing_page_completes_without_hang(tmp_path: Path) -> None:
+    """Unresolved page embeds must not loop forever (BUG-001)."""
+    from logseq_matryca_parser.synapse import _expand_macros_and_embeds
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "P.md").write_text("- x {{embed [[NoSuchPage]]}}\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    text = graph.pages["P"].root_nodes[0].content
+
+    expanded = _expand_macros_and_embeds(text, graph, set())
+
+    assert "{{embed [[NoSuchPage]]}}" not in expanded
+    assert expanded.strip() == "x"
+
+
+def test_expand_page_embed_resolves_case_insensitive_title(tmp_path: Path) -> None:
+    from logseq_matryca_parser.synapse import _expand_macros_and_embeds
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Target.md").write_text("- shared body\n", encoding="utf-8")
+    (pages / "P.md").write_text("- {{embed [[target]]}}\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    text = graph.pages["P"].root_nodes[0].content
+
+    expanded = _expand_macros_and_embeds(text, graph, set())
+
+    assert "shared body" in expanded
+
+
+def test_expand_missing_block_embed_completes_without_hang(tmp_path: Path) -> None:
+    from logseq_matryca_parser.synapse import _expand_macros_and_embeds
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    missing = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    (pages / "P.md").write_text(f"- {{{{embed (({missing}))}}}}\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    text = graph.pages["P"].root_nodes[0].content
+
+    expanded = _expand_macros_and_embeds(text, graph, set())
+
+    assert "{{embed" not in expanded
