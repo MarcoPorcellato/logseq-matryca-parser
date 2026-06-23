@@ -158,8 +158,9 @@ When you call **`LogseqGraph.load_directory`**, a post-parse pass:
 
 - Applies **`title::`** → updates **`page.title`** and re-keys **`graph.pages`**
 - Injects **alias keys** → `graph.pages["Dev"]` points to the same object as `graph.pages["Development"]`
-- Builds **backlinks** so `[[Dev]]` resolves like a canonical page link
+- Builds **backlinks** so `[[Dev]]` resolves like a canonical page link (alias keys included in the backlink index)
 - Resolves **`get_page`** and relative links **case-insensitively** (Datomic parity)
+- Registers nodes only from **canonical indexed pages** — use **`iter_canonical_pages()`** when exporting or scanning to avoid duplicate alias keys (v1.4.0)
 
 See [Architecture §3.6](ARCHITECTURE.md#36-logseqgraph--namespace-scoping-o1-invalidation-live-watch) for the full pipeline.
 
@@ -198,7 +199,7 @@ Logseq attachments are not wikilinks. During parse, **`_extract_assets`** collec
 
 **Not assets:** `[Alias]([[Target Page]])` — that is a hybrid wikilink alias, not a filesystem attachment.
 
-At page scope, **`LogseqPage.resolve_asset_path(link)`** maps a stored asset string to an absolute path (graph-root relative, percent-decoding, `/assets` fallback). Set **`graph_root`** on the page (via parse context) for resolution to succeed.
+At page scope, **`LogseqPage.resolve_asset_path(link)`** maps a stored asset string to an absolute path (graph-root relative, percent-decoding, `/assets` fallback). Set **`graph_root`** on the page (via parse context) for resolution to succeed. **v1.4.0:** absolute paths and links that escape the graph root are rejected.
 
 See [Architecture §3.1 — Asset extraction](ARCHITECTURE.md#asset-extraction-and-path-resolution) and the design note [`LOGSEQ_ASSET_RESOLUTION_SPEC.md`](design-docs/LOGSEQ_ASSET_RESOLUTION_SPEC.md).
 
@@ -214,7 +215,7 @@ If you feed Logseq Markdown into `RecursiveCharacterTextSplitter` (LangChain) or
 
 The **Logos Protocol** solves this by walking the AST deterministically, isolating properties, shielding dead-zone literals, and using the `SYNAPSE` adapter to export native LangChain `Document` or LlamaIndex `TextNode` objects. Every generated object retains its exact hierarchical lineage in the metadata, feeding your local LLM perfectly structured data.
 
-For vault-wide navigation (aliases, backlinks, namespace shadowing, assets), load the graph with **`LogseqGraph`** — see the [README](../README.md) and [CHANGELOG](../CHANGELOG.md) (graph parity from **v1.2.0**; **v1.3.0** adds watcher debounce, `strict_refs`, public API exports, and LlamaIndex spatial relationships).
+For vault-wide navigation (aliases, backlinks, namespace shadowing, assets), load the graph with **`LogseqGraph`** — see the [README](../README.md) and [CHANGELOG](../CHANGELOG.md) (graph parity from **v1.2.0**; **v1.3.0** adds watcher debounce, `strict_refs`, public API exports, and LlamaIndex spatial relationships; **v1.4.0** adds canonical page iteration, case-insensitive tag/search, watcher delete/move handling, and SYNAPSE embed safety).
 
 ---
 

@@ -63,6 +63,7 @@ for node in hits:
 
 - `graph.get_page("my page")` is case-insensitive (Datomic / Logseq parity).
 - `graph.get_broken_references()` flags `((uuid))` refs missing from the registry.
+- Iterate `graph.iter_canonical_pages()` when exporting or counting pages — alias keys share the same `LogseqPage` instance.
 
 ---
 
@@ -103,6 +104,30 @@ matryca-parse agent-write /path/to/graph --alias 0 --content "Follow-up from the
 ```
 
 The alias map is persisted at `.matryca_xray_state.json` in the graph root between CLI invocations.
+
+---
+
+## Recipe 5 — Canonical pages & strict reference lint
+
+Avoid duplicate exports when alias keys point at the same page, and fail fast on broken block refs.
+
+```python
+from logseq_matryca_parser import LogseqGraph
+
+# Optional: raise BlockReferenceError when any ((uuid)) is missing after load
+graph = LogseqGraph.load_directory("/path/to/logseq/graph", strict_refs=True)
+
+for page in graph.iter_canonical_pages():
+    owner = graph.page_for_node(page.root_nodes[0])
+    assert owner is page
+
+broken = graph.get_broken_references()
+if broken:
+    for node in broken:
+        print("broken ref in", node.clean_text)
+```
+
+**CLI tip:** run `matryca-parse export` after `load_directory` — KINETIC scans canonical pages internally (v1.4.0).
 
 ---
 

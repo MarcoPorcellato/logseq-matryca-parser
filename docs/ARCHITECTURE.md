@@ -211,7 +211,7 @@ During node build, **`_extract_assets`** scans block **`content`** for multimoda
 | PDF macro | `{{pdf mydoc.pdf}}` | `mydoc.pdf` |
 | Local attachment link | `[spec](../assets/specs.pdf)` | `../assets/specs.pdf` (not hybrid `[[wikilink]]` links) |
 
-**`LogseqPage.resolve_asset_path(asset_link)`** ([`logos_core.py`](../src/logseq_matryca_parser/logos_core.py)) decodes percent-encoded paths (`%20`), normalizes `../assets/` and `assets/` against the inferred **graph root**, and falls back to **`graph_root/assets/<filename>`** when needed — the contract Vision and document-ingestion pipelines use to map AST tokens to absolute filesystem paths.
+**`LogseqPage.resolve_asset_path(asset_link)`** ([`logos_core.py`](../src/logseq_matryca_parser/logos_core.py)) decodes percent-encoded paths (`%20`), normalizes `../assets/` and `assets/` against the inferred **graph root**, and falls back to **`graph_root/assets/<filename>`** when needed — the contract Vision and document-ingestion pipelines use to map AST tokens to absolute filesystem paths. From **v1.4.0**, absolute paths and links that resolve **outside** the graph root are rejected (sandboxed to the vault).
 
 #### Sovereign UUID architecture and zero-corruption guarantee
 
@@ -270,7 +270,7 @@ Beyond flat `Document` emission, **`to_context_enriched_chunks`** targets **vect
 
 1. **Breadcrumbs.** [`_build_breadcrumbs`](../src/logseq_matryca_parser/synapse.py) walks the owning `LogseqPage` and the node’s UUID `path` so the chunk’s visible text carries **human-readable lineage** (page title + ancestor outline), not just an opaque `parent_id`.
 
-2. **Recursive macro / embed expansion.** [`_expand_macros_and_embeds`](../src/logseq_matryca_parser/synapse.py) operates on **`node.content`** (not `clean_text`) so tokens hidden from embeddings—such as `((uuid))` inside `{{embed ((uuid))}}`—remain visible to the scanner. It expands **`{{embed ((uuid))}}`** by inlining the target block’s content (with **per-UUID cycle detection**) and **`{{embed [[Page]]}}`** by inlining page bodies (with **per-title cycle detection**), preventing silent context loss when macros nest.
+2. **Recursive macro / embed expansion.** [`_expand_macros_and_embeds`](../src/logseq_matryca_parser/synapse.py) operates on **`node.content`** (not `clean_text`) so tokens hidden from embeddings—such as `((uuid))` inside `{{embed ((uuid))}}`—remain visible to the scanner. It expands **`{{embed ((uuid))}}`** by inlining the target block’s content (with **per-UUID cycle detection**) and **`{{embed [[Page]]}}`** by inlining page bodies via **`LogseqGraph.get_page`** (case-insensitive, with **per-title cycle detection**). Unresolved embed targets yield **empty replacement** instead of hanging the export pipeline (v1.4.0).
 
 3. **Org-mode-style property inheritance.** Metadata includes **`effective_properties`**: the merge produced by [`LogseqGraph.get_effective_properties`](../src/logseq_matryca_parser/graph.py) — **page frontmatter first**, then each ancestor on `node.path` **top-down**, with deeper `LogseqNode.properties` **overriding** shallower keys. Downstream filters can therefore key off inherited `type::`, `status::`, etc., without re-walking the outline at query time.
 
@@ -328,26 +328,37 @@ assert linker in graph.get_backlinks("Dev")
 
 #### Namespace shadowing (`resolve_relative_page_link`)
 
-Relative page resolution follows **Logseq-style longest-prefix wins**: for a current page title split on **`/`** (namespace segments), the resolver tries candidates **`prefix + "/" + link_target`** for prefixes from **full namespace down to empty**, and returns the **first title that exists** in `pages`. Only if no contextual page exists does it fall back to a **global** title match. Thus a contextual page **`Progetti/AI/Sviluppo`** **shadows** a global **`Sviluppo`** when resolving from **`Progetti/AI/Matryca`** — matching the **nested-namespace shadowing** semantics described in the scoping roadmap.
+Relative page resolution follows **Logseq-style longest-prefix wins**: for a current page title split on **`/`** (namespace segments), the resolver tries candidates **`prefix + "/" + link_target`** for prefixes from **full namespace down to empty**, and returns the **first title that exists** in `pages`. Only if no contextual page exists does it fall back to a **global** title match. Thus a contextual page **`Progetti/AI/Sviluppo`** **shadows** a global **`Sviluppo`** when resolving from **`Progetti/AI/Matryca`** — matching the **nested-namespace shadowing** semantics described in the scoping roadmap. From **v1.4.0**, **`../`** and **`./`** path segments are supported when resolving relative wikilinks.
 
 #### Incremental file invalidation (`invalidate_and_reload_page`)
 
 Full-directory loads are expensive for always-on agents. **`invalidate_and_reload_page(path)`** implements **page-level surgical refresh**:
 
 1. Ignore paths outside tracked **`pages/*.md`** and **`journals/*.md`**.
-2. Re-parse the file with **`StackMachineParser.parse_page_file`**, producing a fresh `LogseqPage`.
-3. If the path previously mapped to a page, collect **all synthetic UUIDs** from the old tree and call **`_purge_stale_page_uuids`**: remove each UUID from **`_node_registry`**, scrub those UUIDs from every **`_backlink_registry`** source list, and delete backlink keys that become empty.
-4. Remove every **`pages`** key whose value shares the file’s **`source_path`**, insert the freshly parsed page under its filename title, run **`_enrich_pages_index`** (title + aliases), then **`_register_page_nodes`** and **`_append_page_backlinks`** for the enriched page.
+2. If the file **no longer exists** on disk, purge every **`pages`** key tied to that **`source_path`**, remove stale UUIDs from **`_node_registry`**, and scrub **`_backlink_registry`** entries — then return (no **`FileNotFoundError`**).
+3. Re-parse existing files with **`StackMachineParser.parse_page_file`**, producing a fresh `LogseqPage`.
+4. If the path previously mapped to a page, collect **all synthetic UUIDs** from the old tree and call **`_purge_stale_page_uuids`**: remove each UUID from **`_node_registry`**, scrub those UUIDs from every **`_backlink_registry`** source list, and delete backlink keys that become empty.
+5. Remove every **`pages`** key whose value shares the file’s **`source_path`**, insert the freshly parsed page under its filename title, run **`_enrich_pages_index`** (title + aliases), then **`_register_page_nodes`** and **`_append_page_backlinks`** for the enriched page.
+
+**`append_child_to_node`** (headless splice) invokes **`invalidate_and_reload_page`** after a successful write so agent tooling sees the same graph state as on-disk Markdown.
 
 This keeps **global indexes consistent** without rebuilding the entire graph — including alias keys and custom titles declared in frontmatter.
 
 #### Live filesystem watcher (`start_watching`)
 
-**`LogseqGraph.start_watching(callback=None, debounce_seconds=0.5)`** (optional **`watchdog`** install) returns a **`LogseqGraphWatcher`** that schedules a recursive **`Observer`** on the graph root. **`on_modified` / `on_created`** events for tracked Markdown call **`invalidate_and_reload_page`**, then optionally invoke **`callback(path)`** — the intended hook for **vector store patch**, **re-embedding**, or UI refresh. **`_DebouncedGraphEventRouter`** coalesces rapid save bursts (~500ms default) and ignores editor temp/swap artifacts (`.swp`, `~`, `.tmp`, `.DS_Store`). Event routing ignores directories and non-tracked extensions so the hot path stays tight.
+**`LogseqGraph.start_watching(callback=None, debounce_seconds=0.5)`** (optional **`watchdog`** install) returns a **`LogseqGraphWatcher`** that schedules a recursive **`Observer`** on the graph root. **`on_modified` / `on_created` / `on_deleted` / `on_moved`** events for tracked Markdown call **`invalidate_and_reload_page`**, then optionally invoke **`callback(path)`** — the intended hook for **vector store patch**, **re-embedding**, or UI refresh. **`_DebouncedGraphEventRouter`** coalesces rapid save bursts (~500ms default) and ignores editor temp/swap artifacts (`.swp`, `~`, `.tmp`, `.DS_Store`). Event routing ignores directories and non-tracked extensions so the hot path stays tight.
 
 #### Parse-time reference validation (`strict_refs`)
 
-**`StackMachineParser(..., strict_refs=False)`** (default) resolves same-page `((uuid))` block refs leniently. When **`strict_refs=True`**, unresolved refs raise **`BlockReferenceError`** at parse time — complementary to **`LogseqGraph.get_broken_references()`**, which scans the loaded graph post-hoc.
+**`StackMachineParser(..., strict_refs=False)`** (default) resolves same-page `((uuid))` block refs leniently. When **`strict_refs=True`**, unresolved refs raise **`BlockReferenceError`** at parse time — complementary to **`LogseqGraph.get_broken_references()`**, which scans the loaded graph post-hoc. **`LogseqGraph.load_directory(..., strict_refs=True)`** runs **`raise_if_broken_references()`** after indexing to fail fast on cross-page broken `((uuid))` refs.
+
+#### Canonical page iteration (`iter_canonical_pages`, `page_for_node`)
+
+**`graph.pages`** may contain multiple keys (filename title, **`title::`** override, **`alias::`** keys) pointing at the same **`LogseqPage`** instance. Exporters and graph scans must not double-count alias keys. **`iter_canonical_pages()`** yields one page per unique object identity; **`page_for_node(node)`** returns the owning page for a block UUID. **KINETIC**, **SYNAPSE**, and **LENS** use canonical iteration for export and statistics (v1.4.0).
+
+#### Case-insensitive tag and content search
+
+**`search_content`**, **`get_nodes_by_tag`**, and **`GraphQuery.has_tag`** normalize tag tokens case-insensitively and accept an optional leading **`#`**. **`get_namespace_children`** uses case-insensitive namespace prefix matching. Wikilink backlink keys include canonical titles and **`alias::`** values so **`get_backlinks("Development")`** matches **`[[Dev]]`**.
 
 #### Fluent topological queries (`GraphQuery`)
 

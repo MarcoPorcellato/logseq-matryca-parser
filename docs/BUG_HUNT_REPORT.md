@@ -13,8 +13,8 @@
 
 | Metrica | Esito |
 | :--- | :--- |
-| `make all` (Ruff + Mypy + 244 pytest) | **PASS** |
-| Coverage | **89.52%** (soglia 80%) |
+| `make all` (Ruff + Mypy + 271 pytest) | **PASS** |
+| Coverage | **89.25%** (soglia 80%) |
 | Round-trip corpus (`debug_pre_release.py`) | **19/19 OK** |
 | analisi statica `check` (cicli IMPORTS) | **0 cicli** |
 | analisi statica index | `logseq-matryca-parser` — 1074 embeddings, commit `7d3f77b` |

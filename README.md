@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.3.1** — Documentation patch: `uv` install hints in examples and Claude skill (see [CHANGELOG](CHANGELOG.md)) — **244 tests**, no parser or API changes.
+**v1.4.0** — Robustness & graph-integrity release: 31 bug-hunt fixes, canonical page iteration, case-insensitive tag/search, live watcher delete/move, SYNAPSE embed safety (see [CHANGELOG](CHANGELOG.md)) — **271 tests**.
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -66,7 +66,7 @@ It acts as the strict **File System Driver** for your LLM OS. By using a determi
 | **Property inheritance** | Page-level frontmatter at best | **`get_effective_properties`**: page + ancestor outline keys merged top-down (Org-mode style), then exposed on enriched chunks |
 | **Live sync** | Re-read whole tree or poll | **`LogseqGraph.start_watching()`** (optional `watchdog`): **per-file invalidation** — re-parse one page, purge stale UUIDs from registries, refresh backlinks |
 | **Page aliases & titles** | Filename-only or manual link maps | **`title::`**, **`alias::`** / **`aliases::`** re-key `graph.pages` and wire **backlinks** for alias wikilinks |
-| **Case-insensitive pages** | Exact string match on filenames | **`get_page`** / **`resolve_relative_page_link`** use a lowercase index (Datomic / Logseq parity) |
+| **Case-insensitive pages & tags** | Exact string match on filenames | **`get_page`**, **`resolve_relative_page_link`**, **`search_content`**, and **`GraphQuery.has_tag`** use case-insensitive matching (Datomic / Logseq parity) |
 | **Attachments & assets** | Opaque `![](...)` text in chunks | **`LogseqNode.assets`** + **`LogseqPage.resolve_asset_path`** for graph-root PDFs and images |
 
 ---
@@ -103,6 +103,24 @@ graph TD
 
 ### 🔱 The Solution
 Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as the **File System Driver** for your LLM. It preserves the true topology of your thoughts, ensuring AI understands spatial hierarchy, time, and block-lineage—including **structured task state** and **first-class temporal attributes** you can query in downstream graph databases and GraphRAG engines without re-parsing raw Markdown.
+
+---
+
+## ⚡ Release highlights (v1.4.0)
+
+Minor release — graph integrity, export hygiene, and parser hardening from the local static-analysis bug hunt (waves 1–8). No intentional breaking changes to default parse behavior.
+
+| Area | Change |
+| :--- | :--- |
+| **Graph index** | **`iter_canonical_pages()`** and **`page_for_node()`** deduplicate alias keys; **`load_directory`** rebuilds **`_node_registry`** from indexed pages only (no ghost nodes after title collision). |
+| **Case-insensitive queries** | **`search_content`**, **`GraphQuery.has_tag`**, and **`get_nodes_by_tag`** match tags case-insensitively (optional `#` prefix). |
+| **Live watcher** | **`LogseqGraphWatcher`** handles **`on_deleted`** and **`on_moved`**; **`invalidate_and_reload_page`** purges registries when a page file was deleted. |
+| **Agent writes** | **`append_child_to_node`** calls **`invalidate_and_reload_page`** so the in-memory graph matches disk after headless splice. |
+| **SYNAPSE** | Page/block embed expansion uses **`get_page`** (case-insensitive) and fail-safe empty replacement (no infinite loops on unresolved embeds). |
+| **Serialization** | Per-page **`tab_size`** at parse time; **`serialize_logseq_page`** and **`append_child_to_node`** preserve four-space vault indentation. |
+| **Paths & assets** | **`resolve_relative_page_link`** supports **`../`** / **`./`**; **`resolve_asset_path`** rejects absolute paths and links that escape the graph root. |
+| **Strict refs** | **`LogseqGraph.load_directory(strict_refs=True)`** validates cross-page block refs via **`raise_if_broken_references()`**. |
+| **Docs & community** | [`docs/COOKBOOK.md`](docs/COOKBOOK.md), [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md), [`docs/BUG_HUNT_REPORT.md`](docs/BUG_HUNT_REPORT.md) (audit complete). |
 
 ---
 
@@ -223,7 +241,7 @@ matryca-parse export /path/to/logseq/graph /path/to/obsidian/vault --format obsi
 > **Note:** Wikilinks currently use the **Logseq page title** (e.g. `[[Target#^…]]`). Vault files may live under namespace folders (`Projects/AI/Demo.md`). Obsidian usually resolves unique titles; aligning link text to folder paths is a possible future refinement.
 
 ### Live incremental watcher
-`LogseqGraph` supports **surgical file invalidation** (optional dependency: `uv sync --extra watch`). `start_watching()` runs a recursive **watchdog** observer with **~500ms debounce** and ignores editor temp/swap files: on `created` / `modified` under `pages/` or `journals/`, only that file is re-parsed; stale synthetic UUIDs are purged from `_node_registry` and scrubbed from `_backlink_registry`—no full-graph cold reload.
+`LogseqGraph` supports **surgical file invalidation** (optional dependency: `uv sync --extra watch`). `start_watching()` runs a recursive **watchdog** observer with **~500ms debounce** and ignores editor temp/swap files: on `created` / `modified` / `deleted` / `moved` under `pages/` or `journals/`, only the affected file is re-parsed (or purged when deleted); stale synthetic UUIDs are removed from `_node_registry` and scrubbed from `_backlink_registry`—no full-graph cold reload.
 
 ### Fluent topological queries
 Filter the global node registry with a **chainable** API (tags, task state, ancestry under a parent UUID):
@@ -269,7 +287,7 @@ For graph hygiene, **`LogseqGraph.get_broken_references()`** flags nodes whose `
 | :--- | :--- |
 | **LOGOS Engine** | Deterministic AST parsing. YAML + native frontmatter ingest, **format-preserving** `serialize_logseq_page` (YAML vs `key::` by source), list-shaped block property layout, **assets**, property contiguity (incl. post-fence), comma-safe wikilink splits, temporal ranges/repeaters, legacy filename decode, BOM-safe reads, and **shielded** code/math/query/HTML/escape regions. |
 | **Multimodal assets** | **`LogseqNode.assets`** + **`LogseqPage.resolve_asset_path`** for PDFs and images relative to the graph root (Vision / document RAG). |
-| **LogseqGraph** | In-memory vault: `pages` index (with **title/alias enrichment** and **case-insensitive lookup**), backlinks, effective properties, namespace resolution, fluent `GraphQuery`, optional **watchdog** invalidation. |
+| **LogseqGraph** | In-memory vault: `pages` index (with **title/alias enrichment** and **case-insensitive lookup**), **`iter_canonical_pages()`** / **`page_for_node()`**, backlinks, effective properties, namespace resolution, fluent `GraphQuery`, optional **watchdog** invalidation (create/modify/delete/move). |
 | **Advanced Task Extraction** | Task **state** (TODO / DOING / DELEGATED / IN-PROGRESS / …), **priority** markers `[#A]`–`[#C]` promoted to `task_priority`, and **SCHEDULED** / **DEADLINE** Logseq timestamps normalized to **UTC Unix epoch seconds** on `scheduled_at` / `deadline_at` for temporal graph and retrieval pipelines. |
 | **SYNAPSE Adapter** | Native exports for **LangChain** and **LlamaIndex** with automated lineage metadata; **context-enriched** chunks with breadcrumbs, embed expansion, and inherited properties. |
 | **FORGE** | JSON, clean Markdown, and **Obsidian** vault serialization (`ObsidianForgeVisitor`, `ForgeExporter.to_obsidian_markdown`). |
@@ -302,7 +320,7 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from PyPI (latest: v1.3.1)
+# Install from PyPI (latest: v1.4.0)
 uv pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates
