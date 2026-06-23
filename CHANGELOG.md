@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-06-23
+
 ### Added
 
 - **Bug hunt report** — [`docs/BUG_HUNT_REPORT.md`](docs/BUG_HUNT_REPORT.md): local static analysis audit waves 1–8 complete (31 bug IDs, module inventory §10): parser crash, ghost registry, export dupes, API case/alias inconsistencies, SYNAPSE hang.
