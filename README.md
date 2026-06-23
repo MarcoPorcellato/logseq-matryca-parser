@@ -22,7 +22,7 @@
 
 [👉 **TRY THE LIVE INTERACTIVE DEMO**](https://MarcoPorcellato.github.io/logseq-matryca-parser/)
 
-[📘 **ARCHITECTURE**](docs/ARCHITECTURE.md) · [AST Primer](docs/logseq_ast_primer.md) · [CodeQL](docs/CODEQL.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASE_PROCESS.md)
+[📘 **ARCHITECTURE**](docs/ARCHITECTURE.md) · [AST Primer](docs/logseq_ast_primer.md) · [Cookbook](docs/COOKBOOK.md) · [Good first issues](docs/GOOD_FIRST_ISSUES.md) · [Docs index](docs/README.md) · [CodeQL](docs/CODEQL.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASE_PROCESS.md)
 
 </div>
 
@@ -157,7 +157,7 @@ Infrastructure and contributor experience — no parser API breaks.
 | **Community** | `CODE_OF_CONDUCT.md`, `CODEOWNERS`, issue-template config, CONTRIBUTING with `uv` workflow. |
 | **Docs** | Root `ROADMAP_*.md` consolidated under [`docs/roadmaps/`](docs/roadmaps/). |
 
-Contributor setup: [`CONTRIBUTING.md`](CONTRIBUTING.md) · Security: [`SECURITY.md`](SECURITY.md) · CodeQL: [`docs/CODEQL.md`](docs/CODEQL.md)
+Contributor setup: [`CONTRIBUTING.md`](CONTRIBUTING.md) · [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) · Security: [`SECURITY.md`](SECURITY.md) · CodeQL: [`docs/CODEQL.md`](docs/CODEQL.md)
 
 ---
 
@@ -384,7 +384,7 @@ assert result["status"] == "success"
 ## 🗺️ Roadmap
 - [ ] **Desktop GUI:** Standalone app for non-technical users. [(Join the RFC)](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/3)
 - [x] **Obsidian Adapter:** Native CLI export (`--format obsidian`) with YAML frontmatter and `^` block anchors.
-- [ ] **Ollama Integration:** One-click local RAG setup.
+- [ ] **Ollama Integration:** One-click local RAG setup. [(RFC draft)](docs/rfc/OLLAMA_RAG.md) · [(Track progress #34)](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)
 
 ## ☕ Support & Enterprise
 Logseq Matryca Parser is open-source. If it powers your pipeline, consider a star ⭐ or a sponsorship!
@@ -399,7 +399,10 @@ We welcome issues, pull requests, and constructive feedback.
 
 | Resource | Link |
 | :--- | :--- |
+| **Good first issues** | [docs/GOOD_FIRST_ISSUES.md](docs/GOOD_FIRST_ISSUES.md) — starter tasks ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)) |
 | **Contributing** | [CONTRIBUTING.md](CONTRIBUTING.md) — setup, tests, PR workflow |
+| **Cookbook** | [docs/COOKBOOK.md](docs/COOKBOOK.md) — integration recipes (Synapse, graph query, watcher) |
+| **Documentation index** | [docs/README.md](docs/README.md) — active vs historical docs |
 | **Code of Conduct** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — community standards |
 | **Security** | [SECURITY.md](SECURITY.md) — report vulnerabilities privately |
 

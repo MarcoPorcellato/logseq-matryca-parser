@@ -45,6 +45,8 @@ When a fix is ready, we will:
 
 This policy covers the **logseq-matryca-parser** Python package, CLI (`matryca-parse`), and documented public APIs in `src/logseq_matryca_parser/`. Third-party dependencies are out of scope unless the vulnerability is exploitable through this project's intended use.
 
+Report security issues via the [Security tab](https://github.com/MarcoPorcellato/logseq-matryca-parser/security) — not via public issues. For general bugs and features, see [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md).
+
 ## Recognition
 
 We appreciate responsible disclosure. Reporters who follow this policy will be credited in the security advisory when the fix is published, unless they request otherwise.

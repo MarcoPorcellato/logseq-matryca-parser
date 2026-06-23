@@ -18,8 +18,28 @@ User-facing behavior is documented in:
 - [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.3.1**) and **Unreleased** changes (Keep a Changelog)
 - [`docs/RELEASE_PROCESS.md`](docs/RELEASE_PROCESS.md) — version bump, tag, and PyPI publish checklist
 - [`docs/CODEQL.md`](docs/CODEQL.md) — CodeQL default setup (no custom `codeql.yml`)
+- [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) — curated starter tasks for new contributors
+- [`docs/COOKBOOK.md`](docs/COOKBOOK.md) — integration recipes (Synapse, graph query, watcher)
+- [`docs/README.md`](docs/README.md) — documentation index (active vs historical)
+- [`docs/rfc/OLLAMA_RAG.md`](docs/rfc/OLLAMA_RAG.md) — draft RFC for Ollama local RAG ([#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34))
 
 When you add or change observable parser or graph behavior, update the relevant doc sections and add a bullet under **`## [Unreleased]`** in `CHANGELOG.md` (see [`.cursor/rules/05-auto-changelog.mdc`](.cursor/rules/05-auto-changelog.mdc)).
+
+---
+
+## 🌱 Your first PR
+
+New to the codebase? Start here:
+
+1. **Pick a task** from [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) (label: `good first issue` on GitHub).
+2. **Comment on the issue** so others know you are working on it.
+3. **Set up** with `uv sync --all-extras` and confirm `make all` is green on `main`.
+4. **Branch** using `feat/…`, `test/…`, or `docs/…` naming (see workflow below).
+5. **Submit** a PR that links the issue (`Fixes #123`).
+
+Tier 1 tasks are **test-only** — no parser changes, ideal for learning `CliRunner` and pytest patterns in `tests/`. Tier 2 is documentation. Tier 3 adds small CLI or FORGE features with explicit acceptance criteria.
+
+> **Avoid for a first PR:** changes to `logos_core.py` Pydantic models (open a design issue first) and large stack-machine refactors in `logos_parser.py`.
 
 ---
 
@@ -67,7 +87,7 @@ This project uses [uv](https://docs.astral.sh/uv/) for dependency management and
 
 ### 1. Find or Create an Issue
 
-Whether it's a bug fix or a new feature (like a new exporter in `forge.py`), check the **Issues** tab first. If it's a new idea, open an Issue to discuss it with the maintainers before investing hours of work.
+Whether it's a bug fix or a new feature (like a new exporter in `forge.py`), check the **Issues** tab first — especially [good first issues](docs/GOOD_FIRST_ISSUES.md). If it's a new idea, open an Issue to discuss it with the maintainers before investing hours of work.
 
 ### 2. Branch Naming Convention
 

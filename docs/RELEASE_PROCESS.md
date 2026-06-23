@@ -39,7 +39,7 @@ You should see exactly the section that will appear on GitHub if you attach rele
 ### 3. Commit, tag, push
 
 ```bash
-git add CHANGELOG.md pyproject.toml src/logseq_matryca_parser/__init__.py README.md CONTRIBUTING.md SECURITY.md docs/logseq_ast_primer.md
+git add CHANGELOG.md pyproject.toml src/logseq_matryca_parser/__init__.py README.md CONTRIBUTING.md SECURITY.md docs/
 git commit -m "chore: release X.Y.Z"
 git tag vX.Y.Z
 git push origin main
@@ -81,4 +81,5 @@ PyPI cannot be re-published for the same version; use a patch bump if the wheel 
 
 - [`CHANGELOG.md`](../CHANGELOG.md)
 - [`CONTRIBUTING.md`](../CONTRIBUTING.md) — quality gates before tag
+- [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) — contributor task index
 - [`scripts/extract_changelog.py`](../scripts/extract_changelog.py)

@@ -63,6 +63,11 @@ out/graph.json
 out/graph.md
 
 # =========================
+# GitNexus (local knowledge graph index)
+# =========================
+.gitnexus/
+
+# =========================
 # IDEs & Tool Caches
 # =========================
 .mypy_cache/

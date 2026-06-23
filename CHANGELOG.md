@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Bug hunt report** — [`docs/BUG_HUNT_REPORT.md`](docs/BUG_HUNT_REPORT.md): GitNexus audit waves 1–8 complete (31 bug IDs, module inventory §10): parser crash, ghost registry, export dupes, API case/alias inconsistencies, SYNAPSE hang.
+- **GitNexus code intelligence** — `.gitnexusrc` (embeddings + `skipAgentsMd`/`skipSkills`), `scripts/gitnexus-analyze-embeddings.sh`, Makefile targets `gitnexus-index` / `gitnexus-status`, and project skill `.claude/skills/gitnexus-logseq-parser/SKILL.md` for graph-powered exploration (`query`, `impact`, `detect_changes`) via MCP `user-gitnexus`.
+- **Contributor onboarding** — [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) indexes 16 starter tasks ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)); [`docs/README.md`](docs/README.md) distinguishes active vs historical documentation; GitHub labels (`good first issue`, `help wanted`, `tests`, `documentation`, `cli`, `forge`) and issue-template contact link; **Your first PR** section in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+- **Integration cookbook & doc harmonization** — [`docs/COOKBOOK.md`](docs/COOKBOOK.md); [`docs/design-docs/README.md`](docs/design-docs/README.md); draft [`docs/rfc/OLLAMA_RAG.md`](docs/rfc/OLLAMA_RAG.md); cross-links across README, ARCHITECTURE, AST primer, RELEASE_PROCESS, CODEQL, SECURITY, and PR template; `examples/run_demo.py` English + package imports.
+
 ## [1.3.1] - 2026-06-19
 
 ### Changed

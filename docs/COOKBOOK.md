@@ -1,0 +1,116 @@
+# Integration cookbook
+
+Copy-paste recipes for common **Logseq Matryca Parser** workflows. All snippets assume you installed the package and synced extras:
+
+```bash
+uv sync --all-extras
+```
+
+Imports use the stable package root (`logseq_matryca_parser.__all__`). See [`ARCHITECTURE.md`](ARCHITECTURE.md) for module roles and [`logseq_ast_primer.md`](logseq_ast_primer.md) for Spatial Markdown rules.
+
+---
+
+## Recipe 1 — Single page → LangChain documents
+
+Parse one `.md` file and emit lineage-aware `Document` objects for embedding pipelines.
+
+```python
+from logseq_matryca_parser import LogosParser, SynapseAdapter
+
+page = LogosParser().parse_page_file("pages/My Page.md")
+
+docs = SynapseAdapter.to_langchain_documents(
+    page.root_nodes,
+    source_name=page.title,
+)
+
+for doc in docs[:3]:
+    print(doc.page_content)
+    print(doc.metadata.get("parent_id"), doc.metadata.get("path"))
+```
+
+**CLI equivalent:**
+
+```bash
+matryca-parse export /path/to/graph output --format langchain
+```
+
+Requires optional `[ai]` extra (`uv sync --extra ai`).
+
+---
+
+## Recipe 2 — Load vault + fluent graph query
+
+Build the in-memory graph index (pages, backlinks, node registry) and filter blocks topologically.
+
+```python
+from logseq_matryca_parser import LogseqGraph
+
+graph = LogseqGraph.load_directory("/path/to/logseq/graph")
+
+hits = (
+    graph.query()
+    .has_tag("idea")
+    .is_task_state("TODO")
+    .execute()
+)
+
+for node in hits:
+    print(node.clean_text, "←", graph.get_effective_properties(node.uuid))
+```
+
+**Tips:**
+
+- `graph.get_page("my page")` is case-insensitive (Datomic / Logseq parity).
+- `graph.get_broken_references()` flags `((uuid))` refs missing from the registry.
+
+---
+
+## Recipe 3 — Live filesystem watcher (incremental reload)
+
+Re-parse only the page that changed under `pages/` or `journals/` instead of cold-reloading the vault.
+
+```python
+from logseq_matryca_parser import LogseqGraph
+
+graph = LogseqGraph.load_directory("/path/to/logseq/graph")
+
+observer = graph.start_watching()  # requires [watch] extra
+
+# ... your app runs; on change, the graph invalidates and reloads that file ...
+
+observer.stop()
+observer.join()
+```
+
+Install the watcher extra:
+
+```bash
+uv sync --extra watch
+```
+
+Debouncing (~500ms) and editor temp-file ignores are built in — see [Architecture §3.6 — Live watch](ARCHITECTURE.md#36-logseqgraph--namespace-scoping-o1-invalidation-live-watch).
+
+---
+
+## Recipe 4 — Agent read / write (X-Ray + headless splice)
+
+Compress context for LLM agents, then append a child block without Logseq's HTTP API.
+
+```bash
+matryca-parse agent-read /path/to/graph --tag idea
+matryca-parse agent-write /path/to/graph --alias 0 --content "Follow-up from the agent"
+```
+
+The alias map is persisted at `.matryca_xray_state.json` in the graph root between CLI invocations.
+
+---
+
+## Related
+
+| Resource | Link |
+| :--- | :--- |
+| Quickstart | [`README.md`](../README.md) |
+| Live demo script | [`examples/run_demo.py`](../examples/run_demo.py) |
+| First contributions | [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) |
+| Full architecture | [`ARCHITECTURE.md`](ARCHITECTURE.md) |

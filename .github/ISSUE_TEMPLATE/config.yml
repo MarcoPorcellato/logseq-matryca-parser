@@ -3,6 +3,9 @@ contact_links:
   - name: Security vulnerability
     url: https://github.com/MarcoPorcellato/logseq-matryca-parser/security/policy
     about: Report a security issue privately — do not open a public issue
+  - name: Good first issues
+    url: https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/GOOD_FIRST_ISSUES.md
+    about: Curated starter tasks for your first pull request
   - name: Contributing guidelines
     url: https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/CONTRIBUTING.md
     about: Read how to set up your environment, run tests, and open a pull request

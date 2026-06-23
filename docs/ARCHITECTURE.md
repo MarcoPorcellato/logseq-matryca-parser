@@ -536,4 +536,17 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 
 ---
 
-*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `graph.py`, `forge.py`, `lens.py`, `logos_core.py`, `agent_writer.py`, `agent_press.py`, `logseq_markdown.py`, `logseq_paths.py`, `kinetic.py`, and the public exports in `__init__.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).* 
+*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `graph.py`, `forge.py`, `lens.py`, `logos_core.py`, `agent_writer.py`, `agent_press.py`, `logseq_markdown.py`, `logseq_paths.py`, `kinetic.py`, and the public exports in `__init__.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).*
+
+---
+
+## 6. Further reading for contributors
+
+| Document | When to read |
+| :--- | :--- |
+| [`logseq_ast_primer.md`](logseq_ast_primer.md) | Before touching parser or serialization behavior |
+| [`COOKBOOK.md`](COOKBOOK.md) | Integration examples (Synapse, `LogseqGraph`, watcher) |
+| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | Picking a first PR ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)) |
+| [`README.md`](README.md) | Documentation index (active vs historical) |
+| [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | `uv` setup, `make all`, PR checklist |
+| [`design-docs/README.md`](design-docs/README.md) | Warning before using historical DDD blueprints |

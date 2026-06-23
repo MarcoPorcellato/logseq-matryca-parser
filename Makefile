@@ -1,4 +1,4 @@
-.PHONY: all lint check test build
+.PHONY: all lint check test build gitnexus-index gitnexus-status
 
 all: lint check test
 
@@ -13,3 +13,9 @@ test:
 
 build:
 	uv run python -m nuitka --standalone --onefile src/logseq_matryca_parser/kinetic.py
+
+gitnexus-index:
+	./scripts/gitnexus-analyze-embeddings.sh
+
+gitnexus-status:
+	gitnexus status

@@ -28,4 +28,6 @@ Do not re-enable default setup while an advanced workflow is active.
 ## Related
 
 - [`SECURITY.md`](../SECURITY.md) — vulnerability reporting
+- [`CONTRIBUTING.md`](../CONTRIBUTING.md) — local quality gates (`make all`)
+- [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) — starter tasks for new contributors
 - [Troubleshooting: default setup enabled](https://docs.github.com/en/code-security/reference/code-scanning/sarif-files/troubleshoot-sarif-uploads/default-setup-enabled)

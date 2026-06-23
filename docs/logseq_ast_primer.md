@@ -215,3 +215,15 @@ If you feed Logseq Markdown into `RecursiveCharacterTextSplitter` (LangChain) or
 The **Logos Protocol** solves this by walking the AST deterministically, isolating properties, shielding dead-zone literals, and using the `SYNAPSE` adapter to export native LangChain `Document` or LlamaIndex `TextNode` objects. Every generated object retains its exact hierarchical lineage in the metadata, feeding your local LLM perfectly structured data.
 
 For vault-wide navigation (aliases, backlinks, namespace shadowing, assets), load the graph with **`LogseqGraph`** — see the [README](../README.md) and [CHANGELOG](../CHANGELOG.md) (graph parity from **v1.2.0**; **v1.3.0** adds watcher debounce, `strict_refs`, public API exports, and LlamaIndex spatial relationships).
+
+---
+
+## 8. Further reading
+
+| Document | Purpose |
+| :--- | :--- |
+| [Architecture](ARCHITECTURE.md) | Module deep-dives, data flow, agent I/O |
+| [Cookbook](COOKBOOK.md) | Copy-paste Synapse, graph query, and watcher recipes |
+| [Good first issues](GOOD_FIRST_ISSUES.md) | Scoped starter tasks for new contributors |
+| [Contributing](../CONTRIBUTING.md) | `uv` workflow, `make all`, PR standards |
+| [Docs index](README.md) | Active vs historical documentation |
