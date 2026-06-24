@@ -8,6 +8,9 @@ from logseq_matryca_parser.forge import (
     ForgeExporter,
     JSONForgeVisitor,
     MarkdownForgeVisitor,
+    ObsidianForgeVisitor,
+    _build_local_embed_index,
+    _page_properties_to_yaml_frontmatter,
 )
 from logseq_matryca_parser.logos_core import LogseqNode
 
@@ -91,3 +94,157 @@ def test_forge_visitors_are_ast_compatible(visitor_cls: type[object], method_nam
     assert hasattr(visitor, "visit_node")
     assert hasattr(visitor, "depart_node")
     assert hasattr(visitor, method_name)
+
+
+# ── direct ObsidianForgeVisitor tests (issue #30) ────────────────────────
+
+
+class TestObsidianForgeVisitorDirect:
+    """Unit tests for ObsidianForgeVisitor constructed directly (not via ForgeExporter)."""
+
+    def test_yaml_frontmatter_from_page_properties(self):
+        """_page_properties_to_yaml_frontmatter emits --- delimited YAML."""
+        props = {"title": "MyPage", "type": "project", "tags": "a, b"}
+        header = _page_properties_to_yaml_frontmatter(props)
+        assert header.startswith("---\n")
+        assert "title: MyPage" in header
+        assert "type: project" in header
+        assert header.endswith("---\n\n")
+
+    def test_yaml_frontmatter_empty_properties_returns_empty(self):
+        assert _page_properties_to_yaml_frontmatter({}) == ""
+
+    def test_local_embed_index_maps_uuids(self):
+        """_build_local_embed_index maps a flat node list by uuid."""
+        flat = [
+            LogseqNode(uuid="aaa", content="A", indent_level=0),
+            LogseqNode(uuid="bbb", content="B", indent_level=0),
+        ]
+        index = _build_local_embed_index(flat)
+        assert "aaa" in index
+        assert "bbb" in index
+        assert index["aaa"].content == "A"
+
+    def test_visitor_constructs_with_minimal_params(self, sample_ast):
+        visitor = ObsidianForgeVisitor(
+            page_title="TestPage",
+            suffix_map={},
+            needs_suffix=set(),
+            local_index={},
+            embed_resolver=None,
+            header="---\n---\n\n",
+        )
+        sample_ast[0].accept(visitor)
+        output = visitor.get_markdown()
+        assert "- Radice" in output
+        assert output.startswith("---\n")
+
+    def test_visitor_appends_trailing_block_anchor(self):
+        """A node needing a suffix gets ^anchor appended to its line."""
+        node = LogseqNode(
+            uuid="target-uuid-12345678",
+            content="Target block",
+            clean_text="Target block",
+            indent_level=0,
+        )
+        suffix_map = {"target-uuid-12345678": "myanchor"}
+        visitor = ObsidianForgeVisitor(
+            page_title="P",
+            suffix_map=suffix_map,
+            needs_suffix={"target-uuid-12345678"},
+            local_index={},
+            embed_resolver=None,
+            header="",
+        )
+        node.accept(visitor)
+        output = visitor.get_markdown()
+        assert "Target block ^myanchor" in output
+
+    def test_visitor_node_without_suffix_no_anchor(self):
+        """A node NOT in needs_suffix gets no ^anchor."""
+        node = LogseqNode(
+            uuid="plain-node",
+            content="Plain block",
+            clean_text="Plain block",
+            indent_level=0,
+        )
+        visitor = ObsidianForgeVisitor(
+            page_title="P",
+            suffix_map={},
+            needs_suffix=set(),
+            local_index={},
+            embed_resolver=None,
+            header="",
+        )
+        node.accept(visitor)
+        output = visitor.get_markdown()
+        assert "- Plain block" == output.strip()
+
+    def test_uuid_to_anchor_with_mock_resolver(self):
+        """A mock embed_resolver transforms ((uuid)) → [[Other#^anchor]]."""
+        block_id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        node = LogseqNode(
+            uuid="ref-node",
+            content=f"Ref (({block_id}))",
+            clean_text=f"Ref (({block_id}))",
+            indent_level=0,
+            block_refs=[block_id],
+        )
+
+        def mock_resolver(uid: str) -> tuple[str, str] | None:
+            if uid == block_id:
+                return ("OtherPage", "other-anchor")
+            return None
+
+        visitor = ObsidianForgeVisitor(
+            page_title="CurrentPage",
+            suffix_map={},
+            needs_suffix=set(),
+            local_index={},
+            embed_resolver=mock_resolver,
+            header="",
+        )
+        node.accept(visitor)
+        output = visitor.get_markdown()
+        assert "[[OtherPage#^other-anchor]]" in output
+        assert "((" not in output
+
+    def test_visitor_preserves_wikilinks(self):
+        """Wikilinks [[Page]] pass through unchanged."""
+        node = LogseqNode(
+            uuid="wiki-node",
+            content="See [[Target Page]]",
+            clean_text="See [[Target Page]]",
+            indent_level=0,
+        )
+        visitor = ObsidianForgeVisitor(
+            page_title="P",
+            suffix_map={},
+            needs_suffix=set(),
+            local_index={},
+            embed_resolver=None,
+            header="",
+        )
+        node.accept(visitor)
+        output = visitor.get_markdown()
+        assert "[[Target Page]]" in output
+
+    def test_visitor_strips_inline_id_property(self):
+        """Inline id:: UUID is stripped from output."""
+        node = LogseqNode(
+            uuid="with-id",
+            content="Text id:: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee more",
+            clean_text="Text id:: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee more",
+            indent_level=0,
+        )
+        visitor = ObsidianForgeVisitor(
+            page_title="P",
+            suffix_map={},
+            needs_suffix=set(),
+            local_index={},
+            embed_resolver=None,
+            header="",
+        )
+        node.accept(visitor)
+        output = visitor.get_markdown()
+        assert "id::" not in output

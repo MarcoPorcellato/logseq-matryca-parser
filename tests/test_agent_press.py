@@ -165,3 +165,60 @@ def test_agent_write_cli_splices_via_alias_state(tmp_path: Path) -> None:
 
     updated = (pages / "Write.md").read_text(encoding="utf-8")
     assert "Child from agent-write" in updated
+
+
+def test_agent_read_cli_query_filter_finds_matching_blocks(tmp_path: Path) -> None:
+    """``agent-read --query`` prints only blocks containing the search term."""
+    graph_root = tmp_path / "graph"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (graph_root / "journals").mkdir()
+
+    (pages / "alpha.md").write_text(
+        "- Needle in a haystack #tag-a\n"
+        "  - Nested needle block\n",
+        encoding="utf-8",
+    )
+    (pages / "beta.md").write_text(
+        "- Irrelevant content #tag-b\n"
+        "  - Should not appear\n",
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(
+        app,
+        ["agent-read", str(graph_root), "--query", "needle"],
+    )
+
+    assert result.exit_code == 0
+    # Plain text — no Rich markup
+    assert "\x1b[" not in result.output
+    # X-Ray alias format [0], [1]
+    assert "[0]" in result.output
+    assert "Needle in a haystack" in result.output
+    assert "Nested needle block" in result.output
+    # Non-matching blocks are excluded
+    assert "Irrelevant content" not in result.output
+    assert "Should not appear" not in result.output
+
+    # Alias state saved for agent-write chaining
+    state_path = graph_root / ".matryca_xray_state.json"
+    assert state_path.is_file()
+    restored = SessionAliasRegistry.load_from_disk(state_path)
+    assert restored.resolve_alias(0) is not None
+
+
+def test_agent_read_cli_query_no_matches_exits_cleanly(tmp_path: Path) -> None:
+    """``agent-read --query`` with no matches exits 0 and prints nothing."""
+    graph_root = tmp_path / "graph"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (graph_root / "journals").mkdir()
+    (pages / "only.md").write_text("- Just some text\n", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        ["agent-read", str(graph_root), "--query", "nonexistent"],
+    )
+
+    assert result.exit_code == 0

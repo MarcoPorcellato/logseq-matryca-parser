@@ -65,6 +65,17 @@ def test_cli_help_uses_rich_markup_mode() -> None:
     assert "KINETIC" in result.output or "Logseq" in result.output
 
 
+@pytest.mark.parametrize(
+    "command",
+    ["scan", "export", "visualize", "agent-read", "agent-write", "append", "demo"],
+)
+def test_per_command_help_renders_without_error(command: str) -> None:
+    """``--help`` on every subcommand must exit 0 (issue #27)."""
+    result = runner.invoke(app, [command, "--help"])
+    assert result.exit_code == 0
+    assert result.output.strip()
+
+
 def test_verbose_flag_enables_debug_logging(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
     graph_root = _create_graph(tmp_path)
     caplog.set_level(logging.DEBUG, logger="logseq_matryca_parser")

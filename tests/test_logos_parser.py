@@ -12,7 +12,9 @@ from logseq_matryca_parser.exceptions import BlockReferenceError
 from logseq_matryca_parser.logos_parser import (
     LogosParser,
     StackMachineParser,
+    clean_node_content,
     is_system_block,
+    normalize_logseq_timestamp,
     resolve_journal_day,
 )
 
@@ -1492,3 +1494,230 @@ def test_resolve_asset_path_decodes_percent_encoding(tmp_path: Path) -> None:
     page = LogosParser().parse_page_file(page_path)
 
     assert page.resolve_asset_path("../assets/my%20document.pdf") == str(asset_path.resolve())
+
+
+# ── normalize_logseq_timestamp edge-input tests ───────────────────────────
+
+
+class TestNormalizeLogseqTimestamp:
+    """Edge-case coverage for ``normalize_logseq_timestamp()`` timestamp parser."""
+
+    # -- happy path (issue #32) --------------------------------------------
+
+    def test_none_returns_none(self):
+        assert normalize_logseq_timestamp(None) is None
+
+    def test_boolean_returns_none(self):
+        assert normalize_logseq_timestamp(True) is None
+        assert normalize_logseq_timestamp(False) is None
+
+    def test_empty_string_returns_none(self):
+        assert normalize_logseq_timestamp("") is None
+        assert normalize_logseq_timestamp("   ") is None
+
+    def test_invalid_format_returns_none(self):
+        assert normalize_logseq_timestamp("not a timestamp") is None
+        assert normalize_logseq_timestamp("garbage") is None
+        assert normalize_logseq_timestamp("123abc") is None
+
+    # -- integer / float ---------------------------------------------------
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            (0, 0),
+            (1, 1),
+            (1714065600, 1714065600),  # already seconds
+            (1714065600000, 1714065600),  # milliseconds → seconds
+            (9999999999999, 9999999999),  # big ms → seconds
+            (10000000000000, 10000000000),  # >= 10**12 → divide by 1000
+        ],
+    )
+    def test_int_input(self, value, expected):
+        assert normalize_logseq_timestamp(value) == expected
+
+    def test_float_input(self):
+        assert normalize_logseq_timestamp(1714065600.0) == 1714065600
+        assert normalize_logseq_timestamp(1714065600000.0) == 1714065600
+
+    # -- digit-only strings ------------------------------------------------
+
+    def test_digit_string_seconds(self):
+        assert normalize_logseq_timestamp("1714065600") == 1714065600
+
+    def test_digit_string_milliseconds(self):
+        assert normalize_logseq_timestamp("1714065600000") == 1714065600
+
+    # -- ISO-8601 strings --------------------------------------------------
+
+    def test_iso8601_with_z(self):
+        ts = normalize_logseq_timestamp("2026-04-25T17:00:00Z")
+        expected = int(datetime(2026, 4, 25, 17, 0, 0, tzinfo=UTC).timestamp())
+        assert ts == expected
+
+    def test_iso8601_with_offset(self):
+        ts = normalize_logseq_timestamp("2026-04-25T17:00:00+00:00")
+        expected = int(datetime(2026, 4, 25, 17, 0, 0, tzinfo=UTC).timestamp())
+        assert ts == expected
+
+    def test_iso8601_naive_assumes_utc(self):
+        ts = normalize_logseq_timestamp("2026-04-25T17:00:00")
+        expected = int(datetime(2026, 4, 25, 17, 0, 0, tzinfo=UTC).timestamp())
+        assert ts == expected
+
+    # -- Logseq datetime formats -------------------------------------------
+
+    @pytest.mark.parametrize(
+        ("value", "expected_dt"),
+        [
+            ("2026-04-25 Sat 10:00", datetime(2026, 4, 25, 10, 0, 0, tzinfo=UTC)),
+            ("2026-04-25 Sat", datetime(2026, 4, 25, 0, 0, 0, tzinfo=UTC)),
+            ("2026-04-25 10:00", datetime(2026, 4, 25, 10, 0, 0, tzinfo=UTC)),
+            ("2026-04-25", datetime(2026, 4, 25, 0, 0, 0, tzinfo=UTC)),
+        ],
+    )
+    def test_logseq_date_formats(self, value, expected_dt):
+        ts = normalize_logseq_timestamp(value)
+        assert ts == int(expected_dt.timestamp())
+
+    # -- date-only formats -------------------------------------------------
+
+    @pytest.mark.parametrize(
+        ("value", "expected_dt"),
+        [
+            ("2026/04/25", datetime(2026, 4, 25, 0, 0, 0, tzinfo=UTC)),
+            # "20260425" is all-digits → treated as a unix timestamp, not a date
+            ("2024_04_25", datetime(2024, 4, 25, 0, 0, 0, tzinfo=UTC)),
+            ("Apr 25, 2026", datetime(2026, 4, 25, 0, 0, 0, tzinfo=UTC)),
+        ],
+    )
+    def test_date_only_formats(self, value, expected_dt):
+        ts = normalize_logseq_timestamp(value)
+        assert ts == int(expected_dt.timestamp())
+
+    # -- edge cases --------------------------------------------------------
+
+    def test_list_input_returns_none(self):
+        assert normalize_logseq_timestamp([1, 2, 3]) is None
+
+    def test_dict_input_returns_none(self):
+        assert normalize_logseq_timestamp({"key": "val"}) is None
+
+    def test_ordinal_suffix_stripping(self):
+        """Ordinal suffixes (1st, 2nd, 3rd, 4th) are stripped before parsing."""
+        ts = normalize_logseq_timestamp("Apr 25th, 2026")
+        expected = int(datetime(2026, 4, 25, 0, 0, 0, tzinfo=UTC).timestamp())
+        assert ts == expected
+
+
+# ── clean_node_content table-driven tests ──────────────────────────────────
+
+
+class TestCleanNodeContent:
+    """Table-driven tests for ``clean_node_content()`` block text sanitizer."""
+
+    @pytest.mark.parametrize(
+        ("raw", "properties", "expected"),
+        [
+            # plain text passes through unchanged
+            ("just some text", {}, "just some text"),
+            ("hello world", {}, "hello world"),
+            # empty / whitespace
+            ("", {}, ""),
+            ("   ", {}, ""),
+            # task status extraction (first line only)
+            ("TODO Write parser", {}, "Write parser"),
+            ("DONE Finish docs", {}, "Finish docs"),
+            ("LATER revisit", {}, "revisit"),
+            ("NOW ship it", {}, "ship it"),
+            # task status with properties doesn't double-strip
+            ("TODO Write parser", {"id": "abc"}, "Write parser"),
+            # property key stripping (keys from properties dict — entire line dropped)
+            (
+                "id:: 67e3c1a0 content here",
+                {"id": "67e3c1a0"},
+                "",
+            ),
+            (
+                "title:: Hello World\nbody text",
+                {"title": "Hello World"},
+                "body text",
+            ),
+            # SCHEDULED/DEADLINE markers are removed by TIME_PATTERN
+            (
+                "TODO Plan launch SCHEDULED: <2026-04-30 Thu>\nDetails",
+                {},
+                "Plan launch\nDetails",
+            ),
+            (
+                "Finish draft DEADLINE: <2026-05-01 Fri>",
+                {},
+                "Finish draft",
+            ),
+            # inline id:: removal (double space collapsed to single)
+            (
+                "item one id:: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee item two",
+                {},
+                "item one item two",
+            ),
+            # aliased block ref (aliased → alias text, plain → empty)
+            (
+                "See [My Text](((aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee))) here",
+                {},
+                "See My Text here",
+            ),
+            (
+                "Ref ((aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee)) gone",
+                {},
+                "Ref gone",
+            ),
+            # priority marker removal (first line)
+            (
+                "TODO [#A] Ship feature",
+                {},
+                "Ship feature",
+            ),
+            ("[#B] No status", {}, "No status"),
+            # code fence preservation
+            (
+                "text before\n```\nid:: abc\nSCHEDULED: <2026-01-01>\n```\ntext after",
+                {"id": "abc"},
+                "text before\n```\nid:: abc\nSCHEDULED: <2026-01-01>\n```\ntext after",
+            ),
+            # multiple property keys
+            (
+                "id:: abc\ntitle:: My Title\nreal content",
+                {"id": "abc", "title": "My Title"},
+                "real content",
+            ),
+            # bullet markers stripped
+            ("- bullet point", {}, "bullet point"),
+            ("  - indented bullet", {}, "indented bullet"),
+            # heading markers stripped
+            ("# Heading 1", {}, "Heading 1"),
+            ("## Heading 2", {}, "Heading 2"),
+            # bold marker stripping
+            ("**bold text **", {}, "bold text"),
+            # task markers with markdown checkboxes
+            ("[ ] Buy milk", {}, "Buy milk"),
+            ("[x] Done task", {}, "Done task"),
+            # space collapsing
+            ("double  space   here", {}, "double space here"),
+        ],
+    )
+    def test_clean_node_content(self, raw, properties, expected):
+        assert clean_node_content(raw, properties) == expected
+
+    def test_case_insensitive_property_keys(self):
+        """Property keys are matched case-insensitively."""
+        raw = "ID:: abc123\nTitle:: My Page\nvisible content"
+        props = {"id": "abc123", "title": "My Page"}
+        assert clean_node_content(raw, props) == "visible content"
+
+    def test_code_block_preserves_newlines(self):
+        raw = "before\n```python\nprint('hello')\nprint('world')\n```\nafter"
+        props = {}
+        result = clean_node_content(raw, props)
+        assert "```python" in result
+        assert "print('hello')" in result
+        assert "after" in result
