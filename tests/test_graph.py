@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from logseq_matryca_parser.exceptions import BlockReferenceError
-from logseq_matryca_parser.graph import GraphQuery, LogseqGraph
+from logseq_matryca_parser.graph import GraphQuery, LogseqGraph, _normalize_relative_link_target
 
 
 def test_load_directory_empty_graph(tmp_path: Path) -> None:
@@ -663,3 +663,39 @@ def test_load_directory_strict_refs_validates_cross_page(tmp_path: Path) -> None
     )
     with pytest.raises(BlockReferenceError):
         LogseqGraph.load_directory(graph_root, strict_refs=True)
+
+
+# ── _normalize_relative_link_target tests (issue #45) ────────────────────
+
+
+class TestNormalizeRelativeLinkTarget:
+    """Unit tests for ``_normalize_relative_link_target()`` path resolver."""
+
+    def test_no_relative_prefix_returns_unchanged(self):
+        assert _normalize_relative_link_target("A/B", "C") == "C"
+        assert _normalize_relative_link_target("A", "B/C") == "B/C"
+
+    def test_dot_slash_current_dir(self):
+        assert _normalize_relative_link_target("A/B/C", "./D") == "A/B/D"
+        assert _normalize_relative_link_target("A", "./B") == "B"
+
+    def test_dot_slash_only_returns_current(self):
+        assert _normalize_relative_link_target("A/B/C", "./") == "A/B/C"
+        assert _normalize_relative_link_target("Page", "./") == "Page"
+
+    def test_dot_dot_parent(self):
+        assert _normalize_relative_link_target("A/B/C", "../D") == "A/B/D"
+        assert _normalize_relative_link_target("A/B/C", "../../E") == "A/E"
+
+    def test_dot_dot_beyond_root(self):
+        assert _normalize_relative_link_target("A", "../../B") == "B"
+        assert _normalize_relative_link_target("Page", "../Other") == "Other"
+
+    def test_lone_dot_and_double_dot(self):
+        assert _normalize_relative_link_target("A/B", ".") == "A/B"
+        assert _normalize_relative_link_target("A/B/C", "..") == "A/B"
+
+    def test_mixed_segments(self):
+        # ./ strips from current and prepends; ../.. goes up two levels
+        assert _normalize_relative_link_target("X/Y/Z", "../a/./b") == "X/Y/a/b"
+        assert _normalize_relative_link_target("A/B/C", "../../D/E") == "A/D/E"

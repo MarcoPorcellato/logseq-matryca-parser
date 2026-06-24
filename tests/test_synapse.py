@@ -9,7 +9,7 @@ import pytest
 
 from logseq_matryca_parser.graph import LogseqGraph
 from logseq_matryca_parser.logos_core import LogseqNode
-from logseq_matryca_parser.synapse import SynapseAdapter
+from logseq_matryca_parser.synapse import SynapseAdapter, _strip_markdown_for_embedding
 
 
 class FakeDocument:
@@ -345,3 +345,34 @@ def test_expand_missing_block_embed_completes_without_hang(tmp_path: Path) -> No
     expanded = _expand_macros_and_embeds(text, graph, set())
 
     assert "{{embed" not in expanded
+
+
+# ── _strip_markdown_for_embedding tests (issue #44) ─────────────────────
+
+
+class TestStripMarkdownForEmbedding:
+    """Table-driven tests for ``_strip_markdown_for_embedding()`` cleaner."""
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("plain text", "plain text"),
+            ("[[Simple Link]]", "Simple Link"),
+            ("[[Page|Alias]]", "Page"),
+            ("**bold text**", "bold text"),
+            ("*italic text*", "italic text"),
+            ("`code span`", "code span"),
+            ("text with #tag removed", "text with removed"),
+            ("**bold** and *italic* and `code`", "bold and italic and code"),
+            ("  extra spaces  ", "extra spaces"),
+            ("", ""),
+        ],
+    )
+    def test_strip_markdown(self, text, expected):
+        assert _strip_markdown_for_embedding(text) == expected
+
+    def test_combined_formatting(self):
+        result = _strip_markdown_for_embedding(
+            "See **[[Project Page]]** for `details` #todo"
+        )
+        assert result == "See Project Page for details"

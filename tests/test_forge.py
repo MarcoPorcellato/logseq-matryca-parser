@@ -12,6 +12,7 @@ from logseq_matryca_parser.forge import (
     _build_local_embed_index,
     _page_properties_to_yaml_frontmatter,
 )
+from logseq_matryca_parser.logos_core import ASTVisitor
 from logseq_matryca_parser.logos_core import LogseqNode
 
 
@@ -248,3 +249,54 @@ class TestObsidianForgeVisitorDirect:
         node.accept(visitor)
         output = visitor.get_markdown()
         assert "id::" not in output
+
+
+# ── direct MarkdownForgeVisitor tests (issue #46) ────────────────────────
+
+
+class TestMarkdownForgeVisitorDirect:
+    """Unit tests for MarkdownForgeVisitor (property filtering, id stripping)."""
+
+    def test_basic_markdown_output(self):
+        node = LogseqNode(uuid="n1", content="Hello", clean_text="Hello", indent_level=0)
+        visitor = MarkdownForgeVisitor()
+        node.accept(visitor)
+        assert visitor.get_markdown() == "- Hello"
+
+    def test_filters_id_property(self):
+        node = LogseqNode(
+            uuid="n2", content="Block", clean_text="Block", indent_level=0,
+            properties={"id": "abc-123", "status": "WIP"},
+            properties_order=["id", "status"],
+        )
+        visitor = MarkdownForgeVisitor()
+        node.accept(visitor)
+        output = visitor.get_markdown()
+        assert "id" not in output
+        assert "[:status WIP]" in output
+
+    def test_nested_indentation(self, sample_ast):
+        visitor = MarkdownForgeVisitor()
+        for node in sample_ast:
+            node.accept(visitor)
+        output = visitor.get_markdown()
+        assert "- Radice" in output
+        assert "  - Figlio" in output
+
+    def test_only_id_property_produces_no_annotations(self):
+        node = LogseqNode(
+            uuid="n3", content="X", clean_text="X", indent_level=0,
+            properties={"id": "only-id"},
+            properties_order=["id"],
+        )
+        visitor = MarkdownForgeVisitor()
+        node.accept(visitor)
+        assert visitor.get_markdown() == "- X"
+
+    def test_multiline_clean_text_flattened(self):
+        node = LogseqNode(
+            uuid="n4", content="A\nB\nC", clean_text="A\nB\nC", indent_level=0,
+        )
+        visitor = MarkdownForgeVisitor()
+        node.accept(visitor)
+        assert "\n" not in visitor.get_markdown().split("- ", 1)[1]
