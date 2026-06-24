@@ -151,3 +151,50 @@ def test_discover_graph_files_skips_backup_and_recycle_dirs(tmp_path: Path) -> N
 
     assert len(discovered) == 1
     assert discovered[0].name == "Real.md"
+
+
+# ── edge-case coverage per issue #22 ─────────────────────────────────────
+
+
+def test_page_title_to_relative_path_empty_title_returns_untitled():
+    """Empty or whitespace-only title maps to untitled.md."""
+    assert page_title_to_relative_path("") == Path("untitled.md")
+    # Only truly empty (no segments after split) produces untitled;
+    # whitespace-only yields percent-encoded spaces (not untitled).
+    assert page_title_to_relative_path("/") == Path("untitled.md")
+
+
+def test_derive_graph_root_fallback_to_parent_when_no_pages_or_journals(tmp_path: Path):
+    """Files outside pages/ or journals/ resolve graph_root to path.parent."""
+    arbitrary = tmp_path / "some" / "nested" / "notes.md"
+    arbitrary.parent.mkdir(parents=True)
+    arbitrary.write_text("- note\n", encoding="utf-8")
+    root = derive_graph_root_from_source_path(arbitrary)
+    assert root == arbitrary.parent.resolve()
+
+
+def test_derive_page_title_outside_pages_uses_filename_to_page_title(tmp_path: Path):
+    """Files outside pages/ and journals/ use filename_to_page_title(stem)."""
+    file_path = tmp_path / "random" / "Notes___AI.md"
+    file_path.parent.mkdir(parents=True)
+    file_path.write_text("- content\n", encoding="utf-8")
+    title = derive_page_title_from_source_path(file_path)
+    assert title == "Notes/AI"
+
+
+def test_derive_page_title_outside_pages_simple_filename(tmp_path: Path):
+    """A simple file outside pages/journals uses its stem as title."""
+    file_path = tmp_path / "Simple.md"
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.write_text("- content\n", encoding="utf-8")
+    title = derive_page_title_from_source_path(file_path)
+    assert title == "Simple"
+
+
+def test_derive_graph_root_fallback_with_deeply_nested_file(tmp_path: Path):
+    """Deeply nested files outside recognized markers resolve to parent dir."""
+    deep = tmp_path / "a" / "b" / "c" / "d" / "readme.md"
+    deep.parent.mkdir(parents=True)
+    deep.write_text("- deep\n", encoding="utf-8")
+    root = derive_graph_root_from_source_path(deep)
+    assert root == deep.parent.resolve()
