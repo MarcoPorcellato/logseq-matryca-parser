@@ -6,6 +6,7 @@ from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import StackMachineParser
 from logseq_matryca_parser.logseq_markdown import (
     _serialize_logseq_node_lines,
+    detect_tab_size_from_markdown,
     format_logseq_block_property_lines,
     format_logseq_page_properties,
     serialize_logseq_page,
@@ -218,3 +219,41 @@ def test_write_logseq_page_uses_utf8(tmp_path: Path) -> None:
     assert body.startswith("tags:: emoji\n\n")
     assert "café" in body
     assert "🚀" not in body
+
+
+# ── detect_tab_size_from_markdown tests (issue #43) ──────────────────────
+
+
+class TestDetectTabSize:
+    """Unit tests for ``detect_tab_size_from_markdown()`` indent inference."""
+
+    def test_two_space_indent_returns_2(self):
+        assert detect_tab_size_from_markdown("- a\n  - b\n    - c\n") == 2
+
+    def test_four_space_indent_returns_4(self):
+        assert detect_tab_size_from_markdown("- a\n    - b\n        - c\n") == 4
+
+    def test_single_bullet_returns_default(self):
+        assert detect_tab_size_from_markdown("- only one\n") == 2
+        assert detect_tab_size_from_markdown("- only one\n", default=4) == 4
+
+    def test_empty_or_whitespace_returns_default(self):
+        assert detect_tab_size_from_markdown("") == 2
+        assert detect_tab_size_from_markdown("   \n\n") == 2
+        assert detect_tab_size_from_markdown("no bullets here\n") == 2
+
+    def test_mixed_two_and_four_uses_gcd(self):
+        """When both 2 and 4-space indents appear, gcd is 2."""
+        text = "- a\n  - two space\n    - four space\n"
+        assert detect_tab_size_from_markdown(text) == 2
+
+    def test_tab_characters_replaced_by_default_width(self):
+        text = "- a\n\t- tab child\n"
+        result = detect_tab_size_from_markdown(text)
+        assert result in (1, 2)  # tab=2 spaces, so indent=2, gcd=2
+
+    def test_only_tabs(self):
+        text = "- root\n\t- child\n\t\t- grandchild\n"
+        result = detect_tab_size_from_markdown(text, default=2)
+        assert isinstance(result, int)
+        assert result >= 1
