@@ -127,7 +127,28 @@ if broken:
         print("broken ref in", node.clean_text)
 ```
 
-**CLI tip:** run `matryca-parse export` after `load_directory` — KINETIC scans canonical pages internally (v1.4.0).
+**CLI tip:** run `matryca-parse export` after `load_directory` — KINETIC scans canonical pages internally (since v1.4.0).
+
+---
+
+## Recipe 6 — Contributor test patterns
+
+Pick a scoped task from [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) (wave 2: [#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)), then mirror nearby tests:
+
+```bash
+uv sync --all-extras
+make all   # 378 pytest cases, ≥80% coverage gate
+```
+
+| Pattern | Example module | Test file |
+| :--- | :--- | :--- |
+| Pure helper | `normalize_logseq_timestamp` | `tests/test_logos_parser.py` |
+| CLI `--help` / errors | `kinetic.py` | `tests/test_kinetic.py` |
+| FORGE visitor | `ObsidianForgeVisitor` | `tests/test_forge.py` |
+| Release script | `scripts/extract_changelog.py` | `tests/test_extract_changelog.py` |
+| Exception hierarchy | `exceptions.py` | `tests/test_exceptions.py` |
+
+Test-only PRs should not change runtime behavior — update `CHANGELOG.md` under `[Unreleased]` only when user-visible behavior changes.
 
 ---
 

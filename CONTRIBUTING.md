@@ -124,6 +124,8 @@ CI runs the same commands as your local environment: `uv sync --all-extras`, the
 make all
 ```
 
+As of **v1.4.1**, `make test` runs **378** pytest cases with **≥80%** line coverage on `src/logseq_matryca_parser` (currently ~**90%**). New contributors should mirror patterns in [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) and the module map in that file’s **Test suite** section.
+
 Or run each step individually:
 
 ```bash
