@@ -85,6 +85,22 @@ Best first picks from the new batch — pure helpers or clear fixtures:
 
 ---
 
+## Test suite (v1.4.1)
+
+| Module | Test file |
+| :--- | :--- |
+| Parser (LOGOS) | `tests/test_logos_parser.py` |
+| Graph & watcher | `tests/test_graph.py` |
+| SYNAPSE adapters | `tests/test_synapse.py` |
+| FORGE exporters | `tests/test_forge.py` |
+| KINETIC CLI | `tests/test_kinetic.py` |
+| Agent read/write | `tests/test_agent_press.py`, `tests/test_agent_writer.py` |
+| Paths & markdown | `tests/test_logseq_paths.py`, `tests/test_logseq_markdown.py` |
+| Release helpers | `tests/test_extract_changelog.py`, `tests/test_package_version.py` |
+| Exceptions | `tests/test_exceptions.py` |
+
+Run the full gate: `make all` (**378** pytest cases as of **v1.4.1**).
+
 ## Out of scope for a first PR
 
 - Changes to Pydantic models in `logos_core.py` (open a design issue first).

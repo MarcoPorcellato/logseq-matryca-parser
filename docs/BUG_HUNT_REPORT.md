@@ -5,7 +5,9 @@
 **Strumenti:** analisi statica locale (graph-based), `make all`, `scripts/debug_pre_release.py`, probe Python ad hoc  
 **Riferimenti architetturali:** [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) (R. C. Martin), [`ARCHITECTURE.md`](ARCHITECTURE.md)
 
-> **Stato risoluzione (2026-06-23):** tutti i **BUG-001…031** e le limitazioni **LIM-001/002** sono stati affrontati nel codice (vedi `CHANGELOG.md` `[Unreleased]`). **DEBT-001** (`iter_canonical_pages`, `page_for_node`) è implementato; debito architetturale residuo (SRP su `kinetic.py`, OCP embed strategy) resta backlog non bloccante.
+> **Stato risoluzione (2026-06-23):** tutti i **BUG-001…031** e le limitazioni **LIM-001/002** sono stati affrontati nel codice (vedi `CHANGELOG.md` **v1.4.0**). **DEBT-001** (`iter_canonical_pages`, `page_for_node`) è implementato; debito architetturale residuo (SRP su `kinetic.py`, OCP embed strategy) resta backlog non bloccante.
+>
+> **Aggiornamento test (2026-06-24, v1.4.1):** GFI-04 (`logseq_paths` fallback), GFI-14 (`normalize_logseq_timestamp`), GFI-03/05/06/09/12/13 e suite totale **378** pytest — vedi `CHANGELOG.md` **v1.4.1**.
 
 ---
 
@@ -13,8 +15,8 @@
 
 | Metrica | Esito |
 | :--- | :--- |
-| `make all` (Ruff + Mypy + 271 pytest) | **PASS** |
-| Coverage | **89.25%** (soglia 80%) |
+| `make all` (Ruff + Mypy + 378 pytest) | **PASS** |
+| Coverage | **90.18%** (soglia 80%; **378** pytest, v1.4.1) |
 | Round-trip corpus (`debug_pre_release.py`) | **19/19 OK** |
 | analisi statica `check` (cicli IMPORTS) | **0 cicli** |
 | analisi statica index | `logseq-matryca-parser` — 1074 embeddings, commit `7d3f77b` |
@@ -855,7 +857,7 @@ page_title_to_relative_path('') → PosixPath('untitled.md')
 write_logseq_page(page, dest) → scrive su pages/untitled.md (non crash)
 ```
 
-Comportamento diverso dalla nota precedente (non più `Errno 21` su path vuoto grazie al fallback `untitled.md`). Resta ambiguo per vault reali. Copertura test assente (GFI-04).
+Comportamento diverso dalla nota precedente (non più `Errno 21` su path vuoto grazie al fallback `untitled.md`). Resta ambiguo per vault reali. **Copertura:** GFI-04 chiuso in **v1.4.1** (`tests/test_logseq_paths.py`).
 
 ---
 
@@ -871,7 +873,7 @@ Valutazione secondo i principi di R. C. Martin, senza implicare che il codice si
 | **ISP** | Adapter SYNAPSE accede a `graph._page_for_node` (privato) | `synapse.py` L222 | Esporre `graph.page_for_node()` pubblico o protocol `GraphLookup`. |
 | **DIP** | Import lazy `logseq_paths` dentro metodo entity | `logos_core.py` L144 | Accettabile per evitare cicli; alternativa: spostare `resolve_asset_path` in use case layer. |
 | **Boundaries** | `assert bm is not None` in produzione | `synapse.py` L171, L190 | Sostituire con guard espliciti (Clean Code: fail fast leggibile, no assert in `-O`). |
-| **Error handling** | `except ValueError: pass` in normalizzazione timestamp | `logos_parser.py` L500 | Accettabile come fallback chain; aggiungere test GFI-14. |
+| **Error handling** | `except ValueError: pass` in normalizzazione timestamp | `logos_parser.py` L500 | Accettabile come fallback chain; **GFI-14 chiuso in v1.4.1** (`tests/test_logos_parser.py`). |
 | **ISP / encapsulation** | Consumer iterano `graph.pages.values()` raw | `kinetic.py`, `graph.py` | `iter_canonical_pages()` — DEBT-001; radice di BUG-002/006/007. |
 | **Use case completeness** | Nessun ramo *delete* in invalidazione incrementale | `graph.py` L641 | BUG-005; watcher senza delete/move — BUG-014 |
 
@@ -895,7 +897,7 @@ Linee non coperte con **alto rischio funzionale** (non solo numeri):
 | `logseq_markdown.py` | round-trip 4-space indent | **Alto** — BUG-021 |
 | `graph.py` | ghost nodes in search/query/agent-read | **Alto** — BUG-022 (con BUG-010) |
 | `kinetic.py` | `_export_langchain_enriched` alias dupes | **Alto** — BUG-006 |
-| `logseq_paths.py` | titolo vuoto, fallback graph root | **Basso** — GFI-04 |
+| `logseq_paths.py` | titolo vuoto, fallback graph root | **Risolto (v1.4.1)** — GFI-04 |
 
 ---
 
@@ -919,7 +921,7 @@ Linee non coperte con **alto rischio funzionale** (non solo numeri):
 | P3 | BUG-004 | Decisione ISO vs `%W` + doc/test | 1 h |
 | P4 | BUG-008, BUG-009, BUG-015, BUG-018–020, BUG-024–025, BUG-028–031 | case/`#`/namespace; export dup; asset path | backlog |
 | P5 | Debito | `graph.page_for_node` pubblico; rimuovere `assert` | 2 h |
-| P6 | Coverage | Chiudere GFI-01, GFI-02, GFI-14 | backlog |
+| P6 | Coverage | Chiudere GFI-01, GFI-02; wave 2 ([#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) | backlog |
 
 Dopo ogni fix: `make all` + `refresh dell'indice locale` + `impact` sul simbolo modificato.
 

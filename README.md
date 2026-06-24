@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.4.0** — Robustness & graph-integrity release: 31 bug-hunt fixes, canonical page iteration, case-insensitive tag/search, live watcher delete/move, SYNAPSE embed safety (see [CHANGELOG](CHANGELOG.md)) — **271 tests**.
+**v1.4.1** — Test-hardening patch: **378 tests** (+107), community coverage for parser helpers, CLI agents, FORGE visitors, and wave-2 good-first issues ([#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) — no production API changes (see [CHANGELOG](CHANGELOG.md)).
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -103,6 +103,18 @@ graph TD
 
 ### 🔱 The Solution
 Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as the **File System Driver** for your LLM. It preserves the true topology of your thoughts, ensuring AI understands spatial hierarchy, time, and block-lineage—including **structured task state** and **first-class temporal attributes** you can query in downstream graph databases and GraphRAG engines without re-parsing raw Markdown.
+
+---
+
+## ⚡ Release highlights (v1.4.1)
+
+Patch release — contributor test coverage and onboarding refresh. **No intentional changes** to parser, graph, or CLI runtime behavior.
+
+| Area | Change |
+| :--- | :--- |
+| **Test suite** | **378** pytest cases (**+107** vs v1.4.0): `normalize_logseq_timestamp`, `clean_node_content`, `logseq_paths` fallbacks, exception hierarchy, `extract_changelog` script, KINETIC `--help`, `agent-read --query`, direct `ObsidianForgeVisitor` tests ([#42](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/42)). |
+| **New test modules** | `tests/test_exceptions.py`, `tests/test_extract_changelog.py`. |
+| **Contributor index** | [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) wave 2 ([#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)); wave-1 items marked complete. |
 
 ---
 
@@ -320,7 +332,7 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from PyPI (latest: v1.4.0)
+# Install from PyPI (latest: v1.4.1)
 uv pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates
@@ -417,7 +429,7 @@ We welcome issues, pull requests, and constructive feedback.
 
 | Resource | Link |
 | :--- | :--- |
-| **Good first issues** | [docs/GOOD_FIRST_ISSUES.md](docs/GOOD_FIRST_ISSUES.md) — starter tasks ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)) |
+| **Good first issues** | [docs/GOOD_FIRST_ISSUES.md](docs/GOOD_FIRST_ISSUES.md) — starter tasks ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) |
 | **Contributing** | [CONTRIBUTING.md](CONTRIBUTING.md) — setup, tests, PR workflow |
 | **Cookbook** | [docs/COOKBOOK.md](docs/COOKBOOK.md) — integration recipes (Synapse, graph query, watcher) |
 | **Documentation index** | [docs/README.md](docs/README.md) — active vs historical docs |

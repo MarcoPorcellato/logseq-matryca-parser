@@ -15,7 +15,7 @@ User-facing behavior is documented in:
 - [`README.md`](README.md) — overview, quickstart, and feature matrix
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — LOGOS, SYNAPSE, `LogseqGraph`, agents, and data flow
 - [`docs/logseq_ast_primer.md`](docs/logseq_ast_primer.md) — Logseq Spatial Markdown domain rules
-- [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.4.0**) and **Unreleased** changes (Keep a Changelog)
+- [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.4.1**) and **Unreleased** changes (Keep a Changelog)
 - [`docs/RELEASE_PROCESS.md`](docs/RELEASE_PROCESS.md) — version bump, tag, and PyPI publish checklist
 - [`docs/CODEQL.md`](docs/CODEQL.md) — CodeQL default setup (no custom `codeql.yml`)
 - [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) — curated starter tasks for new contributors
@@ -44,7 +44,7 @@ New to the codebase? Start here:
 2. **Comment on the issue** so others know you are working on it.
 3. **Set up** with `uv sync --all-extras` and confirm `make all` is green on `main`.
 4. **Branch** using `feat/…`, `test/…`, or `docs/…` naming (see workflow below).
-5. **Submit** a PR that links the issue (`Fixes #123`).
+5. **Submit** one PR per issue, branched from `main` (`Fixes #123`).
 
 Tier 1 tasks are **test-only** — no parser changes, ideal for learning `CliRunner` and pytest patterns in `tests/`. Tier 2 is documentation. Tier 3 adds small CLI or FORGE features with explicit acceptance criteria.
 
@@ -150,9 +150,9 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/). Your com
 
 ### 6. Submit a Pull Request (PR)
 
-- Push your branch and open a PR against the `main` branch.
+- Push your branch and open a PR against the `main` branch (**one issue per PR**).
 - Describe why the change is needed.
-- Link the relevant Issue (e.g., `Fixes #123`).
+- Link the relevant Issue (e.g., `Fixes #123`). **One issue per PR** — do not stack multiple issues on a single branch.
 - Ensure all GitHub Actions (CI) checks pass.
 
 ---

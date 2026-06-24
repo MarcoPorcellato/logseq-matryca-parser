@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-06-24
+
 ### Added
 
-- **Good first issues (wave 2)** — Ten new contributor tasks ([#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) indexed as GFI-17–GFI-26 in [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md); wave-1 items marked complete.
+- **Test coverage (wave 1)** — Community contribution ([#42](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/42)): **107** new pytest cases (**378** total) across parser helpers (`normalize_logseq_timestamp`, `clean_node_content`), `logseq_paths` fallbacks, exception hierarchy, `extract_changelog` release script, KINETIC per-command `--help`, `agent-read --query`, and direct `ObsidianForgeVisitor` tests. New modules: `tests/test_exceptions.py`, `tests/test_extract_changelog.py`. Closes [#21](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/21)–[#24](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/24), [#27](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/27), [#30](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/30)–[#32](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/32).
+- **Good first issues (wave 2)** — Ten new contributor tasks ([#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) indexed as GFI-17–GFI-26 in [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md); wave-1 GFI items marked complete.
+
+### Changed
+
+- **Contributor docs** — [`README.md`](README.md), [`docs/README.md`](docs/README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) harmonized for **v1.4.1** (test count, issue index range, supported versions).
 
 ## [1.4.0] - 2026-06-23
 

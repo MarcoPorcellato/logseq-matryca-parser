@@ -178,7 +178,7 @@ class TestObsidianForgeVisitorDirect:
         )
         node.accept(visitor)
         output = visitor.get_markdown()
-        assert "- Plain block" == output.strip()
+        assert output.strip() == "- Plain block"
 
     def test_uuid_to_anchor_with_mock_resolver(self):
         """A mock embed_resolver transforms ((uuid)) → [[Other#^anchor]]."""

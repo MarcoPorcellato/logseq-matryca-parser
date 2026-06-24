@@ -557,7 +557,7 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 | :--- | :--- |
 | [`logseq_ast_primer.md`](logseq_ast_primer.md) | Before touching parser or serialization behavior |
 | [`COOKBOOK.md`](COOKBOOK.md) | Integration examples (Synapse, `LogseqGraph`, watcher) |
-| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | Picking a first PR ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)) |
+| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | Picking a first PR ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) |
 | [`README.md`](README.md) | Documentation index (active vs historical) |
 | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | `uv` setup, `make all`, PR checklist |
 | [`design-docs/README.md`](design-docs/README.md) | Warning before using historical DDD blueprints |
