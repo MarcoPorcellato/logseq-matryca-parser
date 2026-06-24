@@ -7,7 +7,13 @@ from pathlib import Path
 import pytest
 
 from logseq_matryca_parser.exceptions import BlockReferenceError
-from logseq_matryca_parser.graph import GraphQuery, LogseqGraph, _normalize_relative_link_target
+from logseq_matryca_parser.graph import (
+    GraphQuery,
+    LogseqGraph,
+    _normalize_backlink_key,
+    _normalize_page_aliases,
+    _normalize_relative_link_target,
+)
 
 
 def test_load_directory_empty_graph(tmp_path: Path) -> None:
@@ -699,3 +705,36 @@ class TestNormalizeRelativeLinkTarget:
         # ./ strips from current and prepends; ../.. goes up two levels
         assert _normalize_relative_link_target("X/Y/Z", "../a/./b") == "X/Y/a/b"
         assert _normalize_relative_link_target("A/B/C", "../../D/E") == "A/D/E"
+
+
+# ── backlink alias token helpers (issue #50) ────────────────────────────
+
+
+class TestBacklinkAliasHelpers:
+    """Unit tests for backlink registry token normalisation."""
+
+    def test_normalize_backlink_key_lowercases(self):
+        assert _normalize_backlink_key("MyPage") == "mypage"
+        assert _normalize_backlink_key("  Spaced  ") == "spaced"
+
+    def test_normalize_backlink_key_uuid_passthrough(self):
+        uid = "64c752b0-d33b-4448-a261-e4dc2bbe12d3"
+        assert _normalize_backlink_key(uid) == uid
+
+    def test_normalize_backlink_key_empty(self):
+        assert _normalize_backlink_key("") == ""
+        assert _normalize_backlink_key("   ") == ""
+
+    def test_normalize_page_aliases_string_comma_split(self):
+        result = _normalize_page_aliases("Alpha, Beta, Gamma")
+        assert result == ["Alpha", "Beta", "Gamma"]
+
+    def test_normalize_page_aliases_list_input(self):
+        result = _normalize_page_aliases(["[[Page One]]", "#Tag", "plain"])
+        assert "Page One" in result
+        assert "Tag" in result
+        assert "plain" in result
+
+    def test_normalize_page_aliases_empty(self):
+        assert _normalize_page_aliases(None) == []
+        assert _normalize_page_aliases(42) == []
