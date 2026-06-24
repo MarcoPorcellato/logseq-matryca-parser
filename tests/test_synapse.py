@@ -9,7 +9,7 @@ import pytest
 
 from logseq_matryca_parser.graph import LogseqGraph
 from logseq_matryca_parser.logos_core import LogseqNode
-from logseq_matryca_parser.synapse import SynapseAdapter, _strip_markdown_for_embedding
+from logseq_matryca_parser.synapse import SynapseAdapter, _strip_markdown_for_embedding, build_synapse_metadata
 
 
 class FakeDocument:
@@ -376,3 +376,35 @@ class TestStripMarkdownForEmbedding:
             "See **[[Project Page]]** for `details` #todo"
         )
         assert result == "See Project Page for details"
+
+
+# ── build_synapse_metadata schema (issue #51) ──────────────────────────
+
+
+class TestBuildSynapseMetadata:
+    """Direct schema tests for ``build_synapse_metadata()`` output."""
+
+    def test_includes_core_keys(self):
+        node = LogseqNode(uuid="abc", content="Test", indent_level=0)
+        meta = build_synapse_metadata(node, source="test")
+        for key in ("uuid", "indent_level", "source", "path", "refs",
+                     "task_status", "task_priority"):
+            assert key in meta
+
+    def test_property_serialization(self):
+        node = LogseqNode(uuid="x", content="T", indent_level=1,
+                          properties={"tags": "ai", "status": "done"})
+        meta = build_synapse_metadata(node, source="s")
+        assert meta["tags"] == "ai"
+        assert meta["status"] == "done"
+
+    def test_extra_kwarg_merged(self):
+        node = LogseqNode(uuid="y", content="T2", indent_level=0)
+        meta = build_synapse_metadata(node, source="s", extra={"custom": 42})
+        assert meta["custom"] == 42
+
+    def test_nullable_fields_are_none(self):
+        node = LogseqNode(uuid="n", content="X", indent_level=0)
+        meta = build_synapse_metadata(node, source="s")
+        assert meta["parent_id"] is None
+        assert meta["scheduled_at"] is None

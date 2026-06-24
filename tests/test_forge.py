@@ -300,3 +300,44 @@ class TestMarkdownForgeVisitorDirect:
         visitor = MarkdownForgeVisitor()
         node.accept(visitor)
         assert "\n" not in visitor.get_markdown().split("- ", 1)[1]
+
+
+# ── direct JSONForgeVisitor nested stack tests (issue #52) ──────────────
+
+
+class TestJSONForgeVisitorNestedStack:
+    """Tests for JSONForgeVisitor nested hierarchy preservation."""
+
+    def test_single_root_node(self):
+        root = LogseqNode(uuid="r", content="Root", indent_level=0)
+        visitor = JSONForgeVisitor()
+        root.accept(visitor)
+        data = visitor.get_data()
+        assert len(data) == 1
+        assert data[0]["uuid"] == "r"
+
+    def test_nested_children_stack(self):
+        child = LogseqNode(uuid="c", content="Child", indent_level=1, parent_id="p")
+        parent = LogseqNode(uuid="p", content="Parent", indent_level=0, children=[child])
+        visitor = JSONForgeVisitor()
+        parent.accept(visitor)
+        data = visitor.get_data()
+        assert len(data[0]["children"]) == 1
+        assert data[0]["children"][0]["uuid"] == "c"
+
+    def test_deeply_nested_stack(self):
+        leaf = LogseqNode(uuid="l", content="Leaf", indent_level=2, parent_id="m")
+        mid = LogseqNode(uuid="m", content="Mid", indent_level=1, parent_id="r", children=[leaf])
+        root = LogseqNode(uuid="r", content="Root", indent_level=0, children=[mid])
+        visitor = JSONForgeVisitor()
+        root.accept(visitor)
+        data = visitor.get_data()
+        assert data[0]["children"][0]["children"][0]["uuid"] == "l"
+
+    def test_excludes_children_key_from_payload(self):
+        node = LogseqNode(uuid="n", content="X", indent_level=0)
+        visitor = JSONForgeVisitor()
+        node.accept(visitor)
+        data = visitor.get_data()
+        assert "children" in data[0]
+        assert data[0]["children"] == []

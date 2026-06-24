@@ -135,3 +135,29 @@ def test_append_child_to_node_respects_four_space_tab_size(tmp_path: Path) -> No
 
     updated = page_path.read_text(encoding="utf-8")
     assert "    - Appended with four spaces" in updated
+
+
+# ── LogseqConfigReader / format_timestamp (issue #48) ──────────────────
+
+
+def test_format_timestamp_produces_logseq_journal_format(tmp_path: Path):
+    config = tmp_path / "config.edn"
+    config.write_text(':journal/page-title-format "yyyy_MM_dd"')
+    reader = LogseqConfigReader(str(config))
+    ts = reader.format_timestamp(datetime(2026, 5, 10))
+    assert ts == "2026_05_10"
+
+
+def test_format_timestamp_with_ordinal_day(tmp_path: Path):
+    config = tmp_path / "config.edn"
+    config.write_text(':journal/page-title-format "MMM do, yyyy"')
+    reader = LogseqConfigReader(str(config))
+    ts = reader.format_timestamp(datetime(2026, 5, 1))
+    assert "1st" in ts or "May" in ts
+
+
+def test_config_reader_loads_format(tmp_path: Path):
+    config = tmp_path / "config.edn"
+    config.write_text(':journal/page-title-format "yyyy-MM-dd"')
+    reader = LogseqConfigReader(str(config))
+    assert reader.load_journal_format() == "yyyy-MM-dd"
