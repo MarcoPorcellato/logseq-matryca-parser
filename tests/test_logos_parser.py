@@ -12,6 +12,7 @@ from logseq_matryca_parser.exceptions import BlockReferenceError
 from logseq_matryca_parser.logos_parser import (
     LogosParser,
     StackMachineParser,
+    clean_node_content,
     is_system_block,
     normalize_logseq_timestamp,
     resolve_journal_day,
@@ -1607,3 +1608,116 @@ class TestNormalizeLogseqTimestamp:
         ts = normalize_logseq_timestamp("Apr 25th, 2026")
         expected = int(datetime(2026, 4, 25, 0, 0, 0, tzinfo=UTC).timestamp())
         assert ts == expected
+
+
+# ── clean_node_content table-driven tests ──────────────────────────────────
+
+
+class TestCleanNodeContent:
+    """Table-driven tests for ``clean_node_content()`` block text sanitizer."""
+
+    @pytest.mark.parametrize(
+        ("raw", "properties", "expected"),
+        [
+            # plain text passes through unchanged
+            ("just some text", {}, "just some text"),
+            ("hello world", {}, "hello world"),
+            # empty / whitespace
+            ("", {}, ""),
+            ("   ", {}, ""),
+            # task status extraction (first line only)
+            ("TODO Write parser", {}, "Write parser"),
+            ("DONE Finish docs", {}, "Finish docs"),
+            ("LATER revisit", {}, "revisit"),
+            ("NOW ship it", {}, "ship it"),
+            # task status with properties doesn't double-strip
+            ("TODO Write parser", {"id": "abc"}, "Write parser"),
+            # property key stripping (keys from properties dict — entire line dropped)
+            (
+                "id:: 67e3c1a0 content here",
+                {"id": "67e3c1a0"},
+                "",
+            ),
+            (
+                "title:: Hello World\nbody text",
+                {"title": "Hello World"},
+                "body text",
+            ),
+            # SCHEDULED/DEADLINE markers are removed by TIME_PATTERN
+            (
+                "TODO Plan launch SCHEDULED: <2026-04-30 Thu>\nDetails",
+                {},
+                "Plan launch\nDetails",
+            ),
+            (
+                "Finish draft DEADLINE: <2026-05-01 Fri>",
+                {},
+                "Finish draft",
+            ),
+            # inline id:: removal (double space collapsed to single)
+            (
+                "item one id:: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee item two",
+                {},
+                "item one item two",
+            ),
+            # aliased block ref (aliased → alias text, plain → empty)
+            (
+                "See [My Text](((aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee))) here",
+                {},
+                "See My Text here",
+            ),
+            (
+                "Ref ((aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee)) gone",
+                {},
+                "Ref gone",
+            ),
+            # priority marker removal (first line)
+            (
+                "TODO [#A] Ship feature",
+                {},
+                "Ship feature",
+            ),
+            ("[#B] No status", {}, "No status"),
+            # code fence preservation
+            (
+                "text before\n```\nid:: abc\nSCHEDULED: <2026-01-01>\n```\ntext after",
+                {"id": "abc"},
+                "text before\n```\nid:: abc\nSCHEDULED: <2026-01-01>\n```\ntext after",
+            ),
+            # multiple property keys
+            (
+                "id:: abc\ntitle:: My Title\nreal content",
+                {"id": "abc", "title": "My Title"},
+                "real content",
+            ),
+            # bullet markers stripped
+            ("- bullet point", {}, "bullet point"),
+            ("  - indented bullet", {}, "indented bullet"),
+            # heading markers stripped
+            ("# Heading 1", {}, "Heading 1"),
+            ("## Heading 2", {}, "Heading 2"),
+            # bold marker stripping
+            ("**bold text **", {}, "bold text"),
+            # task markers with markdown checkboxes
+            ("[ ] Buy milk", {}, "Buy milk"),
+            ("[x] Done task", {}, "Done task"),
+            # space collapsing
+            ("double  space   here", {}, "double space here"),
+        ],
+    )
+    def test_clean_node_content(self, raw, properties, expected):
+        assert clean_node_content(raw, properties) == expected
+
+    def test_case_insensitive_property_keys(self):
+        """Property keys are matched case-insensitively."""
+        raw = "ID:: abc123\nTitle:: My Page\nvisible content"
+        props = {"id": "abc123", "title": "My Page"}
+        assert clean_node_content(raw, props) == "visible content"
+
+    def test_code_block_preserves_newlines(self):
+        raw = "before\n```python\nprint('hello')\nprint('world')\n```\nafter"
+        props = {}
+        result = clean_node_content(raw, props)
+        assert "```python" in result
+        assert "print('hello')" in result
+        assert "after" in result
