@@ -13,6 +13,7 @@ from logseq_matryca_parser.logos_parser import (
     LogosParser,
     StackMachineParser,
     is_system_block,
+    normalize_logseq_timestamp,
     resolve_journal_day,
 )
 
@@ -1492,3 +1493,117 @@ def test_resolve_asset_path_decodes_percent_encoding(tmp_path: Path) -> None:
     page = LogosParser().parse_page_file(page_path)
 
     assert page.resolve_asset_path("../assets/my%20document.pdf") == str(asset_path.resolve())
+
+
+# ── normalize_logseq_timestamp edge-input tests ───────────────────────────
+
+
+class TestNormalizeLogseqTimestamp:
+    """Edge-case coverage for ``normalize_logseq_timestamp()`` timestamp parser."""
+
+    # -- happy path (issue #32) --------------------------------------------
+
+    def test_none_returns_none(self):
+        assert normalize_logseq_timestamp(None) is None
+
+    def test_boolean_returns_none(self):
+        assert normalize_logseq_timestamp(True) is None
+        assert normalize_logseq_timestamp(False) is None
+
+    def test_empty_string_returns_none(self):
+        assert normalize_logseq_timestamp("") is None
+        assert normalize_logseq_timestamp("   ") is None
+
+    def test_invalid_format_returns_none(self):
+        assert normalize_logseq_timestamp("not a timestamp") is None
+        assert normalize_logseq_timestamp("garbage") is None
+        assert normalize_logseq_timestamp("123abc") is None
+
+    # -- integer / float ---------------------------------------------------
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            (0, 0),
+            (1, 1),
+            (1714065600, 1714065600),  # already seconds
+            (1714065600000, 1714065600),  # milliseconds → seconds
+            (9999999999999, 9999999999),  # big ms → seconds
+            (10000000000000, 10000000000),  # >= 10**12 → divide by 1000
+        ],
+    )
+    def test_int_input(self, value, expected):
+        assert normalize_logseq_timestamp(value) == expected
+
+    def test_float_input(self):
+        assert normalize_logseq_timestamp(1714065600.0) == 1714065600
+        assert normalize_logseq_timestamp(1714065600000.0) == 1714065600
+
+    # -- digit-only strings ------------------------------------------------
+
+    def test_digit_string_seconds(self):
+        assert normalize_logseq_timestamp("1714065600") == 1714065600
+
+    def test_digit_string_milliseconds(self):
+        assert normalize_logseq_timestamp("1714065600000") == 1714065600
+
+    # -- ISO-8601 strings --------------------------------------------------
+
+    def test_iso8601_with_z(self):
+        ts = normalize_logseq_timestamp("2026-04-25T17:00:00Z")
+        expected = int(datetime(2026, 4, 25, 17, 0, 0, tzinfo=UTC).timestamp())
+        assert ts == expected
+
+    def test_iso8601_with_offset(self):
+        ts = normalize_logseq_timestamp("2026-04-25T17:00:00+00:00")
+        expected = int(datetime(2026, 4, 25, 17, 0, 0, tzinfo=UTC).timestamp())
+        assert ts == expected
+
+    def test_iso8601_naive_assumes_utc(self):
+        ts = normalize_logseq_timestamp("2026-04-25T17:00:00")
+        expected = int(datetime(2026, 4, 25, 17, 0, 0, tzinfo=UTC).timestamp())
+        assert ts == expected
+
+    # -- Logseq datetime formats -------------------------------------------
+
+    @pytest.mark.parametrize(
+        ("value", "expected_dt"),
+        [
+            ("2026-04-25 Sat 10:00", datetime(2026, 4, 25, 10, 0, 0, tzinfo=UTC)),
+            ("2026-04-25 Sat", datetime(2026, 4, 25, 0, 0, 0, tzinfo=UTC)),
+            ("2026-04-25 10:00", datetime(2026, 4, 25, 10, 0, 0, tzinfo=UTC)),
+            ("2026-04-25", datetime(2026, 4, 25, 0, 0, 0, tzinfo=UTC)),
+        ],
+    )
+    def test_logseq_date_formats(self, value, expected_dt):
+        ts = normalize_logseq_timestamp(value)
+        assert ts == int(expected_dt.timestamp())
+
+    # -- date-only formats -------------------------------------------------
+
+    @pytest.mark.parametrize(
+        ("value", "expected_dt"),
+        [
+            ("2026/04/25", datetime(2026, 4, 25, 0, 0, 0, tzinfo=UTC)),
+            # "20260425" is all-digits → treated as a unix timestamp, not a date
+            ("2024_04_25", datetime(2024, 4, 25, 0, 0, 0, tzinfo=UTC)),
+            ("Apr 25, 2026", datetime(2026, 4, 25, 0, 0, 0, tzinfo=UTC)),
+        ],
+    )
+    def test_date_only_formats(self, value, expected_dt):
+        ts = normalize_logseq_timestamp(value)
+        assert ts == int(expected_dt.timestamp())
+
+    # -- edge cases --------------------------------------------------------
+
+    def test_list_input_returns_none(self):
+        assert normalize_logseq_timestamp([1, 2, 3]) is None
+
+    def test_dict_input_returns_none(self):
+        assert normalize_logseq_timestamp({"key": "val"}) is None
+
+    def test_ordinal_suffix_stripping(self):
+        """Ordinal suffixes (1st, 2nd, 3rd, 4th) are stripped before parsing."""
+        ts = normalize_logseq_timestamp("Apr 25th, 2026")
+        expected = int(datetime(2026, 4, 25, 0, 0, 0, tzinfo=UTC).timestamp())
+        assert ts == expected
