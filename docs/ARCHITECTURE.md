@@ -374,7 +374,7 @@ Human-facing RAG (SYNAPSE enriched chunks, breadcrumbs, inherited properties) op
 
 #### Stateful session registry (`.matryca_xray_state.json`)
 
-X-Ray is designed for **stateless LLM toolchains**: each `agent-read` invocation is a fresh process, yet agents must still **write back** to blocks they only saw as `[n]` tokens. After **`generate_aliases`**, **KINETIC** persists the alias map to **`<graph_root>/.matryca_xray_state.json`** via **`SessionAliasRegistry.save_to_disk`**. A later **`matryca-parse agent-write --alias N`** loads that JSON with **`load_from_disk`**, resolves `N → uuid`, and hands off to **`append_child_to_node`**. The read/write pair therefore composes as **two independent CLI exits** without stuffing UUIDs into the model context — the filesystem holds session continuity.
+X-Ray is designed for **stateless LLM toolchains**: each `agent-read` invocation is a fresh process, yet agents must still **write back** to blocks they only saw as `[n]` tokens. After **`generate_aliases`**, **KINETIC** persists the alias map to **`<graph_root>/.matryca_xray_state.json`** via **`SessionAliasRegistry.save_to_disk`**. A later **`matryca-parse agent-write --alias N`** loads that JSON with **`load_from_disk`**, resolves `N → uuid`, and hands off to **`append_child_to_node`**. Malformed or empty state files yield a controlled CLI exit (empty registry for whitespace-only files; **`SessionAliasRegistryError`** for invalid JSON) rather than an uncaught traceback. The read/write pair therefore composes as **two independent CLI exits** without stuffing UUIDs into the model context — the filesystem holds session continuity.
 
 #### Session alias mechanics (`SessionAliasRegistry`)
 

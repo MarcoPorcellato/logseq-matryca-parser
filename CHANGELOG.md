@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **agent-write** — `SessionAliasRegistry.load_from_disk` tolerates empty, malformed, or legacy-wrapped X-Ray JSON; KINETIC exits with a clear message instead of a traceback ([#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60)).
+
 ### Added
 
 - **Contributor issues (wave 3)** — Six new issues from local code study ([#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#64](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/64)): LENS ghost wikilink nodes, corrupt X-Ray state handling, `agent_write` assert guard, and paired good-first tests.

@@ -5,7 +5,9 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
+from typing import Any
 
+from logseq_matryca_parser.exceptions import SessionAliasRegistryError
 from logseq_matryca_parser.logos_core import LogseqNode
 
 logger = logging.getLogger(__name__)
@@ -29,6 +31,22 @@ def _flatten_subtrees(nodes: list[LogseqNode]) -> list[LogseqNode]:
     for root in nodes:
         walk(root)
     return flat
+
+
+def _normalize_alias_payload(raw: Any) -> dict[str, Any]:
+    """Coerce on-disk JSON into a flat ``alias_str -> uuid`` mapping."""
+    if not isinstance(raw, dict):
+        msg = "X-Ray state file must contain a JSON object mapping aliases to UUIDs"
+        raise SessionAliasRegistryError(msg)
+    if set(raw.keys()) == {"aliases"} and isinstance(raw.get("aliases"), dict):
+        logger.warning(
+            "SessionAliasRegistry.load_from_disk: unwrap legacy 'aliases' wrapper key"
+        )
+        raw = raw["aliases"]
+    if not isinstance(raw, dict):
+        msg = "X-Ray state 'aliases' value must be a JSON object"
+        raise SessionAliasRegistryError(msg)
+    return raw
 
 
 class SessionAliasRegistry:
@@ -69,11 +87,43 @@ class SessionAliasRegistry:
     @classmethod
     def load_from_disk(cls, filepath: Path) -> SessionAliasRegistry:
         """Reconstruct a registry from a JSON file written by :meth:`save_to_disk`."""
-        raw = json.loads(filepath.read_text(encoding="utf-8"))
+        raw_text = filepath.read_text(encoding="utf-8").strip()
+        if not raw_text:
+            logger.warning("SessionAliasRegistry.load_from_disk: empty state file %s", filepath)
+            return cls()
+        try:
+            parsed = json.loads(raw_text)
+        except json.JSONDecodeError as exc:
+            msg = f"Invalid JSON in X-Ray state file: {filepath}"
+            raise SessionAliasRegistryError(msg) from exc
+        raw = _normalize_alias_payload(parsed)
         registry = cls()
         seen_uuids: set[str] = set()
-        for alias_str in sorted(raw.keys(), key=int):
+        ordered_aliases: list[int] = []
+        for alias_str in raw:
+            if not isinstance(alias_str, str):
+                logger.warning(
+                    "SessionAliasRegistry.load_from_disk: skip non-string alias key=%r",
+                    alias_str,
+                )
+                continue
+            try:
+                ordered_aliases.append(int(alias_str))
+            except ValueError:
+                logger.warning(
+                    "SessionAliasRegistry.load_from_disk: skip non-integer alias key=%s",
+                    alias_str,
+                )
+
+        for alias in sorted(ordered_aliases):
+            alias_str = str(alias)
             node_uuid = raw[alias_str]
+            if not isinstance(node_uuid, str) or not node_uuid.strip():
+                logger.warning(
+                    "SessionAliasRegistry.load_from_disk: skip invalid uuid for alias=%s",
+                    alias_str,
+                )
+                continue
             if node_uuid in seen_uuids:
                 logger.warning(
                     "SessionAliasRegistry.load_from_disk: skip duplicate uuid=%s alias=%s",
@@ -81,11 +131,14 @@ class SessionAliasRegistry:
                     alias_str,
                 )
                 continue
-            alias = int(alias_str)
             seen_uuids.add(node_uuid)
             registry._alias_to_uuid[alias] = node_uuid
             registry._uuid_to_alias[node_uuid] = alias
-        logger.debug("SessionAliasRegistry loaded %s aliases from %s", len(registry._alias_to_uuid), filepath)
+        logger.debug(
+            "SessionAliasRegistry loaded %s aliases from %s",
+            len(registry._alias_to_uuid),
+            filepath,
+        )
         return registry
 
 

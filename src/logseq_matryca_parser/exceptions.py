@@ -11,3 +11,7 @@ class LogseqIndentationError(LogseqParserError):
 
 class BlockReferenceError(LogseqParserError):
     """Raised when a block reference cannot be resolved."""
+
+
+class SessionAliasRegistryError(Exception):
+    """Raised when the X-Ray alias state file cannot be parsed or validated."""

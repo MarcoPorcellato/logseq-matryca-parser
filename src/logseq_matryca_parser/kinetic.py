@@ -641,13 +641,21 @@ def agent_write(
         if not registry_path.is_file():
             print(f"Alias state file not found: {registry_path}", file=sys.stderr)
             raise typer.Exit(code=1)
-        registry = SessionAliasRegistry.load_from_disk(registry_path)
+        from logseq_matryca_parser.exceptions import SessionAliasRegistryError
+
+        try:
+            registry = SessionAliasRegistry.load_from_disk(registry_path)
+        except SessionAliasRegistryError as exc:
+            print(str(exc), file=sys.stderr)
+            raise typer.Exit(code=1) from exc
         parent_uuid = registry.resolve_alias(alias)
         if parent_uuid is None:
             print(f"Unknown alias: {alias}", file=sys.stderr)
             raise typer.Exit(code=1)
 
-    assert parent_uuid is not None
+    if parent_uuid is None:
+        print("Parent block UUID could not be resolved.", file=sys.stderr)
+        raise typer.Exit(code=1)
     try:
         append_child_to_node(graph, parent_uuid, content)
     except ValueError as exc:
