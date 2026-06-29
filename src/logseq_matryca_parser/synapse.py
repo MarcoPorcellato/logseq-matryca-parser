@@ -145,22 +145,28 @@ def _strip_markdown_for_embedding(text: str) -> str:
     return s
 
 
-def _expand_macros_and_embeds(text: str, graph: LogseqGraph, visited_uuids: set[str]) -> str:
+def _expand_macros_and_embeds(
+    text: str,
+    graph: LogseqGraph,
+    visited_uuids: set[str],
+    *,
+    embed_page_chain: frozenset[str] = frozenset(),
+) -> str:
     """Expand ``{{embed ((uuid))}}`` / ``{{embed [[page]]}}`` for RAG text.
 
     Operates on raw block ``content`` (not ``clean_text``) so ``((uuid))`` inside macros is
     still visible to the scanner after parsing.
     """
-    return _expand_macros_and_embeds_impl(text, graph, visited_uuids, set())
+    return _expand_macros_and_embeds_impl(text, graph, visited_uuids, embed_page_chain)
 
 
 def _expand_macros_and_embeds_impl(
     text: str,
     graph: LogseqGraph,
     visited_uuids: set[str],
-    visited_pages: set[str],
+    embed_page_chain: frozenset[str],
 ) -> str:
-    """Shared worker: ``visited_uuids`` breaks block cycles; ``visited_pages`` breaks page cycles."""
+    """Shared worker: ``visited_uuids`` breaks block cycles; ``embed_page_chain`` breaks page cycles."""
     result = text
     while True:
         bm = _BLOCK_EMBED_PATTERN.search(result)
@@ -185,7 +191,7 @@ def _expand_macros_and_embeds_impl(
                     next_seen = set(visited_uuids)
                     next_seen.add(uid)
                     replacement = _expand_macros_and_embeds_impl(
-                        target.content, graph, next_seen, visited_pages
+                        target.content, graph, next_seen, embed_page_chain
                     )
             result = result[: match.start()] + replacement + result[match.end() :]
         else:
@@ -195,27 +201,24 @@ def _expand_macros_and_embeds_impl(
             title = match.group("title").strip()
             page = graph.get_page(title)
             canonical_title = page.title if page is not None else title
-            if canonical_title in visited_pages:
+            if canonical_title in embed_page_chain:
                 logger.debug("Stack-Machine embed: cyclic page title=%s", canonical_title)
                 replacement = ""
             elif page is None:
                 logger.debug("Stack-Machine embed: unknown page title=%s", title)
                 replacement = ""
             else:
-                visited_pages.add(canonical_title)
-                try:
-                    shared_blocks = set(visited_uuids)
-                    pieces: list[str] = []
-                    for n in _flatten_nodes_for_export(page.root_nodes):
-                        frag = _expand_macros_and_embeds_impl(
-                            n.content, graph, shared_blocks, visited_pages
-                        )
-                        stripped = frag.strip()
-                        if stripped:
-                            pieces.append(stripped)
-                    replacement = "\n".join(pieces)
-                finally:
-                    visited_pages.discard(canonical_title)
+                next_chain = embed_page_chain | frozenset({canonical_title})
+                shared_blocks = set(visited_uuids)
+                pieces: list[str] = []
+                for n in _flatten_nodes_for_export(page.root_nodes):
+                    frag = _expand_macros_and_embeds_impl(
+                        n.content, graph, shared_blocks, next_chain
+                    )
+                    stripped = frag.strip()
+                    if stripped:
+                        pieces.append(stripped)
+                replacement = "\n".join(pieces)
             result = result[: match.start()] + replacement + result[match.end() :]
     return result
 
@@ -404,7 +407,13 @@ class SynapseAdapter:
                 continue
             breadcrumbs, page = _build_breadcrumbs(graph, node)
             source_name = Path(node.source_path).name if node.source_path else str(graph.graph_path.name)
-            expanded_content = _expand_macros_and_embeds(node.content, graph, set())
+            host_page = graph.page_for_node(node)
+            embed_chain = (
+                frozenset({host_page.title}) if host_page is not None else frozenset()
+            )
+            expanded_content = _expand_macros_and_embeds(
+                node.content, graph, set(), embed_page_chain=embed_chain
+            )
             page_content = format_template.format(
                 breadcrumbs=breadcrumbs,
                 content=expanded_content,

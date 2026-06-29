@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **SYNAPSE** — cyclic `{{embed [[Page]]}}` chains no longer duplicate parent literal text; page embed expansion tracks an immutable host-page chain seeded from `to_context_enriched_chunks` ([#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65)).
+
 ### Added
 
 - **Contributor issues (wave 3)** — Six new issues from local code study ([#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#64](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/64)): LENS ghost wikilink nodes, corrupt X-Ray state handling, `agent_write` assert guard, and paired good-first tests.
