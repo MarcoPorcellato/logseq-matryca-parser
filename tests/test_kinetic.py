@@ -86,6 +86,23 @@ def test_verbose_flag_enables_debug_logging(tmp_path: Path, caplog: pytest.LogCa
     assert any(record.levelno == logging.DEBUG for record in caplog.records)
 
 
+def test_scan_command_reports_broken_refs(tmp_path: Path) -> None:
+    graph_root = tmp_path / "vault"
+    pages_dir = graph_root / "pages"
+    pages_dir.mkdir(parents=True, exist_ok=True)
+    fake_uuid = "00000000-0000-0000-0000-000000000099"
+    (pages_dir / "Broken.md").write_text(
+        f"- Linker references (({fake_uuid}))\n",
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(app, ["scan", str(graph_root), "--broken-refs"])
+
+    assert result.exit_code == 1
+    assert "Broken Block References" in result.output
+    assert "((00000000-0000-0000-0000-00000" in result.output
+
+
 def test_export_command_json_writes_output_file(tmp_path: Path) -> None:
     graph_root = _create_graph(tmp_path)
     output_dir = tmp_path / "out-json"

@@ -149,6 +149,28 @@ def _build_stats_table(pages: list[LogseqPage]) -> Table:
     return table
 
 
+def _build_broken_references_table(
+    graph: LogseqGraph, broken_nodes: list[LogseqNode]
+) -> Table:
+    table = Table(title="Broken Block References")
+    table.add_column("Page", style="cyan")
+    table.add_column("Block UUID", style="magenta")
+    table.add_column("Missing Block Ref", style="bold red")
+
+    for node in broken_nodes:
+        page = graph.page_for_node(node)
+        page_title = page.title if page is not None else "<unknown>"
+        missing_refs = [
+            ref for ref in node.block_refs if graph.get_node_by_embed_ref(ref) is None
+        ]
+        table.add_row(
+            page_title,
+            node.uuid,
+            ", ".join(f"(({ref}))" for ref in missing_refs),
+        )
+    return table
+
+
 def _build_deep_stats_tables(stats: dict[str, Any]) -> tuple[Table, Table, Table]:
     overview_table = Table(title="LENS Deep Statistics")
     overview_table.add_column("Metric", style="cyan")
@@ -222,16 +244,34 @@ def scan(
         None,
         help="Path to the Logseq graph root.",
     ),
+    broken_refs: bool = typer.Option(
+        False,
+        "--broken-refs",
+        help="Print unresolved block references and exit 1 when any are found.",
+    ),
 ) -> None:
     """Scan a graph and print aggregate parsing statistics."""
     resolved = _resolve_graph_path(ctx, graph_path)
 
-    pages = _canonical_pages_from_graph(resolved)
+    from logseq_matryca_parser.graph import LogseqGraph
+
+    graph = LogseqGraph.load_directory(resolved)
+    pages = list(graph.iter_canonical_pages())
     if not pages:
         console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
         raise typer.Exit(code=0)
 
     console.print(_build_stats_table(pages))
+
+    if broken_refs:
+        broken = graph.get_broken_references()
+        if not broken:
+            console.print("[green]No unresolved block references found.[/]")
+            raise typer.Exit(code=0)
+
+        console.print("")
+        console.print(_build_broken_references_table(graph, broken))
+        raise typer.Exit(code=1)
 
 
 @app.command()
