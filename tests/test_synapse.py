@@ -335,6 +335,25 @@ def test_expand_page_embed_resolves_case_insensitive_title(tmp_path: Path) -> No
     assert "shared body" in expanded
 
 
+def test_expand_cyclic_page_embed_does_not_duplicate_parent_text(tmp_path: Path) -> None:
+    """A embeds B embeds A must not re-inline parent literal text (#65)."""
+    from logseq_matryca_parser.synapse import _expand_macros_and_embeds
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "A.md").write_text("- before {{embed [[B]]}} after\n", encoding="utf-8")
+    (pages / "B.md").write_text("- inner {{embed [[A]]}}\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    host_page = graph.pages["A"]
+    text = host_page.root_nodes[0].content
+    chain = frozenset({host_page.title})
+
+    expanded = _expand_macros_and_embeds(text, graph, set(), embed_page_chain=chain)
+
+    assert expanded.strip() == "before inner after"
+
+
 def test_expand_missing_block_embed_completes_without_hang(tmp_path: Path) -> None:
     from logseq_matryca_parser.synapse import _expand_macros_and_embeds
 
