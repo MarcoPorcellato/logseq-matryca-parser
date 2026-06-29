@@ -137,6 +137,31 @@ def test_append_child_to_node_respects_four_space_tab_size(tmp_path: Path) -> No
     assert "    - Appended with four spaces" in updated
 
 
+def test_append_child_to_node_without_trailing_source_newline(tmp_path: Path) -> None:
+    """Source files without a final newline must not splice onto the last line (#72)."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    page_path = pages / "P.md"
+    page_path.write_text("- parent\n  - existing", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    parent = graph.pages["P"].root_nodes[0]
+
+    append_child_to_node(graph, parent.uuid, "new child")
+
+    updated = page_path.read_text(encoding="utf-8")
+    assert updated.splitlines() == [
+        "- parent",
+        "  - existing",
+        "  - new child",
+    ]
+    refreshed_parent = graph.pages["P"].root_nodes[0]
+    assert len(refreshed_parent.children) == 2
+    assert refreshed_parent.children[0].clean_text == "existing"
+    assert refreshed_parent.children[1].clean_text == "new child"
+
+
 # ── LogseqConfigReader / format_timestamp (issue #48) ──────────────────
 
 
