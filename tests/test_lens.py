@@ -86,3 +86,33 @@ def test_export_html_calls_save_graph_with_mocked_pyvis(tmp_path: Path) -> None:
     save_graph_mock.assert_called_once_with(str(destination))
     body = destination.read_text(encoding="utf-8")
     assert 'style="display: none !important;"' in body
+
+
+# ── classify_node / journal detection (issue #49) ──────────────────────
+
+
+class TestClassifyNode:
+    """Tests for node classification and journal detection."""
+
+    def test_looks_like_journal_underscore_format(self):
+        assert GraphVisualizer._looks_like_journal("2026_05_23") is True
+
+    def test_looks_like_journal_hyphen_format(self):
+        assert GraphVisualizer._looks_like_journal("2026-05-23") is True
+
+    def test_looks_like_journal_bracketed_format(self):
+        assert GraphVisualizer._looks_like_journal("[[May 23rd, 2026]]") is True
+
+    def test_looks_like_journal_plain_text_false(self):
+        assert GraphVisualizer._looks_like_journal("MyPage") is False
+        assert GraphVisualizer._looks_like_journal("ProjectAlpha") is False
+
+    def test_classify_node_group_journal(self):
+        assert GraphVisualizer._classify_node_group("2026_05_23", None) == "journal"
+        assert GraphVisualizer._classify_node_group("2026-05-23", None) == "journal"
+
+    def test_classify_node_group_project(self):
+        assert GraphVisualizer._classify_node_group("Progetti___AI", None) == "project"
+
+    def test_classify_node_group_page(self):
+        assert GraphVisualizer._classify_node_group("NormalPage", None) == "page"

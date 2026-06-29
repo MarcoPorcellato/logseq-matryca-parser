@@ -435,3 +435,80 @@ def test_append_command_rejects_relative_config_path(tmp_path: Path) -> None:
 
     assert result.exit_code == 1
     assert "must be an absolute path" in result.output
+
+
+# ── agent-write validation errors (issue #20) ───────────────────────────
+
+
+def test_agent_write_missing_both_flags_exits_nonzero(tmp_path: Path) -> None:
+    """Neither --alias nor --target-uuid → exit 1."""
+    graph_root = tmp_path / "graph"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (graph_root / "journals").mkdir()
+
+    result = runner.invoke(
+        app,
+        ["agent-write", str(graph_root), "--content", "test content"],
+    )
+    assert result.exit_code == 1
+    assert "Provide --alias or --target-uuid" in result.output
+
+
+def test_agent_write_both_flags_mutually_exclusive(tmp_path: Path) -> None:
+    """Both --alias and --target-uuid → exit 1."""
+    graph_root = tmp_path / "graph"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (graph_root / "journals").mkdir()
+
+    result = runner.invoke(
+        app,
+        [
+            "agent-write", str(graph_root),
+            "--content", "x",
+            "--alias", "0",
+            "--target-uuid", "abc-123",
+        ],
+    )
+    assert result.exit_code == 1
+    assert "Use only one" in result.output
+
+
+def test_agent_write_unknown_alias_no_state_file(tmp_path: Path) -> None:
+    """Unknown alias with no .matryca_xray_state.json → exit 1."""
+    graph_root = tmp_path / "graph"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (graph_root / "journals").mkdir()
+
+    result = runner.invoke(
+        app,
+        [
+            "agent-write", str(graph_root),
+            "--content", "x",
+            "--alias", "99",
+        ],
+    )
+    assert result.exit_code == 1
+    assert "not found" in result.output or "Alias state" in result.output
+
+
+def test_agent_write_missing_state_file_exits_nonzero(tmp_path: Path) -> None:
+    """Explicit --state-file path that does not exist → exit 1."""
+    graph_root = tmp_path / "graph"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (graph_root / "journals").mkdir()
+
+    missing = tmp_path / "nonexistent.json"
+    result = runner.invoke(
+        app,
+        [
+            "agent-write", str(graph_root),
+            "--content", "x",
+            "--alias", "0",
+            "--state-file", str(missing),
+        ],
+    )
+    assert result.exit_code == 1

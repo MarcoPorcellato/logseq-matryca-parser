@@ -23,6 +23,7 @@ _spec.loader.exec_module(_extract)
 normalize_version = _extract.normalize_version
 extract_changelog_section = _extract.extract_changelog_section
 iter_changelog_versions = _extract.iter_changelog_versions
+main = _extract.main
 
 
 # ── minimal changelog fixture ────────────────────────────────────────────
@@ -127,3 +128,45 @@ class TestIterChangelogVersions:
 
     def test_only_unreleased_returns_empty(self):
         assert iter_changelog_versions("## [Unreleased]\n") == []
+
+
+# ── main() CLI exit codes and stdout (issue #47) ────────────────────────
+
+
+class TestMainCLI:
+    """Tests for ``main()`` CLI entry-point exit codes and stdout."""
+
+    def test_missing_version_exits_1(self, tmp_path: Path):
+        changelog = tmp_path / "CHANGELOG.md"
+        changelog.write_text("# Changelog\n\n## [1.0.0]\n- item\n")
+        assert main(["9.9.9", "--changelog", str(changelog)]) == 1
+
+    def test_version_found_exits_0(self, tmp_path: Path):
+        changelog = tmp_path / "CHANGELOG.md"
+        changelog.write_text("# Changelog\n\n## [1.0.0] - 2026-01-01\n- item\n")
+        assert main(["1.0.0", "--changelog", str(changelog)]) == 0
+
+    def test_v_prefix_accepted(self, tmp_path: Path):
+        changelog = tmp_path / "CHANGELOG.md"
+        changelog.write_text("## [2.0.0]\n- feature\n")
+        assert main(["v2.0.0", "--changelog", str(changelog)]) == 0
+
+    def test_unreleased_without_flag_exits_2(self, tmp_path: Path):
+        changelog = tmp_path / "CHANGELOG.md"
+        changelog.write_text("## [Unreleased]\n- wip\n")
+        assert main(["Unreleased", "--changelog", str(changelog)]) == 2
+
+    def test_unreleased_with_flag_exits_0(self, tmp_path: Path):
+        changelog = tmp_path / "CHANGELOG.md"
+        changelog.write_text("## [Unreleased]\n- wip\n")
+        assert main(["Unreleased", "--changelog", str(changelog), "--allow-unreleased"]) == 0
+
+    def test_missing_file_exits_1(self):
+        assert main(["1.0.0", "--changelog", "/nonexistent/CHANGELOG.md"]) == 1
+
+    def test_stdout_contains_section(self, tmp_path: Path, capsys):
+        changelog = tmp_path / "CHANGELOG.md"
+        changelog.write_text("## [3.0.0]\n- stdout test\n")
+        main(["3.0.0", "--changelog", str(changelog)])
+        captured = capsys.readouterr()
+        assert "- stdout test" in captured.out
