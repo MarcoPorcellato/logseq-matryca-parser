@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **agent-write** — `append_child_to_node` normalizes source files missing a trailing newline before line splice, preventing new bullets from being appended onto the last line ([#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72)).
+
 ### Added
 
 - **Contributor issues (wave 3)** — Six new issues from local code study ([#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#64](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/64)): LENS ghost wikilink nodes, corrupt X-Ray state handling, `agent_write` assert guard, and paired good-first tests.
