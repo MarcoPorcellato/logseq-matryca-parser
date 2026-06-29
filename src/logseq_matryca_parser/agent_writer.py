@@ -196,6 +196,8 @@ def append_child_to_node(graph: LogseqGraph, target_uuid: str, content: str) -> 
     new_line = f"{indent}- {content.rstrip()}"
 
     raw_text = source_path.read_text(encoding="utf-8-sig")
+    if raw_text and not raw_text.endswith(("\n", "\r\n")):
+        raw_text += "\n"
     lines = raw_text.splitlines(keepends=True)
     insert_index = insert_after_line
     if insert_index < 0 or insert_index > len(lines):
