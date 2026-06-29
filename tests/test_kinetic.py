@@ -512,3 +512,28 @@ def test_agent_write_missing_state_file_exits_nonzero(tmp_path: Path) -> None:
         ],
     )
     assert result.exit_code == 1
+
+
+def test_agent_write_corrupt_state_file_exits_nonzero(tmp_path: Path) -> None:
+    """Malformed X-Ray JSON must exit 1 with a clear message (#60)."""
+    graph_root = tmp_path / "graph"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (graph_root / "journals").mkdir()
+    state_path = graph_root / ".matryca_xray_state.json"
+    state_path.write_text("{not json", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            "agent-write",
+            str(graph_root),
+            "--content",
+            "x",
+            "--alias",
+            "0",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "Invalid JSON" in (result.stderr or result.output)

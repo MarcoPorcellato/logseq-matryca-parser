@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **agent-write** — `append_child_to_node` normalizes source files missing a trailing newline before line splice, preventing new bullets from being appended onto the last line ([#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72)).
 - **SYNAPSE** — cyclic `{{embed [[Page]]}}` chains no longer duplicate parent literal text; page embed expansion tracks an immutable host-page chain seeded from `to_context_enriched_chunks` ([#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65)).
+- **agent-write** — `SessionAliasRegistry.load_from_disk` tolerates empty, malformed, or legacy-wrapped X-Ray JSON; KINETIC exits with a clear message instead of a traceback ([#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60)).
 
 ### Added
 
