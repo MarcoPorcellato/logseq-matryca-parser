@@ -37,6 +37,10 @@ Nonostante la suite verde, l’analisi guidata da analisi statica e da probe run
 
 **Wave 8 (2026-06-23):** +6 bug via analisi statica `query(resolve_relative_page_link)`, `query(agent_press)`, probe backlink/namespace/tag case, `_export_json`, `resolve_asset_path` — chiusura mappatura moduli core.
 
+**Wave 9–10 (2026-06-29):** issue GitHub [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71) — LENS ghost wikilinks, X-Ray state corrupto, SYNAPSE cyclic embed / unresolved semantics, kinetic dead code, watcher DIP, DX inglese, OCP embed refactor. Vedi `CHANGELOG.md` [Unreleased].
+
+**Wave 11 (2026-06-29):** [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72) — `append_child_to_node` corrompe il Markdown quando l'ultima riga del file sorgente **non** termina con `\n` (splice sulla stessa riga → outline corrotto dopo `agent-write`). Probe: `impact(append_child_to_node)` → CLI `agent_write`. Paired test issue [#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73).
+
 ---
 
 ## 2. Metodologia (Clean Architecture lens)

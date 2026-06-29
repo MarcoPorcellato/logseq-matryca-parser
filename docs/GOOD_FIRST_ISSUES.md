@@ -37,6 +37,8 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 | GFI-24 | `test(synapse): direct build_synapse_metadata schema coverage` | pytest | [#51](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/51) ✅ |
 | GFI-27 | `test(lens): regression test for unresolved wikilink ghost nodes` | pytest | [#62](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/62) |
 | GFI-28 | `test(agent_press): cover malformed SessionAliasRegistry JSON on load` | pytest, CLI | [#63](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/63) |
+| GFI-31 | `test(synapse): table-driven embed expansion edge cases` | pytest | [#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71) |
+| GFI-34 | `test(agent_writer): append_child without trailing source newline` | pytest, CLI | [#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73) |
 
 ---
 
@@ -63,6 +65,8 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 | GFI-26 | `test(forge): direct JSONForgeVisitor nested stack behavior` | pytest, FORGE | [#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52) ✅ |
 | GFI-29 | `fix(lens): skip ghost page nodes for unresolved wikilinks` | pytest, LENS | [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59) |
 | GFI-30 | `fix(agent): handle corrupt X-Ray state files without crashing agent-write` | pytest, CLI | [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60) |
+| GFI-32 | `chore(synapse): replace Italian ImportError strings with English DX messages` | docs, SYNAPSE | [#69](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/69) |
+| GFI-35 | `fix(agent_writer): append_child corrupts files missing trailing newline` | pytest, CLI | [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72) |
 
 ---
 
@@ -72,18 +76,23 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 | :--- | :--- | :--- | :--- |
 | GFI-15 | `feat(forge): add minimal CSV exporter` | Follow existing JSON visitor pattern in `forge.py` | [#33](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/33) |
 | GFI-16 | `docs: RFC Ollama one-click local RAG` | Design-only RFC; implementation in follow-up issues | [#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34) *(draft at [`rfc/OLLAMA_RAG.md`](rfc/OLLAMA_RAG.md))* |
+| GFI-33 | `refactor(synapse): extract embed-expansion strategy (OCP)` | Mentor — strategy pattern | [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) |
 
 ---
 
 ## Recommended starter pack (wave 3)
 
-From local code study (wave 9) — tests and small fixes with clear repros:
+From local code study (waves 9–10) — tests and small fixes with clear repros:
 
 | Priority | ID | Why |
 | :---: | :--- | :--- |
-| 1 | GFI-28 ([#63](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/63)) | Table-driven JSON fixtures, pairs with #60 |
-| 2 | GFI-27 ([#62](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/62)) | Single-file LENS regression |
-| 3 | GFI-01 ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)) | CLI error-path coverage still open |
+| 1 | GFI-31 ([#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71)) | SYNAPSE embed table tests — pairs with #65/#66 |
+| 2 | GFI-28 ([#63](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/63)) | JSON fixtures for agent session state |
+| 3 | GFI-27 ([#62](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/62)) | Single-file LENS regression |
+| 4 | GFI-32 ([#69](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/69)) | Small English DX fix in `synapse.py` |
+| 5 | GFI-01 ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)) | CLI error-path coverage still open |
+
+**Bugs (maintainer / mentor):** [#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65) cyclic embed duplication, [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59) LENS ghosts, [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60) corrupt X-Ray state, [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72) agent-write newline splice.
 
 Wave 2 (GFI-17–GFI-26, GFI-02) is **complete** ([#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58)).
 
