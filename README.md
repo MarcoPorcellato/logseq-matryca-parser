@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.4.1+** — Test-hardening: **443 tests** (wave 1 + wave 2), community coverage for parser helpers, CLI agents, FORGE visitors, graph/synapse/lens helpers ([#20](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/20), [#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) — no production API changes (see [CHANGELOG](CHANGELOG.md)).
+**v1.4.2** — Bugfix patch: agent-write splice safety, SYNAPSE cyclic embed truncation, resilient X-Ray state reload ([#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72), [#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65), [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60)). **450 tests** (wave 1 + wave 2 + regression suite). See [CHANGELOG](CHANGELOG.md).
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -103,6 +103,18 @@ graph TD
 
 ### 🔱 The Solution
 Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as the **File System Driver** for your LLM. It preserves the true topology of your thoughts, ensuring AI understands spatial hierarchy, time, and block-lineage—including **structured task state** and **first-class temporal attributes** you can query in downstream graph databases and GraphRAG engines without re-parsing raw Markdown.
+
+---
+
+## ⚡ Release highlights (v1.4.2)
+
+Patch release — agent-write and SYNAPSE correctness fixes. **No intentional breaking changes** to public APIs.
+
+| Area | Change |
+| :--- | :--- |
+| **agent-write** | Headless splice normalizes files missing a final newline; corrupt `.matryca_xray_state.json` yields a controlled CLI exit ([#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72), [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60)). |
+| **SYNAPSE RAG** | Cyclic `{{embed [[Page]]}}` chains truncate at the re-entrant edge without duplicating parent literal text ([#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65)). |
+| **Test suite** | **450** pytest cases (**+72** vs v1.4.1): wave 2 community coverage ([#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58)) plus regression tests for the three fixes. |
 
 ---
 
@@ -332,7 +344,7 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from PyPI (latest: v1.4.1)
+# Install from PyPI (latest: v1.4.2)
 uv pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates

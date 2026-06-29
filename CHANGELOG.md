@@ -7,19 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- **agent-write** — `append_child_to_node` normalizes source files missing a trailing newline before line splice, preventing new bullets from being appended onto the last line ([#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72)).
-- **SYNAPSE** — cyclic `{{embed [[Page]]}}` chains no longer duplicate parent literal text; page embed expansion tracks an immutable host-page chain seeded from `to_context_enriched_chunks` ([#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65)).
-- **agent-write** — `SessionAliasRegistry.load_from_disk` tolerates empty, malformed, or legacy-wrapped X-Ray JSON; KINETIC exits with a clear message instead of a traceback ([#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60)).
-
 ### Added
 
 - **Contributor issues (wave 3)** — Six new issues from local code study ([#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#64](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/64)): LENS ghost wikilink nodes, corrupt X-Ray state handling, `agent_write` assert guard, and paired good-first tests.
 - **Contributor issues (wave 4)** — Seven issues from Clean Architecture code study ([#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65)–[#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71)): SYNAPSE cyclic embed duplication, unresolved embed semantics, kinetic dead code, graph watcher DIP, English DX messages, OCP embed refactor, and parametrized SYNAPSE tests. Agent rule: [`.cursor/rules/07-clean-architecture-audit.mdc`](.cursor/rules/07-clean-architecture-audit.mdc).
 - **Contributor issues (wave 5)** — [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72) / [#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73): `append_child_to_node` corrupts Markdown when the source file lacks a trailing newline (agent-write data loss).
 
-- **Test coverage (wave 2)** — Community contribution ([#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58), maintainer #43): **65** new pytest cases (**443** total) for `detect_tab_size_from_markdown`, graph link/backlink helpers, SYNAPSE embedding strip + metadata schema, FORGE Markdown/JSON visitors, LENS node classification, `extract_changelog` CLI, `LogseqConfigReader` timestamps, and KINETIC `agent-write` validation errors. Closes [#20](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/20), [#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52).
+## [1.4.2] - 2026-06-29
+
+### Fixed
+
+- **agent-write** — `append_child_to_node` normalizes source files missing a trailing newline before line splice, preventing new bullets from being appended onto the last line ([#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72), [#74](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/74)).
+- **SYNAPSE** — cyclic `{{embed [[Page]]}}` chains no longer duplicate parent literal text; page embed expansion tracks an immutable host-page chain seeded from `to_context_enriched_chunks` ([#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65), [#75](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/75)).
+- **agent-write** — `SessionAliasRegistry.load_from_disk` tolerates empty, malformed, or legacy-wrapped X-Ray JSON; KINETIC exits with a clear message instead of a traceback ([#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60), [#76](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/76)).
+
+### Added
+
+- **Test coverage (wave 2)** — Community contribution ([#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58), maintainer #43): **65** new pytest cases for `detect_tab_size_from_markdown`, graph link/backlink helpers, SYNAPSE embedding strip + metadata schema, FORGE Markdown/JSON visitors, LENS node classification, `extract_changelog` CLI, `LogseqConfigReader` timestamps, and KINETIC `agent-write` validation errors. Closes [#20](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/20), [#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52).
+- **Regression tests** — Seven new cases for newline splice, cyclic page embed, and malformed X-Ray state (issues [#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73), [#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65), [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60)); suite total **450** pytest.
+
+### Changed
+
+- **Contributor docs** — [`README.md`](README.md), [`docs/README.md`](docs/README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) harmonized for **v1.4.2** (test count, supported versions, agent-write / SYNAPSE behavior notes).
 
 ## [1.4.1] - 2026-06-24
 
