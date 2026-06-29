@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Test coverage (wave 2)** — Community contribution ([#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58), maintainer #43): **65** new pytest cases (**443** total) for `detect_tab_size_from_markdown`, graph link/backlink helpers, SYNAPSE embedding strip + metadata schema, FORGE Markdown/JSON visitors, LENS node classification, `extract_changelog` CLI, `LogseqConfigReader` timestamps, and KINETIC `agent-write` validation errors. Closes [#20](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/20), [#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52).
+
 ## [1.4.1] - 2026-06-24
 
 ### Added

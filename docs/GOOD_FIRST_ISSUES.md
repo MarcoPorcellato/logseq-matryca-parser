@@ -22,19 +22,19 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 | ID | Title | Skills | Issue |
 | :--- | :--- | :--- | :--- |
 | GFI-01 | `test(kinetic): add CLI error-path coverage for missing graph and optional deps` | pytest, Typer | [#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19) |
-| GFI-02 | `test(kinetic): cover agent-write validation errors` | pytest, CLI | [#20](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/20) |
+| GFI-02 | `test(kinetic): cover agent-write validation errors` | pytest, CLI | [#20](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/20) ✅ |
 | GFI-03 | `test: add dedicated tests for exception hierarchy` | pytest | [#21](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/21) ✅ |
 | GFI-04 | `test(logseq_paths): cover empty title and fallback graph-root derivation` | pytest | [#22](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/22) ✅ |
 | GFI-05 | `test: add unit tests for extract_changelog release helper` | pytest | [#23](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/23) ✅ |
 | GFI-06 | `test(agent): add CLI test for agent-read --query filter` | pytest, CLI | [#24](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/24) ✅ |
-| GFI-17 | `test(logseq_markdown): unit tests for detect_tab_size_from_markdown` | pytest | [#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43) |
-| GFI-18 | `test(synapse): table-driven tests for _strip_markdown_for_embedding` | pytest | [#44](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/44) |
-| GFI-19 | `test(graph): unit tests for _normalize_relative_link_target helper` | pytest | [#45](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/45) |
-| GFI-20 | `test(extract_changelog): cover main() CLI exit codes and stdout` | pytest | [#47](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/47) |
-| GFI-21 | `test(agent_writer): cover LogseqConfigReader format_timestamp and config fallback` | pytest, CLI | [#48](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/48) |
-| GFI-22 | `test(lens): classify journal and project nodes in GraphVisualizer` | pytest | [#49](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/49) |
-| GFI-23 | `test(graph): unit tests for backlink alias token helpers` | pytest | [#50](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/50) |
-| GFI-24 | `test(synapse): direct build_synapse_metadata schema coverage` | pytest | [#51](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/51) |
+| GFI-17 | `test(logseq_markdown): unit tests for detect_tab_size_from_markdown` | pytest | [#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43) ✅ |
+| GFI-18 | `test(synapse): table-driven tests for _strip_markdown_for_embedding` | pytest | [#44](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/44) ✅ |
+| GFI-19 | `test(graph): unit tests for _normalize_relative_link_target helper` | pytest | [#45](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/45) ✅ |
+| GFI-20 | `test(extract_changelog): cover main() CLI exit codes and stdout` | pytest | [#47](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/47) ✅ |
+| GFI-21 | `test(agent_writer): cover LogseqConfigReader format_timestamp and config fallback` | pytest, CLI | [#48](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/48) ✅ |
+| GFI-22 | `test(lens): classify journal and project nodes in GraphVisualizer` | pytest | [#49](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/49) ✅ |
+| GFI-23 | `test(graph): unit tests for backlink alias token helpers` | pytest | [#50](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/50) ✅ |
+| GFI-24 | `test(synapse): direct build_synapse_metadata schema coverage` | pytest | [#51](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/51) ✅ |
 
 ---
 
@@ -57,8 +57,8 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 | GFI-12 | `test(forge): add direct ObsidianForgeVisitor visitor tests` | pytest, FORGE | [#30](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/30) ✅ |
 | GFI-13 | `test(parser): table-driven tests for clean_node_content helper` | pytest | [#31](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/31) ✅ |
 | GFI-14 | `test(parser): unit tests for normalize_logseq_timestamp edge inputs` | pytest | [#32](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/32) ✅ |
-| GFI-25 | `test(forge): direct MarkdownForgeVisitor property and id filtering` | pytest, FORGE | [#46](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/46) |
-| GFI-26 | `test(forge): direct JSONForgeVisitor nested stack behavior` | pytest, FORGE | [#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52) |
+| GFI-25 | `test(forge): direct MarkdownForgeVisitor property and id filtering` | pytest, FORGE | [#46](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/46) ✅ |
+| GFI-26 | `test(forge): direct JSONForgeVisitor nested stack behavior` | pytest, FORGE | [#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52) ✅ |
 
 ---
 
@@ -73,19 +73,11 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 
 ## Recommended starter pack (wave 2)
 
-Best first picks from the new batch — pure helpers or clear fixtures:
-
-| Priority | ID | Why |
-| :---: | :--- | :--- |
-| 1 | GFI-19 ([#45](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/45)) | Pure function, parametrized table |
-| 2 | GFI-18 ([#44](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/44)) | Pure regex helper, high clarity |
-| 3 | GFI-17 ([#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)) | Small markdown utility, no graph I/O |
-| 4 | GFI-25 ([#46](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/46)) | Mirrors merged Obsidian visitor tests |
-| 5 | GFI-20 ([#47](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/47)) | Extends existing `test_extract_changelog.py` |
+Wave 2 (GFI-17–GFI-26, GFI-02) is **complete** ([#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58)). Next picks: GFI-01 ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)), GFI-11 ([#29](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/29)), or Tier 2 docs tasks.
 
 ---
 
-## Test suite (v1.4.1)
+## Test suite (v1.4.1+)
 
 | Module | Test file |
 | :--- | :--- |
@@ -99,7 +91,7 @@ Best first picks from the new batch — pure helpers or clear fixtures:
 | Release helpers | `tests/test_extract_changelog.py`, `tests/test_package_version.py` |
 | Exceptions | `tests/test_exceptions.py` |
 
-Run the full gate: `make all` (**378** pytest cases as of **v1.4.1**).
+Run the full gate: `make all` (**443** pytest cases after wave 2).
 
 ## Out of scope for a first PR
 

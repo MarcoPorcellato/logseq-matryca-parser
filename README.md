@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.4.1** — Test-hardening patch: **378 tests** (+107), community coverage for parser helpers, CLI agents, FORGE visitors, and wave-2 good-first issues ([#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) — no production API changes (see [CHANGELOG](CHANGELOG.md)).
+**v1.4.1+** — Test-hardening: **443 tests** (wave 1 + wave 2), community coverage for parser helpers, CLI agents, FORGE visitors, graph/synapse/lens helpers ([#20](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/20), [#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) — no production API changes (see [CHANGELOG](CHANGELOG.md)).
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
