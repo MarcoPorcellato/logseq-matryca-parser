@@ -57,7 +57,7 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 
 | ID | Title | Skills | Issue |
 | :--- | :--- | :--- | :--- |
-| GFI-11 | `feat(cli): add scan --broken-refs flag using LogseqGraph.get_broken_references()` | Typer, graph API | [#29](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/29) |
+| GFI-11 | `feat(cli): add scan --broken-refs flag using LogseqGraph.get_broken_references()` | Typer, graph API | [#29](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/29) ✅ ([#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)) |
 | GFI-12 | `test(forge): add direct ObsidianForgeVisitor visitor tests` | pytest, FORGE | [#30](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/30) ✅ |
 | GFI-13 | `test(parser): table-driven tests for clean_node_content helper` | pytest | [#31](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/31) ✅ |
 | GFI-14 | `test(parser): unit tests for normalize_logseq_timestamp edge inputs` | pytest | [#32](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/32) ✅ |
@@ -92,9 +92,9 @@ From local code study (waves 9–10) — tests and small fixes with clear repros
 | 4 | GFI-32 ([#69](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/69)) | Small English DX fix in `synapse.py` |
 | 5 | GFI-01 ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)) | CLI error-path coverage still open |
 
-**Bugs (maintainer / mentor):** [#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65) cyclic embed duplication, [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59) LENS ghosts, [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60) corrupt X-Ray state, [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72) agent-write newline splice.
+**Bugs (maintainer / mentor):** [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59) LENS ghosts — open. Fixed in **v1.4.2**: [#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65), [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60), [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72).
 
-Wave 2 (GFI-17–GFI-26, GFI-02) is **complete** ([#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58)).
+Wave 2 (GFI-17–GFI-26, GFI-02) and **GFI-11** ([#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)) are **complete**.
 
 ---
 

@@ -127,6 +127,8 @@ if broken:
         print("broken ref in", node.clean_text)
 ```
 
+**CLI tip:** `matryca-parse scan /path/to/graph --broken-refs` prints a Rich table of unresolved refs and exits `1` for CI (since v1.5.0). For programmatic checks, use `graph.get_broken_references()` as above.
+
 **CLI tip:** run `matryca-parse export` after `load_directory` — KINETIC scans canonical pages internally (since v1.4.0).
 
 ---

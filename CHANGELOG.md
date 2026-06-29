@@ -9,9 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **CLI** — `matryca-parse scan --broken-refs` reports unresolved `((uuid))` block references in a Rich table and exits with status 1 when any are found ([#29](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/29), [#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)).
+
+### Meta (contributor tracking)
+
 - **Contributor issues (wave 3)** — Six new issues from local code study ([#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#64](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/64)): LENS ghost wikilink nodes, corrupt X-Ray state handling, `agent_write` assert guard, and paired good-first tests.
 - **Contributor issues (wave 4)** — Seven issues from Clean Architecture code study ([#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65)–[#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71)): SYNAPSE cyclic embed duplication, unresolved embed semantics, kinetic dead code, graph watcher DIP, English DX messages, OCP embed refactor, and parametrized SYNAPSE tests. Agent rule: [`.cursor/rules/07-clean-architecture-audit.mdc`](.cursor/rules/07-clean-architecture-audit.mdc).
-- **CLI hygiene** — `scan --broken-refs` now reports unresolved `((uuid))` block references and exits with status 1 when any are found ([#29](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/29)).
 - **Contributor issues (wave 5)** — [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72) / [#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73): `append_child_to_node` corrupts Markdown when the source file lacks a trailing newline (agent-write data loss).
 
 ## [1.4.2] - 2026-06-29
