@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Contributor issues (wave 3)** — Six new issues from local code study ([#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#64](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/64)): LENS ghost wikilink nodes, corrupt X-Ray state handling, `agent_write` assert guard, and paired good-first tests.
+
 - **Test coverage (wave 2)** — Community contribution ([#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58), maintainer #43): **65** new pytest cases (**443** total) for `detect_tab_size_from_markdown`, graph link/backlink helpers, SYNAPSE embedding strip + metadata schema, FORGE Markdown/JSON visitors, LENS node classification, `extract_changelog` CLI, `LogseqConfigReader` timestamps, and KINETIC `agent-write` validation errors. Closes [#20](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/20), [#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52).
 
 ## [1.4.1] - 2026-06-24

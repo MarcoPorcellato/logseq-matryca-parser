@@ -12,7 +12,6 @@ from logseq_matryca_parser.forge import (
     _build_local_embed_index,
     _page_properties_to_yaml_frontmatter,
 )
-from logseq_matryca_parser.logos_core import ASTVisitor
 from logseq_matryca_parser.logos_core import LogseqNode
 
 

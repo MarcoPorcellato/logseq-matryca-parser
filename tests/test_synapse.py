@@ -9,7 +9,11 @@ import pytest
 
 from logseq_matryca_parser.graph import LogseqGraph
 from logseq_matryca_parser.logos_core import LogseqNode
-from logseq_matryca_parser.synapse import SynapseAdapter, _strip_markdown_for_embedding, build_synapse_metadata
+from logseq_matryca_parser.synapse import (
+    SynapseAdapter,
+    _strip_markdown_for_embedding,
+    build_synapse_metadata,
+)
 
 
 class FakeDocument:

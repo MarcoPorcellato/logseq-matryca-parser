@@ -35,6 +35,8 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 | GFI-22 | `test(lens): classify journal and project nodes in GraphVisualizer` | pytest | [#49](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/49) ✅ |
 | GFI-23 | `test(graph): unit tests for backlink alias token helpers` | pytest | [#50](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/50) ✅ |
 | GFI-24 | `test(synapse): direct build_synapse_metadata schema coverage` | pytest | [#51](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/51) ✅ |
+| GFI-27 | `test(lens): regression test for unresolved wikilink ghost nodes` | pytest | [#62](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/62) |
+| GFI-28 | `test(agent_press): cover malformed SessionAliasRegistry JSON on load` | pytest, CLI | [#63](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/63) |
 
 ---
 
@@ -59,6 +61,8 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 | GFI-14 | `test(parser): unit tests for normalize_logseq_timestamp edge inputs` | pytest | [#32](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/32) ✅ |
 | GFI-25 | `test(forge): direct MarkdownForgeVisitor property and id filtering` | pytest, FORGE | [#46](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/46) ✅ |
 | GFI-26 | `test(forge): direct JSONForgeVisitor nested stack behavior` | pytest, FORGE | [#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52) ✅ |
+| GFI-29 | `fix(lens): skip ghost page nodes for unresolved wikilinks` | pytest, LENS | [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59) |
+| GFI-30 | `fix(agent): handle corrupt X-Ray state files without crashing agent-write` | pytest, CLI | [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60) |
 
 ---
 
@@ -71,9 +75,17 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 
 ---
 
-## Recommended starter pack (wave 2)
+## Recommended starter pack (wave 3)
 
-Wave 2 (GFI-17–GFI-26, GFI-02) is **complete** ([#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58)). Next picks: GFI-01 ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)), GFI-11 ([#29](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/29)), or Tier 2 docs tasks.
+From local code study (wave 9) — tests and small fixes with clear repros:
+
+| Priority | ID | Why |
+| :---: | :--- | :--- |
+| 1 | GFI-28 ([#63](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/63)) | Table-driven JSON fixtures, pairs with #60 |
+| 2 | GFI-27 ([#62](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/62)) | Single-file LENS regression |
+| 3 | GFI-01 ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)) | CLI error-path coverage still open |
+
+Wave 2 (GFI-17–GFI-26, GFI-02) is **complete** ([#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58)).
 
 ---
 
