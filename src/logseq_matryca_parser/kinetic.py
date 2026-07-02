@@ -16,14 +16,11 @@ if TYPE_CHECKING:
 
 import typer
 from rich.console import Console
-from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
 
 from logseq_matryca_parser import logseq_agent_write
 from logseq_matryca_parser.forge import ForgeExporter
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
-from logseq_matryca_parser.logos_parser import LogosParser
-from logseq_matryca_parser.logseq_paths import discover_graph_files
 from logseq_matryca_parser.synapse import SynapseAdapter
 
 logger = logging.getLogger(__name__)
@@ -94,29 +91,6 @@ def _iter_nodes(nodes: Iterable[LogseqNode]) -> Iterable[LogseqNode]:
         yield node
         if node.children:
             yield from _iter_nodes(node.children)
-
-
-def _parse_graph(graph_path: Path) -> list[LogseqPage]:
-    parser = LogosParser()
-    files = discover_graph_files(graph_path)
-    if not files:
-        return []
-
-    pages: list[LogseqPage] = []
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TextColumn("{task.completed}/{task.total}"),
-        TimeElapsedColumn(),
-        console=console,
-    ) as progress:
-        task_id = progress.add_task("Parsing Logseq graph", total=len(files))
-        for file_path in files:
-            logger.debug("Parsing graph file: %s", file_path)
-            pages.append(parser.parse_page_file(file_path))
-            progress.advance(task_id)
-    return pages
 
 
 def _canonical_pages_from_graph(graph_path: Path) -> list[LogseqPage]:

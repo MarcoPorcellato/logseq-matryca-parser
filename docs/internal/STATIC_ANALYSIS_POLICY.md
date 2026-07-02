@@ -53,3 +53,4 @@ After removing vendor-specific artifacts from the public repo, maintainers who c
 1. Keep scripts and config in a path **outside** the repository (e.g., `~/matryca-ghost-tools/<project>/`).
 2. Populate `.git/info/exclude` with cache and skill directories used locally.
 3. Never reference those tools in commit messages, PR descriptions, or public docs.
+4. Follow the **local code audit** workflow in [`LOCAL_CODE_STUDY.md`](LOCAL_CODE_STUDY.md) for call-chain audits.

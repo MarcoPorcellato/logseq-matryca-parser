@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Ghost Tooling** — removed vendor AST indexer names from all committed documentation; unified maintainer terminology on **local code audit** / **graph-based code study**; added `make vendor-name-check` gate.
+
+### Added
+
+- **Clean Code & Clean Architecture SSOT** — [`docs/CLEAN_CODE_ARCHITECTURE.md`](docs/CLEAN_CODE_ARCHITECTURE.md) maps Uncle Bob's dependency rule, SOLID, and module maps to `src/logseq_matryca_parser/`; cross-links [`ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), and [`docs/quality/CLEAN_ARCH_BACKLOG.md`](docs/quality/CLEAN_ARCH_BACKLOG.md).
+- **Maintainer local code audit runbook** — [`docs/internal/LOCAL_CODE_STUDY.md`](docs/internal/LOCAL_CODE_STUDY.md) documents graph-based code audit workflows (`query`, `context`, `impact`, `check`) under Ghost Tooling policy.
+- **Layer boundary CI** — `tests/test_layer_boundary.py` forbids framework imports in entities/use cases and adapter→driver leaks.
+
+### Changed
+
+- **`LogseqGraph.is_tracked_markdown_path()`** — public DIP surface for watcher path checks (private `_resolved_path_is_tracked_markdown` delegates).
+- **KINETIC** — removed dead `_parse_graph` helper and unused imports (SRP / dead-code cleanup per Clean Architecture backlog).
+
 ### Meta (contributor tracking)
 
 - **Contributor issues (wave 3)** — Six new issues from local code study ([#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#64](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/64)): LENS ghost wikilink nodes, corrupt X-Ray state handling, `agent_write` assert guard, and paired good-first tests.

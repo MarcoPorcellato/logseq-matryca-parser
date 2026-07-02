@@ -70,6 +70,26 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 
 ---
 
+## Tier 4 — Clean Architecture slices (~1–4 hours)
+
+**SSOT:** [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) · **Label:** `clean-code`
+
+| ID | Title | Skills | Issue |
+| :--- | :--- | :--- | :--- |
+| GFI-36 | `test(arch): layer boundary import tests for entities and use cases` | pytest | *(landed in repo — extend when adding modules)* |
+| GFI-37 | `test(arch): assert adapters do not import kinetic` | pytest | open |
+| GFI-38 | `refactor(kinetic): extract export handlers to dedicated module (SRP)` | Typer, refactor | maintainer — DEBT-005 |
+| GFI-33 | `refactor(synapse): extract embed-expansion strategy (OCP)` | pytest, refactor | [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) |
+
+**Verify (boundary tests):**
+
+```bash
+uv run pytest tests/test_layer_boundary.py -q
+make check
+```
+
+---
+
 ## Mentor issues (slightly larger)
 
 | ID | Title | Note | Issue |
@@ -108,11 +128,14 @@ Wave 2 (GFI-17–GFI-26, GFI-02) and **GFI-11** ([#77](https://github.com/MarcoP
 | FORGE exporters | `tests/test_forge.py` |
 | KINETIC CLI | `tests/test_kinetic.py` |
 | Agent read/write | `tests/test_agent_press.py`, `tests/test_agent_writer.py` |
+| Architecture boundaries | `tests/test_layer_boundary.py` |
 | Paths & markdown | `tests/test_logseq_paths.py`, `tests/test_logseq_markdown.py` |
 | Release helpers | `tests/test_extract_changelog.py`, `tests/test_package_version.py` |
 | Exceptions | `tests/test_exceptions.py` |
 
-Run the full gate: `make all` (**451** pytest cases after wave 2, bugfix regressions, and **GFI-11**).
+Full gate: `make all` (**455** pytest cases after wave 2, bugfix regressions, and **GFI-11**).
+
+Run `make vendor-name-check` before docs PRs to ensure Ghost Tooling policy (no vendor AST indexer names in the tree).
 
 ## Out of scope for a first PR
 

@@ -1,5 +1,26 @@
 # Logseq Matryca Parser — Architecture (The Logos Protocol)
 
+**Audience:** contributors, integrators, and operators  
+**Clean Architecture SSOT:** [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) (Uncle Bob rings, SOLID, layer boundaries, module maps)  
+**Maintainer local code audit runbook:** [`internal/LOCAL_CODE_STUDY.md`](internal/LOCAL_CODE_STUDY.md)
+
+---
+
+## Clean Architecture map (repo-wide)
+
+The flat `src/logseq_matryca_parser/` package maps Robert C. Martin's concentric rings. **Dependencies point inward:** Typer/Rich CLI (`kinetic`) → adapters (`synapse`, `forge`, `agent_*`, `lens`) → use cases (`logos_parser`, `graph`, `logseq_markdown`, `logseq_paths`) → entities (`logos_core`).
+
+| Enforcement | Mechanism |
+|-------------|-----------|
+| Inner ring isolation | `tests/test_layer_boundary.py` — no Typer/Rich/LangChain/LlamaIndex/NetworkX/PyVis in entities or use cases |
+| Adapter → driver ban | Adapters must not import `kinetic` |
+| Import cycles | `0` expected — local graph study `check(cycles)` |
+| Public graph API | `iter_canonical_pages()`, `page_for_node()`, `is_tracked_markdown_path()` |
+
+Full contributor contract: [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md). Residual debt: [`quality/CLEAN_ARCH_BACKLOG.md`](quality/CLEAN_ARCH_BACKLOG.md). This document remains the **LOGOS domain** contract (parser semantics, SYNAPSE, agents).
+
+---
+
 ## System Architecture
 
 High-level data flow from sovereign graph files through deterministic parsing to AST-backed exporters and adapters.
@@ -555,6 +576,8 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 
 | Document | When to read |
 | :--- | :--- |
+| [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) | Uncle Bob rings, SOLID, module maps, layer CI |
+| [`quality/CLEAN_ARCH_BACKLOG.md`](quality/CLEAN_ARCH_BACKLOG.md) | Residual architecture debt after v1.5.0 |
 | [`logseq_ast_primer.md`](logseq_ast_primer.md) | Before touching parser or serialization behavior |
 | [`COOKBOOK.md`](COOKBOOK.md) | Integration examples (Synapse, `LogseqGraph`, watcher) |
 | [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | Picking a first PR ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)); wave 1 tests landed in **v1.4.1**, wave 2 + bugfix regressions in **v1.4.2**, **GFI-11** (`scan --broken-refs`) in **v1.5.0** |

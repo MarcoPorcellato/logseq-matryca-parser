@@ -722,6 +722,10 @@ class LogseqGraph(BaseModel):
 
     def _resolved_path_is_tracked_markdown(self, path: Path) -> bool:
         """True when ``path`` is a ``.md`` file under this graph's ``pages/`` or ``journals/``."""
+        return self.is_tracked_markdown_path(path)
+
+    def is_tracked_markdown_path(self, path: Path) -> bool:
+        """Public DIP surface for watchers and external tooling."""
         resolved = path.resolve()
         if is_excluded_graph_path(resolved):
             return False

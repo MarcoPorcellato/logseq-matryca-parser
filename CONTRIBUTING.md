@@ -13,7 +13,9 @@ To maintain the architectural integrity of the project, please follow the guidel
 User-facing behavior is documented in:
 
 - [`README.md`](README.md) — overview, quickstart, and feature matrix
+- [`docs/CLEAN_CODE_ARCHITECTURE.md`](docs/CLEAN_CODE_ARCHITECTURE.md) — Clean Code & Clean Architecture (rings, SOLID, layer boundaries)
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — LOGOS, SYNAPSE, `LogseqGraph`, agents, and data flow
+- [`docs/internal/LOCAL_CODE_STUDY.md`](docs/internal/LOCAL_CODE_STUDY.md) — maintainer local code audit runbook (not for public issues/CHANGELOG)
 - [`docs/logseq_ast_primer.md`](docs/logseq_ast_primer.md) — Logseq Spatial Markdown domain rules
 - [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.5.0**) and **Unreleased** changes (Keep a Changelog)
 - [`docs/RELEASE_PROCESS.md`](docs/RELEASE_PROCESS.md) — version bump, tag, and PyPI publish checklist
@@ -49,6 +51,25 @@ New to the codebase? Start here:
 Tier 1 tasks are **test-only** — no parser changes, ideal for learning `CliRunner` and pytest patterns in `tests/`. Tier 2 is documentation. Tier 3 adds small CLI or FORGE features with explicit acceptance criteria.
 
 > **Avoid for a first PR:** changes to `logos_core.py` Pydantic models (open a design issue first) and large stack-machine refactors in `logos_parser.py`.
+
+---
+
+## Code quality (Clean Code & Clean Architecture)
+
+The project applies **Robert C. Martin's** *Clean Architecture* (dependency rule, inward dependencies) and *Clean Code* (SRP, meaningful names, tests as specification) across `src/logseq_matryca_parser/`.
+
+| Practice | Where it shows up |
+|----------|-------------------|
+| **Dependency Rule** | Entities + use cases must not import Typer, Rich, or optional AI/viz frameworks — `tests/test_layer_boundary.py` |
+| **Fat modules, thin edges** | Parse/index in `graph` / `logos_parser`; KINETIC and adapters delegate |
+| **Public graph API** | `iter_canonical_pages()`, `page_for_node()`, `is_tracked_markdown_path()` |
+| **Tests as spec** | pytest + `tmp_path` vaults; `make all` gate |
+
+**SSOT:** [`docs/CLEAN_CODE_ARCHITECTURE.md`](docs/CLEAN_CODE_ARCHITECTURE.md) · audit backlog: [`docs/quality/CLEAN_ARCH_BACKLOG.md`](docs/quality/CLEAN_ARCH_BACKLOG.md) · Cursor rule: [`.cursor/rules/08-clean-code-architecture.mdc`](.cursor/rules/08-clean-code-architecture.mdc).
+
+**Good first issues (Clean Architecture — Tier 4):** [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) § Tier 4 (label `clean-code`).
+
+**Ghost Tooling:** do not name vendor AST indexers in issues or PRs; maintainers may use local graph-based code audit per [`docs/internal/LOCAL_CODE_STUDY.md`](docs/internal/LOCAL_CODE_STUDY.md). Run `make vendor-name-check` before docs PRs.
 
 ---
 
