@@ -62,7 +62,7 @@ The project applies **Robert C. Martin's** *Clean Architecture* (dependency rule
 |----------|-------------------|
 | **Dependency Rule** | Entities + use cases must not import Typer, Rich, or optional AI/viz frameworks — `tests/test_layer_boundary.py` |
 | **Fat modules, thin edges** | Parse/index in `graph` / `logos_parser`; KINETIC and adapters delegate |
-| **Public graph API** | `iter_canonical_pages()`, `page_for_node()`, `is_tracked_markdown_path()` |
+| **Public graph API** | `iter_canonical_pages()`, `page_for_node()`, `iter_attached_nodes()`, `is_tracked_markdown_path()` |
 | **Tests as spec** | pytest + `tmp_path` vaults; `make all` gate |
 
 **SSOT:** [`docs/CLEAN_CODE_ARCHITECTURE.md`](docs/CLEAN_CODE_ARCHITECTURE.md) · audit backlog: [`docs/quality/CLEAN_ARCH_BACKLOG.md`](docs/quality/CLEAN_ARCH_BACKLOG.md) · Cursor rule: [`.cursor/rules/08-clean-code-architecture.mdc`](.cursor/rules/08-clean-code-architecture.mdc).

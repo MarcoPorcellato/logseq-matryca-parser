@@ -33,7 +33,7 @@ This document applies **Robert C. Martin's** *Clean Architecture* (dependency ru
 | **Entities** | `logos_core.py`, `exceptions.py` | AST shape, Pydantic invariants, typed errors |
 | **Use cases** | `logos_parser.py`, `graph.py`, `logseq_markdown.py`, `logseq_paths.py` | Parse, index, serialize, path translation — **no** CLI or optional AI/viz imports |
 | **Adapters** | `synapse.py`, `forge.py`, `agent_writer.py`, `agent_press.py`, `lens.py` | Framework projections (LangChain, LlamaIndex, Obsidian, PyVis) |
-| **Drivers** | `kinetic.py`, `__main__.py` | Operator CLI — orchestrates use cases and adapters |
+| **Drivers** | `kinetic.py`, `kinetic_commands.py`, `kinetic_export.py`, `__main__.py` | Operator CLI — orchestrates use cases and adapters |
 
 ```mermaid
 flowchart TB
@@ -86,8 +86,8 @@ flowchart TB
 | Pattern | Why it exists | Tracking |
 |---------|---------------|----------|
 | Flat module layout (no `domain/` package) | Library shipped as one PyPI package; low ceremony for contributors | This doc — incremental slices only |
-| `kinetic.py` ~700 lines | Single Typer app for export, scan, visualize, agent CLI | DEBT-005 — export handler extraction |
-| Monolithic SYNAPSE embed `while` loop | Deterministic expansion with cycle guards shipped in v1.4.x | [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) OCP strategy |
+| `kinetic.py` ~230 lines | Typer app factory + `export` orchestration | **Shipped** — handlers in `kinetic_export.py`, subcommands in `kinetic_commands.py` |
+| Monolithic SYNAPSE embed `while` loop | Deterministic expansion with cycle guards | **Shipped** — `synapse_embed.py` strategy ([#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70)) |
 | `LogseqGraph.pages` dict with alias keys | Logseq `alias::` / `title::` parity | Consumers must use `iter_canonical_pages()` — DEBT-001 **shipped** |
 
 Audit backlog: [`quality/CLEAN_ARCH_BACKLOG.md`](quality/CLEAN_ARCH_BACKLOG.md). Historical runtime evidence: [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md).
@@ -121,30 +121,29 @@ make check
 | Bulk load | `load_directory`, `_enrich_pages_index` |
 | Incremental | `invalidate_and_reload_page`, watcher |
 | Query | `GraphQuery`, `search_content`, backlinks |
-| Public iteration | `iter_canonical_pages`, `page_for_node` |
+| Public iteration | `iter_canonical_pages`, `page_for_node`, `iter_attached_nodes`, `is_tracked_markdown_path` |
 
 **Rule:** new index mutations belong here or in `logos_parser.py`, not in KINETIC or SYNAPSE.
 
-### `kinetic.py` (~710 lines) — KINETIC driver
+### `kinetic.py` (~230 lines) — KINETIC app factory
 
-| Area | Responsibility | Target home (backlog) |
-|------|----------------|----------------------|
-| Global `--graph` / `--verbose` callback | CLI wiring | stays in `kinetic` |
-| `_export_*` handlers | JSON, markdown, obsidian, langchain | `kinetic_export.py` or registry (DEBT-005) |
-| `agent-read` / `agent-write` | stdout-pure machine paths | delegates to `agent_press` / `agent_writer` |
-| `scan`, `visualize`, `append` | operator UX (Rich) | thin orchestration only |
+| Area | Responsibility | Module |
+|------|----------------|--------|
+| Global `--graph` / `--verbose` callback | CLI wiring | `kinetic.py` |
+| `export` command | format dispatch | `kinetic.py` → `kinetic_export.py` |
+| `scan`, `visualize`, `demo`, agent CLI | operator UX | `kinetic_commands.py` |
+| Format handlers | JSON, markdown, obsidian, langchain | `kinetic_export.py` |
 
-**Rule:** no new parsing logic in `kinetic.py` — call `LogseqGraph.load_directory` or `StackMachineParser`.
+**Rule:** no new parsing logic in KINETIC modules — call `LogseqGraph.load_directory` or `StackMachineParser`.
 
-### `synapse.py` (~450 lines) — SYNAPSE adapters
+### `synapse.py` + `synapse_embed.py` — SYNAPSE adapters
 
 | Area | Responsibility |
 |------|----------------|
 | Visitors | `LangChainVisitor`, `LlamaIndexVisitor` |
-| Enriched RAG | `to_context_enriched_chunks`, `_expand_macros_and_embeds` |
-| Metadata | `SynapseMetadata`, `build_synapse_metadata` |
+| Enriched RAG | `to_context_enriched_chunks`, embed expansion via `synapse_embed` |
 
-**OCP backlog:** strategy per embed type (block `((uuid))`, page `[[…]]`, macros) — [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70).
+**OCP:** `BlockEmbedExpander` / `PageEmbedExpander` in `synapse_embed.py` — [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) **shipped**.
 
 ---
 

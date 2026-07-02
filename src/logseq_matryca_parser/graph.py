@@ -509,8 +509,12 @@ class LogseqGraph(BaseModel):
         """Yield each physical page once (dedupe ``pages`` alias keys)."""
         yield from iter_canonical_pages_from_dict(self.pages)
 
-    def _iter_attached_nodes(self) -> Iterator[LogseqNode]:
+    def iter_attached_nodes(self) -> Iterator[LogseqNode]:
         """Yield registry nodes that still belong to an indexed page (no collision ghosts)."""
+        yield from self._iter_attached_nodes()
+
+    def _iter_attached_nodes(self) -> Iterator[LogseqNode]:
+        """Internal alias for :meth:`iter_attached_nodes` (backward-compatible call sites)."""
         for node in self._node_registry.values():
             if self._page_for_node(node) is not None:
                 yield node

@@ -36,3 +36,11 @@
 - name: forge
   color: bfd4f2
   description: FORGE exporters and visitors
+
+- name: clean-code
+  color: "0e8a16"
+  description: Clean Architecture / SOLID slice — Uncle Bob contract
+
+- name: architecture
+  color: "5319e7"
+  description: Layer boundaries, dependency rule, structural refactor

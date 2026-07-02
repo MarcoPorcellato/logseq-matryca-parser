@@ -15,7 +15,7 @@ The flat `src/logseq_matryca_parser/` package maps Robert C. Martin's concentric
 | Inner ring isolation | `tests/test_layer_boundary.py` — no Typer/Rich/LangChain/LlamaIndex/NetworkX/PyVis in entities or use cases |
 | Adapter → driver ban | Adapters must not import `kinetic` |
 | Import cycles | `0` expected — local graph study `check(cycles)` |
-| Public graph API | `iter_canonical_pages()`, `page_for_node()`, `is_tracked_markdown_path()` |
+| Public graph API | `iter_canonical_pages()`, `page_for_node()`, `iter_attached_nodes()`, `is_tracked_markdown_path()` |
 
 Full contributor contract: [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md). Residual debt: [`quality/CLEAN_ARCH_BACKLOG.md`](quality/CLEAN_ARCH_BACKLOG.md). This document remains the **LOGOS domain** contract (parser semantics, SYNAPSE, agents).
 

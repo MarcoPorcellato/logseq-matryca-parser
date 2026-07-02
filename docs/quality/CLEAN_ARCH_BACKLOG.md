@@ -1,7 +1,8 @@
 # Clean Architecture — Residual Backlog
 
-**Status:** 2026-07-02 · post **v1.5.0**  
+**Status:** 2026-07-02 · post **v1.6.0** (structural v1 **complete**)  
 **SSOT:** [`../CLEAN_CODE_ARCHITECTURE.md`](../CLEAN_CODE_ARCHITECTURE.md)  
+**Roadmap:** [`GITHUB_CLEAN_ARCH_ROADMAP.md`](GITHUB_CLEAN_ARCH_ROADMAP.md)  
 **Evidence:** [`../BUG_HUNT_REPORT.md`](../BUG_HUNT_REPORT.md) §6
 
 ---
@@ -11,21 +12,26 @@
 | Verdict | Items |
 |---------|-------|
 | **Shipped (DEBT-001)** | `iter_canonical_pages()`, `page_for_node()` — v1.4.0+ |
-| **Shipped (bugs)** | BUG-001…031 addressed in v1.4.0–v1.5.0 (see CHANGELOG) |
-| **Open — structural** | DEBT-005, DEBT-006, DEBT-007 |
+| **Shipped (DEBT-005)** | `kinetic_export.py` — [#80](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/80) |
+| **Shipped (DEBT-006)** | `synapse_embed.py` OCP — [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) |
+| **Shipped (DEBT-007)** | `is_tracked_markdown_path()` — v1.5.1 / [#68](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/68) |
+| **Shipped (ISP)** | `iter_attached_nodes()` public — [#81](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/81) |
+| **Shipped (KINETIC SRP)** | `kinetic_commands.py` — [#82](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/82) |
+| **Open — v2** | `logos_parser.py` split (CRITICAL hub — epic after v1.6) |
 | **By design** | Flat module layout; lazy optional imports in adapters |
 
 ---
 
 ## SOLID residual debt
 
-| ID | Principle | Observation | Module | Action | Priority |
-|----|-----------|-------------|--------|--------|----------|
-| DEBT-005 | **SRP** | `kinetic.py` ~710 lines; dead `_parse_graph` removed in v1.5.1 slice | `kinetic.py` | Extract `_export_*` to `kinetic_export.py` or registry | P2 |
-| DEBT-006 | **OCP** | Monolithic embed expansion loop | `synapse.py` | Strategy per embed type — [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) | P2 |
-| DEBT-007 | **DIP** | Watcher used `_resolved_path_is_tracked_markdown` (private) | `graph.py` | Public `is_tracked_markdown_path()` — **shipped** v1.5.1 | ~~P3~~ |
-| — | **LSP** | `LogosNode` legacy vs frozen `LogseqNode` | `logos_core.py` | No new `LogosNode` consumers | P4 |
-| — | **DIP** | Lazy `logseq_paths` in `resolve_asset_path` | `logos_core.py` | Acceptable cycle avoidance | by design |
+| ID | Principle | Observation | Module | Action | GitHub | Priority |
+|----|-----------|-------------|--------|--------|--------|----------|
+| DEBT-005 | **SRP** | ~~`kinetic.py` export handlers~~ | `kinetic_export.py` | **Shipped** v1.6 | [#80](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/80) | ~~P2~~ |
+| DEBT-006 | **OCP** | ~~Monolithic embed expansion loop~~ | `synapse_embed.py` | **Shipped** v1.6 | [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) | ~~P2~~ |
+| DEBT-007 | **DIP** | ~~Watcher private path check~~ | `graph.py` | **Shipped** v1.5.1 | [#68](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/68) | ~~P3~~ |
+| — | **ISP** | ~~Private `_iter_attached_nodes`~~ | `graph.py` | **Shipped** v1.6 | [#81](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/81) | ~~P3~~ |
+| — | **LSP** | `LogosNode` legacy vs frozen `LogseqNode` | `logos_core.py` | No new `LogosNode` consumers | — | P4 |
+| — | **DIP** | Lazy `logseq_paths` in `resolve_asset_path` | `logos_core.py` | Acceptable cycle avoidance | — | by design |
 
 ---
 
@@ -35,18 +41,16 @@
 |-----------|------|
 | Layer import boundaries | `tests/test_layer_boundary.py` |
 | Import cycles | `0` — verify via local code audit `check(cycles)` ([`internal/LOCAL_CODE_STUDY.md`](../internal/LOCAL_CODE_STUDY.md)) |
+| Vendor-free public docs | `scripts/check_vendor_free_docs.sh` |
 
 ---
 
-## Recommended remediation order
+## v2 epic (not in v1.6 scope)
 
-| Step | Action | Est. |
-|------|--------|------|
-| 1 | ~~`is_tracked_markdown_path()` public API~~ | done |
-| 2 | ~~Remove dead `_parse_graph` in kinetic~~ | done |
-| 3 | GFI-36: extend boundary tests if new modules added | 1 h |
-| 4 | DEBT-005: kinetic export extraction (maintainer) | 3–4 h |
-| 5 | DEBT-006: SYNAPSE embed strategy slice ([#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70)) | 4–6 h |
+| Action | Est. |
+|--------|------|
+| Split `logos_parser.py` stack machine (requires `impact(_refresh_node)` gate) | epic |
+| GFI-37: extend boundary tests when adding new driver satellites | 1 h |
 
 ---
 
@@ -60,4 +64,4 @@
 
 ---
 
-*Update this file when closing a DEBT-* item or opening a new architecture issue.*
+*v1 structural backlog complete. Update when opening v2 epic or new architecture issue.*

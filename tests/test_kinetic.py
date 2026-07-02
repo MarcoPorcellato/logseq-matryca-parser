@@ -354,7 +354,7 @@ def test_append_command_success_prints_path(tmp_path: Path) -> None:
     config.write_text("", encoding="utf-8")
     pages.mkdir()
     written = pages / "2026-W01-agent.md"
-    with patch("logseq_matryca_parser.kinetic.logseq_agent_write") as write_mock:
+    with patch("logseq_matryca_parser.kinetic_commands.logseq_agent_write") as write_mock:
         write_mock.return_value = {"status": "success", "path": str(written)}
         result = runner.invoke(
             app,
@@ -388,7 +388,7 @@ def test_append_command_success_without_tags_passes_none(tmp_path: Path) -> None
     pages = tmp_path / "pages"
     config.touch()
     pages.mkdir()
-    with patch("logseq_matryca_parser.kinetic.logseq_agent_write") as write_mock:
+    with patch("logseq_matryca_parser.kinetic_commands.logseq_agent_write") as write_mock:
         write_mock.return_value = {"status": "success", "path": "/abs/agent.md"}
         result = runner.invoke(
             app,
@@ -416,7 +416,7 @@ def test_append_command_failure_exits_with_error(tmp_path: Path) -> None:
     pages = tmp_path / "pages"
     config.touch()
     pages.mkdir()
-    with patch("logseq_matryca_parser.kinetic.logseq_agent_write") as write_mock:
+    with patch("logseq_matryca_parser.kinetic_commands.logseq_agent_write") as write_mock:
         write_mock.return_value = {"status": "error", "message": "disk full"}
         result = runner.invoke(
             app,

@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Clean Architecture epic (v1.6)
+    url: https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/quality/GITHUB_CLEAN_ARCH_ROADMAP.md
+    about: Milestone, project board, and phase issues for Uncle Bob v1.6 work
   - name: Security vulnerability
     url: https://github.com/MarcoPorcellato/logseq-matryca-parser/security/policy
     about: Report a security issue privately — do not open a public issue

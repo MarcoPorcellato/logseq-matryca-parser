@@ -115,5 +115,6 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
-"src/logseq_matryca_parser/kinetic.py" = ["B008"]
+"src/logseq_matryca_parser/kinetic.py" = ["B008", "E402"]
+"src/logseq_matryca_parser/kinetic_commands.py" = ["B008"]
 "tests/**" = ["SIM117"]

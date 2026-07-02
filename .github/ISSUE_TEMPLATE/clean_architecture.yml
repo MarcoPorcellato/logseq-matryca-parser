@@ -1,0 +1,61 @@
+name: Clean Architecture slice
+description: Structural refactor or layer-boundary work (Uncle Bob contract)
+title: "refactor: "
+labels:
+  - architecture
+  - clean-code
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for SRP/OCP/ISP/DIP slices. SSOT: [CLEAN_CODE_ARCHITECTURE.md](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/CLEAN_CODE_ARCHITECTURE.md)
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Operator- or maintainer-visible issue in one paragraph
+    validations:
+      required: true
+  - type: textarea
+    id: lens
+    attributes:
+      label: Clean Architecture lens
+      description: "Table: Ring | SOLID violation | dependency-rule note"
+      value: |
+        | Ring | SOLID | Dependency rule |
+        |------|-------|-----------------|
+        | | | |
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Minimal markdown fixture, Python probe, or import-graph note
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+      description: Precise strings, counts, or module boundaries
+    validations:
+      required: true
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested fix
+      description: Stay inside the correct ring; no drive-by refactors
+    validations:
+      required: true
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of Done
+      value: |
+        - [ ] `make all` passes (Ruff, Mypy, pytest ≥80% coverage)
+        - [ ] `make vendor-name-check` passes
+        - [ ] `CHANGELOG.md` updated if operator-visible
+        - [ ] `docs/quality/CLEAN_ARCH_BACKLOG.md` updated if DEBT item closed
+    validations:
+      required: true

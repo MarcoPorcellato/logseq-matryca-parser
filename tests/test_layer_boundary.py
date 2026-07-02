@@ -36,6 +36,18 @@ _FORBIDDEN_FRAMEWORKS = (
     "pyvis",
 )
 
+_DRIVER_SATELLITES = frozenset(
+    {
+        "kinetic_export.py",
+        "kinetic_commands.py",
+    }
+)
+
+_FORBIDDEN_IN_KINETIC_EXPORT = (
+    "typer",
+    "rich",
+)
+
 _FORBIDDEN_INNER_ADAPTER_IMPORTS = (
     "logseq_matryca_parser.kinetic",
     "from logseq_matryca_parser import kinetic",
@@ -78,6 +90,15 @@ def test_use_cases_do_not_import_adapters() -> None:
         for needle in _FORBIDDEN_USE_CASE_ADAPTER_IMPORTS:
             if needle in text:
                 offenders.append(f"{name} imports adapter via {needle!r}")
+    assert offenders == []
+
+
+def test_kinetic_export_does_not_import_cli_frameworks() -> None:
+    text = _module_text("kinetic_export.py")
+    offenders: list[str] = []
+    for framework in _FORBIDDEN_IN_KINETIC_EXPORT:
+        if f"import {framework}" in text or f"from {framework}" in text:
+            offenders.append(f"kinetic_export.py imports {framework}")
     assert offenders == []
 
 

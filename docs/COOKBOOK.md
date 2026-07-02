@@ -162,3 +162,5 @@ Test-only PRs should not change runtime behavior — update `CHANGELOG.md` under
 | Live demo script | [`examples/run_demo.py`](../examples/run_demo.py) |
 | First contributions | [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) |
 | Full architecture | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
+| Clean Architecture (Uncle Bob) | [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) |
+| v1.6 roadmap & triage | [`quality/GITHUB_CLEAN_ARCH_ROADMAP.md`](quality/GITHUB_CLEAN_ARCH_ROADMAP.md) |

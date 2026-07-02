@@ -72,14 +72,14 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 
 ## Tier 4 — Clean Architecture slices (~1–4 hours)
 
-**SSOT:** [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) · **Label:** `clean-code`
+**SSOT:** [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) · **Epic:** [#78](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/78) · **Milestone:** v1.6 — Clean Architecture & Code Quality · **Label:** `clean-code`
 
 | ID | Title | Skills | Issue |
 | :--- | :--- | :--- | :--- |
-| GFI-36 | `test(arch): layer boundary import tests for entities and use cases` | pytest | *(landed in repo — extend when adding modules)* |
+| GFI-36 | `test(arch): layer boundary import tests for entities and use cases` | pytest | *(landed — extend when adding modules)* |
 | GFI-37 | `test(arch): assert adapters do not import kinetic` | pytest | open |
-| GFI-38 | `refactor(kinetic): extract export handlers to dedicated module (SRP)` | Typer, refactor | maintainer — DEBT-005 |
-| GFI-33 | `refactor(synapse): extract embed-expansion strategy (OCP)` | pytest, refactor | [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) |
+| GFI-38 | `refactor(kinetic): extract export handlers to dedicated module (SRP)` | Typer, refactor | **shipped** [#80](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/80) |
+| GFI-33 | `refactor(synapse): extract embed-expansion strategy (OCP)` | pytest, refactor | **shipped** [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) |
 
 **Verify (boundary tests):**
 

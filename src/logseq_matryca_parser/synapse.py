@@ -44,12 +44,6 @@ class SynapseMetadata(TypedDict, total=False):
     line_start: NotRequired[int | None]
     effective_properties: NotRequired[dict[str, Any]]
 
-_BLOCK_EMBED_PATTERN = re.compile(
-    r"\{\{\s*embed\s+\(\((?P<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\)\)\s*\}\}",
-    re.IGNORECASE,
-)
-_PAGE_EMBED_PATTERN = re.compile(r"\{\{\s*embed\s+\[\[(?P<title>[^\]]+)\]\]\s*\}\}")
-
 Document: type[Any] | None
 NodeRelationship: Any
 RelatedNodeInfo: type[Any] | None
@@ -167,60 +161,9 @@ def _expand_macros_and_embeds_impl(
     embed_page_chain: frozenset[str],
 ) -> str:
     """Shared worker: ``visited_uuids`` breaks block cycles; ``embed_page_chain`` breaks page cycles."""
-    result = text
-    while True:
-        bm = _BLOCK_EMBED_PATTERN.search(result)
-        pm = _PAGE_EMBED_PATTERN.search(result)
-        if bm is None and pm is None:
-            break
-        use_block = bm is not None and (pm is None or bm.start() <= pm.start())
-        if use_block:
-            if bm is None:
-                continue
-            match = bm
-            uid = match.group("uuid")
-            if uid in visited_uuids:
-                logger.debug("Stack-Machine embed: cyclic block uuid=%s", uid)
-                replacement = ""
-            else:
-                target = graph.get_node_by_embed_ref(uid)
-                if target is None:
-                    logger.debug("Stack-Machine embed: unresolved block uuid=%s", uid)
-                    replacement = ""
-                else:
-                    next_seen = set(visited_uuids)
-                    next_seen.add(uid)
-                    replacement = _expand_macros_and_embeds_impl(
-                        target.content, graph, next_seen, embed_page_chain
-                    )
-            result = result[: match.start()] + replacement + result[match.end() :]
-        else:
-            if pm is None:
-                continue
-            match = pm
-            title = match.group("title").strip()
-            page = graph.get_page(title)
-            canonical_title = page.title if page is not None else title
-            if canonical_title in embed_page_chain:
-                logger.debug("Stack-Machine embed: cyclic page title=%s", canonical_title)
-                replacement = ""
-            elif page is None:
-                logger.debug("Stack-Machine embed: unknown page title=%s", title)
-                replacement = ""
-            else:
-                next_chain = embed_page_chain | frozenset({canonical_title})
-                shared_blocks = set(visited_uuids)
-                pieces: list[str] = []
-                for n in _flatten_nodes_for_export(page.root_nodes):
-                    frag = _expand_macros_and_embeds_impl(
-                        n.content, graph, shared_blocks, next_chain
-                    )
-                    stripped = frag.strip()
-                    if stripped:
-                        pieces.append(stripped)
-                replacement = "\n".join(pieces)
-            result = result[: match.start()] + replacement + result[match.end() :]
-    return result
+    from logseq_matryca_parser.synapse_embed import expand_macros_and_embeds_impl
+
+    return expand_macros_and_embeds_impl(text, graph, visited_uuids, embed_page_chain)
 
 
 def _build_breadcrumbs(graph: LogseqGraph, node: LogseqNode) -> tuple[str, LogseqPage | None]:

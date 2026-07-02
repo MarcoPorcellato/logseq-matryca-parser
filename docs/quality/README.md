@@ -4,6 +4,8 @@ Maintainer-facing triage and backlog for Clean Architecture / Clean Code work.
 
 | Document | Purpose |
 |----------|---------|
+| [`GITHUB_CLEAN_ARCH_ROADMAP.md`](GITHUB_CLEAN_ARCH_ROADMAP.md) | Milestone, project board, epic + phase issues (v1.6) |
+| [`ISSUE_TRIAGE_2026-07.md`](ISSUE_TRIAGE_2026-07.md) | July 2026 backlog triage vs v1.6 track |
 | [`CLEAN_ARCH_BACKLOG.md`](CLEAN_ARCH_BACKLOG.md) | Residual SOLID debt after v1.5.0 — prioritized slices |
 | [`../BUG_HUNT_REPORT.md`](../BUG_HUNT_REPORT.md) | Full bug-hunt report (2026-06) with runtime evidence |
 | [`../CLEAN_CODE_ARCHITECTURE.md`](../CLEAN_CODE_ARCHITECTURE.md) | **SSOT** — rings, module maps, contributor checklist |

@@ -22,7 +22,7 @@
 
 [👉 **TRY THE LIVE INTERACTIVE DEMO**](https://MarcoPorcellato.github.io/logseq-matryca-parser/)
 
-[📘 **ARCHITECTURE**](docs/ARCHITECTURE.md) · [AST Primer](docs/logseq_ast_primer.md) · [Cookbook](docs/COOKBOOK.md) · [Good first issues](docs/GOOD_FIRST_ISSUES.md) · [Docs index](docs/README.md) · [CodeQL](docs/CODEQL.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASE_PROCESS.md)
+[📘 **ARCHITECTURE**](docs/ARCHITECTURE.md) · [Clean Architecture SSOT](docs/CLEAN_CODE_ARCHITECTURE.md) · [AST Primer](docs/logseq_ast_primer.md) · [Cookbook](docs/COOKBOOK.md) · [Good first issues](docs/GOOD_FIRST_ISSUES.md) · [Docs index](docs/README.md) · [CodeQL](docs/CODEQL.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASE_PROCESS.md)
 
 </div>
 
