@@ -366,7 +366,7 @@ This keeps **global indexes consistent** without rebuilding the entire graph —
 
 #### AST reference linter (`get_broken_references`)
 
-**`LogseqGraph.get_broken_references()`** scans every node in **`_node_registry`**. When **`block_refs`** contains a `((uuid))` target absent from the registry, the **originating node** is collected. Downstream apps (MCP servers, CI, pre-embed hooks) get **structural link validation** aligned with LOGOS identity rules — not brittle regex over raw Markdown.
+**`LogseqGraph.get_broken_references()`** scans every node in **`_node_registry`**. When **`block_refs`** contains a `((uuid))` target absent from the registry, the **originating node** is collected. Downstream apps (MCP servers, CI, pre-embed hooks) get **structural link validation** aligned with LOGOS identity rules — not brittle regex over raw Markdown. **KINETIC** exposes the same check via **`matryca-parse scan --broken-refs`** (v1.5.0): Rich table output and exit status **1** when any broken refs exist — suitable for vault hygiene pipelines without custom Python glue.
 
 ### 3.7 AGENT PRESS — Agent-native printing press & X-Ray mode
 
@@ -557,11 +557,11 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 | :--- | :--- |
 | [`logseq_ast_primer.md`](logseq_ast_primer.md) | Before touching parser or serialization behavior |
 | [`COOKBOOK.md`](COOKBOOK.md) | Integration examples (Synapse, `LogseqGraph`, watcher) |
-| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | Picking a first PR ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)); wave 1 tests landed in **v1.4.1**, wave 2 + bugfix regressions in **v1.4.2** |
+| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | Picking a first PR ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)); wave 1 tests landed in **v1.4.1**, wave 2 + bugfix regressions in **v1.4.2**, **GFI-11** (`scan --broken-refs`) in **v1.5.0** |
 | [`README.md`](README.md) | Project overview and quickstart |
-| [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | `uv` setup, `make all` (**450** pytest, ~**91%** coverage), PR checklist |
+| [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | `uv` setup, `make all` (**451** pytest, ~**91%** coverage), PR checklist |
 | [`design-docs/README.md`](design-docs/README.md) | Warning before using historical DDD blueprints |
 
-### Quality gate (v1.4.2)
+### Quality gate (v1.5.0)
 
-Local and CI parity: `uv sync --all-extras` → `make lint` → `make check` → `make test`. The test gate enforces **≥80%** coverage on `src/logseq_matryca_parser` with **450** pytest cases as of **v1.4.2** (community wave 2 via [#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58) plus agent-write / SYNAPSE regression tests). Dedicated modules: `tests/test_exceptions.py`, `tests/test_extract_changelog.py` — see [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) § Test suite.
+Local and CI parity: `uv sync --all-extras` → `make lint` → `make check` → `make test`. The test gate enforces **≥80%** coverage on `src/logseq_matryca_parser` with **451** pytest cases as of **v1.5.0** (community wave 2 via [#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58), agent-write / SYNAPSE regression tests, and **`scan --broken-refs`** via [#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)). Dedicated modules: `tests/test_exceptions.py`, `tests/test_extract_changelog.py` — see [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) § Test suite.

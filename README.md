@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.4.2** — Bugfix patch: agent-write splice safety, SYNAPSE cyclic embed truncation, resilient X-Ray state reload ([#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72), [#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65), [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60)). **450 tests** (wave 1 + wave 2 + regression suite). See [CHANGELOG](CHANGELOG.md).
+**v1.5.0** — `scan --broken-refs` for vault hygiene CI ([#29](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/29), [#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)). **451 tests**. See [CHANGELOG](CHANGELOG.md).
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -103,6 +103,17 @@ graph TD
 
 ### 🔱 The Solution
 Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as the **File System Driver** for your LLM. It preserves the true topology of your thoughts, ensuring AI understands spatial hierarchy, time, and block-lineage—including **structured task state** and **first-class temporal attributes** you can query in downstream graph databases and GraphRAG engines without re-parsing raw Markdown.
+
+---
+
+## ⚡ Release highlights (v1.5.0)
+
+Minor release — CLI vault hygiene for broken block references. **No intentional breaking changes** to default `scan` behavior (`--broken-refs` is opt-in).
+
+| Area | Change |
+| :--- | :--- |
+| **KINETIC `scan`** | New `--broken-refs` flag prints unresolved `((uuid))` refs in a Rich table and exits `1` for CI pipelines ([#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)). |
+| **Test suite** | **451** pytest cases (**+1** vs v1.4.2). |
 
 ---
 
@@ -301,7 +312,7 @@ matryca-parse agent-read /path/to/graph --tag idea
 matryca-parse agent-write /path/to/graph --alias 0 --content "Follow-up from the agent"
 ```
 
-For graph hygiene, **`LogseqGraph.get_broken_references()`** flags nodes whose `((uuid))` block refs point at missing registry targets—structural linting, not regex guessing.
+For graph hygiene, **`LogseqGraph.get_broken_references()`** flags nodes whose `((uuid))` block refs point at missing registry targets—structural linting, not regex guessing. From the CLI: `matryca-parse scan /path/to/graph --broken-refs` (exit `1` when broken refs exist).
 
 ---
 
@@ -319,7 +330,7 @@ For graph hygiene, **`LogseqGraph.get_broken_references()`** flags nodes whose `
 | **Agent-Native Printing Press** | [`agent_press.py`](src/logseq_matryca_parser/agent_press.py): **`SessionAliasRegistry`** maps session aliases ↔ block UUIDs; **`to_xray_markdown`** emits token-minimal outline text for autonomous agents (`matryca-parse agent-read`). |
 | **Native Markdown Serialization** | [`logseq_markdown.py`](src/logseq_matryca_parser/logseq_markdown.py) + [`logseq_paths.py`](src/logseq_matryca_parser/logseq_paths.py): rebuild and write Logseq-compliant markdown from an AST—page header preserves **YAML `---` or native `key::`** by source format, block properties at **parent whitespace + 2 spaces** (including bullet-list `tags::`), `:LOGBOOK:` drawers, and namespace titles via **`___`** pathing rules. |
 | **Headless Write Engine** | [`agent_writer.py`](src/logseq_matryca_parser/agent_writer.py): **`append_child_to_node`** splices child bullets into on-disk Markdown from AST topology; **`serialize_logseq_page`** / **`write_logseq_page`** emit full pages; **`matryca-parse agent-write`** resolves aliases via **`.matryca_xray_state.json`**. |
-| **AST Linters** | **`LogseqGraph.get_broken_references()`** returns originating nodes when `block_refs` target UUIDs absent from the global registry. |
+| **AST Linters** | **`LogseqGraph.get_broken_references()`** returns originating nodes when `block_refs` target UUIDs absent from the global registry; **`matryca-parse scan --broken-refs`** exposes the same check from KINETIC (v1.5.0). |
 | **Sovereign AI** | 100% Local. Zero telemetry. Private by design. |
 
 ### Data model — `LogseqNode` task fields
@@ -344,7 +355,7 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from PyPI (latest: v1.4.2)
+# Install from PyPI (latest: v1.5.0)
 uv pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates

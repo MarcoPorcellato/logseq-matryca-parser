@@ -98,7 +98,7 @@ Wave 2 (GFI-17–GFI-26, GFI-02) and **GFI-11** ([#77](https://github.com/MarcoP
 
 ---
 
-## Test suite (v1.4.2+)
+## Test suite (v1.5.0+)
 
 | Module | Test file |
 | :--- | :--- |
@@ -112,7 +112,7 @@ Wave 2 (GFI-17–GFI-26, GFI-02) and **GFI-11** ([#77](https://github.com/MarcoP
 | Release helpers | `tests/test_extract_changelog.py`, `tests/test_package_version.py` |
 | Exceptions | `tests/test_exceptions.py` |
 
-Run the full gate: `make all` (**450** pytest cases after wave 2 + bugfix regressions).
+Run the full gate: `make all` (**451** pytest cases after wave 2, bugfix regressions, and **GFI-11**).
 
 ## Out of scope for a first PR
 

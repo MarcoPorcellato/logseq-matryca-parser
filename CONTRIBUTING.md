@@ -15,7 +15,7 @@ User-facing behavior is documented in:
 - [`README.md`](README.md) — overview, quickstart, and feature matrix
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — LOGOS, SYNAPSE, `LogseqGraph`, agents, and data flow
 - [`docs/logseq_ast_primer.md`](docs/logseq_ast_primer.md) — Logseq Spatial Markdown domain rules
-- [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.4.2**) and **Unreleased** changes (Keep a Changelog)
+- [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.5.0**) and **Unreleased** changes (Keep a Changelog)
 - [`docs/RELEASE_PROCESS.md`](docs/RELEASE_PROCESS.md) — version bump, tag, and PyPI publish checklist
 - [`docs/CODEQL.md`](docs/CODEQL.md) — CodeQL default setup (no custom `codeql.yml`)
 - [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) — curated starter tasks for new contributors
@@ -124,7 +124,7 @@ CI runs the same commands as your local environment: `uv sync --all-extras`, the
 make all
 ```
 
-As of **v1.4.2**, `make test` runs **450** pytest cases with **≥80%** line coverage on `src/logseq_matryca_parser` (currently ~**91%**). New contributors should mirror patterns in [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) and the module map in that file’s **Test suite** section.
+As of **v1.5.0**, `make test` runs **451** pytest cases with **≥80%** line coverage on `src/logseq_matryca_parser` (currently ~**91%**). New contributors should mirror patterns in [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) and the module map in that file’s **Test suite** section.
 
 Or run each step individually:
 
