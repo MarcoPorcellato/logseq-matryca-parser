@@ -7,31 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-07-02
+
+Minor release — Clean Architecture v1 structural slices (SRP/OCP), new public graph APIs, layer-boundary CI, and documentation SSOT. **No intentional breaking changes** to existing `matryca-parse` CLI behavior or stable package exports.
+
 ### Added
 
-- **Clean Architecture v1.6 GitHub track** — milestone `v1.6 — Clean Architecture & Code Quality`, epic [#78](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/78), phase issues [#79](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/79)–[#83](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/83); roadmap [`docs/quality/GITHUB_CLEAN_ARCH_ROADMAP.md`](docs/quality/GITHUB_CLEAN_ARCH_ROADMAP.md) and triage [`docs/quality/ISSUE_TRIAGE_2026-07.md`](docs/quality/ISSUE_TRIAGE_2026-07.md).
+- **Clean Architecture SSOT** — [`docs/CLEAN_CODE_ARCHITECTURE.md`](docs/CLEAN_CODE_ARCHITECTURE.md) maps Uncle Bob rings, SOLID, and module maps; quality index in [`docs/quality/`](docs/quality/) (backlog, GitHub roadmap, July 2026 triage).
 - **`kinetic_export.py`** — KINETIC format handlers extracted from `kinetic.py` (DEBT-005 / [#80](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/80)).
-- **`kinetic_commands.py`** — scan, visualize, demo, append, agent-read, agent-write subcommands (SRP slice / [#82](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/82)).
+- **`kinetic_commands.py`** — `scan`, `visualize`, `demo`, `append`, `agent-read`, and `agent-write` subcommands (SRP slice / [#82](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/82)).
 - **`synapse_embed.py`** — `BlockEmbedExpander` / `PageEmbedExpander` strategy pattern for embed expansion (DEBT-006 / [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70)).
 - **`LogseqGraph.iter_attached_nodes()`** — public ISP iterator skipping orphan ghost registry entries ([#81](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/81)).
-- **Issue template** — `.github/ISSUE_TEMPLATE/clean_architecture.yml` for Uncle Bob slices.
-- **Bootstrap script** — `.github/scripts/create_clean_arch_issues.sh` for milestone + phase issues.
-- **Clean Code & Clean Architecture SSOT** — [`docs/CLEAN_CODE_ARCHITECTURE.md`](docs/CLEAN_CODE_ARCHITECTURE.md) maps Uncle Bob's dependency rule, SOLID, and module maps to `src/logseq_matryca_parser/`.
-- **Maintainer local code audit runbook** — [`docs/internal/LOCAL_CODE_STUDY.md`](docs/internal/LOCAL_CODE_STUDY.md) documents graph-based code audit workflows under Ghost Tooling policy.
 - **Layer boundary CI** — `tests/test_layer_boundary.py` forbids framework imports in entities/use cases, adapter→driver leaks, and Typer/Rich in `kinetic_export.py`.
+- **`make vendor-name-check`** — Ghost Tooling gate for vendor-free public documentation.
+- **Maintainer local code audit runbook** — [`docs/internal/LOCAL_CODE_STUDY.md`](docs/internal/LOCAL_CODE_STUDY.md).
+- **GitHub issue template** — `.github/ISSUE_TEMPLATE/clean_architecture.yml` for Uncle Bob slices; bootstrap script `.github/scripts/create_clean_arch_issues.sh`.
 
 ### Changed
 
-- **Ghost Tooling** — removed vendor AST indexer names from all committed documentation; unified maintainer terminology on **local code audit** / **graph-based code study**; added `make vendor-name-check` gate.
-- **`kinetic.py`** — slim Typer app factory (~230 lines): `export` orchestration + shared CLI helpers; subcommands live in `kinetic_commands.py`.
-- **`LogseqGraph.is_tracked_markdown_path()`** — public DIP surface for watcher path checks (private `_resolved_path_is_tracked_markdown` delegates).
-- **KINETIC** — removed dead `_parse_graph` helper and unused imports (SRP / dead-code cleanup per Clean Architecture backlog).
+- **`kinetic.py`** — slim Typer app factory (~230 lines): `export` orchestration + shared CLI helpers; subcommands in `kinetic_commands.py`.
+- **`LogseqGraph.is_tracked_markdown_path()`** — public DIP surface for watcher path checks ([#68](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/68)).
+- **KINETIC** — removed dead `_parse_graph` helper ([#67](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/67)).
+- **Ghost Tooling** — vendor AST indexer names removed from public docs; unified on **local code audit** / **graph-based code study** terminology.
+- **Contributor docs** — [`README.md`](README.md), [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/COOKBOOK.md`](docs/COOKBOOK.md), [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md), and [`CONTRIBUTING.md`](CONTRIBUTING.md) updated for v1.6.0 and **456** pytest cases.
 
 ### Meta (contributor tracking)
 
-- **Contributor issues (wave 3)** — Six new issues from local code study ([#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#64](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/64)): LENS ghost wikilink nodes, corrupt X-Ray state handling, `agent_write` assert guard, and paired good-first tests.
-- **Contributor issues (wave 4)** — Seven issues from Clean Architecture code study ([#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65)–[#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71)): SYNAPSE cyclic embed duplication, unresolved embed semantics, kinetic dead code, graph watcher DIP, English DX messages, OCP embed refactor, and parametrized SYNAPSE tests. Agent rule: [`.cursor/rules/07-clean-architecture-audit.mdc`](.cursor/rules/07-clean-architecture-audit.mdc).
-- **Contributor issues (wave 5)** — [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72) / [#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73): `append_child_to_node` corrupts Markdown when the source file lacks a trailing newline (agent-write data loss).
+- **Clean Architecture epic** — [#78](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/78) (phases [#79](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/79)–[#83](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/83)).
+- **Contributor waves 3–5** — issues [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73) filed from local code study; agent rule [`.cursor/rules/07-clean-architecture-audit.mdc`](.cursor/rules/07-clean-architecture-audit.mdc).
 
 ## [1.5.0] - 2026-06-29
 

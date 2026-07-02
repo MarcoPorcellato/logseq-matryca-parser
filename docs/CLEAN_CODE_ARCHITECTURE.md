@@ -1,6 +1,6 @@
 # Clean Code & Clean Architecture — Logseq Matryca Parser
 
-**Version:** documents **v1.5.0+** maintainer contracts  
+**Version:** documents **v1.6.0** maintainer contracts (v1 structural backlog complete)  
 **Audience:** contributors and Cursor agents patching `src/logseq_matryca_parser/`  
 **Companion:** [`ARCHITECTURE.md`](ARCHITECTURE.md) (LOGOS domain contract) · [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) (audit evidence) · [`CONTRIBUTING.md`](../CONTRIBUTING.md)
 
@@ -282,8 +282,8 @@ Update [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) when adding contributor-sc
 | Theme | Entry |
 |-------|-------|
 | Layer boundary tests | GFI-36 in [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) |
-| SYNAPSE embed strategy (OCP) | [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) |
-| KINETIC export extraction (SRP) | [`quality/CLEAN_ARCH_BACKLOG.md`](quality/CLEAN_ARCH_BACKLOG.md) DEBT-005 |
+| SYNAPSE embed strategy (OCP) | **shipped** v1.6 — [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) |
+| KINETIC export extraction (SRP) | **shipped** v1.6 — [#80](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/80) |
 
 ---
 

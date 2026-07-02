@@ -1,6 +1,6 @@
 # GitHub roadmap — Clean Architecture v1.6
 
-**Status:** 2026-07-02  
+**Status:** 2026-07-02 · **v1.6.0 shipped** — close milestone after tag `v1.6.0`  
 **SSOT (code):** [`../CLEAN_CODE_ARCHITECTURE.md`](../CLEAN_CODE_ARCHITECTURE.md)  
 **Backlog:** [`CLEAN_ARCH_BACKLOG.md`](CLEAN_ARCH_BACKLOG.md)  
 **Triage:** [`ISSUE_TRIAGE_2026-07.md`](ISSUE_TRIAGE_2026-07.md)
@@ -12,8 +12,8 @@
 | Field | Value |
 |-------|-------|
 | **Title** | `v1.6 — Clean Architecture & Code Quality` |
-| **Target release** | **v1.6.0** (minor — docs + internal refactors, no public API break) |
-| **Close when** | Epic complete + tag `v1.6.0` published |
+| **Release** | **v1.6.0** (minor — docs + internal refactors, no public API break) |
+| **Close when** | Tag `v1.6.0` published on PyPI |
 
 Bootstrap: `bash .github/scripts/create_clean_arch_issues.sh`
 

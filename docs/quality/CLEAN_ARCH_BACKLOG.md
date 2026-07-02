@@ -14,7 +14,7 @@
 | **Shipped (DEBT-001)** | `iter_canonical_pages()`, `page_for_node()` — v1.4.0+ |
 | **Shipped (DEBT-005)** | `kinetic_export.py` — [#80](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/80) |
 | **Shipped (DEBT-006)** | `synapse_embed.py` OCP — [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) |
-| **Shipped (DEBT-007)** | `is_tracked_markdown_path()` — v1.5.1 / [#68](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/68) |
+| **Shipped (DEBT-007)** | `is_tracked_markdown_path()` — v1.6.0 / [#68](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/68) |
 | **Shipped (ISP)** | `iter_attached_nodes()` public — [#81](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/81) |
 | **Shipped (KINETIC SRP)** | `kinetic_commands.py` — [#82](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/82) |
 | **Open — v2** | `logos_parser.py` split (CRITICAL hub — epic after v1.6) |
@@ -28,7 +28,7 @@
 |----|-----------|-------------|--------|--------|--------|----------|
 | DEBT-005 | **SRP** | ~~`kinetic.py` export handlers~~ | `kinetic_export.py` | **Shipped** v1.6 | [#80](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/80) | ~~P2~~ |
 | DEBT-006 | **OCP** | ~~Monolithic embed expansion loop~~ | `synapse_embed.py` | **Shipped** v1.6 | [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) | ~~P2~~ |
-| DEBT-007 | **DIP** | ~~Watcher private path check~~ | `graph.py` | **Shipped** v1.5.1 | [#68](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/68) | ~~P3~~ |
+| DEBT-007 | **DIP** | ~~Watcher private path check~~ | `graph.py` | **Shipped** v1.6.0 | [#68](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/68) | ~~P3~~ |
 | — | **ISP** | ~~Private `_iter_attached_nodes`~~ | `graph.py` | **Shipped** v1.6 | [#81](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/81) | ~~P3~~ |
 | — | **LSP** | `LogosNode` legacy vs frozen `LogseqNode` | `logos_core.py` | No new `LogosNode` consumers | — | P4 |
 | — | **DIP** | Lazy `logseq_paths` in `resolve_asset_path` | `logos_core.py` | Acceptable cycle avoidance | — | by design |

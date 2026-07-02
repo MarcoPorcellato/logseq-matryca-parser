@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 
-__version__ = "1.5.0"
+__version__ = "1.6.0"
 
 from .agent_press import SessionAliasRegistry
 from .agent_writer import LogseqConfigReader, logseq_agent_write

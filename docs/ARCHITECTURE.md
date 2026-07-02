@@ -568,7 +568,7 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 
 ---
 
-*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `graph.py`, `forge.py`, `lens.py`, `logos_core.py`, `agent_writer.py`, `agent_press.py`, `logseq_markdown.py`, `logseq_paths.py`, `kinetic.py`, and the public exports in `__init__.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).*
+*This document reflects the implementations in `src/logseq_matryca_parser/logos_parser.py`, `synapse.py`, `synapse_embed.py`, `graph.py`, `forge.py`, `lens.py`, `logos_core.py`, `agent_writer.py`, `agent_press.py`, `logseq_markdown.py`, `logseq_paths.py`, `kinetic.py`, `kinetic_commands.py`, `kinetic_export.py`, and the public exports in `__init__.py`, and complements narrative primers such as [`logseq_ast_primer.md`](logseq_ast_primer.md).*
 
 ---
 
@@ -577,14 +577,15 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 | Document | When to read |
 | :--- | :--- |
 | [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) | Uncle Bob rings, SOLID, module maps, layer CI |
-| [`quality/CLEAN_ARCH_BACKLOG.md`](quality/CLEAN_ARCH_BACKLOG.md) | Residual architecture debt after v1.5.0 |
+| [`quality/CLEAN_ARCH_BACKLOG.md`](quality/CLEAN_ARCH_BACKLOG.md) | v1 structural debt **complete** (v2: `logos_parser` split) |
+| [`quality/GITHUB_CLEAN_ARCH_ROADMAP.md`](quality/GITHUB_CLEAN_ARCH_ROADMAP.md) | v1.6 milestone, epic, and phase issues |
 | [`logseq_ast_primer.md`](logseq_ast_primer.md) | Before touching parser or serialization behavior |
 | [`COOKBOOK.md`](COOKBOOK.md) | Integration examples (Synapse, `LogseqGraph`, watcher) |
-| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | Picking a first PR ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)); wave 1 tests landed in **v1.4.1**, wave 2 + bugfix regressions in **v1.4.2**, **GFI-11** (`scan --broken-refs`) in **v1.5.0** |
+| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | Picking a first PR ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)); wave 1 in **v1.4.1**, wave 2 in **v1.4.2**, **GFI-11** in **v1.5.0**, Clean Architecture v1 in **v1.6.0** |
 | [`README.md`](README.md) | Project overview and quickstart |
-| [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | `uv` setup, `make all` (**451** pytest, ~**91%** coverage), PR checklist |
+| [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | `uv` setup, `make all` (**456** pytest, ~**91%** coverage, `vendor-name-check`), PR checklist |
 | [`design-docs/README.md`](design-docs/README.md) | Warning before using historical DDD blueprints |
 
-### Quality gate (v1.5.0)
+### Quality gate (v1.6.0)
 
-Local and CI parity: `uv sync --all-extras` → `make lint` → `make check` → `make test`. The test gate enforces **≥80%** coverage on `src/logseq_matryca_parser` with **451** pytest cases as of **v1.5.0** (community wave 2 via [#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58), agent-write / SYNAPSE regression tests, and **`scan --broken-refs`** via [#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)). Dedicated modules: `tests/test_exceptions.py`, `tests/test_extract_changelog.py` — see [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) § Test suite.
+Local and CI parity: `uv sync --all-extras` → `make lint` → `make check` → `make test` → `make vendor-name-check`. The test gate enforces **≥80%** coverage on `src/logseq_matryca_parser` with **456** pytest cases as of **v1.6.0** (layer boundary tests, KINETIC/SYNAPSE structural slices, community waves via [#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58) and **`scan --broken-refs`** via [#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)). Dedicated modules: `tests/test_layer_boundary.py`, `tests/test_exceptions.py`, `tests/test_extract_changelog.py` — see [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) § Test suite.

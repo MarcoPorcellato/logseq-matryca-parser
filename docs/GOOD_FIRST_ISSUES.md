@@ -118,7 +118,7 @@ Wave 2 (GFI-17–GFI-26, GFI-02) and **GFI-11** ([#77](https://github.com/MarcoP
 
 ---
 
-## Test suite (v1.5.0+)
+## Test suite (v1.6.0+)
 
 | Module | Test file |
 | :--- | :--- |
@@ -133,7 +133,7 @@ Wave 2 (GFI-17–GFI-26, GFI-02) and **GFI-11** ([#77](https://github.com/MarcoP
 | Release helpers | `tests/test_extract_changelog.py`, `tests/test_package_version.py` |
 | Exceptions | `tests/test_exceptions.py` |
 
-Full gate: `make all` (**455** pytest cases after wave 2, bugfix regressions, and **GFI-11**).
+Full gate: `make all` (**456** pytest cases as of **v1.6.0**, including layer boundary tests and Clean Architecture slices).
 
 Run `make vendor-name-check` before docs PRs to ensure Ghost Tooling policy (no vendor AST indexer names in the tree).
 

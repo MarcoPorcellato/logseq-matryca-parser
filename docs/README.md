@@ -8,10 +8,10 @@ Use this page to find **active** documentation. Files under [`design-docs/`](des
 | :--- | :--- | :--- |
 | [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) | Contributors, maintainers | Uncle Bob rings, SOLID, module maps, layer CI |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Contributors, integrators | LOGOS, SYNAPSE, `LogseqGraph`, agents, data flow |
-| [`quality/`](quality/) | Maintainers | Architecture backlog and audit index |
+| [`quality/`](quality/) | Maintainers | Architecture backlog (v1 complete), GitHub roadmap, triage |
 | [`internal/LOCAL_CODE_STUDY.md`](internal/LOCAL_CODE_STUDY.md) | Maintainers | Local code audit runbook (graph-based MCP) |
 | [`logseq_ast_primer.md`](logseq_ast_primer.md) | Parser contributors | Logseq Spatial Markdown domain rules |
-| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | New contributors | Curated starter tasks ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52); wave 1 in **v1.4.1**, wave 2 + bugfix tests in **v1.4.2**, **GFI-11** in **v1.5.0**) |
+| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | New contributors | Curated starter tasks; Clean Architecture v1 shipped in **v1.6.0** ([#78](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/78)) |
 | [`COOKBOOK.md`](COOKBOOK.md) | Integrators | Copy-paste recipes (Synapse, graph query, watcher, agents, contributor test patterns) |
 | [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) | Maintainers | Semver, tag, and PyPI publish checklist |
 | [`CODEQL.md`](CODEQL.md) | Maintainers | CodeQL default setup notes |
