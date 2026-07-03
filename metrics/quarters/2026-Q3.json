@@ -1,7 +1,25 @@
 {
   "quarter": "2026-Q3",
-  "views": {},
-  "clones": {},
+  "views": {
+    "2026-07-01": {
+      "count": 2,
+      "uniques": 1
+    },
+    "2026-07-02": {
+      "count": 17,
+      "uniques": 5
+    }
+  },
+  "clones": {
+    "2026-07-01": {
+      "count": 91,
+      "uniques": 29
+    },
+    "2026-07-02": {
+      "count": 158,
+      "uniques": 59
+    }
+  },
   "releases": {
     "2026-07-01": [
       {
@@ -74,6 +92,80 @@
       }
     ],
     "2026-07-02": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-03": [
       {
         "tag": "v1.6.0",
         "assets": []
@@ -232,6 +324,53 @@
         "count": 1,
         "uniques": 1
       }
+    ],
+    "2026-07-03": [
+      {
+        "referrer": "github.com",
+        "count": 69,
+        "uniques": 15
+      },
+      {
+        "referrer": "Bing",
+        "count": 10,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "github-help-wanted.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "DuckDuckGo",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
     ]
   },
   "popular_content": {
@@ -337,6 +476,68 @@
       {
         "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
         "title": "/issues",
+        "count": 5,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/19",
+        "title": "/issues/19",
+        "count": 4,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/52",
+        "title": "/issues/52",
+        "count": 4,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/73",
+        "title": "/issues/73",
+        "count": 4,
+        "uniques": 3
+      }
+    ],
+    "2026-07-03": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 40,
+        "uniques": 16
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 13,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/26",
+        "title": "/issues/26",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 9,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 8,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/docs",
+        "title": "/tree/main/docs",
+        "count": 5,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
         "count": 5,
         "uniques": 2
       },
