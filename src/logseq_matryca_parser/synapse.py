@@ -292,16 +292,10 @@ class SynapseAdapter:
     def to_langchain_documents(nodes: list[LogseqNode], source_name: str) -> list[Any]:
         """Convert AST nodes to LangChain documents using `LangChainVisitor`."""
         if Document is None:
-<<<<<<< HEAD
-            raise ImportError("LangChain was not detected. Install 'langchain-core' to use Synapse.")
-        visitor = LangChainVisitor(source_name=source_name, document_cls=Document)
-=======
             raise ImportError(
                 "Missing AI export dependencies. Install with: uv sync --extra ai"
             )
-        visitor = LangChainVisitor(
-            source_name=source_name, document_cls=Document)
->>>>>>> efda638 (chore(synapse): replace dependency ImportErrors with unified AI export message)
+        visitor = LangChainVisitor(source_name=source_name, document_cls=Document)
         for node in nodes:
             node.accept(visitor)
         return visitor.get_documents()
@@ -315,13 +309,9 @@ class SynapseAdapter:
     ) -> list[Any]:
         """Convert AST nodes to LlamaIndex nodes preserving topology links."""
         if TextNode is None or NodeRelationship is None or RelatedNodeInfo is None:
-<<<<<<< HEAD
-            raise ImportError("LlamaIndex was not detected. Install 'llama-index' to use Synapse.")
-=======
             raise ImportError(
                 "Missing AI export dependencies. Install with: uv sync --extra ai"
             )
->>>>>>> efda638 (chore(synapse): replace dependency ImportErrors with unified AI export message)
         flat = _flatten_nodes_for_export(nodes)
         unique_paths = {node.source_path for node in flat if node.source_path}
         use_per_node_source = len(unique_paths) > 1
@@ -360,13 +350,9 @@ class SynapseAdapter:
     ) -> list[Any]:
         """Flatten ``nodes`` and emit LangChain ``Document``s with breadcrumb-enriched ``page_content``."""
         if Document is None:
-<<<<<<< HEAD
-            raise ImportError("LangChain was not detected. Install 'langchain-core' to use Synapse.")
-=======
             raise ImportError(
                 "Missing AI export dependencies. Install with: uv sync --extra ai"
             )
->>>>>>> efda638 (chore(synapse): replace dependency ImportErrors with unified AI export message)
         documents: list[Any] = []
         flat = _flatten_nodes_for_export(nodes)
         for node in flat:
