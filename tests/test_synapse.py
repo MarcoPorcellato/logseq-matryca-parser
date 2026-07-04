@@ -70,13 +70,15 @@ def build_ast() -> list[LogseqNode]:
 
 def test_to_langchain_documents_raises_when_dependency_missing() -> None:
     with patch("logseq_matryca_parser.synapse.Document", None):
-        with pytest.raises(ImportError, match="LangChain"):
-            SynapseAdapter.to_langchain_documents(build_ast(), source_name="test.md")
+        with pytest.raises(ImportError, match="Missing AI export dependencies"):
+            SynapseAdapter.to_langchain_documents(
+                build_ast(), source_name="test.md")
 
 
 def test_to_langchain_documents_uses_visitor_and_graph_metadata() -> None:
     with patch("logseq_matryca_parser.synapse.Document", FakeDocument):
-        docs = SynapseAdapter.to_langchain_documents(build_ast(), source_name="graph.md")
+        docs = SynapseAdapter.to_langchain_documents(
+            build_ast(), source_name="graph.md")
 
     assert len(docs) == 2
     root_doc = docs[0]
@@ -106,7 +108,7 @@ def test_to_llamaindex_nodes_raises_when_dependency_missing() -> None:
         patch("logseq_matryca_parser.synapse.NodeRelationship", None),
         patch("logseq_matryca_parser.synapse.RelatedNodeInfo", None),
     ):
-        with pytest.raises(ImportError, match="LlamaIndex"):
+        with pytest.raises(ImportError, match="Missing AI export dependencies"):
             SynapseAdapter.to_llamaindex_nodes(build_ast())
 
 
@@ -173,7 +175,8 @@ def test_to_llamaindex_nodes_assigns_distinct_source_per_page() -> None:
     ):
         nodes = SynapseAdapter.to_llamaindex_nodes([root_a, root_b])
 
-    source_ids = {nodes[0].relationships["SOURCE"].node_id, nodes[1].relationships["SOURCE"].node_id}
+    source_ids = {nodes[0].relationships["SOURCE"].node_id,
+                  nodes[1].relationships["SOURCE"].node_id}
     assert len(source_ids) == 2
 
 
@@ -212,7 +215,8 @@ def test_to_llamaindex_nodes_wires_sibling_next_and_previous() -> None:
         patch("logseq_matryca_parser.synapse.NodeRelationship", fake_relationship),
         patch("logseq_matryca_parser.synapse.RelatedNodeInfo", FakeRelatedNodeInfo),
     ):
-        nodes = SynapseAdapter.to_llamaindex_nodes([root], page_source_id="page-doc")
+        nodes = SynapseAdapter.to_llamaindex_nodes(
+            [root], page_source_id="page-doc")
 
     by_id = {node.id_: node for node in nodes}
     assert by_id["sibling-b"].relationships["PREVIOUS"].node_id == "sibling-a"
@@ -221,7 +225,7 @@ def test_to_llamaindex_nodes_wires_sibling_next_and_previous() -> None:
 
 def test_to_context_enriched_chunks_raises_when_dependency_missing(tmp_path: Path) -> None:
     with patch("logseq_matryca_parser.synapse.Document", None):
-        with pytest.raises(ImportError, match="LangChain"):
+        with pytest.raises(ImportError, match="Missing AI export dependencies"):
             graph = LogseqGraph(graph_path=tmp_path, pages={})
             SynapseAdapter.to_context_enriched_chunks([], graph)
 
@@ -243,7 +247,8 @@ def test_synapse_context_enriched_chunking(tmp_path: Path) -> None:
     demo = graph.pages["Demo"]
 
     with patch("logseq_matryca_parser.synapse.Document", FakeDocument):
-        chunks = SynapseAdapter.to_context_enriched_chunks(demo.root_nodes, graph)
+        chunks = SynapseAdapter.to_context_enriched_chunks(
+            demo.root_nodes, graph)
 
     assert len(chunks) == 2
     child_chunk = chunks[1]
@@ -277,8 +282,10 @@ def test_synapse_recursive_embed_expansion(tmp_path: Path) -> None:
         "- Before {{embed ((" + block_id + "))}} after\n",
         encoding="utf-8",
     )
-    (pages / "SnippetPage.md").write_text("- Line one from snippet\n- Line two from snippet\n", encoding="utf-8")
-    (pages / "PageEmbedHost.md").write_text("- Start {{embed [[SnippetPage]]}} end\n", encoding="utf-8")
+    (pages / "SnippetPage.md").write_text(
+        "- Line one from snippet\n- Line two from snippet\n", encoding="utf-8")
+    (pages / "PageEmbedHost.md").write_text(
+        "- Start {{embed [[SnippetPage]]}} end\n", encoding="utf-8")
 
     graph = LogseqGraph.load_directory(graph_root)
 
@@ -309,7 +316,8 @@ def test_expand_embed_missing_page_completes_without_hang(tmp_path: Path) -> Non
     graph_root = tmp_path / "vault"
     pages = graph_root / "pages"
     pages.mkdir(parents=True)
-    (pages / "P.md").write_text("- x {{embed [[NoSuchPage]]}}\n", encoding="utf-8")
+    (pages /
+     "P.md").write_text("- x {{embed [[NoSuchPage]]}}\n", encoding="utf-8")
     graph = LogseqGraph.load_directory(graph_root)
     text = graph.pages["P"].root_nodes[0].content
 
@@ -342,14 +350,16 @@ def test_expand_cyclic_page_embed_does_not_duplicate_parent_text(tmp_path: Path)
     graph_root = tmp_path / "vault"
     pages = graph_root / "pages"
     pages.mkdir(parents=True)
-    (pages / "A.md").write_text("- before {{embed [[B]]}} after\n", encoding="utf-8")
+    (pages /
+     "A.md").write_text("- before {{embed [[B]]}} after\n", encoding="utf-8")
     (pages / "B.md").write_text("- inner {{embed [[A]]}}\n", encoding="utf-8")
     graph = LogseqGraph.load_directory(graph_root)
     host_page = graph.pages["A"]
     text = host_page.root_nodes[0].content
     chain = frozenset({host_page.title})
 
-    expanded = _expand_macros_and_embeds(text, graph, set(), embed_page_chain=chain)
+    expanded = _expand_macros_and_embeds(
+        text, graph, set(), embed_page_chain=chain)
 
     assert expanded.strip() == "before inner after"
 
@@ -361,7 +371,8 @@ def test_expand_missing_block_embed_completes_without_hang(tmp_path: Path) -> No
     pages = graph_root / "pages"
     pages.mkdir(parents=True)
     missing = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-    (pages / "P.md").write_text(f"- {{{{embed (({missing}))}}}}\n", encoding="utf-8")
+    (pages /
+     "P.md").write_text(f"- {{{{embed (({missing}))}}}}\n", encoding="utf-8")
     graph = LogseqGraph.load_directory(graph_root)
     text = graph.pages["P"].root_nodes[0].content
 
@@ -411,7 +422,7 @@ class TestBuildSynapseMetadata:
         node = LogseqNode(uuid="abc", content="Test", indent_level=0)
         meta = build_synapse_metadata(node, source="test")
         for key in ("uuid", "indent_level", "source", "path", "refs",
-                     "task_status", "task_priority"):
+                    "task_status", "task_priority"):
             assert key in meta
 
     def test_property_serialization(self):

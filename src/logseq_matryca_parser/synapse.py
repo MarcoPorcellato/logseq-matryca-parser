@@ -20,6 +20,10 @@ logger = logging.getLogger(__name__)
 _PATH_JOIN = " > "
 _REFS_JOIN = ", "
 
+_MISSING_AI_EXPORT_DEPS_MSG = (
+    "Missing AI export dependencies. Please install them using: uv sync --extra ai"
+)
+
 
 class SynapseMetadata(TypedDict, total=False):
     """Vector-store-safe metadata schema for LangChain / LlamaIndex exports."""
@@ -292,9 +296,9 @@ class SynapseAdapter:
     def to_langchain_documents(nodes: list[LogseqNode], source_name: str) -> list[Any]:
         """Convert AST nodes to LangChain documents using `LangChainVisitor`."""
         if Document is None:
-            raise ImportError(
-                "Missing AI export dependencies. Install with: uv sync --extra ai"
-            )
+
+            raise ImportError(_MISSING_AI_EXPORT_DEPS_MSG)
+
         visitor = LangChainVisitor(
             source_name=source_name, document_cls=Document)
         for node in nodes:
@@ -310,9 +314,9 @@ class SynapseAdapter:
     ) -> list[Any]:
         """Convert AST nodes to LlamaIndex nodes preserving topology links."""
         if TextNode is None or NodeRelationship is None or RelatedNodeInfo is None:
-            raise ImportError(
-                "Missing AI export dependencies. Install with: uv sync --extra ai"
-            )
+
+            raise ImportError(_MISSING_AI_EXPORT_DEPS_MSG)
+
         flat = _flatten_nodes_for_export(nodes)
         unique_paths = {node.source_path for node in flat if node.source_path}
         use_per_node_source = len(unique_paths) > 1
@@ -351,9 +355,7 @@ class SynapseAdapter:
     ) -> list[Any]:
         """Flatten ``nodes`` and emit LangChain ``Document``s with breadcrumb-enriched ``page_content``."""
         if Document is None:
-            raise ImportError(
-                "Missing AI export dependencies. Install with: uv sync --extra ai"
-            )
+            raise ImportError(_MISSING_AI_EXPORT_DEPS_MSG)
         documents: list[Any] = []
         flat = _flatten_nodes_for_export(nodes)
         for node in flat:
