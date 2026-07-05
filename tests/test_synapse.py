@@ -11,6 +11,7 @@ from logseq_matryca_parser.graph import LogseqGraph
 from logseq_matryca_parser.logos_core import LogseqNode
 from logseq_matryca_parser.synapse import (
     SynapseAdapter,
+    _MISSING_AI_EXPORT_DEPS_MSG,
     _strip_markdown_for_embedding,
     build_synapse_metadata,
 )
@@ -70,7 +71,7 @@ def build_ast() -> list[LogseqNode]:
 
 def test_to_langchain_documents_raises_when_dependency_missing() -> None:
     with patch("logseq_matryca_parser.synapse.Document", None):
-        with pytest.raises(ImportError, match="Missing AI export dependencies"):
+        with pytest.raises(ImportError, match=_MISSING_AI_EXPORT_DEPS_MSG):
             SynapseAdapter.to_langchain_documents(
                 build_ast(), source_name="test.md")
 
@@ -108,7 +109,7 @@ def test_to_llamaindex_nodes_raises_when_dependency_missing() -> None:
         patch("logseq_matryca_parser.synapse.NodeRelationship", None),
         patch("logseq_matryca_parser.synapse.RelatedNodeInfo", None),
     ):
-        with pytest.raises(ImportError, match="Missing AI export dependencies"):
+        with pytest.raises(ImportError, match=_MISSING_AI_EXPORT_DEPS_MSG):
             SynapseAdapter.to_llamaindex_nodes(build_ast())
 
 
@@ -225,7 +226,7 @@ def test_to_llamaindex_nodes_wires_sibling_next_and_previous() -> None:
 
 def test_to_context_enriched_chunks_raises_when_dependency_missing(tmp_path: Path) -> None:
     with patch("logseq_matryca_parser.synapse.Document", None):
-        with pytest.raises(ImportError, match="Missing AI export dependencies"):
+        with pytest.raises(ImportError, match=_MISSING_AI_EXPORT_DEPS_MSG):
             graph = LogseqGraph(graph_path=tmp_path, pages={})
             SynapseAdapter.to_context_enriched_chunks([], graph)
 
