@@ -24,6 +24,10 @@
     "2026-07-06": {
       "count": 3,
       "uniques": 3
+    },
+    "2026-07-07": {
+      "count": 6,
+      "uniques": 2
     }
   },
   "clones": {
@@ -50,6 +54,10 @@
     "2026-07-06": {
       "count": 10,
       "uniques": 7
+    },
+    "2026-07-07": {
+      "count": 31,
+      "uniques": 12
     }
   },
   "releases": {
@@ -640,6 +648,80 @@
         "tag": "v0.2.0",
         "assets": []
       }
+    ],
+    "2026-07-09": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
     ]
   },
   "referrers": {
@@ -947,6 +1029,48 @@
         "referrer": "github.com",
         "count": 96,
         "uniques": 15
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "Bing",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "github-help-wanted.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-09": [
+      {
+        "referrer": "github.com",
+        "count": 79,
+        "uniques": 14
       },
       {
         "referrer": "chatgpt.com",
@@ -1480,6 +1604,68 @@
         "title": "/blob/main/docs/logseq_ast_primer.md",
         "count": 6,
         "uniques": 2
+      }
+    ],
+    "2026-07-09": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 47,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 42,
+        "uniques": 18
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 30,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 15,
+        "uniques": 5
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 8,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/logseq_ast_primer.md",
+        "title": "/blob/main/docs/logseq_ast_primer.md",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/65",
+        "title": "/issues/65",
+        "count": 5,
+        "uniques": 4
       }
     ]
   }
