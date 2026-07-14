@@ -5,8 +5,17 @@ All notable changes to **logseq-matryca-parser** (The Logos Protocol) are docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ### Changed
 
+- Unified SYNAPSE AI dependency `ImportError` messages to use a consistent English message that directs users to `uv sync --extra ai`.
+
+## [1.6.0] - 2026-07-02
+
+Minor release — Clean Architecture v1 structural slices (SRP/OCP), new public graph APIs, layer-boundary CI, and documentation SSOT. **No intentional breaking changes** to existing `matryca-parse` CLI behavior or stable package exports.
+
+### Added
 ## [1.6.0] - 2026-07-02
 
 Minor release — Clean Architecture v1 structural slices (SRP/OCP), new public graph APIs, layer-boundary CI, and documentation SSOT. **No intentional breaking changes** to existing `matryca-parse` CLI behavior or stable package exports.
