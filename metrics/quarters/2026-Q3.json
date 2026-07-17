@@ -1,7 +1,129 @@
 {
   "quarter": "2026-Q3",
-  "views": {},
-  "clones": {},
+  "views": {
+    "2026-07-01": {
+      "count": 2,
+      "uniques": 1
+    },
+    "2026-07-02": {
+      "count": 17,
+      "uniques": 5
+    },
+    "2026-07-03": {
+      "count": 7,
+      "uniques": 2
+    },
+    "2026-07-04": {
+      "count": 61,
+      "uniques": 3
+    },
+    "2026-07-05": {
+      "count": 76,
+      "uniques": 9
+    },
+    "2026-07-06": {
+      "count": 3,
+      "uniques": 3
+    },
+    "2026-07-07": {
+      "count": 6,
+      "uniques": 2
+    },
+    "2026-07-08": {
+      "count": 1,
+      "uniques": 1
+    },
+    "2026-07-09": {
+      "count": 3,
+      "uniques": 1
+    },
+    "2026-07-10": {
+      "count": 3,
+      "uniques": 2
+    },
+    "2026-07-11": {
+      "count": 13,
+      "uniques": 2
+    },
+    "2026-07-12": {
+      "count": 0,
+      "uniques": 0
+    },
+    "2026-07-13": {
+      "count": 0,
+      "uniques": 0
+    },
+    "2026-07-14": {
+      "count": 12,
+      "uniques": 2
+    },
+    "2026-07-15": {
+      "count": 2,
+      "uniques": 2
+    }
+  },
+  "clones": {
+    "2026-07-01": {
+      "count": 91,
+      "uniques": 29
+    },
+    "2026-07-02": {
+      "count": 158,
+      "uniques": 59
+    },
+    "2026-07-03": {
+      "count": 69,
+      "uniques": 34
+    },
+    "2026-07-04": {
+      "count": 44,
+      "uniques": 33
+    },
+    "2026-07-05": {
+      "count": 22,
+      "uniques": 11
+    },
+    "2026-07-06": {
+      "count": 10,
+      "uniques": 7
+    },
+    "2026-07-07": {
+      "count": 31,
+      "uniques": 12
+    },
+    "2026-07-08": {
+      "count": 22,
+      "uniques": 10
+    },
+    "2026-07-09": {
+      "count": 8,
+      "uniques": 5
+    },
+    "2026-07-10": {
+      "count": 23,
+      "uniques": 11
+    },
+    "2026-07-11": {
+      "count": 36,
+      "uniques": 18
+    },
+    "2026-07-12": {
+      "count": 21,
+      "uniques": 15
+    },
+    "2026-07-13": {
+      "count": 12,
+      "uniques": 8
+    },
+    "2026-07-14": {
+      "count": 21,
+      "uniques": 14
+    },
+    "2026-07-15": {
+      "count": 22,
+      "uniques": 13
+    }
+  },
   "releases": {
     "2026-07-01": [
       {
@@ -74,6 +196,1116 @@
       }
     ],
     "2026-07-02": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-03": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-04": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-05": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-06": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-07": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-08": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-09": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-10": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-11": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-12": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-13": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-14": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-15": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-16": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
+    ],
+    "2026-07-17": [
       {
         "tag": "v1.6.0",
         "assets": []
@@ -232,6 +1464,526 @@
         "count": 1,
         "uniques": 1
       }
+    ],
+    "2026-07-03": [
+      {
+        "referrer": "github.com",
+        "count": 69,
+        "uniques": 15
+      },
+      {
+        "referrer": "Bing",
+        "count": 10,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "github-help-wanted.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "DuckDuckGo",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-04": [
+      {
+        "referrer": "github.com",
+        "count": 70,
+        "uniques": 15
+      },
+      {
+        "referrer": "Bing",
+        "count": 10,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "github-help-wanted.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-05": [
+      {
+        "referrer": "github.com",
+        "count": 70,
+        "uniques": 15
+      },
+      {
+        "referrer": "Bing",
+        "count": 10,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "github-help-wanted.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-06": [
+      {
+        "referrer": "github.com",
+        "count": 96,
+        "uniques": 15
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "Bing",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "github-help-wanted.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-07": [
+      {
+        "referrer": "github.com",
+        "count": 96,
+        "uniques": 15
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "Bing",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "github-help-wanted.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-08": [
+      {
+        "referrer": "github.com",
+        "count": 96,
+        "uniques": 15
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "Bing",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "github-help-wanted.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-09": [
+      {
+        "referrer": "github.com",
+        "count": 79,
+        "uniques": 14
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "Bing",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "github-help-wanted.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-10": [
+      {
+        "referrer": "github.com",
+        "count": 64,
+        "uniques": 12
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-11": [
+      {
+        "referrer": "github.com",
+        "count": 63,
+        "uniques": 11
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-12": [
+      {
+        "referrer": "github.com",
+        "count": 66,
+        "uniques": 11
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-13": [
+      {
+        "referrer": "github.com",
+        "count": 66,
+        "uniques": 11
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-14": [
+      {
+        "referrer": "github.com",
+        "count": 61,
+        "uniques": 7
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-15": [
+      {
+        "referrer": "github.com",
+        "count": 48,
+        "uniques": 6
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-16": [
+      {
+        "referrer": "github.com",
+        "count": 48,
+        "uniques": 6
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-17": [
+      {
+        "referrer": "github.com",
+        "count": 49,
+        "uniques": 7
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "DuckDuckGo",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      }
     ]
   },
   "popular_content": {
@@ -357,6 +2109,936 @@
         "title": "/issues/73",
         "count": 4,
         "uniques": 3
+      }
+    ],
+    "2026-07-03": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 40,
+        "uniques": 16
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 13,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/26",
+        "title": "/issues/26",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 9,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 8,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/tree/main/docs",
+        "title": "/tree/main/docs",
+        "count": 5,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 5,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/19",
+        "title": "/issues/19",
+        "count": 4,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/52",
+        "title": "/issues/52",
+        "count": 4,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/73",
+        "title": "/issues/73",
+        "count": 4,
+        "uniques": 3
+      }
+    ],
+    "2026-07-04": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 41,
+        "uniques": 15
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 14,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/26",
+        "title": "/issues/26",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 9,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 8,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/19",
+        "title": "/issues/19",
+        "count": 4,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/52",
+        "title": "/issues/52",
+        "count": 4,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/73",
+        "title": "/issues/73",
+        "count": 4,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 4,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 4,
+        "uniques": 1
+      }
+    ],
+    "2026-07-05": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 41,
+        "uniques": 15
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 14,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/26",
+        "title": "/issues/26",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 9,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 8,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/19",
+        "title": "/issues/19",
+        "count": 4,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/52",
+        "title": "/issues/52",
+        "count": 4,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/73",
+        "title": "/issues/73",
+        "count": 4,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 4,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 4,
+        "uniques": 1
+      }
+    ],
+    "2026-07-06": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 49,
+        "uniques": 18
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 44,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 30,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 15,
+        "uniques": 5
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/26",
+        "title": "/issues/26",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 8,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/logseq_ast_primer.md",
+        "title": "/blob/main/docs/logseq_ast_primer.md",
+        "count": 6,
+        "uniques": 2
+      }
+    ],
+    "2026-07-07": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 50,
+        "uniques": 19
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 45,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 30,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 15,
+        "uniques": 5
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/26",
+        "title": "/issues/26",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 8,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/logseq_ast_primer.md",
+        "title": "/blob/main/docs/logseq_ast_primer.md",
+        "count": 6,
+        "uniques": 2
+      }
+    ],
+    "2026-07-08": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 50,
+        "uniques": 19
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 45,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 30,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 15,
+        "uniques": 5
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/26",
+        "title": "/issues/26",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 8,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/logseq_ast_primer.md",
+        "title": "/blob/main/docs/logseq_ast_primer.md",
+        "count": 6,
+        "uniques": 2
+      }
+    ],
+    "2026-07-09": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 47,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 42,
+        "uniques": 18
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 30,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 15,
+        "uniques": 5
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 8,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/logseq_ast_primer.md",
+        "title": "/blob/main/docs/logseq_ast_primer.md",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/65",
+        "title": "/issues/65",
+        "count": 5,
+        "uniques": 4
+      }
+    ],
+    "2026-07-10": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 39,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 30,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 27,
+        "uniques": 13
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 12,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 9,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/29",
+        "title": "/issues/29",
+        "count": 6,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/65",
+        "title": "/issues/65",
+        "count": 5,
+        "uniques": 4
+      }
+    ],
+    "2026-07-11": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 39,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 30,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 28,
+        "uniques": 14
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 12,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 9,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/29",
+        "title": "/issues/29",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/65",
+        "title": "/issues/65",
+        "count": 5,
+        "uniques": 4
+      }
+    ],
+    "2026-07-12": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 43,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 32,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 29,
+        "uniques": 14
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 12,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 9,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/85",
+        "title": "/pull/85",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/29",
+        "title": "/issues/29",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      }
+    ],
+    "2026-07-13": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 43,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 32,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 29,
+        "uniques": 14
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 12,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 9,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/85",
+        "title": "/pull/85",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/29",
+        "title": "/issues/29",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      }
+    ],
+    "2026-07-14": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 43,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 32,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 25,
+        "uniques": 11
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 12,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/77",
+        "title": "/pull/77",
+        "count": 9,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/85",
+        "title": "/pull/85",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/29",
+        "title": "/issues/29",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      }
+    ],
+    "2026-07-15": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 44,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 34,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 20,
+        "uniques": 9
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 12,
+        "uniques": 5
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/85",
+        "title": "/pull/85",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes",
+        "title": "/pull/84/changes",
+        "count": 5,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/29",
+        "title": "/issues/29",
+        "count": 5,
+        "uniques": 1
+      }
+    ],
+    "2026-07-16": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 44,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 34,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 20,
+        "uniques": 9
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 12,
+        "uniques": 5
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/85",
+        "title": "/pull/85",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes",
+        "title": "/pull/84/changes",
+        "count": 5,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/29",
+        "title": "/issues/29",
+        "count": 5,
+        "uniques": 1
+      }
+    ],
+    "2026-07-17": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 44,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 34,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 20,
+        "uniques": 10
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 12,
+        "uniques": 5
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/85",
+        "title": "/pull/85",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes",
+        "title": "/pull/84/changes",
+        "count": 5,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/29",
+        "title": "/issues/29",
+        "count": 5,
+        "uniques": 1
       }
     ]
   }

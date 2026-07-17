@@ -16,6 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Minor release — Clean Architecture v1 structural slices (SRP/OCP), new public graph APIs, layer-boundary CI, and documentation SSOT. **No intentional breaking changes** to existing `matryca-parse` CLI behavior or stable package exports.
 
 ### Added
+### Added
+
+- **Synapse RAG example** — [`examples/run_synapse_rag.py`](examples/run_synapse_rag.py) demonstrates all four `SynapseAdapter` methods (`to_langchain_documents`, `to_llamaindex_nodes`, `to_context_enriched_chunks`, `_expand_macros_and_embeds`) plus table-driven embed expansion edge cases.
+- **Embed expansion edge-case tests** — `TestEmbedExpansionEdgeCases` in [`tests/test_synapse.py`](tests/test_synapse.py) covers cycles, missing targets, and happy-path for both `{{embed [[Page]]}}` and `{{embed ((uuid))}}` (closes [#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71)).
+
+### Changed
+
+- **Ghost Tooling** — removed remaining vendor indexer blocks from `AGENTS.md` / `CLAUDE.md`; maintainer guidance now uses **audit code** terminology only.
+
 ## [1.6.0] - 2026-07-02
 
 Minor release — Clean Architecture v1 structural slices (SRP/OCP), new public graph APIs, layer-boundary CI, and documentation SSOT. **No intentional breaking changes** to existing `matryca-parse` CLI behavior or stable package exports.

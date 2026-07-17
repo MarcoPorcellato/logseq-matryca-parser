@@ -1,10 +1,10 @@
-# Local Code Audit — Maintainer Runbook
+# Local Code Audit — Maintainer Runbook (audit code)
 
 **Audience:** repository maintainers with a local Cursor / MCP setup  
-**Public contract:** [`../CLEAN_CODE_ARCHITECTURE.md`](../CLEAN_CODE_ARCHITECTURE.md) (generic "local code study" language)  
+**Public contract:** [`../CLEAN_CODE_ARCHITECTURE.md`](../CLEAN_CODE_ARCHITECTURE.md) (generic "audit code" / "local code study" language)  
 **Policy:** [`STATIC_ANALYSIS_POLICY.md`](STATIC_ANALYSIS_POLICY.md) — Ghost Tooling; **never** add local audit indexers to CI or `pyproject.toml`
 
-This file describes **generic** graph-based code audit workflows. Do not copy vendor tool names into issues, PR descriptions, CHANGELOG bullets, or public docs.
+This file describes **generic** graph-based **audit code** workflows. Do not copy vendor tool names into issues, PR descriptions, CHANGELOG bullets, or public docs.
 
 ---
 

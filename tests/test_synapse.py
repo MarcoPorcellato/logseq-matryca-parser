@@ -383,8 +383,106 @@ def test_expand_missing_block_embed_completes_without_hang(tmp_path: Path) -> No
     assert "{{embed" not in expanded
 
 
-# ── _strip_markdown_for_embedding tests (issue #44) ─────────────────────
+class TestEmbedExpansionEdgeCases:
+    """Table-driven tests for embed expansion edge cases (cycles, missing targets, happy path)."""
 
+    @pytest.fixture(scope="class")
+    def graph(self, tmp_path_factory: pytest.TempPathFactory) -> LogseqGraph:
+        vault = tmp_path_factory.mktemp("embed_edge_vault")
+        pages = vault / "pages"
+        pages.mkdir(parents=True)
+
+        # Happy path page embed: A → B
+        (pages / "B.md").write_text("- Content from page B\n", encoding="utf-8")
+        (pages / "AEmbedsB.md").write_text(
+            "- Before {{embed [[B]]}} after\n", encoding="utf-8"
+        )
+
+        # Cycle detection: A ↔ B
+        (pages / "CycleA.md").write_text(
+            "- before {{embed [[CycleB]]}} after\n", encoding="utf-8"
+        )
+        (pages / "CycleB.md").write_text(
+            "- inner {{embed [[CycleA]]}}\n", encoding="utf-8"
+        )
+
+        # Missing page target
+        (pages / "MissingPage.md").write_text(
+            "- x {{embed [[NoSuchPage]]}}\n", encoding="utf-8"
+        )
+
+        # Missing block target
+        missing_uuid = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        (pages / "MissingBlock.md").write_text(
+            f"- {{{{embed (({missing_uuid}))}}}}\n", encoding="utf-8"
+        )
+
+        # Happy path block embed
+        block_uuid = "bbbbbbbb-cccc-cccc-cccc-dddddddddddd"
+        (pages / "BlockTarget.md").write_text(
+            f"- Secret transcluded line\n  id:: {block_uuid}\n", encoding="utf-8"
+        )
+        (pages / "BlockHost.md").write_text(
+            f"- Before {{{{embed (({block_uuid}))}}}} after\n", encoding="utf-8"
+        )
+
+        return LogseqGraph.load_directory(vault)
+
+    @pytest.mark.parametrize(
+        ("page_title", "embed_page_chain", "expected", "unexpected"),
+        [
+            (
+                "AEmbedsB",
+                frozenset(),
+                ["Content from page B"],
+                ["{{embed [[B]]}}"],
+            ),
+            (
+                "CycleA",
+                frozenset({"CycleA"}),
+                ["before inner after"],
+                ["before inner before"],
+            ),
+            (
+                "MissingPage",
+                frozenset(),
+                ["x"],
+                ["{{embed [[NoSuchPage]]}}"],
+            ),
+            (
+                "MissingBlock",
+                frozenset(),
+                [],
+                ["{{embed"],
+            ),
+            (
+                "BlockHost",
+                frozenset(),
+                ["Secret transcluded line", "Before", "after"],
+                ["{{embed (("],
+            ),
+        ],
+    )
+    def test_expand_macros_and_embeds_edge_cases(
+        self,
+        graph: LogseqGraph,
+        page_title: str,
+        embed_page_chain: frozenset[str],
+        expected: list[str],
+        unexpected: list[str],
+    ) -> None:
+        from logseq_matryca_parser.synapse import _expand_macros_and_embeds
+
+        page = graph.pages[page_title]
+        text = page.root_nodes[0].content
+        expanded = _expand_macros_and_embeds(
+            text, graph, set(), embed_page_chain=embed_page_chain
+        )
+
+        for sub in expected:
+            assert sub in expanded, f"Expected {sub!r} in {expanded!r}"
+        for sub in unexpected:
+            assert sub not in expanded, f"Found unexpected {sub!r} in {expanded!r}"
 
 class TestStripMarkdownForEmbedding:
     """Table-driven tests for ``_strip_markdown_for_embedding()`` cleaner."""
