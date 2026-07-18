@@ -301,6 +301,8 @@ The KINETIC **`export --format langchain-enriched`** path serializes these docum
 
 **LENS** (`logseq_matryca_parser.lens.GraphVisualizer`) builds a **`networkx.Graph`** over **page ⇄ wiki/tag reference** projections using `NetworkXVisitor` during AST preorder walks. Nodes receive **degree-based sizing** (“sun” hotspots) and subgroup classification (`page`, `tag`, `journal`, etc.). **NetworkX** and **PyVis** are **lazy-imported** (optional **`[viz]`** extra) so core installs avoid pulling visualization dependencies until `GraphVisualizer` is used.
 
+When LENS receives a loaded **`LogseqGraph`**, wikilinks resolve through `get_page`: canonical pages and aliases are included, unresolved page links are omitted, and tag nodes remain visible independently of page resolution.
+
 Visualization export uses **`pyvis`** with **`force_atlas_2based`** physics, fullscreen canvas, HUD filters, glassmorphism control chrome, and stabilized layout configuration suitable for **large graphs at interactive frame rates** in the browser (product positioning targets fluid exploration of graphs on the order of **10⁴ nodes**).
 
 ### 3.4 AGENT WRITER — Append-Only Sandboxing & Headless Splicer

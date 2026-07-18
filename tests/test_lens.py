@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import networkx as nx  # type: ignore[import-untyped]
 
+from logseq_matryca_parser.graph import LogseqGraph
 from logseq_matryca_parser.lens import GraphVisualizer, NetworkXVisitor
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 
@@ -61,6 +62,26 @@ def test_graph_visualizer_build_network_creates_expected_topology() -> None:
     assert stats["largest_pages"] == [{"page": "MainPage", "block_count": 2}]
     assert stats["top_connected_nodes"][0]["node"] == "MainPage"
     assert stats["top_connected_nodes"][0]["degree"] == 3
+
+
+def test_graph_visualizer_skips_unresolved_wikilinks_with_graph(
+    tmp_path: Path,
+) -> None:
+    pages_dir = tmp_path / "pages"
+    pages_dir.mkdir()
+    (pages_dir / "Src.md").write_text(
+        "- See [[Target]] and [[GhostPage]] #alpha\n",
+        encoding="utf-8",
+    )
+    (pages_dir / "Target.md").write_text("- Existing page\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(tmp_path)
+    visualizer = GraphVisualizer(list(graph.iter_canonical_pages()), graph=graph)
+    visualizer.build_network()
+
+    assert visualizer.graph.has_edge("Src", "Target")
+    assert visualizer.graph.has_edge("Src", "alpha")
+    assert "GhostPage" not in visualizer.graph
 
 
 def test_lens_module_imports_without_viz_dependencies() -> None:

@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Ghost Tooling** — removed remaining vendor indexer blocks from `AGENTS.md` / `CLAUDE.md`; maintainer guidance now uses **audit code** terminology only.
 
+### Fixed
+
+- **LENS topology** — unresolved wikilinks no longer create phantom page nodes when visualization uses a loaded `LogseqGraph`; valid page aliases and tags remain visible ([#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)).
+
 ## [1.6.0] - 2026-07-02
 
 Minor release — Clean Architecture v1 structural slices (SRP/OCP), new public graph APIs, layer-boundary CI, and documentation SSOT. **No intentional breaking changes** to existing `matryca-parse` CLI behavior or stable package exports.
