@@ -24,13 +24,13 @@ class NetworkXVisitor(ASTVisitor):
         graph: Any,
         page_title: str,
         *,
-        title_resolver: Callable[[str], str] | None = None,
+        title_resolver: Callable[[str], str | None] | None = None,
     ) -> None:
         self._graph = graph
         self._page_title = page_title
         self._title_resolver = title_resolver
 
-    def _canonical_ref(self, ref: str) -> str:
+    def _canonical_ref(self, ref: str) -> str | None:
         if self._title_resolver is None:
             return ref
         return self._title_resolver(ref)
@@ -40,8 +40,10 @@ class NetworkXVisitor(ASTVisitor):
             self._graph.add_node(self._page_title, group="page")
 
         for ref in node.refs:
-            canonical = self._canonical_ref(ref)
             ref_group = "tag" if (ref in node.tags or ref.startswith("#")) else "page"
+            canonical = ref if ref_group == "tag" else self._canonical_ref(ref)
+            if canonical is None:
+                continue
             if not self._graph.has_node(canonical):
                 self._graph.add_node(canonical, group=ref_group)
             self._graph.add_edge(self._page_title, canonical)
@@ -85,11 +87,11 @@ class GraphVisualizer:
         self._graph = nx.Graph()
         page_block_counts = {page.title: self._count_page_blocks(page) for page in self._pages}
 
-        def _resolve_ref_title(ref: str) -> str:
+        def _resolve_ref_title(ref: str) -> str | None:
             if self._graph_ref is None:
                 return ref
             page = self._graph_ref.get_page(ref)
-            return page.title if page is not None else ref
+            return page.title if page is not None else None
 
         for page in self._pages:
             self._graph.add_node(page.title, group="page")
