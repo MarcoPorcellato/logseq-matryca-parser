@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Synapse RAG example** — [`examples/run_synapse_rag.py`](examples/run_synapse_rag.py) demonstrates all four `SynapseAdapter` methods (`to_langchain_documents`, `to_llamaindex_nodes`, `to_context_enriched_chunks`, `_expand_macros_and_embeds`) plus table-driven embed expansion edge cases.
 - **Embed expansion edge-case tests** — `TestEmbedExpansionEdgeCases` in [`tests/test_synapse.py`](tests/test_synapse.py) covers cycles, missing targets, and happy-path for both `{{embed [[Page]]}}` and `{{embed ((uuid))}}` (closes [#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71)).
+- **Contributor onboarding (wave 4)** — ten new Good First Issues (GFI-39…GFI-48) filed on GitHub ([#88](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/88)–[#97](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/97)); index updated in [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md).
 
 ### Changed
 

@@ -21,7 +21,7 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 
 | ID | Title | Skills | Issue |
 | :--- | :--- | :--- | :--- |
-| GFI-01 | `test(kinetic): add CLI error-path coverage for missing graph and optional deps` | pytest, Typer | [#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19) |
+| GFI-01 | `test(kinetic): add CLI error-path coverage for missing graph and optional deps` | pytest, Typer | ~~#19~~ → **GFI-47** [#95](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/95) |
 | GFI-02 | `test(kinetic): cover agent-write validation errors` | pytest, CLI | [#20](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/20) ✅ |
 | GFI-03 | `test: add dedicated tests for exception hierarchy` | pytest | [#21](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/21) ✅ |
 | GFI-04 | `test(logseq_paths): cover empty title and fallback graph-root derivation` | pytest | [#22](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/22) ✅ |
@@ -35,10 +35,17 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 | GFI-22 | `test(lens): classify journal and project nodes in GraphVisualizer` | pytest | [#49](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/49) ✅ |
 | GFI-23 | `test(graph): unit tests for backlink alias token helpers` | pytest | [#50](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/50) ✅ |
 | GFI-24 | `test(synapse): direct build_synapse_metadata schema coverage` | pytest | [#51](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/51) ✅ |
-| GFI-27 | `test(lens): regression test for unresolved wikilink ghost nodes` | pytest | [#62](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/62) |
+| GFI-27 | `test(lens): regression test for unresolved wikilink ghost nodes` | pytest | [#62](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/62) ✅ ([#86](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/86)) |
 | GFI-28 | `test(agent_press): cover malformed SessionAliasRegistry JSON on load` | pytest, CLI | [#63](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/63) |
-| GFI-31 | `test(synapse): table-driven embed expansion edge cases` | pytest | [#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71) |
-| GFI-34 | `test(agent_writer): append_child without trailing source newline` | pytest, CLI | [#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73) |
+| GFI-31 | `test(synapse): table-driven embed expansion edge cases` | pytest | [#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71) ✅ ([#85](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/85)) |
+| GFI-34 | `test(agent_writer): append_child without trailing source newline` | pytest, CLI | [#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73) ✅ |
+| GFI-39 | `test(synapse_embed): unit tests for embed expansion strategies` | pytest | [#88](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/88) |
+| GFI-40 | `test(graph): public API coverage for iter_attached_nodes() and is_tracked_markdown_path()` | pytest | [#89](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/89) |
+| GFI-41 | `test(kinetic_export): unit tests for export_obsidian path helpers` | pytest, FORGE | [#91](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/91) |
+| GFI-42 | `test(lens): get_deep_statistics dedupes alias page duplicates (BUG-019)` | pytest | [#94](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/94) |
+| GFI-46 | `test(synapse): table-driven tests for unresolved embed policy (#66 prep)` | pytest | [#96](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/96) |
+| GFI-47 | `test(kinetic): table-driven CLI error-path coverage` | pytest, CLI | [#95](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/95) |
+| GFI-48 | `test(graph): iter_attached_nodes excludes orphan nodes after registry collision` | pytest | [#97](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/97) |
 
 ---
 
@@ -50,6 +57,8 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 | GFI-08 | `docs: add docs/README.md index warning about historical design-docs` | Markdown | [#26](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/26) *(index exists — verify links and `design-docs/README.md`)* |
 | GFI-09 | `test(kinetic): assert per-command --help renders without error` | pytest, Typer | [#27](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/27) ✅ |
 | GFI-10 | `docs(examples): translate run_demo.py comments to English and align with package imports` | Python, docs | [#28](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/28) *(done in repo — close if satisfied)* |
+| GFI-43 | `docs(examples): add run_synapse_rag.py Synapse integration demo` | Python, docs | [#90](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/90) |
+| GFI-44 | `docs(COOKBOOK): add scan --broken-refs and LENS visualize recipes` | Markdown, CLI | [#93](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/93) |
 
 ---
 
@@ -63,10 +72,11 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 | GFI-14 | `test(parser): unit tests for normalize_logseq_timestamp edge inputs` | pytest | [#32](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/32) ✅ |
 | GFI-25 | `test(forge): direct MarkdownForgeVisitor property and id filtering` | pytest, FORGE | [#46](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/46) ✅ |
 | GFI-26 | `test(forge): direct JSONForgeVisitor nested stack behavior` | pytest, FORGE | [#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52) ✅ |
-| GFI-29 | `fix(lens): skip ghost page nodes for unresolved wikilinks` | pytest, LENS | [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59) |
-| GFI-30 | `fix(agent): handle corrupt X-Ray state files without crashing agent-write` | pytest, CLI | [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60) |
+| GFI-29 | `fix(lens): skip ghost page nodes for unresolved wikilinks` | pytest, LENS | [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59) ✅ ([#86](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/86)) |
+| GFI-30 | `fix(agent): handle corrupt X-Ray state files without crashing agent-write` | pytest, CLI | [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60) ✅ |
 | GFI-32 | `chore(synapse): replace Italian ImportError strings with English DX messages` | docs, SYNAPSE | [#69](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/69) |
-| GFI-35 | `fix(agent_writer): append_child corrupts files missing trailing newline` | pytest, CLI | [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72) |
+| GFI-35 | `fix(agent_writer): append_child corrupts files missing trailing newline` | pytest, CLI | [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72) ✅ |
+| GFI-45 | `fix(lens): resolve wikilink aliases to canonical page nodes (BUG-020)` | pytest, LENS | [#92](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/92) |
 
 ---
 
@@ -77,7 +87,7 @@ Ideal first PR: no production code changes, copy patterns from nearby tests.
 | ID | Title | Skills | Issue |
 | :--- | :--- | :--- | :--- |
 | GFI-36 | `test(arch): layer boundary import tests for entities and use cases` | pytest | *(landed — extend when adding modules)* |
-| GFI-37 | `test(arch): assert adapters do not import kinetic` | pytest | open |
+| GFI-37 | `test(arch): assert adapters do not import kinetic` | pytest | ✅ (`tests/test_layer_boundary.py`) |
 | GFI-38 | `refactor(kinetic): extract export handlers to dedicated module (SRP)` | Typer, refactor | **shipped** [#80](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/80) |
 | GFI-33 | `refactor(synapse): extract embed-expansion strategy (OCP)` | pytest, refactor | **shipped** [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) |
 
@@ -100,21 +110,21 @@ make check
 
 ---
 
-## Recommended starter pack (wave 3)
+## Recommended starter pack (wave 4)
 
-From local code study (waves 9–10) — tests and small fixes with clear repros:
+Post–v1.6 backlog — tests and docs with clear acceptance criteria:
 
 | Priority | ID | Why |
 | :---: | :--- | :--- |
-| 1 | GFI-31 ([#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71)) | SYNAPSE embed table tests — pairs with #65/#66 |
-| 2 | GFI-28 ([#63](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/63)) | JSON fixtures for agent session state |
-| 3 | GFI-27 ([#62](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/62)) | Single-file LENS regression |
-| 4 | GFI-32 ([#69](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/69)) | Small English DX fix in `synapse.py` |
-| 5 | GFI-01 ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)) | CLI error-path coverage still open |
+| 1 | GFI-40 ([#89](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/89)) | Public graph API regression — `iter_attached_nodes` / `is_tracked_markdown_path` |
+| 2 | GFI-39 ([#88](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/88)) | Direct `synapse_embed` strategy tests (OCP slice from #70) |
+| 3 | GFI-47 ([#95](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/95)) | KINETIC CLI error-path table tests (supersedes GFI-01) |
+| 4 | GFI-43 ([#90](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/90)) | Ship missing `examples/run_synapse_rag.py` referenced in CHANGELOG |
+| 5 | GFI-28 ([#63](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/63)) | Agent session JSON fixtures |
 
-**Bugs (maintainer / mentor):** [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59) LENS ghosts — open. Fixed in **v1.4.2**: [#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65), [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60), [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72).
+**Recently shipped:** GFI-27/29 ([#86](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/86)), GFI-31 ([#85](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/85)), GFI-11 ([#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)).
 
-Wave 2 (GFI-17–GFI-26, GFI-02) and **GFI-11** ([#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)) are **complete**.
+**Open mentor slice:** GFI-45 ([#92](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/92)) LENS alias canonicalization (BUG-020); pairs with GFI-46 ([#96](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/96)) before [#66](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/66).
 
 ---
 
@@ -124,7 +134,8 @@ Wave 2 (GFI-17–GFI-26, GFI-02) and **GFI-11** ([#77](https://github.com/MarcoP
 | :--- | :--- |
 | Parser (LOGOS) | `tests/test_logos_parser.py` |
 | Graph & watcher | `tests/test_graph.py` |
-| SYNAPSE adapters | `tests/test_synapse.py` |
+| SYNAPSE adapters | `tests/test_synapse.py`, `tests/test_synapse_embed.py` *(GFI-39)* |
+| KINETIC export | `tests/test_kinetic_export.py` *(GFI-41)* |
 | FORGE exporters | `tests/test_forge.py` |
 | KINETIC CLI | `tests/test_kinetic.py` |
 | Agent read/write | `tests/test_agent_press.py`, `tests/test_agent_writer.py` |
@@ -133,7 +144,7 @@ Wave 2 (GFI-17–GFI-26, GFI-02) and **GFI-11** ([#77](https://github.com/MarcoP
 | Release helpers | `tests/test_extract_changelog.py`, `tests/test_package_version.py` |
 | Exceptions | `tests/test_exceptions.py` |
 
-Full gate: `make all` (**456** pytest cases as of **v1.6.0**, including layer boundary tests and Clean Architecture slices).
+Full gate: `make all` (**462+** pytest cases as of **v1.6.0+**, including layer boundary tests and Clean Architecture slices).
 
 Run `make vendor-name-check` before docs PRs to ensure Ghost Tooling policy (no vendor AST indexer names in the tree).
 
