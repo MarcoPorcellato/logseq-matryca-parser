@@ -1468,6 +1468,80 @@
         "tag": "v0.2.0",
         "assets": []
       }
+    ],
+    "2026-07-19": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
     ]
   },
   "referrers": {
@@ -2076,6 +2150,33 @@
       }
     ],
     "2026-07-18": [
+      {
+        "referrer": "github.com",
+        "count": 49,
+        "uniques": 8
+      },
+      {
+        "referrer": "Bing",
+        "count": 7,
+        "uniques": 1
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "referrer": "DuckDuckGo",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-19": [
       {
         "referrer": "github.com",
         "count": 49,
@@ -3159,6 +3260,68 @@
       }
     ],
     "2026-07-18": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 47,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 34,
+        "uniques": 8
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 17,
+        "uniques": 11
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 11,
+        "uniques": 6
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/commits",
+        "title": "/pull/84/commits",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/85",
+        "title": "/pull/85",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "title": "/pull/84/changes/efda638f8abe78a7b5ea55293e29e876bddaeefc",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/19",
+        "title": "/issues/19",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/66",
+        "title": "/issues/66",
+        "count": 5,
+        "uniques": 2
+      }
+    ],
+    "2026-07-19": [
       {
         "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
         "title": "/pulls",
