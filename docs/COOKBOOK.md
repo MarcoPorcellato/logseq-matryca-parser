@@ -154,6 +154,66 @@ Test-only PRs should not change runtime behavior — update `CHANGELOG.md` under
 
 ---
 
+## Recipe 6 — Interactive graph visualization (LENS)
+
+Generate interactive HTML visualizations of your Logseq graph's topology using the LENS subsystem.
+
+```python
+from logseq_matryca_parser import LogseqGraph
+from logseq_matryca_parser.lens import GraphVisualizer
+
+# Load your graph
+graph = LogseqGraph.load_directory("/path/to/logseq/graph")
+
+# Create visualizer - requires [viz] extra
+visualizer = GraphVisualizer(
+    pages=list(graph.iter_canonical_pages()), 
+    graph=graph
+)
+
+# Build the network graph and compute statistics
+visualizer.build_network()
+
+# Export to interactive HTML (opens in browser)
+visualizer.export_html("/path/to/visualization.html")
+```
+
+**CLI equivalent:**
+
+```bash
+matryca-parse visualize /path/to/logseq/graph /path/to/visualization.html
+```
+
+**Tips:**
+
+- Install visualization dependencies with: `uv sync --extra viz`
+- The generated HTML includes physics-based navigation, zoom, and hover tooltips showing node details
+- LENS uses force-directed layouts optimized for large graphs (10⁴+ nodes)
+- See [Architecture §3.3 — LENS topology](ARCHITECTURE.md#33-lens--networkx-topology--pyvis-interactive-visualization) for implementation details
+
+---
+
+## Recipe 7 — Contributor test patterns
+
+Pick a scoped task from [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) (wave 2: [#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)), then mirror nearby tests:
+
+```bash
+uv sync --all-extras
+make all   # 378 pytest cases, ≥80% coverage gate
+```
+
+| Pattern | Example module | Test file |
+| :--- | :--- | :--- |
+| Pure helper | `normalize_logseq_timestamp` | `tests/test_logos_parser.py` |
+| CLI `--help` / errors | `kinetic.py` | `tests/test_kinetic.py` |
+| FORGE visitor | `ObsidianForgeVisitor` | `tests/test_forge.py` |
+| Release script | `scripts/extract_changelog.py` | `tests/test_extract_changelog.py` |
+| Exception hierarchy | `exceptions.py` | `tests/test_exceptions.py` |
+
+Test-only PRs should not change runtime behavior — update `CHANGELOG.md` under `[Unreleased]` only when user-visible behavior changes.
+
+---
+
 ## Related
 
 | Resource | Link |
