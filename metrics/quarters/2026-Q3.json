@@ -2370,6 +2370,80 @@
         "tag": "v0.2.0",
         "assets": []
       }
+    ],
+    "2026-07-30": [
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
     ]
   },
   "referrers": {
@@ -3320,6 +3394,48 @@
       }
     ],
     "2026-07-29": [
+      {
+        "referrer": "github.com",
+        "count": 32,
+        "uniques": 8
+      },
+      {
+        "referrer": "Bing",
+        "count": 7,
+        "uniques": 1
+      },
+      {
+        "referrer": "usc-excel.officeapps.live.com",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "referrer": "goodfirstissues.com",
+        "count": 5,
+        "uniques": 1
+      },
+      {
+        "referrer": "DuckDuckGo",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "reddit.com",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "search.brave.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-07-30": [
       {
         "referrer": "github.com",
         "count": 32,
@@ -5100,6 +5216,68 @@
       }
     ],
     "2026-07-29": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 15,
+        "uniques": 12
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 11,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 9,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/19",
+        "title": "/issues/19",
+        "count": 8,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/88",
+        "title": "/issues/88",
+        "count": 8,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues",
+        "title": "/issues",
+        "count": 6,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/63",
+        "title": "/issues/63",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 3,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/conflicts",
+        "title": "/pull/84/conflicts",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/29",
+        "title": "/issues/29",
+        "count": 2,
+        "uniques": 1
+      }
+    ],
+    "2026-07-30": [
       {
         "path": "/MarcoPorcellato/logseq-matryca-parser",
         "title": "Overview",
