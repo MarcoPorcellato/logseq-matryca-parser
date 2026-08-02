@@ -20,6 +20,10 @@ logger = logging.getLogger(__name__)
 _PATH_JOIN = " > "
 _REFS_JOIN = ", "
 
+_MISSING_AI_EXPORT_DEPS_MSG = (
+    "Missing AI export dependencies. Please install them using: uv sync --extra ai"
+)
+
 
 class SynapseMetadata(TypedDict, total=False):
     """Vector-store-safe metadata schema for LangChain / LlamaIndex exports."""
@@ -43,6 +47,7 @@ class SynapseMetadata(TypedDict, total=False):
     source_path: NotRequired[str | None]
     line_start: NotRequired[int | None]
     effective_properties: NotRequired[dict[str, Any]]
+
 
 Document: type[Any] | None
 NodeRelationship: Any
@@ -237,7 +242,8 @@ class LlamaIndexVisitor(ASTVisitor):
         text_node = self._text_node_cls(
             id_=node.uuid,
             text=node.clean_text,
-            metadata=build_synapse_metadata(node, source=node.source_path or ""),
+            metadata=build_synapse_metadata(
+                node, source=node.source_path or ""),
         )
         if not hasattr(text_node, "relationships") or text_node.relationships is None:
             text_node.relationships = {}
@@ -259,7 +265,8 @@ class LlamaIndexVisitor(ASTVisitor):
                 child_relationships = parent_node.relationships.get(
                     self._node_relationship.CHILD, []
                 )
-                child_relationships.append(self._related_node_info_cls(node_id=node.uuid))
+                child_relationships.append(
+                    self._related_node_info_cls(node_id=node.uuid))
                 parent_node.relationships[self._node_relationship.CHILD] = child_relationships
 
         if node.left_id:
@@ -289,8 +296,11 @@ class SynapseAdapter:
     def to_langchain_documents(nodes: list[LogseqNode], source_name: str) -> list[Any]:
         """Convert AST nodes to LangChain documents using `LangChainVisitor`."""
         if Document is None:
-            raise ImportError("LangChain non rilevato. Installa 'langchain-core' per usare Synapse.")
-        visitor = LangChainVisitor(source_name=source_name, document_cls=Document)
+
+            raise ImportError(_MISSING_AI_EXPORT_DEPS_MSG)
+
+        visitor = LangChainVisitor(
+            source_name=source_name, document_cls=Document)
         for node in nodes:
             node.accept(visitor)
         return visitor.get_documents()
@@ -304,7 +314,9 @@ class SynapseAdapter:
     ) -> list[Any]:
         """Convert AST nodes to LlamaIndex nodes preserving topology links."""
         if TextNode is None or NodeRelationship is None or RelatedNodeInfo is None:
-            raise ImportError("LlamaIndex non rilevato. Installa 'llama-index' per usare Synapse.")
+
+            raise ImportError(_MISSING_AI_EXPORT_DEPS_MSG)
+
         flat = _flatten_nodes_for_export(nodes)
         unique_paths = {node.source_path for node in flat if node.source_path}
         use_per_node_source = len(unique_paths) > 1
@@ -313,8 +325,10 @@ class SynapseAdapter:
         def _source_id_for_node(node: LogseqNode) -> str:
             path_key = node.source_path or ""
             if path_key not in source_ids_by_path:
-                title_seed = page_title or (Path(path_key).stem if path_key else "untitled")
-                source_ids_by_path[path_key] = page_source_node_id(title_seed, path_key or None)
+                title_seed = page_title or (
+                    Path(path_key).stem if path_key else "untitled")
+                source_ids_by_path[path_key] = page_source_node_id(
+                    title_seed, path_key or None)
             return source_ids_by_path[path_key]
 
         resolved_source_id = page_source_id
@@ -341,7 +355,7 @@ class SynapseAdapter:
     ) -> list[Any]:
         """Flatten ``nodes`` and emit LangChain ``Document``s with breadcrumb-enriched ``page_content``."""
         if Document is None:
-            raise ImportError("LangChain non rilevato. Installa 'langchain-core' per usare Synapse.")
+            raise ImportError(_MISSING_AI_EXPORT_DEPS_MSG)
         documents: list[Any] = []
         flat = _flatten_nodes_for_export(nodes)
         for node in flat:
@@ -349,10 +363,12 @@ class SynapseAdapter:
                 logger.debug("context chunk skip orphan uuid=%s", node.uuid)
                 continue
             breadcrumbs, page = _build_breadcrumbs(graph, node)
-            source_name = Path(node.source_path).name if node.source_path else str(graph.graph_path.name)
+            source_name = Path(node.source_path).name if node.source_path else str(
+                graph.graph_path.name)
             host_page = graph.page_for_node(node)
             embed_chain = (
-                frozenset({host_page.title}) if host_page is not None else frozenset()
+                frozenset({host_page.title}
+                          ) if host_page is not None else frozenset()
             )
             expanded_content = _expand_macros_and_embeds(
                 node.content, graph, set(), embed_page_chain=embed_chain
@@ -376,7 +392,8 @@ class SynapseAdapter:
                     "effective_properties": effective_properties,
                 },
             )
-            documents.append(Document(page_content=page_content, metadata=metadata))
+            documents.append(
+                Document(page_content=page_content, metadata=metadata))
             logger.debug(
                 "context chunk uuid=%s breadcrumbs_len=%s effective_keys=%s",
                 node.uuid,
