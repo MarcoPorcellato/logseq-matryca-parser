@@ -1,6 +1,27 @@
+---
+type: DocumentationPortal
+title: Logseq Matryca Parser documentation
+description: Human-facing navigation for maintained, active, and historical project documentation.
+status: stable
+classification: canonical
+audience: contributors
+owner: logseq-matryca-parser
+last_verified: 2026-08-06
+verified: 2026-08-06
+stale_after: 2027-02-02
+supersedes: null
+superseded_by: null
+---
+
 # Documentation index
 
 Use this page to find **active** documentation. Files under [`design-docs/`](design-docs/) are historical blueprints from the Document-Driven Development phase — see [`design-docs/README.md`](design-docs/README.md) before implementing from those specs.
+
+This repository is authoritative for its documentation. Its future projection
+into [Matryca Knowledge](https://github.com/MarcoPorcellato/matryca-knowledge)
+must remain reproducible from an immutable source commit; generated Logseq views
+are navigation layers, not the source of truth. The current target is Matryca
+quality level MKQ-4, not a claim of official OKF conformance.
 
 ## Active documentation
 
@@ -16,6 +37,7 @@ Use this page to find **active** documentation. Files under [`design-docs/`](des
 | [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) | Maintainers | Semver, tag, and PyPI publish checklist |
 | [`CODEQL.md`](CODEQL.md) | Maintainers | CodeQL default setup notes |
 | [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) | Maintainers, contributors | Local static analysis bug audit (Clean Architecture lens, runtime evidence) |
+| [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Maintainers, contributors | Evidence-backed repository audit, confirmed defects, issue map, and sequenced improvement roadmap |
 | [`rfc/OLLAMA_RAG.md`](rfc/OLLAMA_RAG.md) | Integrators | Draft RFC for local Ollama RAG (issue [#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)) |
 | [`roadmaps/`](roadmaps/) | Historians | Executed architectural contracts (Waves 2–12) |
 
@@ -25,6 +47,7 @@ Use this page to find **active** documentation. Files under [`design-docs/`](des
 | :--- | :--- |
 | [`design-docs/`](design-docs/) | Original DDD scaffolds and mldoc parity research |
 | [`error_log.md`](error_log.md) | Informal internal fix log |
+| [`REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md`](REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md) | Superseded audit baseline; retained for provenance |
 
 ## Root-level docs
 
