@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Mantiene aggiornate le dipendenze Python (legge il pyproject.toml)
+  # Keep Python dependencies current (reads pyproject.toml).
   - package-ecosystem: "pip"
     directory: "/"
     schedule:

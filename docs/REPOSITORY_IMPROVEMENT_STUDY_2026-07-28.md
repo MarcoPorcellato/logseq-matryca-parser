@@ -1,7 +1,7 @@
 ---
 type: RepositoryAudit
-title: Studio approfondito della repository - opportunita di miglioramento
-description: Baseline storica del 2026-07-28, superata dal successivo audit stellare.
+title: Deep repository study - improvement opportunities
+description: Historical baseline as of 2026-07-28, superseded by the subsequent stellar audit.
 status: deprecated
 classification: historical
 audience: maintainers
@@ -13,67 +13,66 @@ supersedes: null
 superseded_by: docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md
 ---
 
-# Studio approfondito della repository — opportunità di miglioramento
+# Deep repository study - improvement opportunities
 
-> **Documento storico.** È conservato come baseline del 2026-07-28 ed è
-> sostituito da [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md),
-> che include probe aggiuntivi, stato issue aggiornato e piano documentale MKQ-4.
+> **Historical document.** It is kept as a 2026-07-28 baseline and is superseded by [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md),
+> which includes additional probes, updated issue status, and an MKQ-4 documentation roadmap.
 
-**Data:** 2026-07-28  
-**Scope:** architettura, correttezza, affidabilità, sicurezza, performance, test, supply chain, release engineering, documentazione e developer experience.  
-**Metodo:** lettura semantica dei flussi, revisione del codice e dei workflow, controlli locali e probe isolati. Non sono state modificate parti del runtime.
+**Date:** 2026-07-28
+**Scope:** architecture, correctness, reliability, security, performance, testing, supply chain, release engineering, documentation, and developer experience.
+**Method:** semantic flow reading, code and workflow review, local checks, and isolated probes. Runtime code was not modified.
 
-## Sintesi esecutiva
+## Executive summary
 
-Il progetto è una libreria Python matura e ben curata per convertire il Markdown spaziale di Logseq in un AST tipizzato, un indice di grafo e formati di esportazione. I suoi punti più forti sono:
+The project is a mature, well-maintained Python library that converts Logseq block Markdown into a typed AST, a graph index, and export formats. Its strongest points are:
 
-- modello di dominio piccolo e tipizzato;
-- parsing deterministico con copertura eccellente dei casi sintattici difficili;
-- invarianti di indice già difesi (niente nodi orfani dopo reload e collisioni);
-- confini architetturali testati e zero cicli di import;
-- pipeline CI, dependency audit e distribuzione PyPI già presenti.
+- a compact, typed domain model;
+- deterministic parsing with excellent coverage of difficult syntax cases;
+- index invariants already enforced (no orphan nodes after reload and collisions);
+- architecture boundaries covered and zero import cycles;
+- CI pipeline, dependency auditing, and PyPI distribution already in place.
 
-La direzione consigliata non è riscrivere la base: è rendere espliciti i contratti che oggi sono impliciti. Le priorità concrete sono: evitare perdita silenziosa nelle collisioni di titolo, rendere atomiche le operazioni concorrenti di writer/watcher, trasformare il lint CI in un vero gate non mutante, e creare un corpus di compatibilità e benchmark ripetibili.
+The advised direction is not a complete rewrite: make contracts that are currently implicit explicit. The concrete priorities are to avoid silent data loss in title collisions, make writer/watcher concurrent operations atomic, turn the CI lint into a non-mutating production gate, and create a reproducible compatibility corpus and benchmark suite.
 
-| Priorità | Tema | Perché ora | Risultato atteso |
+| Priority | Theme | Why now | Expected outcome |
 |---|---|---|---|
-| P0 | Integrità del gate CI | Il lint usato dalla CI corregge anziché rifiutare | Un commit non formattato non può passare senza diff |
-| P1 | Collisioni di pagina | Due file con lo stesso titolo perdono silenziosamente un contenuto | Conflitto diagnosticato o rifiutato in modalità strict |
-| P1 | Concorrenza writer/watcher | Read-modify-write e aggiornamento indici non hanno un contratto di serializzazione | Nessun update perso e snapshot coerenti |
-| P1 | Contratto di compatibilità Logseq | Molti edge case sono testati, ma manca una suite versionata di corpus e metamorphic tests | Regressioni rilevate prima del rilascio |
-| P1 | Hardening release/supply chain | Workflow e artefatti possono avere prove più forti | Release verificabile, riproducibile e attribuibile |
-| P2 | Osservabilità, performance e API | Buon logging, ma mancano SLO, benchmark e contratti macchina | Operatività e diagnosi più rapide |
-| P3 | Modularizzazione parser | Il parser è il grande hub residuo | Cambi locali più sicuri e più leggibili |
+| P0 | CI lint integrity | Lint used in CI currently fixes files instead of rejecting | A formatting violation cannot pass CI without a diff |
+| P1 | Page collisions | Two files with the same title can silently drop content | Report or reject conflicts in strict mode |
+| P1 | Writer/watcher concurrency | Read-modify-write and index refreshes have no serialization contract | No lost updates and consistent snapshots |
+| P1 | Logseq compatibility contract | Many edge cases are tested, but a versioned corpus and metamorphic tests are missing | Regressions detected before release |
+| P1 | Release/supply-chain hardening | Workflow and artifacts can have stronger verification | Verifiable, reproducible, attributable releases |
+| P2 | Observability, performance, and API | Good logging exists, but SLOs, benchmarks, and machine contracts are missing | Faster operations and faster diagnosis |
+| P3 | Parser modularization | The parser remains a large hub | Safer and clearer local changes |
 
-## Evidenze raccolte
+## Collected evidence
 
-| Controllo | Esito |
+| Check | Outcome |
 |---|---:|
-| Test raccolti | 462 |
-| Test eseguiti | 462 passati |
-| Coverage totale | 91,09% |
-| Soglia coverage | 80% |
-| Lint | nessun problema rilevato |
-| Type check | nessun errore rilevato |
-| Cicli di import in `src/` | 0 |
-| Lockfile | coerente con `pyproject.toml` |
-| CLI | `matryca-parse --help` operativo |
-| Artefatti | sdist e wheel di `1.6.0` costruiti correttamente |
-| Audit dipendenze runtime | nessuna vulnerabilità nota al momento della verifica |
+| Tests collected | 462 |
+| Tests run | 462 passed |
+| Total coverage | 91.09% |
+| Coverage threshold | 80% |
+| Lint | no issues found |
+| Type check | no errors found |
+| Import cycles in `src/` | 0 |
+| Lockfile | consistent with `pyproject.toml` |
+| CLI | `matryca-parse --help` is functional |
+| Artifacts | 1.6.0 sdist and wheel built successfully |
+| Runtime dependency audit | no known vulnerabilities at verification time |
 
-Le lacune di coverage più significative non compromettono il gate globale, ma meritano attenzione mirata: `logos_core.py` (75%), `agent_writer.py` (77%) e l'entry point `__main__.py` (0%). La gravità dipende dal flusso: il writer modifica file utente ed è quindi più importante di una semplice percentuale aggregata.
+The most relevant coverage gaps do not invalidate the global gate, but merit focused attention: `logos_core.py` (75%), `agent_writer.py` (77%), and `__main__.py` entrypoint (0%). Severity depends on flow criticality: writer touches user files, so it is more impactful than a plain aggregate percentage.
 
-## Architettura attuale
+## Current architecture
 
 ```mermaid
 flowchart LR
-    Files["Vault Logseq\npages/ + journals/"] --> Paths["logseq_paths\nscoperta e normalizzazione"]
+    Files["Logseq Vault\npages/ + journals/"] --> Paths["logseq_paths\ndiscovery and normalization"]
     Paths --> Parser["logos_parser\nStackMachineParser"]
     Parser --> Domain["logos_core\nLogseqPage / LogseqNode"]
-    Domain --> Graph["graph\nindici, query, watcher"]
-    Graph --> Synapse["synapse + synapse_embed\nRAG e context chunks"]
+    Domain --> Graph["graph\nindexes, query, watcher"]
+    Graph --> Synapse["synapse + synapse_embed\nRAG and context chunks"]
     Domain --> Forge["forge\nJSON / Markdown / Obsidian"]
-    Graph --> Writer["agent_writer\nappend atomico + reload"]
+    Graph --> Writer["agent_writer\nappend atomic + reload"]
     Graph --> Lens["lens\nnetwork visualization"]
     Graph --> CLI["kinetic + kinetic_commands/export\nTyper CLI"]
     Synapse --> CLI
@@ -81,67 +80,67 @@ flowchart LR
     Writer --> CLI
 ```
 
-### Cosa funziona bene nella struttura
+### What works well in the structure
 
-1. **Core separato dalle integrazioni.** `logos_core.py` mantiene le entità; gli adapter di RAG, visualizzazione e formati restano laterali e opzionali.
-2. **Grafo come API applicativa.** `LogseqGraph` offre accessi canonici, backlink, query e reload incrementale, evitando che ogni consumer ricostruisca propri indici.
-3. **Parser deterministico.** Il parser mantiene stack, indentazione, proprietà, drawer, riferimenti e normalizzazione in un singolo percorso coerente.
-4. **Protezione contro regressioni già forte.** I test coprono UUID sintetici, embed ciclici, frontmatter, namespace, backlink, strict references, tab width, watcher e writer.
-5. **Buona disciplina di distribuzione.** Lockfile, test su Python 3.12/3.13, audit dipendenze e pubblicazione con OIDC sono una base affidabile.
+1. **Core separated from integrations.** `logos_core.py` owns entities; optional adapters (RAG, visualization, export formats) remain peripheral.
+2. **Graph as application API.** `LogseqGraph` provides canonical access, backlinks, query, and incremental reload, preventing each consumer from rebuilding indexes.
+3. **Deterministic parser.** The parser keeps stack, indentation, properties, drawers, references, and normalization in one coherent path.
+4. **Strong regression protection already in place.** Tests cover synthetic UUIDs, cyclic embeds, frontmatter, namespace, backlinks, strict references, tab width, watcher, and writer flows.
+5. **Good distribution discipline.** Lockfile, Python 3.12/3.13 testing, dependency audit, and OIDC-based publishing already provide a strong baseline.
 
-### Punto di pressione architetturale
+### Architectural pressure point
 
-`StackMachineParser.parse()` contiene contemporaneamente scansione, gestione stati, costruzione AST, estrazione semantica e recupero da input malformato; è un hub intenzionale, ma lungo circa 400 righe. `_refresh_node()` ricostruisce molte proiezioni derivate del nodo. È corretto preservare il comportamento, ma la prossima evoluzione del parser deve ridurre il costo cognitivo senza spezzarne la determinismo.
+`StackMachineParser.parse()` currently performs scanning, state management, AST construction, semantic extraction, and malformed input recovery in one place; it is intentionally a hub but around 400 lines. `_refresh_node()` also rebuilds many derived projections. Preserving current behavior is correct, but future parser evolution should reduce cognitive load without breaking determinism.
 
 ```text
 Markdown lines
     |
     v
-[classificazione] -> [stato lessicale] -> [evento tipizzato]
+[classification] -> [lexical state] -> [typed event]
                                                    |
                                                    v
-                  [riduttore AST] -> [arricchimento semantico] -> LogseqPage
+                  [AST reducer] -> [semantic enrichment] -> LogseqPage
 ```
 
-Questa separazione non richiede un framework: basta introdurre confini interni e testare ogni passaggio.
+This separation does not require a new framework: add internal boundaries and test each stage.
 
-## Findings e interventi raccomandati
+## Recommended findings and actions
 
-### P0 — Rendere il lint CI non mutante
+### P0 — Make CI lint non-mutating
 
-**Evidenza.** `make lint` esegue `ruff check . --fix`, e la CI invoca `make lint`. Il runner può quindi correggere il checkout e concludere con successo: il gate non prova che il commit ricevuto fosse già conforme.
+**Evidence.** `make lint` runs `ruff check . --fix`, and CI executes `make lint`. The runner can therefore mutate the checkout and still pass, meaning the gate no longer proves the incoming commit was compliant.
 
-**Rischio.** Si perde il ruolo di barriera preventiva; un contributor può ricevere un verde CI ma un working tree locale diverso da quello verificato. In una futura pipeline che riusi lo stesso checkout, file modificati implicitamente possono contaminare step successivi.
+**Risk.** The preventive gate is weakened; a contributor may see a green CI while their working tree differs from the verified state. If the same checkout is reused later, implicit edits can contaminate downstream steps.
 
-**Intervento.** Separare controllo e correzione, rendendo il primo l'unico usato in CI.
+**Action.** Split validation and auto-fix, using only validation in CI.
 
 ```make
 lint:
-	uv run ruff check .
+\tuv run ruff check .
 
 lint-fix:
-	uv run ruff check . --fix
+\tuv run ruff check . --fix
 
 format-check:
-	uv run ruff format --check .
+\tuv run ruff format --check .
 
 format:
-	uv run ruff format .
+\tuv run ruff format .
 ```
 
-**Criteri di accettazione.**
+**Acceptance criteria.**
 
-- un file con import non ordinati fa fallire CI;
-- `make lint-fix` resta ergonomico localmente;
-- CI esegue anche `format-check` oppure verifica esplicitamente che `git diff --exit-code` sia vuoto dopo ogni step mutante.
+- a file with unsorted imports fails CI;
+- `make lint-fix` remains ergonomic for local use;
+- CI also runs `format-check` or explicitly asserts `git diff --exit-code` after mutating steps.
 
-### P1 — Rendere esplicita la policy sulle collisioni di titolo
+### P1 — Make title collision policy explicit
 
-**Evidenza.** `LogseqGraph.load_directory()` inserisce le pagine con `pages[page.title] = page` dopo un ordinamento per path. Un probe con `pages/Daily.md` e `journals/Daily.md` ha prodotto una sola pagina canonica (`pages/Daily.md`); il comportamento è coperto intenzionalmente dai test per evitare nodi fantasma.
+**Evidence.** `LogseqGraph.load_directory()` stores pages with `pages[page.title] = page` after sorting paths. A probe with `pages/Daily.md` and `journals/Daily.md` produced only one canonical page (`pages/Daily.md`); tests currently cover this behavior to avoid orphan nodes.
 
-**Valutazione.** L'invariante attuale è internamente coerente, ma l'esclusione del file perdente è silenziosa: export, ricerca e RAG possono omettere conoscenza senza avviso. È una scelta di prodotto da trasformare in contratto esplicito.
+**Assessment.** The current invariant is internally consistent, but silent exclusion of the losing file is a product behavior issue: export/query/RAG can omit information without warning. This should be turned into an explicit contract.
 
-**Proposta.** Mantenere il default retrocompatibile solo per una release minore, ma raccogliere conflitti strutturati; introdurre `strict_title_collisions=True` e una diagnostica leggibile dalla CLI.
+**Proposal.** Keep the permissive default for one minor release, but collect structured conflicts; add `strict_title_collisions=True` and CLI-readable diagnostics.
 
 ```python
 @dataclass(frozen=True)
@@ -165,15 +164,15 @@ def index_pages(parsed: list[tuple[Path, LogseqPage]], *, strict: bool) -> Index
     return IndexResult(by_title, collisions)
 ```
 
-**Test da aggiungere.** Collisione pages/journals, due `title::` uguali, alias che collide con titolo, CLI `scan --strict-title-collisions`, serializzazione diagnostica JSON. Documentare chiaramente il tie-breaker finché il default rimane permissivo.
+**Tests to add.** Pages/journals collision, two files with identical `title::`, alias colliding with title, `scan --strict-title-collisions` CLI path, JSON diagnostic serialization. Explicitly document tie-breaker while permissive mode remains default.
 
-### P1 — Contratto di concorrenza per watcher, writer e lettori
+### P1 — Concurrency contract for watcher, writer, and readers
 
-**Evidenza.** Il writer effettua un read-modify-write e `os.replace`, poi richiama il reload. Il watcher può aggiornare contemporaneamente gli indici; `invalidate_and_reload_page()` sostituisce `pages`, poi mappa titoli, registro nodi e backlink in passaggi distinti. L'atomic rename protegge dalla scrittura parziale, non da due writer che leggono la stessa versione e sovrascrivono modifiche reciproche.
+**Evidence.** Writer performs read-modify-write and `os.replace`, then calls reload. Watcher can concurrently update indexes; `invalidate_and_reload_page()` mutates `pages`, then title map, node registry, and backlink map in separate passes. Atomic rename protects partial writes only, not two writers reading the same state and overwriting each other.
 
-**Rischio.** In un processo con watcher attivo e richieste simultanee, un lettore può osservare indici transitori; due append possono perdere una modifica. È un rischio di concorrenza da trattare prima di offrire l'API come servizio long-running.
+**Risk.** In a process with active watcher and concurrent requests, a reader can observe transient partial indexes; concurrent appends can drop updates. This is a concurrency risk that should be handled before offering long-running service-style APIs.
 
-**Proposta.** Definire una sola coda di mutazione per vault e pubblicare snapshot immutabili del grafo.
+**Proposal.** Define a single mutation queue per vault and publish immutable graph snapshots.
 
 ```python
 class VaultCoordinator:
@@ -182,7 +181,7 @@ class VaultCoordinator:
         self._snapshot = initial
 
     def read(self) -> GraphSnapshot:
-        return self._snapshot                  # snapshot completo, mai parziale
+        return self._snapshot                  # complete snapshot, never partial
 
     def mutate_file(self, path: Path, transform: Callable[[str], str]) -> None:
         with self._lock:
@@ -193,13 +192,13 @@ class VaultCoordinator:
             emit_change_event(path, self._snapshot.version)
 ```
 
-**Criteri di accettazione.** Test con due append concorrenti, lettura mentre avviene un reload, rename/delete durante debounce, callback che non blocca il thread del watcher, nessuna finestra in cui UUID e backlink appartengono a versioni diverse.
+**Acceptance criteria.** Tests covering two concurrent appends, read during reload, rename/delete during debounce, and a callback that does not block watcher thread; no state window where UUID/backlinks belong to different versions.
 
-### P1 — Corpus di compatibilità e test metamorfici del parser
+### P1 — Compatibility corpus and parser metamorphic tests
 
-**Evidenza.** Il parser ha 95% di coverage e un'eccellente suite di esempi, ma la sintassi Logseq ha edge case quasi illimitati e il comportamento dipende dall'evoluzione dell'editor. La coverage da sola non misura la compatibilità semantica.
+**Evidence.** Parser coverage is strong and the test suite is excellent, but Logseq syntax has many edge cases and editor behavior evolves. Coverage alone does not guarantee semantic compatibility.
 
-**Proposta.** Versionare un corpus di vault minimali e aggiungere proprietà invarianti, senza rendere i test fragili o dipendenti dalla rete.
+**Proposal.** Version a corpus of minimal vault fixtures and add invariant tests without making tests brittle or network-dependent.
 
 ```text
 tests/fixtures/compat/
@@ -208,7 +207,7 @@ tests/fixtures/compat/
   v1/embeds/
   v1/journals/
   v1/recovery/
-  manifest.json  # input, risultato semantico atteso, origine e invariant
+  manifest.json  # input, expected semantic result, origin, and invariant
 ```
 
 ```python
@@ -224,42 +223,42 @@ def test_file_discovery_order_does_not_change_canonical_snapshot(vault: Path) ->
     assert load_with_order(vault, forward) == load_with_order(vault, reverse)
 ```
 
-**Nota.** Per gli input volutamente malformati l'assert non deve essere identità testuale: deve essere terminazione, assenza di crash, AST coerente e diagnostica classificata.
+**Note.** For intentionally malformed inputs, assertions should not require textual equality. They should require termination, no crash, coherent AST, and classified diagnostics.
 
-### P1 — Rafforzare release engineering e supply chain
+### P1 — Strengthen release engineering and supply chain
 
-**Evidenza.** La CI effettua audit dipendenze e la pubblicazione usa OIDC; sono buone basi. I workflow però usano tag mobili delle action e la release GitHub e la pubblicazione PyPI sono workflow indipendenti attivati dal tag. La pubblicazione ricostruisce artefatti in un job separato dal pre-flight.
+**Evidence.** CI already runs dependency checks and publishing uses OIDC; these are good foundations. Workflows still rely on movable action tags, and release creation plus PyPI publish are separate tag-driven jobs. Publishing reconstructs artifacts in a separate job than pre-flight.
 
-**Interventi.**
+**Actions.**
 
-1. Pin delle action a commit SHA, con commento della versione leggibile.
-2. Build una sola volta dopo il gate; caricare wheel e sdist come artifact; pubblicare esattamente quegli artifact.
-3. Verificare prima della pubblicazione: tag `vX.Y.Z` = metadata del package = `__version__`, `twine check`, e changelog con sezione non vuota.
-4. Collegare la release GitHub alla conclusione del publish oppure farle consumare lo stesso artifact attestato.
-5. Generare SBOM e provenance dell'artefatto se la distribuzione diventa un confine di sicurezza significativo.
+1. Pin actions to commit SHA and retain human-readable version comments.
+2. Build once after gate completion; upload wheel and sdist as artifacts; publish exactly those artifacts.
+3. Verify before publish: tag `vX.Y.Z` equals package metadata and `__version__`, `twine check` passes, and changelog has a non-empty section.
+4. Link GitHub release to publish completion, or consume the same attested artifact.
+5. Generate SBOM and provenance when artifact distribution becomes a meaningful security boundary.
 
 ```mermaid
 sequenceDiagram
-    participant Tag as Tag firmato
+    participant Tag as Signed tag
     participant Gate as Quality gate
-    participant Build as Build unico
+    participant Build as Single build
     participant Store as Artifact store
     participant PyPI as PyPI
     participant Release as GitHub release
 
-    Tag->>Gate: verifica versione, test, audit, lint non mutante
-    Gate->>Build: autorizza
+    Tag->>Gate: verify version, tests, audit, non-mutating lint
+    Gate->>Build: authorize
     Build->>Store: wheel + sdist + checksum + SBOM
-    Store->>PyPI: pubblica artifact verificato
-    PyPI-->>Release: publish riuscito
-    Store->>Release: allega stessi artifact e provenance
+    Store->>PyPI: publish verified artifact
+    PyPI-->>Release: publish succeeded
+    Store->>Release: attach same artifact + provenance
 ```
 
-### P2 — Budget prestazionali e scalabilità misurata
+### P2 — Measured performance and scalability
 
-**Evidenza.** Il caricamento concorrente è una buona scelta; mancano però benchmark versionati, dataset di dimensione dichiarata e budget di memoria/tempo. `search_content` e molte query sono scansioni lineari: corrette per vault medi, potenzialmente costose per un server o vault molto grandi.
+**Evidence.** Concurrent loading is a good choice; versioned benchmarks, explicit dataset sizes, and memory/time budgets are still missing. `search_content` and many query paths are linear scans: correct for medium vaults, potentially costly for large-server workloads.
 
-**Proposta.** Aggiungere benchmark separati dal gate veloce e metriche comparabili tra release.
+**Proposal.** Add dedicated benchmarks outside the fast gate and comparable metrics across releases.
 
 ```python
 @benchmark
@@ -272,13 +271,13 @@ def test_incremental_reload(benchmark, loaded_10k_graph, changed_file):
     benchmark(loaded_10k_graph.invalidate_and_reload_page, changed_file)
 ```
 
-Definire budget iniziali realisti (p95 load, p95 reload, RSS) solo dopo una baseline su runner stabile. Se le query diventano un hot path, introdurre indici opzionali per testo/tag con un contratto di invalidazione unico, non ottimizzazioni sparse.
+Set realistic baseline budgets first (p95 load, p95 reload, RSS) after a stable runner baseline. If queries become a hot path, add optional indices with a single invalidation contract, not isolated micro-optimizations.
 
-### P2 — Osservabilità orientata al prodotto
+### P2 — Product-oriented observability
 
-**Evidenza.** Esiste logging utile e dettagliato in tutti i moduli. Manca un modello uniforme per diagnosi di parser, collisioni, riferimenti irrisolti, reload e export: oggi molte informazioni sono solo stringhe di log.
+**Evidence.** Logging is useful and detailed across modules. A uniform serializable model for parser, collision, unresolved reference, reload, and export diagnostics is missing; many states are still logged as ad-hoc text.
 
-**Proposta.** Introdurre un `Diagnostic` serializzabile, mantenendo il logging come sink.
+**Proposal.** Add a serializable `Diagnostic` model and keep logging as sink.
 
 ```python
 @dataclass(frozen=True)
@@ -295,68 +294,68 @@ class ParseResult:
     diagnostics: tuple[Diagnostic, ...]
 ```
 
-La CLI potrebbe offrire `--diagnostics json`, `scan --fail-on warning` e contatori finali. Ciò rende automatizzabili controlli di qualità sui vault senza introdurre telemetria invasiva.
+CLI can then support `--diagnostics json`, `scan --fail-on warning`, and summary counters, enabling automated vault quality checks without intrusive telemetry.
 
-### P2 — API pubblica, typing e compatibilità
+### P2 — Public API, typing, and compatibility
 
-**Evidenza.** `__init__.py` espone esplicitamente molte classi e funzioni, ottimo punto di partenza. Manca il marker `py.typed`, quindi gli integratori potrebbero non ricevere i type hints come package tipizzato. La versione è duplicata tra metadata e modulo, pur essendo coperta da test.
+**Evidence.** `__init__.py` already exports many core classes/functions. `py.typed` is still missing, so downstream consumers may not receive type hints from package metadata. Version is duplicated between metadata and module, though covered by tests.
 
-**Interventi.**
+**Actions.**
 
-- aggiungere `py.typed` al package e verificarne l'inclusione nella wheel;
-- pubblicare una tabella di stabilità API (`stable`, `experimental`, `internal`);
-- usare metadata dinamico o una singola sorgente versione;
-- introdurre test di compatibilità su API pubblica e policy semver; 
-- valutare `mypy --strict` per il core, a ondate, senza imporlo subito agli adapter opzionali.
+- add `py.typed` to package and verify wheel inclusion;
+- publish API stability table (`stable`, `experimental`, `internal`);
+- use dynamic metadata or a single source of version truth;
+- add public API compatibility tests and semver policy;
+- evaluate phased `mypy --strict` for core only, not mandatory for optional adapters.
 
 ```text
 public API -> test import -> test signature/semantic contract -> release note
-internal API -> nessuna promessa di stabilità -> refactor libero con test interni
+internal API -> no stability guarantees -> freer refactor with internal tests
 ```
 
-### P2 — Documentazione viva e onboarding affidabile
+### P2 — Living documentation and onboarding quality
 
-**Evidenza.** La documentazione è ampia e ben organizzata, ma diversi documenti riportano ancora 378 o 456 test, mentre l'evidenza attuale è 462. Alcuni report storici sono dichiaratamente storici, ma la distinzione deve essere visivamente inequivocabile.
+**Evidence.** Documentation is broad and well organized, but several docs still report 378 or 456 tests while current evidence is 462. Some historical docs are marked as historical, yet the distinction should be visually explicit.
 
-**Interventi.**
+**Actions.**
 
-1. Sostituire conteggi volatili con un badge/generatore, oppure aggiornare una singola fonte canonica durante la release.
-2. Aggiungere test per snippet Python dei documenti e controlli link interni.
-3. Etichettare in testa ai report: `Storico`, `Attivo`, `Superseded`, con data e owner.
-4. Creare una pagina "decision records" per scelte come collision policy, UUID sintetici, strict references e writer concurrency.
+1. Replace volatile counts with a generated badge/script, or update a single canonical source during release.
+2. Add tests for documented Python snippets and internal link checks.
+3. Mark report headers with `Historical`, `Active`, `Superseded`, plus date and owner.
+4. Add a "decision records" page for collision policy, synthetic UUIDs, strict references, and writer concurrency.
 
-### P2 — Sicurezza del filesystem e del writer
+### P2 — Filesystem and writer security
 
-**Aspetti già buoni.** Il writer usa file temporaneo nella stessa directory e `os.replace`; la risoluzione asset rifiuta percorsi assoluti e normalizza i path. L'audit runtime delle dipendenze non ha trovato vulnerabilità note.
+**Already solid parts.** Writer uses temporary file plus same-directory `os.replace`; asset resolution rejects absolute paths and normalizes paths. Runtime dependency audit has no known vulnerabilities.
 
-**Miglioramenti.**
+**Improvements.**
 
-- aggiungere test di symlink e confine del vault per tutte le operazioni in scrittura;
-- definire una policy esplicita per permessi e owner preservati dal replace;
-- offrire una modalità `dry-run` che produce patch unificata prima di modificare Markdown;
-- limitare dimensione/depth di input configurabili per usare la libreria su vault non fidati;
-- fare girare l'audit dipendenze anche nel workflow tag, non solo nel percorso pull request.
+- add symlink and vault-boundary tests for all write operations;
+- define explicit policy for permissions/ownership preserved by replace;
+- add `dry-run` mode that outputs unified diffs before writing markdown;
+- bound input size/depth for untrusted vault usage;
+- run dependency audits in tag workflow, not only PR path.
 
-### P3 — Evoluzione incrementale del parser
+### P3 — Incremental parser evolution
 
-Non raccomando un big-bang rewrite. La sequenza sicura è:
+I do not recommend a big-bang parser rewrite. A safer sequence is:
 
 ```mermaid
 flowchart TD
-    A["Congelare corpus e snapshot"] --> B["Estrarre classificatore di linea puro"]
-    B --> C["Estrarre stati lessicali: fence, query, drawer, frontmatter"]
-    C --> D["Estrarre riduttore dello stack AST"]
-    D --> E["Centralizzare arricchimento node e riferimenti"]
-    E --> F["Misurare equivalenza e benchmark"]
+    A["Freeze corpus and snapshot"] --> B["Extract pure line classifier"]
+    B --> C["Extract lexical states: fence, query, drawer, frontmatter"]
+    C --> D["Extract AST stack reducer"]
+    D --> E["Centralize node enrichment and references"]
+    E --> F["Measure semantic equivalence and benchmarks"]
 ```
 
-Ogni slice deve conservare: output semantico, UUID, ordine dei nodi, line range, normalizzazione proprietà e comportamento `strict_refs`. Prima di modificare gli hub del parser o del grafo va rieseguita un'analisi di impatto e vanno aggiornati corpus e benchmark.
+Each slice must preserve semantic output, UUIDs, node ordering, line ranges, property normalization, and `strict_refs` behavior. Before touching parser/graph hubs, rerun impact analysis and update corpus/benchmark.
 
-## Architettura obiettivo
+## Target architecture
 
 ```mermaid
 flowchart TB
-    subgraph Core["Core stabile"]
+    subgraph Core["Stable core"]
         Model["Domain model\nPage, Node, Diagnostic"]
         Events["Parser events\nline classification + state"]
         Reducer["AST reducer\ndeterministic stack"]
@@ -384,55 +383,57 @@ flowchart TB
     end
 ```
 
-Principio guida: il core produce dati e diagnostica deterministici; l'applicazione ne controlla il ciclo di vita; gli adapter non accedono a registri interni né definiscono proprie regole di indicizzazione.
+Design principle: core produces deterministic data and diagnostics; application controls lifecycle; adapters must not access internal registries or define indexing rules themselves.
 
-## Roadmap proposta
+## Proposed roadmap
 
-### Fase 1 — Fiducia nel delivery (1–3 giorni)
+### Phase 1 — Delivery trust (1–3 days)
 
-- Separare lint/check da fix/format.
-- Aggiornare i conteggi test nella documentazione attiva.
-- Creare check `version/tag/changelog` e `twine check` per release.
-- Aggiungere `py.typed` e test della wheel.
+- Separate lint/check from fix/format.
+- Update test counts in active documentation.
+- Add `version/tag/changelog` and `twine check` release checks.
+- Add `py.typed` and wheel inclusion test.
 
-### Fase 2 — Integrità del vault (3–7 giorni)
+### Phase 2 — Vault integrity (3–7 days)
 
-- Introdurre `TitleCollision` e strict mode, senza cambiare il default nella prima release.
-- Pubblicare diagnostica JSON e flag CLI fail-fast.
-- Aggiungere writer dry-run e test su symlink/permessi.
+- Introduce `TitleCollision` and strict mode, with permissive default in the first release.
+- Publish JSON diagnostics and CLI fail-fast flag.
+- Add writer dry-run and symlink/permissions tests.
 
-### Fase 3 — Robustezza operativa (1–2 settimane)
+### Phase 3 — Operational robustness (1–2 weeks)
 
-- Coordinatore/snapshot per reload e writer.
-- Test concorrenti deterministici con barrier e fake watcher.
-- Corpus di compatibilità versionato e prime property-based tests.
+- Snapshot/coordination for reload and writer.
+- Deterministic concurrent watcher/writer tests with barrier and failure injection.
+- Versioned compatibility corpus and first property-based tests.
 
-### Fase 4 — Evoluzione sostenibile (incrementale)
+### Phase 4 — Sustainable evolution (incremental)
 
-- Benchmark e budget per 1k/10k pagine.
-- Estrarre classificatore/stati parser una slice alla volta.
-- Stabilire API stability policy, ADR e release notes generate dai contratti.
+- Benchmark and budget for 1k/10k vaults.
+- Extract parser classifier/states one slice at a time.
+- Establish API stability policy, ADRs, and contract-generated release notes.
 
-## Cosa non cambierei ora
+## What I would not change now
 
-- Non introdurrei una gerarchia di package complessa solo per imitare un'architettura teorica: i moduli piatti sono leggibili e gli import cycle sono già zero.
-- Non aggiungerei un database o un motore di ricerca esterno finché benchmark reali non dimostrano che le scansioni lineari sono il collo di bottiglia.
-- Non sostituirei Pydantic o Typer: il costo della migrazione non è giustificato da un problema concreto.
-- Non renderei il parser "più permissivo" senza diagnostica: per un parser di knowledge graph, un risultato ambiguo ma silenzioso è peggiore di un warning strutturato.
+- I would not add a complex package hierarchy solely to follow a theoretical architecture: flat modules remain readable and import cycles are already zero.
+- I would not add a database or external search engine until measured benchmarks prove linear scans are the bottleneck.
+- I would not replace Pydantic or Typer: migration cost is not justified by a concrete problem.
+- I would not make parser behavior more permissive without diagnostics; for a knowledge graph parser, ambiguous but silent output is worse than structured warnings.
 
-## Definition of Done per le prossime modifiche strutturali
+## Definition of done for future structural changes
 
 ```text
-[ ] analisi di impatto sui simboli hub
-[ ] test mirati del comportamento modificato
-[ ] corpus/regressione per input Logseq rappresentativo
-[ ] lint non mutante, type check, test e coverage
-[ ] check dei cicli di import
-[ ] benchmark se cambia un hot path
-[ ] docs/API/ADR aggiornati se cambia un contratto
-[ ] prova di installazione o artifact build se cambia packaging/release
+[ ] impact analysis on hub symbols
+[ ] targeted tests for changed behavior
+[ ] corpus/regression for representative Logseq input
+[ ] non-mutating lint, type check, tests, and coverage
+[ ] import cycle check
+[ ] benchmark if a hot path changes
+[ ] docs/API/ADR updated when contract changes
+[ ] install or artifact build verification if packaging/release changes
 ```
 
-## Conclusione
+## Conclusion
 
-La repository non necessita di una rifondazione: è già una base di qualità. Il salto successivo è passare da un progetto robusto a una piattaforma affidabile sotto input reali, vault grandi, integrazioni agentiche e release frequenti. Le quattro iniziative con il miglior rapporto valore/rischio sono: gate CI non mutante, collision diagnostics, serializzazione delle mutazioni del vault e corpus di compatibilità. Insieme proteggono le proprietà che rendono il progetto distintivo: determinismo, fedeltà semantica e fiducia nei dati dell'utente.
+The repository does not need a refoundation; it is already a strong foundation. The next step is moving from a robust project to a reliable platform under real inputs, large vaults, agent integrations, and frequent releases. The four best value-to-risk items are:
+CI non-mutating gate, collision diagnostics, vault mutation serialization, and a compatibility corpus.
+Together they protect the qualities that make this project distinctive: determinism, semantic fidelity, and trust in user data.

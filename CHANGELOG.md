@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Ghost Tooling** — removed remaining vendor indexer blocks from `AGENTS.md` / `CLAUDE.md`; maintainer guidance now uses **audit code** terminology only.
+- **Repository language** — translated the historical audit reports, design references, Logseq Read skill, maintainer configuration comments, parser warning, demo labels, and optional SYNAPSE dependency errors into English; contributor guidance now makes English the repository default ([#69](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/69)).
 
 ### Fixed
 

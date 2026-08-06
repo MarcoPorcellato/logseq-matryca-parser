@@ -1,7 +1,7 @@
 ---
 type: RepositoryAudit
-title: Logseq Matryca Parser - Code Audit e roadmap stellare
-description: Audit verificato della repository, finding riproducibili e piano MKQ-4 allineato a Matryca Knowledge.
+title: Logseq Matryca Parser - Code audit and stellar roadmap
+description: Verified audit, reproducible findings, and MKQ-4 roadmap aligned to Matryca Knowledge.
 status: stable
 classification: active
 audience: maintainers
@@ -14,90 +14,90 @@ supersedes: docs/REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md
 superseded_by: null
 ---
 
-# Logseq Matryca Parser — Code Audit e roadmap verso una repository “stellare”
+# Logseq Matryca Parser — Code audit and roadmap to a “stellar” repository
 
-> **Stato:** studio eseguito e verificato il 2026-08-06  
-> **Checkout analizzato:** `main` @ `8e90b44`  
-> **Natura del documento:** decision record e backlog tecnico; non autorizza implementazione, commit, push, PR, merge o release  
-> **Rapporto con lo studio precedente:** integra e corregge `REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md`, che al momento dell'audit era ancora non tracciato
+> **Status:** study executed and verified on 2026-08-06
+> **Analyzed checkout:** `main` @ `8e90b44`
+> **Document nature:** decision record and technical backlog; no implementation, commit, push, PR, merge, or release is authorized from this document.
+> **Relationship to previous study:** supersedes and fixes `REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md`, which was untracked during the previous audit.
 
-## 1. Sintesi esecutiva
+## 1. Executive summary
 
-La repository è già nettamente sopra la media: il quality gate locale passa con **462 test**, **3.233 statement** misurati e **91% di coverage**, Ruff e Mypy puliti, **0 cicli di import**, packaging moderno, API grafo utili, parsing deterministico, writer atomico a livello di singolo file e una buona separazione degli adapter opzionali.
+The repository is already above average: local quality gate passes with **462 tests**, **3,233 statements** measured, and **91% coverage**, Ruff and Mypy are clean, **0 import cycles**, modern packaging, useful graph APIs, deterministic parsing, file-level atomic writer, and good optional-adapter separation.
 
-Il salto successivo non richiede una riscrittura né più feature indiscriminate. Richiede, in quest'ordine:
+The next step is not a rewrite or indiscriminate feature expansion. It is, in order:
 
-1. correggere due difetti P0 confermati su fixture sintetiche;
-2. rendere espliciti e verificabili i confini di sicurezza del vault;
-3. trasformare il grafo mutabile in uno snapshot coerente per writer, watcher e lettori;
-4. congelare la semantica del parser con corpus versionato e test metamorfici;
-5. rendere delivery, API, diagnostica e documentazione meccanicamente affidabili;
-6. misurare la scala prima di introdurre nuovi indici, database o framework.
+1. fix two confirmed P0 defects on synthetic fixtures;
+2. make vault security boundaries explicit and enforceable;
+3. make mutable graph state a coherent snapshot for writer, watcher, and readers;
+4. freeze parser semantics with versioned corpus and metamorphic tests;
+5. make delivery, API, diagnostics, and documentation mechanically reliable;
+6. measure scale before introducing additional indices, databases, or frameworks.
 
-La conclusione più importante è che il backlog aperto **#101–#111 è valido ma non completo**. Copre quasi tutta la maturazione strategica, però il presente audit ha confermato anche:
+The key conclusion is that open backlog **#101–#111 is valid but incomplete**. It covers almost all strategic maturation, but this audit also confirms:
 
-- **P0 — perdita di contenuto su aggiornamenti di nodi annidati oltre il terzo livello**;
-- **P0 — scrittura fuori dal vault attraverso file Markdown symlinkati**;
-- **P1 — risoluzione di URI `file://` senza confinamento al vault**;
-- **P1 — backlink obsoleti dopo una rinomina incrementale di pagina**.
+- **P0 — content loss on updates to nodes nested deeper than level 3**;
+- **P0 — writing outside the vault through symlinked markdown files**;
+- **P1 — `file://` URI resolution without vault confinement**;
+- **P1 — stale backlinks after incremental page rename**.
 
-Il primo difetto merita una issue bug dedicata e una correzione chirurgica prima del refactor del parser. I due difetti di confinamento devono diventare criteri espliciti della #106; il backlink stale deve diventare una slice esplicita della #103 o una issue figlia.
+The first defect needs a dedicated bug issue and a surgical fix before parser refactor. The two confinement defects should become explicit acceptance criteria in #106; the stale-backlink issue should become an explicit slice under #103 or a child issue.
 
-## 2. Piano iniziale
+## 2. Initial plan
 
-Il piano definito prima dell'esplorazione era:
+The pre-exploration plan was:
 
-1. raccogliere baseline live, istruzioni del repository, storico e architettura indicizzata;
-2. delegare audit specialistici a GPT-5.3 Codex Spark e GPT-5.6 Luna;
-3. confrontare i risultati e distinguere difetti correnti, debito già tracciato e idee speculative;
-4. eseguire un round correttivo sui punti contraddittori o non provati;
-5. depositare piano, evidenze, priorità, roadmap e limiti in un Markdown versionabile;
-6. validare il documento con i gate prescritti dal repository.
+1. collect live baseline, repository instructions, history, and indexed architecture;
+2. delegate specialist audits to GPT-5.3 Codex Spark and GPT-5.6 Luna;
+3. reconcile results and distinguish current defects, existing debt, and speculative ideas;
+4. run a correction round on contradictory or unverified points;
+5. place evidence, findings, priorities, roadmap, and limits into a versioned Markdown document;
+6. validate the document with repository-prescribed gates.
 
-### 2.1 Criteri di accettazione dello studio
+### 2.1 Study acceptance criteria
 
-- Le raccomandazioni devono derivare da sorgente live, test, workflow o probe riproducibili.
-- I fatti storici non devono essere presentati come stato corrente.
-- Ogni finding deve indicare impatto, confidenza, verifica minima e relazione con #101–#111.
-- Le modifiche a hub devono essere precedute da impact analysis.
-- Devono restare invariati parsing deterministico, UUID, ordinamento, pagine canoniche, no-ghost-node e `strict_refs`.
-- Nessun commit, push, PR, issue o cambio remoto è autorizzato da questo studio.
+- Recommendations must derive from live sources, tests, workflows, or reproducible probes.
+- Historical facts must not be presented as current state.
+- Each finding should include impact, confidence, minimum verification, and relation to #101–#111.
+- Hub changes must be preceded by impact analysis.
+- Deterministic parsing, UUID behavior, ordering, canonical pages, no-ghost-node guarantees, and `strict_refs` must remain unchanged.
+- This study does not authorize commits, pushes, PRs, issues, or remote changes.
 
-## 3. Delega, raccolta e correzione del tiro
+## 3. Delegation, collection, and plan adjustment
 
-Sono state lanciate cinque attività read-only in worktree separati, partendo dallo stato corrente incluso il documento non tracciato del 28 luglio.
+Five read-only tasks were run in separate worktrees, starting from current state and including the untracked July 28 document.
 
-| Attività | Modello | Motivazione del routing | Esito utile |
+| Task | Model | Routing rationale | Useful outcome |
 |---|---|---|---|
-| Documentazione e contributor experience | GPT-5.3 Codex Spark | Ricerca prevalentemente meccanica: link, numeri, indici, onboarding | Evidenze raccolte; il report finale è fallito per limite del servizio, quindi le conclusioni sono state ricostruite e riverificate localmente |
-| CI, packaging e release engineering | GPT-5.3 Codex Spark | Workflow e manifest hanno controlli deterministici | Confermati lint mutante, action non pin-nate e lineage degli artifact non immutabile |
-| Architettura e manutenibilità | GPT-5.6 Luna | Richiede ragionamento cross-module e blast radius | Confermati i due hub principali, la necessità di slice incrementali e il backlink stale |
-| Correttezza, sicurezza e performance | GPT-5.6 Luna | Area ad alto rischio con probe e giudizio | Ha individuato quattro anomalie riprodotte poi nel checkout principale |
-| Prodotto, API ed ecosistema | GPT-5.6 Luna | Richiede sintesi di posizionamento e sequenziamento | Confermata la strategia contract-first e il rifiuto di plugin/database prematuri |
+| Documentation and contributor experience | GPT-5.3 Codex Spark | Mostly mechanical work: links, counts, indexes, onboarding | Evidence collected; final report failed due to service output limit, so conclusions were rebuilt and locally re-verified |
+| CI, packaging, and release engineering | GPT-5.3 Codex Spark | Workflows and manifests have deterministic checks | Confirmed mutating lint, unpinned actions, and non-immutable artifact lineage |
+| Architecture and maintainability | GPT-5.6 Luna | Requires cross-module reasoning and blast-radius analysis | Confirmed two main hubs, need incremental slices, and stale-backlink risk |
+| Correctness, security, and performance | GPT-5.6 Luna | High-risk area with probes and judgment required | Identified four anomalies later reproduced in primary checkout |
+| Product, API, and ecosystem | GPT-5.6 Luna | Requires sequencing and positioning synthesis | Confirmed contract-first strategy and early rejection of premature plugin/database expansion |
 
-### 3.1 Round correttivo
+### 3.1 Correction round
 
-Le prime esecuzioni lunghe delle attività remote sono state interrotte durante la compattazione. Non sono state accettate come risultati completi. Il secondo round ha:
+The first remote executions were interrupted during compaction. They were not accepted as complete outcomes. The second round:
 
-- ridotto lo scope;
-- vietato nuove scansioni ampie;
-- chiesto una chiusura dai dati già raccolti;
-- ridotto il reasoning dove necessario;
-- imposto output compatti e separazione fra fatti e ipotesi.
+- reduced scope;
+- banned broad re-scans;
+- required closure from already collected data;
+- reduced reasoning where necessary;
+- requested compact outputs and clear separation between facts and assumptions.
 
-Quattro attività hanno poi prodotto report finali. L'attività documentale è fallita nuovamente per limite di output; i suoi dati parziali sono stati confrontati direttamente con `README.md`, `docs/README.md`, `CONTRIBUTING.md`, workflow e studio precedente.
+Four tasks produced final reports. The documentation task failed again due to output limit; partial data were cross-checked directly against `README.md`, `docs/README.md`, `CONTRIBUTING.md`, workflows, and the previous study.
 
-### 3.2 Revisione critica dei risultati delegati
+### 3.2 Critical review of delegated findings
 
-Una prima sintesi concludeva che #101–#111 coprissero tutto il lavoro necessario. Questa conclusione è stata rigettata dopo i probe indipendenti: la perdita di soft-break profondo non è un semplice requisito del corpus, ma un bug corrente riproducibile; il confine symlink e il ramo `file://` sono comportamenti di sicurezza attuali, non solo hardening teorico.
+One early synthesis concluded that #101–#111 covered all required work. This was rejected after independent probes: deep soft-break loss is a reproducible current bug, and symlink boundary and `file://` behavior are current security behavior, not theoretical hardening concerns.
 
-Questo è il motivo per cui la roadmap finale inizia con una **Wave 0 di contenimento e correzione**, prima delle iniziative strategiche già aperte.
+This is why the final roadmap starts with a **Wave 0 containment and correction** before previously opened strategic initiatives.
 
-## 4. Evidenze e baseline live
+## 4. Evidence and live baseline
 
-### 4.1 Stato Git
+### 4.1 Git state
 
-All'inizio dello studio:
+At audit start:
 
 ```text
 * main...origin/main
@@ -105,89 +105,89 @@ All'inizio dello studio:
 ?? docs/REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md
 ```
 
-Entrambi i path preesistevano e sono stati preservati. L'aggiornamento locale dell'indice di audit code aveva aggiunto automaticamente contenuto a `AGENTS.md` e `CLAUDE.md`; quelle sole aggiunte generate durante lo studio sono state rimosse, riportando i due file senza diff.
+Both paths already existed and were preserved. Local audit index updates automatically added content to `AGENTS.md` and `CLAUDE.md`; those generated additions were removed, restoring both files to no-diff state.
 
 ### 4.2 Quality gate
 
-Comando:
+Command:
 
 ```bash
 rtk make all
 ```
 
-Risultato:
+Result:
 
-- Ruff: `All checks passed!`;
-- Mypy: `Success: no issues found in 34 source files`;
-- controllo documentale vendor-neutral: `OK`;
-- Pytest: **462 passed**;
-- coverage: **3.233 statement, 288 mancanti, 91% totale**.
+- Ruff: `All checks passed!`
+- Mypy: `Success: no issues found in 34 source files`
+- vendor-neutral documentation check: `OK`
+- Pytest: **462 passed**
+- coverage: **3,233 statements, 288 missing, 91% total**
 
-Il target `make all` è verde, ma non è ancora un gate puramente verificativo: `make lint` esegue `ruff check . --fix`. Nel presente run non ha prodotto diff, ma in CI potrebbe correggere il checkout e mascherare una submission non conforme. Questo conferma #101.
+`make all` is green, but it is not yet a purely verificative gate: `make lint` runs `ruff check . --fix`. This run produced no diff, but CI could auto-correct checkout in another run and mask a non-compliant submission. This confirms #101.
 
 ### 4.3 Audit code
 
-L'indice locale è stato aggiornato al commit corrente e ha riportato:
+The local index was updated to the current commit and reported:
 
 ```text
-2.133 nodi | 4.040 relazioni | 57 cluster | 169 flussi
+2,133 nodes | 4,040 relations | 57 clusters | 169 flows
 cycleCount: 0
 ```
 
-Il server di consultazione ha inizialmente mantenuto in cache un contesto vecchio; per questo nessun risultato stale è stato usato come prova sufficiente. I finding critici sono stati confermati con sorgente live, analisi semantica e probe runtime.
+The analysis server initially used stale context cache; therefore stale results were not used as sufficient evidence. Critical findings were confirmed with live source, semantic checks, and runtime probes.
 
-### 4.4 Blast radius degli hub protetti
+### 4.4 Protected hub blast radius
 
-| Simbolo | Rischio | Impatto rilevato | Conseguenza operativa |
+| Symbol | Risk | Observed impact | Operational consequence |
 |---|---:|---|---|
-| `StackMachineParser._refresh_node` | HIGH | 102 simboli, 4 flussi | Modifiche solo con corpus, snapshot semantici e test parser completi |
-| `StackMachineParser._replace_stack_tail_node` | HIGH | 102 simboli, 4 flussi | Il fix P0 deve essere chirurgico e equivalence-tested |
-| `LogseqGraph.load_directory` | CRITICAL | 47 chiamanti diretti, 6 flussi | Nessuna modifica opportunistica; preservare API e determinismo |
-| `LogseqGraph.invalidate_and_reload_page` | LOW locale | 3 chiamanti diretti, 2 flussi | Slice piccola, ma semantica globale degli indici da testare contro cold reload |
-| `_expand_macros_and_embeds_impl` | LOW | 6 simboli, 2 flussi | Seams già sottili; non è un hotspot prioritario |
+| `StackMachineParser._refresh_node` | HIGH | 102 symbols, 4 flows | Changes only with corpus snapshots and parser-level tests |
+| `StackMachineParser._replace_stack_tail_node` | HIGH | 102 symbols, 4 flows | P0 fix must be surgical and equivalence-tested |
+| `LogseqGraph.load_directory` | CRITICAL | 47 direct callers, 6 flows | No opportunistic changes; keep API and determinism |
+| `LogseqGraph.invalidate_and_reload_page` | LOW local | 3 direct callers, 2 flows | Small slice, but global index semantics must be verified against cold reload |
+| `_expand_macros_and_embeds_impl` | LOW | 6 symbols, 2 flows | Seams already narrow; not a top performance hotspot |
 
-## 5. Architettura attuale
+## 5. Current architecture
 
 ```mermaid
 flowchart TD
-    V["Vault: pages/ e journals/"] --> D["Discovery e path policy"]
+    V["Vault: pages/ and journals/"] --> D["Discovery and path policy"]
     D --> P["StackMachineParser"]
-    P --> AST["LogseqPage e LogseqNode immutabili"]
+    P --> AST["Immutable LogseqPage and LogseqNode"]
     AST --> G["LogseqGraph"]
-    G --> IDX["Pagine canoniche, UUID, alias, backlink"]
+    G --> IDX["Canonical pages, UUID, aliases, backlinks"]
     IDX --> Q["Query, namespace, reference checks"]
-    G --> W["Incremental reload e watcher"]
+    G --> W["Incremental reload and watcher"]
     G --> A["CLI, agent read/write"]
-    G --> E["Export, RAG e visualizzazione"]
+    G --> E["Export, RAG, and visualization"]
     W --> G
     A --> W
 ```
 
-La direzione delle dipendenze è buona e il controllo cicli è pulito. I rischi principali non sono cicli o framework sbagliati, ma **coerenza temporale** e **propagazione delle strutture immutabili**:
+Dependency direction is generally good and cycle checks are clean. Primary risks are not cycles or the wrong framework; they are **temporal consistency** and propagation of immutable structures:
 
-- il parser ricostruisce nodi immutabili lungo uno stack;
-- il grafo pubblica più indici derivati dalla stessa collezione di pagine;
-- writer e watcher possono aggiornare file e indici in momenti diversi;
-- alias e titoli trasformano una mappa in un insieme di identità canoniche più proiezioni secondarie.
+- the parser builds immutable nodes through a stack;
+- the graph exposes multiple derived indexes from one page collection;
+- writer and watcher can update files and indexes at different times;
+- aliases and titles convert one map into canonical identities plus secondary projections.
 
-Il design futuro deve rendere questi quattro contratti espliciti.
+The future design must make these four contracts explicit.
 
-## 6. Findings confermati
+## 6. Confirmed findings
 
-### P0.1 — Perdita di contenuto su nodi annidati profondamente
+### P0.1 — Content loss in deeply nested nodes
 
-**Stato:** bug corrente, alta confidenza, non coperto in modo sufficientemente esplicito dalle issue esistenti.
+**Status:** current bug, high confidence, not sufficiently covered by existing issues.
 
-`StackMachineParser._replace_stack_tail_node` aggiorna il nodo, il parent e il grandparent, ma non propaga il nuovo ramo fino alla root per profondità superiori. Il soft-break viene registrato nello stack locale, mentre l'AST restituito conserva una root precedente.
+`StackMachineParser._replace_stack_tail_node` updates the node, parent, and grandparent, but does not propagate the new branch back to the root for depths above the third level. Soft-break text is recorded on local stack state, while the returned AST keeps the previous root.
 
-Probe sintetico:
+Synthetic probe:
 
 ```text
 DEEP_CONTENTS ['a', 'b', 'c', 'd', 'e']
 DEEP_SOFT_BREAK_PRESENT False
 ```
 
-Input protetto:
+Protected input:
 
 ```markdown
 - a
@@ -198,42 +198,42 @@ Input protetto:
           continuation-e
 ```
 
-**Impatto:** perdita silenziosa di contenuto e metadati quando una qualsiasi delle chiamate a `_replace_stack_tail_node` aggiorna un nodo profondo. Il problema non è limitato ai soft-break: lo stesso helper è usato per proprietà, fence, query e finalizzazione delle liste.
+**Impact:** silent loss of content and metadata whenever any call to `_replace_stack_tail_node` updates a deep node. The issue is not limited to soft-breaks; the same helper handles properties, fence, query, and list finalization.
 
-**Perché i test non lo vedono:** i test soft-break correnti proteggono casi poco profondi e la coverage di linea esegue l'helper senza verificare l'invariante “ogni aggiornamento allo stack è osservabile dalla root a qualsiasi profondità”.
+**Why tests miss this:** existing soft-break tests cover shallow depths and line coverage executes helper logic without checking the invariant that every stack update remains observable from root at arbitrary depth.
 
-**Slice minima:** sostituire la propagazione hard-coded a tre livelli con una ricostruzione iterativa dal leaf alla root, senza cambiare classificazione delle linee o semantica del parser.
+**Minimal slice:** replace hardcoded three-level propagation with iterative reconstruction from leaf to root, without changing line classification or parser semantics.
 
-**Test obbligatori:** profondità 1, 2, 3, 4, 8 e 32; soft-break, proprietà, code fence e lista proprietà; `line_end`; parent/left pointers; UUID; serializzazione e reparse; equivalenza fra shallow e deep nesting.
+**Required tests:** depths 1, 2, 3, 4, 8, and 32; soft-break, property, code fence, property-list cases; `line_end`; parent/left pointers; UUID; serialization and re-parse; shallow vs deep nesting equivalence.
 
-**Tracking raccomandato:** nuova issue bug dedicata. Collegarla a #104 e rendere il fix un prerequisito della #108.
+**Recommended tracking:** add a dedicated bug issue. Link it to #104 and make the fix prerequisite for #108.
 
-### P0.2 — Il writer può mutare un file fuori dal vault tramite symlink
+### P0.2 — Writer may write outside vault via symlink
 
-**Stato:** vulnerabilità di confinamento corrente; alta confidenza; sovrapposizione diretta con #106.
+**Status:** current confinement vulnerability, high confidence; directly overlaps #106.
 
-La discovery accetta Markdown symlinkati sotto `pages/` o `journals/`. `parse_page_file` salva nel nodo `path.resolve()`, cioè il target reale. `append_child_to_node` legge e sostituisce quel `source_path` senza verificare che sia contenuto nel `graph.graph_path`.
+Discovery accepts symlinked markdown under `pages/` or `journals/`. `parse_page_file` stores `path.resolve()`, i.e., the real target. `append_child_to_node` reads and rewrites that `source_path` without verifying it is inside `graph.graph_path`.
 
-Probe eseguito esclusivamente in directory temporanee:
+Probe (temp directories only):
 
 ```text
 SYMLINK_SOURCE_OUTSIDE True
 SYMLINK_OUTSIDE_MUTATED True
 ```
 
-**Impatto:** un vault non fidato può indurre un'integrazione con permessi locali a modificare un file Markdown esterno al vault.
+**Impact:** an untrusted vault can cause a local integration with repo permissions to modify an external Markdown file.
 
-**Slice minima:** scegliere e documentare una policy symlink fail-closed per tutte le operazioni di scrittura; verificare il target risolto immediatamente prima di leggere e immediatamente prima di `os.replace`; rifiutare mismatch fra root, source registrato e target corrente.
+**Minimal slice:** define and document a fail-closed symlink policy for all write paths; verify resolved target immediately before read and immediately before `os.replace`; reject mismatches between root, registered source, and current target.
 
-**Test obbligatori:** symlink a file, symlink a directory, cambio symlink fra parse e write, path relativo con traversal, rename race, dry-run senza scrittura, target interno valido.
+**Required tests:** file symlink, directory symlink, symlink changes between parse and write, traversal path, rename race, dry-run without write, valid internal target.
 
-**Tracking raccomandato:** aggiornare #106 con il probe e questi criteri di accettazione; non duplicare la issue salvo decisione del maintainer.
+**Recommended tracking:** update #106 with probe and acceptance criteria; do not duplicate issue unless maintainer decides.
 
-### P1.1 — `file://` bypassa il confinamento degli asset
+### P1.1 — `file://` bypasses asset boundary
 
-**Stato:** difetto di lettura/confinamento corrente; alta confidenza.
+**Status:** current read/confinement defect, high confidence.
 
-`LogseqPage.resolve_asset_path` restituisce immediatamente il path assoluto per URI `file://`, prima del controllo sul `graph_root`. Questo contraddice la documentazione attiva, che dichiara il resolver confinato al vault.
+`LogseqPage.resolve_asset_path` returns an absolute path for `file://` URIs before applying `graph_root` containment checks. This contradicts current docs stating asset resolver is vault-confined.
 
 Probe:
 
@@ -241,17 +241,17 @@ Probe:
 FILE_URI_RESULT /private/etc/passwd
 ```
 
-**Impatto:** un documento non fidato può trasformare un token asset in un path locale arbitrario che un adapter a valle potrebbe leggere o ingerire.
+**Impact:** an untrusted document can convert an asset token into an arbitrary local path, and downstream adapters may ingest/read it.
 
-**Slice minima:** applicare una sola funzione di canonicalizzazione e containment a tutti i rami, inclusi `file://`, percent-decoding, path Windows e fallback asset. Definire se `file://` interno al vault è supportato o sempre vietato.
+**Minimal slice:** apply a single canonicalization and containment function across all branches, including `file://`, percent-decoding, Windows path forms, and asset fallbacks. Define whether in-vault `file://` is supported or always rejected.
 
-**Tracking raccomandato:** nuova issue security separata oppure ampliamento esplicito di #106 da “write boundary” a “filesystem boundary”.
+**Recommended tracking:** either a dedicated security issue or explicit expansion of #106 from “write boundary” to “filesystem boundary.”
 
-### P1.2 — Backlink obsoleti dopo rinomina incrementale
+### P1.2 — Stale backlinks after incremental rename
 
-**Stato:** bug corrente, alta confidenza, vicino a #103 ma non esplicitato nei criteri attuali.
+**Status:** current bug, high confidence, adjacent to #103 but not explicitly stated in current criteria.
 
-Il full load ricostruisce tutti i backlink. `invalidate_and_reload_page` rimuove i nodi della sola pagina modificata e aggiunge i backlink in uscita della pagina fresca; non ricalcola le chiavi dei link provenienti da pagine non modificate quando cambia il titolo o un alias del target.
+Full load reconstructs all backlinks. `invalidate_and_reload_page` removes only nodes for the modified page and adds outgoing backlinks from fresh page data; it does not recalculate keys for incoming links from unchanged pages when a target page title or alias changes.
 
 Probe:
 
@@ -259,131 +259,121 @@ Probe:
 RENAME_BACKLINKS 1 1 0
 ```
 
-Interpretazione: prima della rinomina esiste un backlink; dopo `Target → Renamed`, la vecchia chiave continua a restituire un risultato e la nuova non ne restituisce nessuno.
+Interpretation: before rename there is a backlink; after `Target → Renamed`, the old key still returns a result and the new one returns none.
 
-**Contratto corretto:** dopo ogni incremental reload, lo snapshot osservabile deve essere semanticamente equivalente a un cold load sullo stesso filesystem.
+**Correct contract:** after each incremental reload, the observable snapshot must be semantically equivalent to a cold reload from the same filesystem state.
 
-**Slice minima:** introdurre un risultato di delta che segnali cambi di identità pagina/alias; in quel caso ricostruire gli indici globalmente dipendenti o usare indici reverse-dependency espliciti. Prima ottimizzare la correttezza, poi misurare.
+**Minimal slice:** add a delta signal for identity/alias changes; if triggered, rebuild all globally dependent indexes or add reverse-dependency indices. Prioritize correctness first, then measurement.
 
-**Tracking raccomandato:** issue figlia della #103 o ampliamento esplicito della stessa; collegare #102 e #110.
+**Recommended tracking:** child issue of #103 or explicit expansion of it; also link #102 and #110.
 
-### P1.3 — Collisioni titolo/alias possono nascondere una pagina
+### P1.3 — Title/alias collisions can hide a page
 
-**Stato:** confermato e già correttamente coperto dalla #102.
+**Status:** confirmed and already covered by #102.
 
-Le pagine sono indicizzate in un dizionario title-keyed e gli alias possono rimappare una chiave canonica. Il comportamento è deterministico e il registry evita molti ghost node, ma la perdita di visibilità resta perlopiù un log.
+Pages are stored in a title-keyed dict, and aliases can remap canonical keys. Behavior is deterministic and the registry avoids many ghost nodes, but visibility loss is still primarily a logging concern.
 
-**Azione:** non aprire una nuova iniziativa; implementare diagnostica strutturata, entrambe le path, winner policy stabile e strict mode come già richiesto da #102.
+**Action:** do not open a new initiative. Implement structured diagnostics, both winner paths, stable winner policy, and strict mode as already requested by #102.
 
-### P1.4 — Writer, watcher e lettori non condividono uno snapshot atomico
+### P1.4 — Writer, watcher, and readers do not share an atomic snapshot
 
-**Stato:** rischio architetturale confermato; coperto dalla #103.
+**Status:** confirmed architectural risk; covered by #103.
 
-Il writer offre `mkstemp` + `os.replace`, che protegge dall'osservazione di file parziali, ma non serializza due read-modify-write concorrenti. L'incremental reload assegna e aggiorna più strutture derivate in passi distinti.
+Writer provides `mkstemp` + `os.replace`, which protects against partial file reads, but it does not serialize two concurrent read-modify-write cycles. Incremental reload updates multiple derived structures in multiple passes.
 
-**Azione:** un coordinatore per vault con lock per mutazioni e pubblicazione di un singolo snapshot immutabile. Nessun lock globale di processo.
+**Action:** introduce per-vault coordinator with mutation locks and publish immutable snapshots. Avoid a global process-wide lock.
 
-### P1.5 — Il lint CI è mutante
+### P1.5 — Mutating lint in CI
 
-**Stato:** confermato; coperto dalla #101.
+**Status:** confirmed; covered by #101.
 
-Separare `lint`/`format-check` da `lint-fix`/`format`, aggiungere controllo dirty-tree e mantenere `make all` come gate non mutante.
+Separate `lint`/`format-check` from `lint-fix`/`format`, add dirty-tree checks, and keep `make all` as a non-mutating gate.
 
-### P1.6 — Artifact release non qualificato una sola volta
+### P1.6 — Release artifacts not built once
 
-**Stato:** confermato; coperto dalla #105.
+**Status:** confirmed; covered by #105.
 
-Pre-flight, build PyPI e GitHub Release non consumano necessariamente lo stesso wheel/sdist immutabile. Le action usano tag mobili e il VCS override `nltk` è tag-based anziché commit-based.
+Pre-flight, PyPI build, and GitHub release do not necessarily consume the same immutable wheel/sdist. Workflows use movable tags and the `nltk` VCS override is tag-based instead of commit-based.
 
-**Azione:** build once, checksum, artifact attestato, publish exact bytes, release exact bytes; tag/version/changelog coerenti; action pin-nate a SHA.
+**Action:** build once, checksum, publish attested artifacts, release exact bytes, and align tags, versions, and changelog entries.
 
-### P2 — Debito strategico valido ma non urgente quanto i finding precedenti
+### P2 — Strategic debt valid but not as urgent as current findings
 
-- #104: corpus di compatibilità e proprietà metamorfica;
-- #107: `py.typed`, policy API e fonte versione;
-- #109: lifecycle documentale, link/snippet checks e numeri generati;
-- #110: diagnostica strutturata;
-- #111: benchmark 1k/10k pagine e budget RSS/p95;
-- #108: estrazione incrementale delle fasi parser solo dopo #104 e il fix P0.1.
+- #104: compatibility corpus and metamorphic properties;
+- #107: `py.typed`, API policy, and version source;
+- #109: documentation lifecycle, link/snippet checks, and generated numbers;
+- #110: structured diagnostics;
+- #111: 1k/10k page benchmarks and RSS/p95 budgets;
+- #108: incremental parser phase extraction only after #104 and P0.1 fix.
 
-## 7. Perché 91% di coverage non equivale a 91% di affidabilità
+## 7. Why 91% coverage does not mean 91% reliability
 
-La suite è forte, ma la coverage di linea non esprime quattro dimensioni decisive:
+The suite is strong, but line coverage does not represent four key dimensions:
 
-| Dimensione | Esempio mancante | Tecnica necessaria |
+| Dimension | Missing example | Required technique |
 |---|---|---|
-| Profondità strutturale | aggiornamento leaf a profondità arbitraria | test generativi su alberi e metamorphic depth invariance |
-| Coerenza temporale | incremental reload equivalente al cold load | state-machine test e snapshot oracle |
-| Confine filesystem | symlink, TOCTOU, `file://` | abuse-case fixtures in tmp, path policy centralizzata |
-| Concorrenza | due writer e watcher simultanei | test deterministici con barrier, non sleep casuali |
+| Structural depth | leaf-to-root update at arbitrary depth | tree-generation tests and metamorphic depth invariance |
+| Temporal consistency | incremental reload equivalent to cold load | state-machine tests and snapshot oracle |
+| Filesystem confinement | symlink, TOCTOU, `file://` | temporary fixture abuse cases and centralized path policy |
+| Concurrency | two writers and watcher concurrently | deterministic barrier tests, no timing sleeps |
 
-La metrica target non deve essere “95% coverage” in astratto. Deve essere: **100% degli invarianti critici protetti da oracle semantici**.
+Target metric should not be “95% coverage” in abstract. It should be: **100% of critical invariants protected by semantic oracles**.
 
-## 8. Repository e documentazione — profilo Matryca Knowledge
+## 8. Repository and documentation — Matryca Knowledge profile
 
-### 8.1 Baseline normativa e provenance
+### 8.1 Normative baseline and provenance
 
-Questa parte del piano adotta i parametri correnti di
+This plan section adopts current parameters from
 [`MarcoPorcellato/matryca-knowledge`](https://github.com/MarcoPorcellato/matryca-knowledge)
-alla revisione `7a3ebd8` del 2026-08-06. I riferimenti normativi sono:
+at revision `7a3ebd8` on 2026-08-06. Authoritative references are:
 
-- [`ENGINEERING_PRINCIPLES.md`](https://github.com/MarcoPorcellato/matryca-knowledge/blob/7a3ebd8/docs/ENGINEERING_PRINCIPLES.md): determinismo prima dell'automazione, evidenze, baseline, test e rollback;
-- [`OKF_SOURCE_GOVERNANCE.md`](https://github.com/MarcoPorcellato/matryca-knowledge/blob/7a3ebd8/docs/OKF_SOURCE_GOVERNANCE.md): identità Markdown stabile, link ordinari, entry point e ownership;
-- [`FOUNDATION_GOVERNANCE_OKF_EXECUTION_PLAN.md`](https://github.com/MarcoPorcellato/matryca-knowledge/blob/7a3ebd8/docs/FOUNDATION_GOVERNANCE_OKF_EXECUTION_PLAN.md): separazione fra OKF ufficiale e qualità Matryca, livelli MKQ e Gate G6 dedicato al parser;
-- [`SYNC_POLICY.md`](https://github.com/MarcoPorcellato/matryca-knowledge/blob/7a3ebd8/docs/SYNC_POLICY.md): sorgenti autorevoli, projection riproducibile, allowlist e rifiuto delle sorgenti dirty.
+- [`ENGINEERING_PRINCIPLES.md`](https://github.com/MarcoPorcellato/matryca-knowledge/blob/7a3ebd8/docs/ENGINEERING_PRINCIPLES.md): determinism before automation, evidence, baseline, testing, rollback;
+- [`OKF_SOURCE_GOVERNANCE.md`](https://github.com/MarcoPorcellato/matryca-knowledge/blob/7a3ebd8/docs/OKF_SOURCE_GOVERNANCE.md): stable markdown identity, canonical links, entry points, and ownership;
+- [`FOUNDATION_GOVERNANCE_OKF_EXECUTION_PLAN.md`](https://github.com/MarcoPorcellato/matryca-knowledge/blob/7a3ebd8/docs/FOUNDATION_GOVERNANCE_OKF_EXECUTION_PLAN.md): separation of official OKF from Matryca quality, MKQ levels, and Gate G6 dedicated to the parser;
+- [`SYNC_POLICY.md`](https://github.com/MarcoPorcellato/matryca-knowledge/blob/7a3ebd8/docs/SYNC_POLICY.md): trusted sources, reproducible projection, allowlist enforcement, and avoiding dirty sources.
 
-La baseline OKF esterna registrata da Matryca Knowledge è la specifica Google
-OKF v0.2 al commit `3fcbb9f828c2f23d109c855ee403c3a4c81f3a96`, blob
-`a516d50128f5aa1f5746d1464661a39f7143e875`. Questo repository **non dichiara
-conformità OKF ufficiale**: fino all'implementazione e alla verifica del layer
-ufficiale, il profilo corretto è `matryca_okf_inspired_quality`.
+The external Matryca Knowledge OKF baseline is Google OKF v0.2 at commit `3fcbb9f828c2f23d109c855ee403c3a4c81f3a96`, blob
+`a516d50128f5aa1f5746d1464661a39f7143e875`. This repository does **not** declare official OKF compliance: until the official layer is implemented and verified, the correct profile is `matryca_okf_inspired_quality`.
 
-Il repository sorgente resta l'autorità sui propri documenti. Matryca Knowledge
-ne può mantenere una proiezione revisionata e riproducibile, sempre riconducibile
-a repository, commit, path e hash immutabili; la vista Logseq generata non è la
-source of truth.
+Source repository remains the authority for its own documents. Matryca Knowledge can maintain a revised projection only when it is reproducible and traceable to immutable repository path and commit hashes; generated Logseq views are not source of truth.
 
-### 8.2 Stato corrente misurato
+### 8.2 Current measured state
 
-Al checkout analizzato:
+At the analyzed checkout:
 
-- sono presenti 39 file Markdown sotto `docs/`, incluso questo report;
-- nessun documento mantenuto usa ancora un vero frontmatter YAML uniforme;
-- `docs/README.md` è l'unico portale documentale esplicito;
-- mancano entry point distinti per macchina, cronologia, decisioni e reference;
-- il repository è registrato in `matryca-knowledge/sources.toml`, ma non espone
-  ancora `okf_entry_points`, quindi il validator corrente non ne può auditare un
-  bundle mantenuto;
-- i report storici e i blueprint sono già distinguibili semanticamente, ma la
-  distinzione non è ancora verificata da metadata e CI.
+- 39 markdown files exist under `docs/`, including this report;
+- no maintained document yet uses a uniform true YAML frontmatter;
+- `docs/README.md` is the only explicit documentation portal;
+- missing distinct entry points for machine-readable, historical, decision, and reference surfaces;
+- repository is registered in `matryca-knowledge/sources.toml`, but does not yet expose
+  `okf_entry_points`, so current validator cannot audit the maintained bundle;
+- historical reports and blueprints are semantically distinguishable but this distinction is not yet metadata- or CI-verified.
 
-### 8.3 Punti di forza
+### 8.3 Current strengths
 
-- `docs/README.md` separa attivo, storico e design docs.
-- `CLEAN_CODE_ARCHITECTURE.md` esplicita hub, anelli e anti-pattern.
-- `logseq_ast_primer.md` codifica regole di dominio difficili.
-- Le roadmap storiche rendono visibile l'evoluzione per wave.
-- CONTRIBUTING, issue template e Good First Issues offrono un percorso di ingresso reale.
+- `docs/README.md` separates active, historical, and design docs.
+- `CLEAN_CODE_ARCHITECTURE.md` documents hubs, rings, and anti-patterns.
+- `logseq_ast_primer.md` captures difficult domain rules.
+- Historical roadmaps expose evolution by wave.
+- CONTRIBUTING, issue templates, and Good First Issues offer a real onboarding path.
 
-### 8.4 Problemi correnti
+### 8.4 Current issues
 
-- Lo studio del 28 luglio non è tracciato né indicizzato.
-- I numeri test sono hand-maintained e divergono fra README/CONTRIBUTING/COOKBOOK/studi.
-- Documenti “eseguiti”, “attivi”, “storici” e “proposte” non hanno metadata e lifecycle uniformi.
-- Le roadmap sono numerose ma non esiste una sola mappa `Now / Next / Later / Rejected` collegata alle issue correnti.
-- Non esiste un gate offline per link Markdown, anchor, snippet Python e comandi CLI documentati.
-- La documentazione di asset resolution dichiara un confine che il ramo `file://` non rispetta.
+- July study is not tracked or indexed.
+- Test counts are hand-maintained and diverge across README/CONTRIBUTING/COOKBOOK/study docs.
+- Historical, active, maintained, and proposal documents do not have uniform metadata and lifecycle tags.
+- There are multiple roadmaps but no single `Now / Next / Later / Rejected` map linked to current issues.
+- No offline gate exists for markdown links, anchors, documented CLI commands, and Python snippets.
+- Asset resolution documentation states a boundary that `file://` handling currently violates.
 
-### 8.5 Contratto metadata
+### 8.5 Metadata contract
 
-Solo i documenti mantenuti e dichiarati nell'allowlist devono avere metadata
-obbligatori. Gli archivi non vanno riscritti in massa. Il contratto di transizione
-adotta già la separazione prevista dall'ultima evoluzione di Matryca Knowledge:
+Only maintained documents listed in the allowlist must have required metadata. Historical archives should not be rewritten in bulk. Transition contract already follows the latest Matryca Knowledge structure:
 
 ```yaml
 type: ArchitectureGuide
-title: Titolo stabile
-description: Descrizione breve e utile alla discovery
+title: Stable title
+description: Short discovery-focused description
 status: draft | stable | deprecated
 classification: canonical | active | historical | generated
 owner: logseq-matryca-parser
@@ -394,161 +384,151 @@ supersedes: null
 superseded_by: null
 ```
 
-`status` è riservato al lifecycle compatibile con OKF v0.2; `classification`
-esprime invece il ruolo Matryca. `last_verified` resta compatibile con il
-validator corrente, mentre `verified` e `stale_after` preparano il modello di
-freshness esplicito. I numeri volatili — test, coverage, versione, numero moduli
-— non devono essere copiati a mano: una routine deterministica li genera oppure
-il testo evita il valore assoluto.
+`status` is reserved for lifecycle compatible with OKF v0.2. `classification` captures the Matryca role. `last_verified` remains compatible with existing validator, while `verified` and `stale_after` prepare explicit freshness.
+Volatile metrics—tests, coverage, version, module count—must be generated by deterministic tooling or avoided in prose.
 
-### 8.6 Bundle mantenuto target
+### 8.6 Target maintained bundle
 
-| Path | Classificazione | Responsabilità |
+| Path | Classification | Responsibility |
 |---|---|---|
-| `docs/index.md` | canonical | Entry point machine-readable e mappa del bundle |
-| `docs/README.md` | canonical | Portale umano e navigazione per audience |
-| `docs/log.md` | active | Cronologia delle evoluzioni documentali verificabili |
-| `docs/decisions/index.md` | canonical | Registro ADR, stato e supersessioni |
-| `docs/reference/index.md` | canonical | Provenance, sorgenti esterne e contratti pubblici |
-| `docs/quality/README.md` | active | Backlog, gate e roadmap di qualità correnti |
+| `docs/index.md` | canonical | Machine-readable entrypoint and bundle map |
+| `docs/README.md` | canonical | Human portal and navigation surface |
+| `docs/log.md` | active | Verifiable documentation evolution history |
+| `docs/decisions/index.md` | canonical | ADR register, status, and supersession |
+| `docs/reference/index.md` | canonical | Provenance, external sources, and public contracts |
+| `docs/quality/README.md` | active | Current backlog, gates, and quality roadmap |
 
-I path devono restare stabili; rinomine e split richiedono redirect o link di
-supersessione. I link Markdown ordinari costituiscono gli edge della knowledge
-graph. I riferimenti locali e gli anchor devono essere validati offline. Nessun
-documento pubblico può contenere secret, path locali assoluti, dump runtime o
-log non sanitizzati.
+Paths should remain stable; renames or splits require redirects or supersession links. Standard markdown links form the knowledge-graph edges. Local references and anchors should be validated offline. No public document should include secrets, absolute local paths, raw runtime dumps, or unsanitized logs.
 
-### 8.7 Maturità MKQ e Gate G6
+### 8.7 MKQ maturity and Gate G6
 
-| Livello | Evidenza richiesta nel parser |
+| Level | Required evidence for parser |
 |---|---|
-| MKQ-0 | Sorgente registrata con repository e provenance immutabile |
-| MKQ-1 | Entry point stabile e navigazione del bundle |
-| MKQ-2 | Metadata e freshness sui soli documenti mantenuti |
-| MKQ-3 | Link, anchor, lifecycle, owner canonici e classificazioni coerenti |
-| MKQ-4 | Verifica deterministica in CI dalla repository sorgente |
-| MKQ-5 | Federation, storia e relazioni semantiche; fase successiva, non gate immediato |
+| MKQ-0 | Source-anchored repository with immutable provenance |
+| MKQ-1 | Stable entrypoint and bundle navigation |
+| MKQ-2 | Metadata and freshness on maintained documents only |
+| MKQ-3 | Verified links, anchors, lifecycle, owner, and coherent classifications |
+| MKQ-4 | Deterministic CI verification from source repository |
+| MKQ-5 | Federation, history, and semantic relations; next phase, not immediate gate |
 
-Il Gate G6 è raggiunto quando Logseq Matryca Parser arriva a **MKQ-4 senza
-degradare il comportamento Logseq**. La documentazione deve inoltre collegare
-esplicitamente [Matryca Knowledge](https://github.com/MarcoPorcellato/matryca-knowledge)
-e [Matryca Plumber](https://github.com/MarcoPorcellato/matryca-plumber), senza
-trasferire l'autorità dei contenuti fuori dal repository sorgente.
+Gate G6 is reached when Logseq Matryca Parser achieves **MKQ-4 without regressing Logseq behavior**. Documentation must also explicitly link to
+[Matryca Knowledge](https://github.com/MarcoPorcellato/matryca-knowledge)
+and
+[Matryca Plumber](https://github.com/MarcoPorcellato/matryca-plumber),
+without shifting source-of-truth authority outside the repository.
 
-### 8.8 Piano di migrazione documentale
+### 8.8 Documentation migration plan
 
-1. Inventariare e classificare i documenti senza modificarne in massa lo storico.
-2. Stabilizzare `docs/index.md`, il portale umano e gli indici decision/reference.
-3. Applicare metadata e ownership a una allowlist iniziale di documenti mantenuti.
-4. Validare link, anchor, lifecycle, canonical role e freshness offline.
-5. Aggiungere un gate CI non mutante e riproducibile dalla sorgente pulita.
-6. Dichiarare gli entry point nel registro di Matryca Knowledge tramite PR separata.
-7. Proiettare solo commit puliti e immutabili; verificare che la vista Logseq non
-   cambi la semantica dei documenti sorgente.
+1. Inventory and classify documents without bulk editing of historical content.
+2. Stabilize `docs/index.md`, human portal, and decision/reference indices.
+3. Apply metadata and ownership to an initial allowlist of maintained documents.
+4. Validate links, anchors, lifecycle, canonical role, and freshness offline.
+5. Add non-mutating, source-reproducible CI gate.
+6. Declare entry points in Matryca Knowledge registry via a separate PR.
+7. Project only clean immutable commits; verify Logseq-rendered views do not alter source semantics.
 
-## 9. Strategia di prodotto e API
+## 9. Product and API strategy
 
-Posizionamento consigliato:
+Recommended positioning:
 
-> Parser e grafo Logseq local-first, deterministici e model-neutral, con export e adapter opzionali; le scritture agentiche sono operazioni esplicite, confinate e verificabili.
+> Logseq parser and graph should be local-first, deterministic, and model-neutral, with export and optional adapters; agent writes should be explicit, confined, and verifiable.
 
-### 9.1 Contratti da pubblicare
+### 9.1 Public contracts to publish
 
-Separare chiaramente tre compatibilità:
+Separate three compatibility dimensions:
 
-1. **API Python:** import, firme, eccezioni, typing e deprecazioni;
-2. **semantica Logseq:** AST, UUID, gerarchia, proprietà, riferimenti e round-trip;
-3. **CLI:** stdout/stderr, exit code, JSON schema e stabilità dei comandi.
+1. **Python API:** imports, signatures, exceptions, typing, and deprecation policy;
+2. **Logseq semantics:** AST, UUID, hierarchy, properties, references, and round-trip;
+3. **CLI:** stdout/stderr, exit codes, JSON schema, and command stability.
 
-Classificare le superfici come `stable`, `experimental`, `internal`. Gli adapter AI, visualizzazione e watcher restano optional dependencies; il writer resta opt-in.
+Classify surfaces as `stable`, `experimental`, `internal`. AI adapters, visualization, and watcher remain optional dependencies; writer stays opt-in.
 
-### 9.2 Cosa non costruire ora
+### 9.2 What not to build now
 
-- Nessuna riscrittura big-bang del parser.
-- Nessun plugin registry prima di un adapter protocol tipizzato usato da almeno due integrazioni esterne.
-- Nessun database o motore di ricerca prima che #111 dimostri un collo di bottiglia.
-- Nessuna GUI desktop prima di segnali di adozione di library e CLI.
-- Nessuna promessa “10k+ a 60 FPS” senza benchmark riproducibile.
-- Nessuna orchestrazione LLM proprietaria nel core: il parser deve restare model-neutral.
-- Nessuna nuova modalità permissiva senza diagnostica strutturata.
+- No big-bang parser rewrite.
+- No plugin registry before a typed adapter protocol is used by at least two external integrations.
+- No database or search engine until #111 proves bottleneck justification.
+- No desktop GUI until there is adoption signal for library and CLI usage.
+- No “10k+ at 60 FPS” claims without reproducible benchmarks.
+- No proprietary LLM orchestration in core: parser should stay model-neutral.
+- No new permissive mode without structured diagnostics.
 
-## 10. Roadmap proposta
+## 10. Proposed roadmap
 
-### Wave 0 — Contenimento e correttezza (prima di ogni refactor)
+### Wave 0 — Containment and correctness (before any parser refactor)
 
-| Slice | Priorità | Deliverable | Gate |
+| Slice | Priority | Deliverable | Gate |
 |---|---:|---|---|
-| Propagazione leaf-to-root arbitraria | P0 | Fix chirurgico + test depth matrix | Output semantico invariato per fixture esistenti; deep soft-break preservato |
-| Confinamento writer su symlink | P0 | Policy fail-closed + revalidation | Nessuna fixture può mutare path esterni |
-| Confinamento asset URI | P1 | Path policy unica | Nessun resolver restituisce path esterni |
-| Backlink rename correctness | P1 | Delta identity o rebuild corretto | Incremental snapshot = cold-load snapshot |
+| Arbitrary leaf-to-root propagation | P0 | Surgical fix + depth matrix tests | Existing fixture semantics preserved; deep soft-break retained |
+| Writer confinement on symlink | P0 | Fail-closed policy + revalidation | No fixture can mutate external paths |
+| Asset URI confinement | P1 | Single path policy | No resolver returns external paths |
+| Backlink rename correctness | P1 | Delta identity rebuild or correct full rebuild | Incremental snapshot equals cold-load snapshot |
 
 ### Wave 1 — Trust baseline
 
-- #101 lint e format non mutanti;
-- #107 typing metadata e API stability table;
-- #109 bundle MKQ, status/classification separati, freshness, numeri generati,
-  link/anchor/snippet gate e provenance immutabile;
-- aggiornare #106 con i due abuse case filesystem;
-- aggiornare #103 con rename/backlink equivalence.
+- #101: non-mutating lint and format;
+- #107: typing metadata and API stability table;
+- #109: MKQ bundle, separate status/classification, freshness, generated metrics, link/anchor/snippet gates, immutable provenance;
+- update #106 with the two filesystem abuse cases;
+- update #103 with rename/backlink equivalence.
 
 ### Wave 2 — Safe vault semantics
 
-- #110 diagnostica strutturata;
-- #102 collisioni title/alias con strict mode;
-- #106 dry-run e preview patch;
-- codici diagnostici stabili per recovery, collisioni, confini e reload.
+- #110: structured diagnostics;
+- #102: title/alias collisions with strict mode;
+- #106: dry-run and patch preview;
+- stable diagnostic codes for recovery, collisions, boundaries, and reload.
 
 ### Wave 3 — Safe automation
 
-- #103 snapshot atomico per vault e mutazioni serializzate;
-- #104 corpus versionato, semantic projection e test metamorfici;
-- test watcher/writer con barrier e failure injection;
-- equivalenza incremental/cold load come gate universale.
+- #103: atomic snapshot for vault and serialized mutations;
+- #104: versioned corpus, semantic projection, and metamorphic tests;
+- watcher/writer concurrency tests with barrier and failure injection;
+- incremental/cold-load equivalence as universal gate.
 
 ### Wave 4 — Release confidence
 
-- #105 build once / publish exact bytes;
-- action pin-nate a SHA;
-- commit pin per VCS dependency;
-- wheel installato in ambiente pulito, `RECORD` e checksum verificati;
-- changelog/tag/version/artifact unificati.
+- #105: build once / publish exact bytes;
+- pin actions by SHA;
+- pin VCS dependency commits;
+- install typed wheel in clean environment, verify `RECORD` and checksum;
+- align changelog/tag/version and artifact.
 
-### Wave 5 — Scale qualificata
+### Wave 5 — Qualified scale
 
-- #111 generatori offline da 1k e 10k pagine;
-- load, single-page reload, search, backlink, RAG export, RSS e p95;
-- budget registrati per Python 3.12 e 3.13;
-- solo dopo le misure, eventuali indici secondari.
+- #111: offline generators at 1k and 10k pages;
+- load, single-page reload, search, backlink, RAG export, RSS, and p95;
+- budgets recorded for Python 3.12 and 3.13;
+- only after measurement, optional secondary indexes.
 
-### Wave 6 — Evoluzione architetturale
+### Wave 6 — Architectural evolution
 
-- #108: estrarre classifier, lexical state, reducer ed enrichment una fase alla volta;
-- nessun cambio visibile senza decisione di compatibilità;
-- ogni slice deve passare corpus, metamorphic suite, benchmark e impact review.
+- #108: extract classifier, lexical state, reducer, and enrichment one slice at a time;
+- no user-visible change without compatibility decision;
+- each slice must pass corpus, metamorphic suite, benchmarks, and impact review.
 
-## 11. Backlog agent-ready
+## 11. Agent-ready backlog
 
 ### [Issue #113](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/113) — `bug(parser): propagate immutable node refreshes through arbitrary depth`
 
-**Scope:** solo `_replace_stack_tail_node`, test parser e changelog se richiesto.  
-**Non scope:** riscrittura di `parse`, nuovi eventi, package split.  
-**Definition of Done:** depth matrix verde; invarianti UUID/order/line range; round-trip semantico; `make all`; 0 cicli; impact review documentata.
+**Scope:** only `_replace_stack_tail_node`, parser tests, and changelog if needed.
+**Out of scope:** parser rewrite, new events, package split.
+**Definition of Done:** green depth matrix; preserved UUID/order/line-range invariants; semantic round-trip; `make all`; zero cycles; documented impact review.
 
-### Estensione #106 — `security(writer): reject external symlink targets and unify filesystem confinement`
+### Extension #106 — `security(writer): reject external symlink targets and unify filesystem confinement`
 
-**Scope:** discovery/write boundary, `file://`, containment centralizzato, dry-run.  
-**Definition of Done:** nessun path esterno viene letto o scritto dai flussi vault-bound; test POSIX e casi Windows normalizzati; typed error e diagnostic code.
+**Scope:** discovery/write boundary, `file://`, centralized containment, dry-run mode.
+**Definition of Done:** no external path is read or written by vault-bound flows; POSIX and normalized Windows cases; typed errors and diagnostic codes.
 
-### Estensione #103 — `graph: make incremental identity changes cold-load equivalent`
+### Extension #103 — `graph: make incremental identity changes cold-load equivalent`
 
-**Scope:** titolo, alias, backlink, lower-title map e registry derivati.  
-**Definition of Done:** per create/edit/rename/delete, la semantic projection dello snapshot incrementale è identica al reload completo.
+**Scope:** title, alias, backlink, lower-title map, and derived registries.
+**Definition of Done:** for create/edit/rename/delete, observable incremental snapshot is identical to full reload.
 
-### Ordine delle issue esistenti
+### Existing issue order
 
 ```text
-Nuova bug parser P0
+New parser P0 bug
   ├─> #104 compatibility corpus
   └─> #108 parser phase extraction
 
@@ -564,34 +544,34 @@ Nuova bug parser P0
           └─> #108 refactor slices
 ```
 
-## 12. Metriche di successo
+## 12. Success metrics
 
-### 30 giorni
+### 30 days
 
-- 0 P0 noti aperti senza owner e riproduzione;
-- CI non mutante e dirty-tree check;
-- confine filesystem testato su symlink e `file://`;
-- documentazione mantenuta a MKQ-2 con status/classification separati e senza numeri divergenti;
-- issue #101–#111 etichettate per wave e dipendenze.
+- 0 known open P0 issues without owner and repro path;
+- non-mutating CI and dirty-tree check;
+- filesystem boundary tested for symlink and `file://`;
+- maintained documentation at MKQ-2 with separated status/classification and no diverging counts;
+- #101–#111 tagged by wave and dependency.
 
-### 60 giorni
+### 60 days
 
-- incremental reload semanticamente equivalente al cold load;
-- diagnostica JSON stabile per collisioni, riferimenti e filesystem;
-- corpus Logseq versionato con provenance;
-- wheel tipizzato e API stability table pubblica;
-- artifact release costruito una sola volta.
-- bundle documentale a MKQ-3 con link, anchor, lifecycle e canonical role verificati.
+- incremental reload semantically equivalent to cold load;
+- stable JSON diagnostics for collisions, references, and filesystem;
+- versioned Logseq corpus with provenance;
+- typed wheel and published API stability table;
+- release built once.
+- documentation bundle at MKQ-3 with verified links, anchors, lifecycle, and canonical role.
 
-### 90 giorni
+### 90 days
 
-- benchmark 1k/10k pubblicati con RSS e p95;
-- almeno due integrazioni esterne validate contro il contratto API;
-- zero regressioni degli invarianti su corpus e metamorphic suite;
-- prima estrazione parser completata senza semantic drift.
-- Gate G6: MKQ-4 in CI senza regressioni del comportamento Logseq.
+- 1k/10k benchmarks published with RSS and p95;
+- at least two external integrations validated against API contract;
+- zero invariant regressions on corpus and metamorphic suites;
+- first parser extraction slice completed without semantic drift.
+- Gate G6: MKQ-4 in CI without Logseq behavior regressions.
 
-## 13. Comandi di riproduzione e verifica
+## 13. Reproduction and verification commands
 
 Baseline:
 
@@ -606,13 +586,13 @@ rtk git diff --check
 Audit code:
 
 ```text
-status dell'indice al commit corrente
-query/context sui flussi parser, grafo, writer e watcher
-impact upstream sugli hub protetti
+index status at current commit
+query/context across parser, graph, writer, watcher
+impact upstream on protected symbols
 check(cycles) => cycleCount: 0
 ```
 
-I quattro probe runtime sono stati eseguiti su directory temporanee e non su vault reali. Output:
+The four runtime probes were executed in temporary directories only, not live vaults. Output:
 
 ```text
 DEEP_CONTENTS ['a', 'b', 'c', 'd', 'e']
@@ -623,32 +603,29 @@ SYMLINK_OUTSIDE_MUTATED True
 FILE_URI_RESULT /private/etc/passwd
 ```
 
-## 14. Limiti e affermazioni non autorizzate
+## 14. Limits and non-authoritative claims
 
-- Non è stato eseguito un benchmark su vault reale o da 10k pagine.
-- Non è stata qualificata una release pubblica né verificato un wheel installato pulito.
-- La successiva fase di pubblicazione ha aperto la PR #112, creato la issue
-  #113, aggiornato le issue impattate e chiuso solo completati/duplicati
-  documentati nel registro di riconciliazione. Milestone, branch protection e
-  workflow remoti non sono stati modificati.
-- Lo studio non dimostra compatibilità totale con tutte le versioni Logseq.
-- Il probe symlink dimostra il comportamento su macOS/POSIX; la policy deve includere una matrice Windows.
-- Nessuna raccomandazione autorizza refactor di hub senza nuovo impact review al momento dell'implementazione.
+- No benchmark was run against a real or 10k-page vault.
+- No public release was qualified and no clean wheel installation was verified.
+- The follow-up phase opened PR #112, created issue #113, updated impacted issues, and closed only completed/duplicate entries in the reconciliation log. Milestones, branch protection, and remote workflows were not changed.
+- The study does not prove complete compatibility with all Logseq versions.
+- The symlink probe demonstrates macOS/POSIX behavior; the policy must include Windows matrix coverage.
+- No recommendation authorizes hub refactors without fresh impact analysis at implementation time.
 
-## 15. Decisione finale
+## 15. Final decision
 
-La repository non ha bisogno di “più cose”; ha bisogno di rendere **impossibile perdere dati senza segnalarlo**, **impossibile uscire dal vault**, e **misurabile ogni promessa pubblica**.
+The repository does not need “more things”; it needs to make data loss impossible without alerting, make filesystem escape impossible, and make every public promise measurable.
 
-La traiettoria consigliata è quindi:
+Recommended trajectory:
 
 ```text
-correggere i P0
-→ confinare il filesystem
-→ rendere coerente lo snapshot
-→ congelare la semantica
-→ rendere verificabile il delivery
-→ misurare la scala
-→ refactor incrementale
+fix P0 issues
+→ confine vault filesystem operations
+→ make snapshots consistent
+→ freeze semantics
+→ make delivery auditable
+→ measure scale
+→ refactor incrementally
 ```
 
-Se queste wave vengono eseguite nell'ordine indicato, Logseq Matryca Parser può diventare una reference implementation credibile: non perché accumula feature, ma perché offre contratti deterministici, sicurezza locale, regressioni riproducibili e prove di qualità che un integratore può verificare autonomamente.
+If executed in this order, Logseq Matryca Parser can become a credible reference implementation: not by feature volume, but by deterministic contracts, local security, reproducible regressions, and quality evidence an integrator can independently verify.

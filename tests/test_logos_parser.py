@@ -343,7 +343,7 @@ def test_parse_file_empty_returns_no_nodes(tmp_path: Path, caplog: pytest.LogCap
 
     assert page.root_nodes == []
     assert page.title == "ghost"
-    assert "vuoto" in caplog.text
+    assert "is empty" in caplog.text
 
 
 def test_parse_page_file_zero_byte_returns_empty_page(tmp_path: Path) -> None:

@@ -59,52 +59,52 @@ The following pseudocode represents the logic required for a Journal Name Resolv
 
 Python
 
-def resolve\_journal\_page(input\_string, config\_formats, graph\_database):  
-    """  
-    Resolves a string reference to a Journal Page ID and its ISO-8601 representation.  
-    """  
-    \# Step 1: Normalize input by removing brackets if present  
-    clean\_string \= input\_string.strip("")  
-      
-    \# Step 2: Attempt to parse using the user's preferred formats from config.edn  
-    for fmt in config\_formats:  
-        try:  
-            date\_obj \= parse\_date(clean\_string, fmt)  
-            return map\_to\_entity(date\_obj, graph\_database)  
-        except ParsingError:  
-            continue  
-              
-    \# Step 3: Attempt parsing with common Logseq defaults  
-    defaults \= \["yyyy-MM-dd", "MMM do, yyyy", "yyyy\_MM\_dd", "E, dd-MM-yyyy"\]  
-    for fmt in defaults:  
-        try:  
-            date\_obj \= parse\_date(clean\_string, fmt)  
-            return map\_to\_entity(date\_obj, graph\_database)  
-        except ParsingError:  
-            continue  
-              
-    \# Step 4: If parsing fails, treat as a standard page link (non-journal)  
+def resolve\_journal\_page(input\_string, config\_formats, graph\_database):
+    """
+    Resolves a string reference to a Journal Page ID and its ISO-8601 representation.
+    """
+    \# Step 1: Normalize input by removing brackets if present
+    clean\_string \= input\_string.strip("")
+
+    \# Step 2: Attempt to parse using the user's preferred formats from config.edn
+    for fmt in config\_formats:
+        try:
+            date\_obj \= parse\_date(clean\_string, fmt)
+            return map\_to\_entity(date\_obj, graph\_database)
+        except ParsingError:
+            continue
+
+    \# Step 3: Attempt parsing with common Logseq defaults
+    defaults \= \["yyyy-MM-dd", "MMM do, yyyy", "yyyy\_MM\_dd", "E, dd-MM-yyyy"\]
+    for fmt in defaults:
+        try:
+            date\_obj \= parse\_date(clean\_string, fmt)
+            return map\_to\_entity(date\_obj, graph\_database)
+        except ParsingError:
+            continue
+
+    \# Step 4: If parsing fails, treat as a standard page link (non-journal)
     return resolve\_standard\_page(clean\_string, graph\_database)
 
-def map\_to\_entity(date\_obj, db):  
-    \# Convert date to the YYYYMMDD integer used for indexing  
-    journal\_day \= int(date\_obj.strftime("%Y%m%d"))  
-      
-    \# Query the database for a page with this journal-day  
-    entity \= db.query(f"\[:find?p :where \[?p :block/journal-day {journal\_day}\]\]")  
-      
-    if entity:  
-        return {  
-            "entity\_id": entity,  
-            "iso\_8601": date\_obj.isoformat(),  
-            "journal\_day": journal\_day  
-        }  
-    else:  
-        \# If no entity exists, return the temporal metadata for potential page creation  
-        return {  
-            "entity\_id": None,  
-            "iso\_8601": date\_obj.isoformat(),  
-            "journal\_day": journal\_day  
+def map\_to\_entity(date\_obj, db):
+    \# Convert date to the YYYYMMDD integer used for indexing
+    journal\_day \= int(date\_obj.strftime("%Y%m%d"))
+
+    \# Query the database for a page with this journal-day
+    entity \= db.query(f"\[:find?p :where \[?p :block/journal-day {journal\_day}\]\]")
+
+    if entity:
+        return {
+            "entity\_id": entity,
+            "iso\_8601": date\_obj.isoformat(),
+            "journal\_day": journal\_day
+        }
+    else:
+        \# If no entity exists, return the temporal metadata for potential page creation
+        return {
+            "entity\_id": None,
+            "iso\_8601": date\_obj.isoformat(),
+            "journal\_day": journal\_day
         }
 
 This resolver highlights a key architectural necessity: the parser must maintain a "temporal context" that includes not only the current system time but also the user's specific config.edn environment. Without this context, a string like "01-02-2024" is ambiguous, as it could represent January 2nd or February 1st depending on the user's locale.13
@@ -159,19 +159,19 @@ The following logic illustrates how the parser should calculate the next date fo
 
 Python
 
-def calculate\_next\_repeat(last\_scheduled, completion\_date, interval\_str):  
-    \# interval\_str example: "+1d", "++1w", ".+1m"  
-    kind \= identify\_kind(interval\_str) \# Simple, Double, Dotted  
-    delta \= parse\_interval(interval\_str) \# e.g., Timedelta(days=1)  
-      
-    if kind \== "SimplePlus":  
-        return last\_scheduled \+ delta  
-    elif kind \== "DoublePlus":  
-        next\_date \= last\_scheduled \+ delta  
-        while next\_date \<= completion\_date:  
-            next\_date \+= delta  
-        return next\_date  
-    elif kind \== "DottedPlus":  
+def calculate\_next\_repeat(last\_scheduled, completion\_date, interval\_str):
+    \# interval\_str example: "+1d", "++1w", ".+1m"
+    kind \= identify\_kind(interval\_str) \# Simple, Double, Dotted
+    delta \= parse\_interval(interval\_str) \# e.g., Timedelta(days=1)
+
+    if kind \== "SimplePlus":
+        return last\_scheduled \+ delta
+    elif kind \== "DoublePlus":
+        next\_date \= last\_scheduled \+ delta
+        while next\_date \<= completion\_date:
+            next\_date \+= delta
+        return next\_date
+    elif kind \== "DottedPlus":
         return completion\_date \+ delta
 
 The Sovereign AI must look at the :logbook history to see if the user consistently completes tasks late, which might suggest a need to adjust the interval or identify patterns of procrastination.27
@@ -184,11 +184,11 @@ The ultimate utility of the temporal ontology is realized through Datalog querie
 
 The DataScript schema contains several attributes that are essential for chronological reconstruction 1:
 
-* :block/journal-day: The date of the journal page the block resides on (Integer: YYYYMMDD).5  
-* :block/journal?: A boolean flag indicating if the page is a journal.6  
-* :block/scheduled: The scheduled date of a task (Integer: YYYYMMDD).21  
-* :block/deadline: The deadline of a task (Integer: YYYYMMDD).21  
-* :block/created-at: System timestamp of block creation (Epoch ms).1  
+* :block/journal-day: The date of the journal page the block resides on (Integer: YYYYMMDD).5
+* :block/journal?: A boolean flag indicating if the page is a journal.6
+* :block/scheduled: The scheduled date of a task (Integer: YYYYMMDD).21
+* :block/deadline: The deadline of a task (Integer: YYYYMMDD).21
+* :block/created-at: System timestamp of block creation (Epoch ms).1
 * :block/updated-at: System timestamp of the last modification (Epoch ms).33
 
 ### **Executing Range Queries**
@@ -197,12 +197,12 @@ Range queries are the most frequent temporal operations. A query to find all blo
 
 Clojure
 
-\[:find (pull?b \[\*\])  
- :in $?start?today  
- :where  
- \[?b :block/page?p\]  
- \[?p :block/journal-day?d\]  
- \[(\>=?d?start)\]  
+\[:find (pull?b \[\*\])
+ :in $?start?today
+ :where
+ \[?b :block/page?p\]
+ \[?p :block/journal-day?d\]
+ \[(\>=?d?start)\]
  \[(\<=?d?today)\]\]
 
 In this context, :inputs like :-7d and :today are provided to the query engine.7 The engine resolves :-7d by taking the current system date and subtracting 7 days, then formatting the result as a YYYYMMDD integer.8 This demonstrates why the parser must maintain a real-time clock to resolve relative references during the AI Inference phase.
@@ -217,19 +217,19 @@ The primary objective of the LOGOS parser is to create a "Sovereign AI" capable 
 
 The parser should implement a multi-stage normalization pipeline:
 
-1. **Extraction**: Use the regex patterns identified for links, markers, and clock entries to pull raw strings from the Markdown content.16  
-2. **Contextualization**: Identify the parent page’s date. If the block is on a journal page, its base date is the :block/journal-day of that page.1  
-3. **Resolution**: Apply the Resolver Algorithm using the user's config.edn to turn localized strings into YYYYMMDD integers.10  
-4. **Enrichment**: For tasks with times (e.g., 17:00), combine the date from the marker with the time to create a full ISO-8601 timestamp (e.g., 2024-04-25T17:00:00).23  
+1. **Extraction**: Use the regex patterns identified for links, markers, and clock entries to pull raw strings from the Markdown content.16
+2. **Contextualization**: Identify the parent page’s date. If the block is on a journal page, its base date is the :block/journal-day of that page.1
+3. **Resolution**: Apply the Resolver Algorithm using the user's config.edn to turn localized strings into YYYYMMDD integers.10
+4. **Enrichment**: For tasks with times (e.g., 17:00), combine the date from the marker with the time to create a full ISO-8601 timestamp (e.g., 2024-04-25T17:00:00).23
 5. **Reconstruction**: Use the :logbook data to track the actual completion times, providing a ground-truth timeline of when actions were performed versus when they were scheduled.22
 
 ### **Chronicling Personal Focus Areas**
 
 By normalizing all references to ISO-8601, the AI can perform longitudinal analysis. For example, to answer "What were my focus areas last October?", the AI does not just search for the word "October." Instead, it:
 
-* Identifies the date range for October of the target year.  
-* Converts this range to YYYYMMDD integers (e.g., 20231001 to 20231031).  
-* Queries the graph for all blocks where :block/journal-day falls within this range.  
+* Identifies the date range for October of the target year.
+* Converts this range to YYYYMMDD integers (e.g., 20231001 to 20231031).
+* Queries the graph for all blocks where :block/journal-day falls within this range.
 * Analyzes the content of those blocks and their linked pages (tags) to identify themes.
 
 This approach transforms Logseq from a collection of text files into a structured database of human experience. The Sovereign AI thus gains the ability to "remember" with chronological precision, providing the user with an ordered, searchable, and insightful history of their digital life. The rigor of the temporal ontology is what enables this transition from a mere note-taking application to a true personal knowledge graph.
@@ -322,42 +322,42 @@ The technical investigation into Logseq's temporal ontology reveals a system tha
 
 The LOGOS parser must address these challenges by mastering the mldoc parser's date detection logic, the sophisticated Journal Name Resolver algorithm, and the complex rules governing task repeaters and metadata markers. By normalizing every temporal reference into a standard ISO-8601 string or Unix Epoch timestamp, LOGOS provides the essential foundation for a Sovereign AI. This AI can then move beyond mere text searching to achieve a true "World Model" of the user's data, answering chronological questions with precision and reconstructing a perfectly ordered timeline of the user's life. The mastery of this temporal ontology is not just a technical requirement; it is the key to unlocking the full potential of personal knowledge graphs for human-AI collaboration.
 
-#### **Bibliografia**
+#### **Bibliography**
 
-1. General question about data structures to maximize benefits of datalog db and queries, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063](https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063)  
-2. How advanced queries work \- step-by-step explainer \- Queries \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/how-advanced-queries-work-step-by-step-explainer/30544](https://discuss.logseq.com/t/how-advanced-queries-work-step-by-step-explainer/30544)  
-3. logseq/CODEBASE\_OVERVIEW.md at master \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/blob/master/CODEBASE\_OVERVIEW.md](https://github.com/logseq/logseq/blob/master/CODEBASE_OVERVIEW.md)  
-4. Logseq from an Org-mode Point of View \- of Karl Voit, accesso eseguito il giorno aprile 25, 2026, [https://karl-voit.at/2024/01/28/logseq-from-org-pov/](https://karl-voit.at/2024/01/28/logseq-from-org-pov/)  
-5. Logseq journal: On this day, accesso eseguito il giorno aprile 25, 2026, [https://manhtai.github.io/posts/logseq-journal-on-this-day/](https://manhtai.github.io/posts/logseq-journal-on-this-day/)  
-6. Query to find blocks created today \- Questions & Help \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/query-to-find-blocks-created-today/15812](https://discuss.logseq.com/t/query-to-find-blocks-created-today/15812)  
-7. How to query block property with a date? \- Questions & Help \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/how-to-query-block-property-with-a-date/11825](https://discuss.logseq.com/t/how-to-query-block-property-with-a-date/11825)  
-8. How to show task's status, priority & deadlines in Table view mode \- Look what I built, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/how-to-show-tasks-status-priority-deadlines-in-table-view-mode/26924](https://discuss.logseq.com/t/how-to-show-tasks-status-priority-deadlines-in-table-view-mode/26924)  
-9. A logseq plugin which counts how many days left until the deadline. \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/xxchan/logseq-deadline-countdown](https://github.com/xxchan/logseq-deadline-countdown)  
-10. How to Change Logseq Journal File Name to YYYY-DD-MM Format \- Nesin.io, accesso eseguito il giorno aprile 25, 2026, [https://nesin.io/blog/change-logseq-journal-file-name-format](https://nesin.io/blog/change-logseq-journal-file-name-format)  
-11. Journal file name format \- Questions & Help \- Logseq forum, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/journal-file-name-format/1590](https://discuss.logseq.com/t/journal-file-name-format/1590)  
-12. Going back in time through Calendar creates and opens a page called Journal instead \#9923 \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/issues/9923](https://github.com/logseq/logseq/issues/9923)  
-13. Looking for Customizing Date Formats in Logseq\! \- Customization ..., accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/looking-for-customizing-date-formats-in-logseq/28352](https://discuss.logseq.com/t/looking-for-customizing-date-formats-in-logseq/28352)  
-14. cljs-time — com.andrewmcveigh/cljs-time 0.5.2 \- cljdoc, accesso eseguito il giorno aprile 25, 2026, [https://cljdoc.org/d/com.andrewmcveigh/cljs-time/0.5.2/api/cljs-time](https://cljdoc.org/d/com.andrewmcveigh/cljs-time/0.5.2/api/cljs-time)  
-15. clj-time.format documentation, accesso eseguito il giorno aprile 25, 2026, [https://clj-time.github.io/clj-time/doc/clj-time.format.html](https://clj-time.github.io/clj-time/doc/clj-time.format.html)  
-16. Modify date format in all existing docs \- Questions & Help \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/modify-date-format-in-all-existing-docs/30686](https://discuss.logseq.com/t/modify-date-format-in-all-existing-docs/30686)  
-17. Proper way to specify block creation date? : r/logseq \- Reddit, accesso eseguito il giorno aprile 25, 2026, [https://www.reddit.com/r/logseq/comments/1k4suhe/proper\_way\_to\_specify\_block\_creation\_date/](https://www.reddit.com/r/logseq/comments/1k4suhe/proper_way_to_specify_block_creation_date/)  
-18. Can I use a custom "date"/title format for journals and their titles? \- Questions & Help, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/can-i-use-a-custom-date-title-format-for-journals-and-their-titles/25983](https://discuss.logseq.com/t/can-i-use-a-custom-date-title-format-for-journals-and-their-titles/25983)  
-19. Formatting date formats : r/logseq \- Reddit, accesso eseguito il giorno aprile 25, 2026, [https://www.reddit.com/r/logseq/comments/19cle0c/formatting\_date\_formats/](https://www.reddit.com/r/logseq/comments/19cle0c/formatting_date_formats/)  
-20. What's the best practice for markers on recurring tasks? \- Questions & Help \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/whats-the-best-practice-for-markers-on-recurring-tasks/27455](https://discuss.logseq.com/t/whats-the-best-practice-for-markers-on-recurring-tasks/27455)  
-21. Sorting by minimum of scheduled and deadline? \- Queries \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/sorting-by-minimum-of-scheduled-and-deadline/23613](https://discuss.logseq.com/t/sorting-by-minimum-of-scheduled-and-deadline/23613)  
-22. How can I create a time-spent-on-tasks report for a tree of tasks or single page of tasks?, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/how-can-i-create-a-time-spent-on-tasks-report-for-a-tree-of-tasks-or-single-page-of-tasks/29541](https://discuss.logseq.com/t/how-can-i-create-a-time-spent-on-tasks-report-for-a-tree-of-tasks-or-single-page-of-tasks/29541)  
-23. benjypng/logseq-dateutils \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/benjypng/logseq-dateutils](https://github.com/benjypng/logseq-dateutils)  
-24. How do I get LogSeq page creation date to equal creation date of actual .md file?, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/how-do-i-get-logseq-page-creation-date-to-equal-creation-date-of-actual-md-file/13939](https://discuss.logseq.com/t/how-do-i-get-logseq-page-creation-date-to-equal-creation-date-of-actual-md-file/13939)  
-25. How do I get the simplified block content as in regular logseq.table.version 1 of Advanced Queries in custom :view, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/how-do-i-get-the-simplified-block-content-as-in-regular-logseq-table-version-1-of-advanced-queries-in-custom-view/25192](https://discuss.logseq.com/t/how-do-i-get-the-simplified-block-content-as-in-regular-logseq-table-version-1-of-advanced-queries-in-custom-view/25192)  
-26. Scheduled tasks on day of journal \- Queries \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/scheduled-tasks-on-day-of-journal/22441](https://discuss.logseq.com/t/scheduled-tasks-on-day-of-journal/22441)  
-27. r/logseq \- Reddit, accesso eseguito il giorno aprile 25, 2026, [https://www.reddit.com/r/logseq/](https://www.reddit.com/r/logseq/)  
-28. Home Report home for your next assignment Training Practice Complete challenging Kata to earn honor and ranks. Re-train to hone, accesso eseguito il giorno aprile 25, 2026, [https://www.terceiro.com.br/resolucoes-exercicios-codewars.pdf](https://www.terceiro.com.br/resolucoes-exercicios-codewars.pdf)  
-29. Repeat tasks don't repeat as documented · Issue \#11260 \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/issues/11260](https://github.com/logseq/logseq/issues/11260)  
-30. habits/repeating tasks scheduling reference date · Issue \#5645 ..., accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/issues/5645](https://github.com/logseq/logseq/issues/5645)  
-31. Repeating tasks don't behave as documented \- Bug Reports \- Logseq forum, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/repeating-tasks-dont-behave-as-documented/26631](https://discuss.logseq.com/t/repeating-tasks-dont-behave-as-documented/26631)  
-32. Official, comprehensive list of \`config.edn\` options \- Archive \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/official-comprehensive-list-of-config-edn-options/4935](https://discuss.logseq.com/t/official-comprehensive-list-of-config-edn-options/4935)  
-33. My GTD and slip box-ish workflow within logseq \- Look what I built, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/my-gtd-and-slip-box-ish-workflow-within-logseq/4626](https://discuss.logseq.com/t/my-gtd-and-slip-box-ish-workflow-within-logseq/4626)  
-34. Use journal day instead of :today in advanced queries \- Logseq forum, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/use-journal-day-instead-of-today-in-advanced-queries/28121](https://discuss.logseq.com/t/use-journal-day-instead-of-today-in-advanced-queries/28121)  
-35. Advanced queries for Logseq.md \- GitHub Gist, accesso eseguito il giorno aprile 25, 2026, [https://gist.github.com/jumski/ad9d9f952a263af35a06a7c6cfff0d04](https://gist.github.com/jumski/ad9d9f952a263af35a06a7c6cfff0d04)  
-36. Sorting by journal-day and hiding the page name in advanced queries, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/sorting-by-journal-day-and-hiding-the-page-name-in-advanced-queries/24543](https://discuss.logseq.com/t/sorting-by-journal-day-and-hiding-the-page-name-in-advanced-queries/24543)  
-37. Advanced Query that pulls all reference AND recursive name spaces \- Logseq forum, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/advanced-query-that-pulls-all-reference-and-recursive-name-spaces/21275](https://discuss.logseq.com/t/advanced-query-that-pulls-all-reference-and-recursive-name-spaces/21275)
+1. General question about data structures to maximize benefits of datalog db and queries, accessed on April 25, 2026, [https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063](https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063)
+2. How advanced queries work \- step-by-step explainer \- Queries \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/how-advanced-queries-work-step-by-step-explainer/30544](https://discuss.logseq.com/t/how-advanced-queries-work-step-by-step-explainer/30544)
+3. logseq/CODEBASE\_OVERVIEW.md at master \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/blob/master/CODEBASE\_OVERVIEW.md](https://github.com/logseq/logseq/blob/master/CODEBASE_OVERVIEW.md)
+4. Logseq from an Org-mode Point of View \- of Karl Voit, accessed on April 25, 2026, [https://karl-voit.at/2024/01/28/logseq-from-org-pov/](https://karl-voit.at/2024/01/28/logseq-from-org-pov/)
+5. Logseq journal: On this day, accessed on April 25, 2026, [https://manhtai.github.io/posts/logseq-journal-on-this-day/](https://manhtai.github.io/posts/logseq-journal-on-this-day/)
+6. Query to find blocks created today \- Questions & Help \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/query-to-find-blocks-created-today/15812](https://discuss.logseq.com/t/query-to-find-blocks-created-today/15812)
+7. How to query block property with a date? \- Questions & Help \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/how-to-query-block-property-with-a-date/11825](https://discuss.logseq.com/t/how-to-query-block-property-with-a-date/11825)
+8. How to show task's status, priority & deadlines in Table view mode \- Look what I built, accessed on April 25, 2026, [https://discuss.logseq.com/t/how-to-show-tasks-status-priority-deadlines-in-table-view-mode/26924](https://discuss.logseq.com/t/how-to-show-tasks-status-priority-deadlines-in-table-view-mode/26924)
+9. A logseq plugin which counts how many days left until the deadline. \- GitHub, accessed on April 25, 2026, [https://github.com/xxchan/logseq-deadline-countdown](https://github.com/xxchan/logseq-deadline-countdown)
+10. How to Change Logseq Journal File Name to YYYY-DD-MM Format \- Nesin.io, accessed on April 25, 2026, [https://nesin.io/blog/change-logseq-journal-file-name-format](https://nesin.io/blog/change-logseq-journal-file-name-format)
+11. Journal file name format \- Questions & Help \- Logseq forum, accessed on April 25, 2026, [https://discuss.logseq.com/t/journal-file-name-format/1590](https://discuss.logseq.com/t/journal-file-name-format/1590)
+12. Going back in time through Calendar creates and opens a page called Journal instead \#9923 \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/issues/9923](https://github.com/logseq/logseq/issues/9923)
+13. Looking for Customizing Date Formats in Logseq\! \- Customization ..., accessed on April 25, 2026, [https://discuss.logseq.com/t/looking-for-customizing-date-formats-in-logseq/28352](https://discuss.logseq.com/t/looking-for-customizing-date-formats-in-logseq/28352)
+14. cljs-time — com.andrewmcveigh/cljs-time 0.5.2 \- cljdoc, accessed on April 25, 2026, [https://cljdoc.org/d/com.andrewmcveigh/cljs-time/0.5.2/api/cljs-time](https://cljdoc.org/d/com.andrewmcveigh/cljs-time/0.5.2/api/cljs-time)
+15. clj-time.format documentation, accessed on April 25, 2026, [https://clj-time.github.io/clj-time/doc/clj-time.format.html](https://clj-time.github.io/clj-time/doc/clj-time.format.html)
+16. Modify date format in all existing docs \- Questions & Help \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/modify-date-format-in-all-existing-docs/30686](https://discuss.logseq.com/t/modify-date-format-in-all-existing-docs/30686)
+17. Proper way to specify block creation date? : r/logseq \- Reddit, accessed on April 25, 2026, [https://www.reddit.com/r/logseq/comments/1k4suhe/proper\_way\_to\_specify\_block\_creation\_date/](https://www.reddit.com/r/logseq/comments/1k4suhe/proper_way_to_specify_block_creation_date/)
+18. Can I use a custom "date"/title format for journals and their titles? \- Questions & Help, accessed on April 25, 2026, [https://discuss.logseq.com/t/can-i-use-a-custom-date-title-format-for-journals-and-their-titles/25983](https://discuss.logseq.com/t/can-i-use-a-custom-date-title-format-for-journals-and-their-titles/25983)
+19. Formatting date formats : r/logseq \- Reddit, accessed on April 25, 2026, [https://www.reddit.com/r/logseq/comments/19cle0c/formatting\_date\_formats/](https://www.reddit.com/r/logseq/comments/19cle0c/formatting_date_formats/)
+20. What's the best practice for markers on recurring tasks? \- Questions & Help \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/whats-the-best-practice-for-markers-on-recurring-tasks/27455](https://discuss.logseq.com/t/whats-the-best-practice-for-markers-on-recurring-tasks/27455)
+21. Sorting by minimum of scheduled and deadline? \- Queries \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/sorting-by-minimum-of-scheduled-and-deadline/23613](https://discuss.logseq.com/t/sorting-by-minimum-of-scheduled-and-deadline/23613)
+22. How can I create a time-spent-on-tasks report for a tree of tasks or single page of tasks?, accessed on April 25, 2026, [https://discuss.logseq.com/t/how-can-i-create-a-time-spent-on-tasks-report-for-a-tree-of-tasks-or-single-page-of-tasks/29541](https://discuss.logseq.com/t/how-can-i-create-a-time-spent-on-tasks-report-for-a-tree-of-tasks-or-single-page-of-tasks/29541)
+23. benjypng/logseq-dateutils \- GitHub, accessed on April 25, 2026, [https://github.com/benjypng/logseq-dateutils](https://github.com/benjypng/logseq-dateutils)
+24. How do I get LogSeq page creation date to equal creation date of actual .md file?, accessed on April 25, 2026, [https://discuss.logseq.com/t/how-do-i-get-logseq-page-creation-date-to-equal-creation-date-of-actual-md-file/13939](https://discuss.logseq.com/t/how-do-i-get-logseq-page-creation-date-to-equal-creation-date-of-actual-md-file/13939)
+25. How do I get the simplified block content as in regular logseq.table.version 1 of Advanced Queries in custom :view, accessed on April 25, 2026, [https://discuss.logseq.com/t/how-do-i-get-the-simplified-block-content-as-in-regular-logseq-table-version-1-of-advanced-queries-in-custom-view/25192](https://discuss.logseq.com/t/how-do-i-get-the-simplified-block-content-as-in-regular-logseq-table-version-1-of-advanced-queries-in-custom-view/25192)
+26. Scheduled tasks on day of journal \- Queries \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/scheduled-tasks-on-day-of-journal/22441](https://discuss.logseq.com/t/scheduled-tasks-on-day-of-journal/22441)
+27. r/logseq \- Reddit, accessed on April 25, 2026, [https://www.reddit.com/r/logseq/](https://www.reddit.com/r/logseq/)
+28. Home Report home for your next assignment Training Practice Complete challenging Kata to earn honor and ranks. Re-train to hone, accessed on April 25, 2026, [https://www.terceiro.com.br/resolucoes-exercicios-codewars.pdf](https://www.terceiro.com.br/resolucoes-exercicios-codewars.pdf)
+29. Repeat tasks don't repeat as documented · Issue \#11260 \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/issues/11260](https://github.com/logseq/logseq/issues/11260)
+30. habits/repeating tasks scheduling reference date · Issue \#5645 ..., accessed on April 25, 2026, [https://github.com/logseq/logseq/issues/5645](https://github.com/logseq/logseq/issues/5645)
+31. Repeating tasks don't behave as documented \- Bug Reports \- Logseq forum, accessed on April 25, 2026, [https://discuss.logseq.com/t/repeating-tasks-dont-behave-as-documented/26631](https://discuss.logseq.com/t/repeating-tasks-dont-behave-as-documented/26631)
+32. Official, comprehensive list of \`config.edn\` options \- Archive \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/official-comprehensive-list-of-config-edn-options/4935](https://discuss.logseq.com/t/official-comprehensive-list-of-config-edn-options/4935)
+33. My GTD and slip box-ish workflow within logseq \- Look what I built, accessed on April 25, 2026, [https://discuss.logseq.com/t/my-gtd-and-slip-box-ish-workflow-within-logseq/4626](https://discuss.logseq.com/t/my-gtd-and-slip-box-ish-workflow-within-logseq/4626)
+34. Use journal day instead of :today in advanced queries \- Logseq forum, accessed on April 25, 2026, [https://discuss.logseq.com/t/use-journal-day-instead-of-today-in-advanced-queries/28121](https://discuss.logseq.com/t/use-journal-day-instead-of-today-in-advanced-queries/28121)
+35. Advanced queries for Logseq.md \- GitHub Gist, accessed on April 25, 2026, [https://gist.github.com/jumski/ad9d9f952a263af35a06a7c6cfff0d04](https://gist.github.com/jumski/ad9d9f952a263af35a06a7c6cfff0d04)
+36. Sorting by journal-day and hiding the page name in advanced queries, accessed on April 25, 2026, [https://discuss.logseq.com/t/sorting-by-journal-day-and-hiding-the-page-name-in-advanced-queries/24543](https://discuss.logseq.com/t/sorting-by-journal-day-and-hiding-the-page-name-in-advanced-queries/24543)
+37. Advanced Query that pulls all reference AND recursive name spaces \- Logseq forum, accessed on April 25, 2026, [https://discuss.logseq.com/t/advanced-query-that-pulls-all-reference-and-recursive-name-spaces/21275](https://discuss.logseq.com/t/advanced-query-that-pulls-all-reference-and-recursive-name-spaces/21275)

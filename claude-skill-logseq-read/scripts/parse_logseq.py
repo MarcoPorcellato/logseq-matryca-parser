@@ -4,7 +4,7 @@ Parse Logseq notes and return structured content for Claude.
 Part of the logseq-read skill.
 
 Usage:
-  parse_logseq.py --page "Progetto Alpha"
+  parse_logseq.py --page "Project Alpha"
   parse_logseq.py --journal today
   parse_logseq.py --journal 2026-05-15
   parse_logseq.py --todos
@@ -51,15 +51,15 @@ def format_node(node, depth=0) -> list[str]:
         icon = TASK_ICONS.get(task, task)
         text = f"{icon} {text}"
 
-    # Wikilink e tag estratti dal parser ma omessi dal prompt predefinito per
-    # risparmiare token nel contesto; si possono concatenare a `text` se servono.
+    # Wikilinks and tags are extracted by the parser but omitted from the default
+    # prompt to save context tokens; append them to `text` when needed.
     _wikilinks = getattr(node, "wikilinks", []) or []
     _tags = getattr(node, "tags", []) or []
 
-    # Numero di riga 1-based nel file sorgente (logseq-matryca-parser v0.2.2+):
-    # consente citazioni precise nei riferimenti LLM, es. "[Riga 42] ...".
+    # One-based line number in the source file (logseq-matryca-parser v0.2.2+),
+    # enabling precise citations in LLM references, for example "[Line 42] ...".
     line_start = getattr(node, "line_start", None)
-    line_prefix = f"[Riga {line_start}] " if line_start is not None else ""
+    line_prefix = f"[Line {line_start}] " if line_start is not None else ""
 
     lines = [f"{indent}- {line_prefix}{text}"]
 
@@ -118,8 +118,8 @@ def cmd_page(name: str) -> str:
             for f in PAGES_PATH.glob("*.md")
         )
         return (
-            f"Nessuna pagina trovata per '{name}'.\n\n"
-            f"Pagine disponibili: {', '.join(all_pages)}"
+            f"No page found for '{name}'.\n\n"
+            f"Available pages: {', '.join(all_pages)}"
         )
 
     parts = []
@@ -140,15 +140,15 @@ def cmd_journal(date_arg: str) -> str:
         try:
             target = date.fromisoformat(date_arg)
         except ValueError:
-            return f"Formato data non valido: '{date_arg}'. Usa YYYY-MM-DD o 'today'."
+            return f"Invalid date format: '{date_arg}'. Use YYYY-MM-DD or 'today'."
 
     path = JOURNALS_PATH / f"{target.year}_{target.month:02d}_{target.day:02d}.md"
     if not path.exists():
         available = sorted(JOURNALS_PATH.glob("*.md"), reverse=True)[:5]
         nearby = [f.stem.replace("_", "-") for f in available]
         return (
-            f"Nessun journal per {target}.\n\n"
-            f"Journal recenti: {', '.join(nearby)}"
+            f"No journal found for {target}.\n\n"
+            f"Recent journals: {', '.join(nearby)}"
         )
 
     return f"# Journal {target}\n\n{format_page(path)}"
@@ -183,9 +183,9 @@ def cmd_todos() -> str:
             results[section] = file_todos
 
     if not results:
-        return "Nessun task aperto trovato."
+        return "No open tasks found."
 
-    lines = ["# Task aperti\n"]
+    lines = ["# Open tasks\n"]
     for section, todos in results.items():
         lines.append(f"### {section}")
         lines.extend(todos)
@@ -224,9 +224,9 @@ def cmd_search(query: str) -> str:
             results.extend(matches)
 
     if not results:
-        return f"Nessun risultato per '{query}'."
+        return f"No results for '{query}'."
 
-    return f"# Ricerca: '{query}'\n" + "\n".join(results)
+    return f"# Search: '{query}'\n" + "\n".join(results)
 
 
 def cmd_list() -> str:
@@ -237,7 +237,7 @@ def cmd_list() -> str:
     lines.append("## Pages")
     for p in pages:
         lines.append(f"- {p.stem.replace('___', '/').replace('_', ' ')}")
-    lines.append("\n## Journal (ultimi 15)")
+    lines.append("\n## Journals (latest 15)")
     for j in journals:
         lines.append(f"- {j.stem.replace('_', '-')}")
 
@@ -250,11 +250,11 @@ def cmd_list() -> str:
 def main():
     parser = argparse.ArgumentParser(description="Parse Logseq notes for Claude.")
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--page", metavar="NAME", help="Leggi una pagina per nome")
-    group.add_argument("--journal", metavar="DATE", help="Leggi journal: 'today' o YYYY-MM-DD")
-    group.add_argument("--todos", action="store_true", help="Lista tutti i task aperti")
-    group.add_argument("--search", metavar="QUERY", help="Ricerca full-text")
-    group.add_argument("--list", action="store_true", help="Lista tutte le pagine")
+    group.add_argument("--page", metavar="NAME", help="Read a page by name")
+    group.add_argument("--journal", metavar="DATE", help="Read a journal: 'today' or YYYY-MM-DD")
+    group.add_argument("--todos", action="store_true", help="List all open tasks")
+    group.add_argument("--search", metavar="QUERY", help="Run a full-text search")
+    group.add_argument("--list", action="store_true", help="List all pages")
 
     args = parser.parse_args()
     ensure_installed()

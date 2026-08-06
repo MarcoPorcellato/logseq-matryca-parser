@@ -289,7 +289,7 @@ class SynapseAdapter:
     def to_langchain_documents(nodes: list[LogseqNode], source_name: str) -> list[Any]:
         """Convert AST nodes to LangChain documents using `LangChainVisitor`."""
         if Document is None:
-            raise ImportError("LangChain non rilevato. Installa 'langchain-core' per usare Synapse.")
+            raise ImportError("LangChain was not detected. Install 'langchain-core' to use Synapse.")
         visitor = LangChainVisitor(source_name=source_name, document_cls=Document)
         for node in nodes:
             node.accept(visitor)
@@ -304,7 +304,7 @@ class SynapseAdapter:
     ) -> list[Any]:
         """Convert AST nodes to LlamaIndex nodes preserving topology links."""
         if TextNode is None or NodeRelationship is None or RelatedNodeInfo is None:
-            raise ImportError("LlamaIndex non rilevato. Installa 'llama-index' per usare Synapse.")
+            raise ImportError("LlamaIndex was not detected. Install 'llama-index' to use Synapse.")
         flat = _flatten_nodes_for_export(nodes)
         unique_paths = {node.source_path for node in flat if node.source_path}
         use_per_node_source = len(unique_paths) > 1
@@ -341,7 +341,7 @@ class SynapseAdapter:
     ) -> list[Any]:
         """Flatten ``nodes`` and emit LangChain ``Document``s with breadcrumb-enriched ``page_content``."""
         if Document is None:
-            raise ImportError("LangChain non rilevato. Installa 'langchain-core' per usare Synapse.")
+            raise ImportError("LangChain was not detected. Install 'langchain-core' to use Synapse.")
         documents: list[Any] = []
         flat = _flatten_nodes_for_export(nodes)
         for node in flat:

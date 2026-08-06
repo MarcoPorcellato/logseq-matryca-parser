@@ -1,82 +1,82 @@
 ---
 name: logseq-read
-description: "Legge e interroga la knowledge base Logseq personale dell'utente (appunti, note, journal, task). Il percorso del graph si configura con la variabile d'ambiente LOGSEQ_GRAPH_PATH oppure con il placeholder predefinito nello script (vedi sotto). USA sempre questa skill prima di rispondere a domande sulle note personali, la conoscenza, i progetti o i task — non inventare dalla memoria. Attivala quando l'utente chiede di una persona, progetto o argomento nelle note (\"leggi le note su X\", \"cosa so su Y\", \"chi è X\"); chiede cosa ha da fare (\"cosa ho da fare\", \"TODO aperti\", \"task in sospeso\"); chiede il journal di oggi o del passato (\"journal di oggi\", \"cosa ho fatto ieri\"); vuole cercare nelle note (\"cerca nelle note\", \"dove ho scritto di X\"); vuole elencare pagine o graph. Attivala anche per domande su lavoro, clienti, progetti o piani personali."
+description: "Read and query the user's personal Logseq knowledge base (notes, journals, tasks). The graph path is configured via the LOGSEQ_GRAPH_PATH environment variable or the default placeholder in the script (see below). Always use this skill before answering questions about personal notes, knowledge, projects, or tasks—never hallucinate missing data. Activate it when the user asks about a person, project, or topic in the notes (\"read notes about X\", \"what do I know about Y\", \"who is X\"); asks for tasks (\"what do I need to do\", \"open TODOs\", \"tasks in progress\"); asks for today's or historical journal (\"today's journal\", \"what I did yesterday\"); wants to search notes (\"search notes\", \"where did I write about X\"); wants to list pages or graph. Also use it for questions about work, customers, projects, or personal plans."
 ---
 
 # Logseq Read
 
-Skill per leggere il graph Logseq dell'utente mantenendo gerarchia, wikilink, tag, proprietà e stato dei task.
+Skill for reading the user's Logseq graph while preserving hierarchy, wikilinks, tags, properties, and task state.
 
-**Graph path:** `/path/to/your/logseq/graph` (oppure imposta la variabile d'ambiente `LOGSEQ_GRAPH_PATH` sul percorso assoluto del tuo graph Logseq prima di eseguire lo script)
-- `pages/` → note su persone, progetti, argomenti
-- `journals/` → diari giornalieri (`YYYY_MM_DD.md`)
+**Graph path:** `/path/to/your/logseq/graph` (or set the `LOGSEQ_GRAPH_PATH` environment variable to the absolute path of your Logseq graph before running the script)
+- `pages/` → notes about people, projects, and topics
+- `journals/` → daily journals (`YYYY_MM_DD.md`)
 
 ---
 
-## Esecuzione
+## Execution
 
-Il percorso base di questa skill è indicato nell'intestazione "Base directory for this skill:" all'inizio di questo documento in Claude Desktop. Usa quel percorso per lo script:
+The base path for this skill is shown in the header `Base directory for this skill:` at the top of this document in Claude Desktop. Use that path in the script:
 
 ```bash
 python "/SKILL_BASE_DIR/scripts/parse_logseq.py" <ARGS>
 ```
 
-Sostituisci `/SKILL_BASE_DIR` con il percorso base estratto dall'intestazione.
+Replace `/SKILL_BASE_DIR` with the base path extracted from the header.
 
 ---
 
-## Comandi disponibili
+## Available commands
 
-| Argomento | Quando usarlo |
+| Topic | When to use |
 |-----------|--------------|
-| `--page "Nome"` | Leggi una pagina (persona, progetto, argomento) |
-| `--journal today` | Journal di oggi |
-| `--journal 2026-05-15` | Journal di una data specifica (ISO) |
-| `--todos` | Tutti i task aperti (TODO/DOING/LATER) da tutte le note |
-| `--search "termine"` | Ricerca full-text in tutte le note |
-| `--list` | Lista tutte le pagine e i journal disponibili |
+| `--page "Name"` | Read one page (person, project, topic) |
+| `--journal today` | Today's journal |
+| `--journal 2026-05-15` | Journal for a specific date (ISO) |
+| `--todos` | All open tasks (TODO/DOING/LATER) across all notes |
+| `--search "term"` | Full-text search across all notes |
+| `--list` | List all available pages and journals |
 
 ---
 
-## Come mappare la richiesta dell'utente
+## How to map user requests
 
-- *"leggi le note su [nome/progetto]"* → `--page "[nome]"`
-- *"cosa ho da fare / task aperti / TODO"* → `--todos`
-- *"journal di oggi / cosa ho fatto oggi"* → `--journal today`
-- *"journal del [data verbale o ISO]"* → `--journal YYYY-MM-DD`
-- *"cerca [termine] nelle note"* → `--search "[termine]"`
-- *"quali pagine ho / lista note"* → `--list`
-- Domanda su una persona o progetto specifico → `--page "[nome]"`
+- *"read notes about [person/project]"* → `--page "[name]"`
+- *"what do I need to do / open tasks / TODO"* → `--todos`
+- *"today's journal / what I did today"* → `--journal today`
+- *"journal for [spoken date or ISO]"* → `--journal YYYY-MM-DD`
+- *"search [term] in notes"* → `--search "[term]"`
+- *"which pages do I have / list notes"* → `--list`
+- Question about a specific person or project → `--page "[name]"`
 
-Se la richiesta è ambigua, inizia con `--list` per mostrare le pagine disponibili, poi leggi quella pertinente.
-
----
-
-## Struttura dell'output
-
-Lo script restituisce markdown strutturato con:
-- **Proprietà** della pagina (`title::`, `tags::`, `type::`, `status::`, ecc.)
-- **Gerarchia** dei bullet point preservata (indentazione = profondità)
-- **Task** con stato: `TODO`, `DOING`, `DONE`, `LATER`
-- **Wikilink** come `[[Nome Pagina]]`
-- **Scheduled** e annotazioni temporali
+If the request is ambiguous, start with `--list` to show available pages, then read the relevant one.
 
 ---
 
-## Come usare l'output
+## Output structure
 
-1. Leggi le note con il comando appropriato
-2. Rispondi alla domanda dell'utente sintetizzando le informazioni rilevanti
-3. Cita sempre task aperti se presenti e pertinenti alla domanda
-4. Se nell'output ci sono `[[Wikilink]]` a pagine correlate, offriti di leggerle anche quelle con `--page`
-5. Non inventare mai informazioni non presenti nelle note — citale o ammetti che non ci sono
+The script returns structured markdown containing:
+- **Properties** of the page (`title::`, `tags::`, `type::`, `status::`, etc.)
+- **Hierarchy** of bullet points preserved (indentation = depth)
+- **Tasks** with state: `TODO`, `DOING`, `DONE`, `LATER`
+- **Wikilink** as `[[Page Name]]`
+- **Scheduled** items and timeline annotations
 
 ---
 
-## Setup automatico
+## How to use the output
 
-Lo script installa `logseq-matryca-parser` automaticamente se mancante.
-In caso di errore di installazione, esegui manualmente:
+1. Read notes with the appropriate command
+2. Respond to the user question by summarizing relevant information
+3. Always include open tasks if they are present and relevant
+4. If output includes `[[Wikilink]]` to related pages, offer to read those pages too with `--page`
+5. Never invent information not present in the notes—cite it or say it is missing
+
+---
+
+## Automatic setup
+
+The script installs `logseq-matryca-parser` automatically if missing.
+If installation fails, install manually with:
 
 ```bash
 uv pip install logseq-matryca-parser

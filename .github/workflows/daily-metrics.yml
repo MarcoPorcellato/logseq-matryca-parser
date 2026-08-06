@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 env:
-  # Forza l'ambiente di esecuzione su Node.js 24 per prevenire i warning di deprecazione di giugno 2026
+  # Force the Node.js 24 runtime to prevent the June 2026 deprecation warnings.
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:

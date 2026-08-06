@@ -1,5 +1,5 @@
 # .cursorignore
-# (Nota: Cursor ignora già automaticamente tutto ciò che è nel .gitignore)
+# Note: Cursor already ignores everything listed in .gitignore.
 
 # =========================
 # Python & Virtual Environments

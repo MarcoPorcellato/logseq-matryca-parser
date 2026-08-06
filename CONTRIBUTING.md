@@ -29,6 +29,15 @@ User-facing behavior is documented in:
 
 When you add or change observable parser or graph behavior, update the relevant doc sections and add a bullet under **`## [Unreleased]`** in `CHANGELOG.md` (see [`.cursor/rules/05-auto-changelog.mdc`](.cursor/rules/05-auto-changelog.mdc)).
 
+### Repository language
+
+Use English for documentation, changelog entries, issue and pull-request text,
+code comments, log messages, CLI help, and maintainer-facing configuration.
+Non-English text is appropriate only when it is the data under test, a quoted
+source title, or an intentionally localized runtime fixture. Generated repository
+packs are read-only snapshots: regenerate them from their source files instead of
+editing their embedded copies.
+
 ### Tooling policy
 
 CI and automation in this repository are limited to the core runtime and standard open-source linters (Ruff, Mypy, Pytest, CodeQL). Do not add third-party AST indexers, experimental analysis scripts, or custom MCP servers to the public tree, workflows, or `pyproject.toml`. See [`docs/internal/STATIC_ANALYSIS_POLICY.md`](docs/internal/STATIC_ANALYSIS_POLICY.md).

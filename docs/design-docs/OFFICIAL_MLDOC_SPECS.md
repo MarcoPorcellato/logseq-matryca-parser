@@ -32,8 +32,8 @@ This absolute indentation rule introduces profound complexities during the lexin
 
 ### **Root Level H3**
 
-\- Level 1 Bullet  
-	\# Level 2 H1  
+\- Level 1 Bullet
+	\# Level 2 H1
 		\- Level 3 Bullet
 
 **Expected Output / AST Behavior:** The Abstract Syntax Tree deterministically ignores the conventional semantic meaning of the hash markers for hierarchy construction. The Angstrom parser initializes its indentation tracking stack at column zero. The initial string \#\#\# Root Level H3 is parsed with zero indentation, resulting in its assignment as a root node of type Heading with a metadata parameter of :level 3\.6 As the scanner proceeds to the next line, it detects a single tab character, which introduces a positive indentation delta. The parser emits a virtual indentation token, and the text Level 1 Bullet is instantiated as the first child of the root node.
@@ -44,10 +44,10 @@ Subsequently, the parser encounters \\t\\t\# Level 2 H1. This introduces a secon
 
 **Context:** A critical failure point in standard markdown parsers occurs when text contains broken indentation sequences—specifically, a sudden geometric jump from a zero-space prefix directly to a four-space prefix, entirely bypassing an intermediate two-space or single-tab level. The mldoc engine must decide whether to treat the heavily indented text as a grandchild (which would necessitate the creation of a phantom, empty intermediate child node), a direct child with a non-standard spatial baseline, or an indented code block as dictated by standard CommonMark specifications.3 **Input Markdown:**
 
-* Root Node  
-  * Sudden Four Space Node  
-    * Normal Two Space Delta  
-      **Expected Output / AST Behavior:**  
+* Root Node
+  * Sudden Four Space Node
+    * Normal Two Space Delta
+      **Expected Output / AST Behavior:**
       To resolve this anomaly, the mldoc lexer employs a specialized whitespace unification pass designed to preserve user intent within the context of an outliner database. The parser initially reads the Root Node string at column zero. Upon scanning the subsequent line, it detects four consecutive spaces. While a strict standard Markdown parser might interpret four spaces following a list item as either a block continuation or an erroneously formatted string, the Logseq outliner paradigm mandates that this represents a nested level.
 
 Because the intermediate two-space level is entirely missing from the character stream, mldoc does not generate a phantom or empty intermediate node to bridge the gap. Instead, it dynamically binds the Sudden Four Space Node as a direct child of the Root Node, internally recording the new spatial baseline delta for this specific subtree as four spaces. When the parser moves to the third line and encounters six spaces, it calculates a delta of two spaces relative to the parent node. The parser seamlessly accepts this as a valid child of the Sudden Four Space Node. When the AST normalizes these relationships into JSON or EDN formats, the inconsistent visual spacing is entirely stripped. The final hierarchical array transforms the physical character variations into purely logical datalog relationships, linking the blocks cleanly without retaining the spatial anomalies.3
@@ -56,9 +56,9 @@ Because the intermediate two-space level is entirely missing from the character 
 
 **Context:** Within the layout state machine, sibling nodes are structurally mandated to share the exact same indentation prefix string. If siblings present with mismatched white spaces—for instance, one node utilizing a physical tab character while another utilizes four individual space characters—the mldoc parser's scanner must execute character reconciliation heuristics to prevent the layout stack from prematurely issuing a block termination command.3 **Input Markdown:**
 
-* Parent Block  
-  * Sibling One (1 Tab)  
-  * Sibling Two (4 Spaces)  
+* Parent Block
+  * Sibling One (1 Tab)
+  * Sibling Two (4 Spaces)
   * Sibling Three (2 Spaces) **Expected Output / AST Behavior:** The OCaml parsing logic applies an aggressive character-equivalence heuristic during the layout scanning phase. In the Logseq ecosystem, a physical tab is generally mapped to equivalent space geometry depending on the user's overarching graph configuration, though the internal mldoc engine frequently defaults to a rigid two-space parity for Markdown lists.3 The Sibling One string establishes the first child indentation baseline utilizing a \\t character. When the scanner evaluates the subsequent string, Sibling Two, it processes the four space characters.
 
 If the internal parity configuration equates one tab to two spaces, the four-space prefix dictates that Sibling Two is actually a child of Sibling One, pushing it to a grandchild depth. However, if the parity equates a tab to four spaces, the layout state machine recognizes Sibling Two as a direct sibling of Sibling One. The standard fallback behavior isolates the relative delta. Because Sibling Three uses only two spaces, the layout tracker determines that the spatial column is less than the active stack depth for Sibling Two, forcing the emission of a DEDENT token. The AST dynamically flattens these misalignments into the closest logical levels, grouping the siblings beneath the Parent Block if their calculated column depths fall within the bounds of a single logical level. This strict spatial alignment is crucial for preventing graph corruption during real-time collaborative editing sessions, where disparate client environments may inject conflicting whitespace characters into the shared sequence.3
@@ -85,10 +85,10 @@ This sequestration mechanism is absolutely critical for database integrity. The 
 
 **Context:** This scenario strictly evaluates the parser's capacity to enter and exit the Org-mode drawer state without corrupting adjacent block structures. It validates the foundational requirement that the CLOCK: tracking sequence and state change strings nested inside a :LOGBOOK: drawer are mapped directly to metadata AST structures rather than rendered text blocks, ensuring that the parent block's textual output remains pristine.2 **Input Markdown:**
 
-* TODO Implement the new AST parser  
-  :LOGBOOK:  
-  CLOCK:-- \=\> 01:00  
-  :END:  
+* TODO Implement the new AST parser
+  :LOGBOOK:
+  CLOCK:-- \=\> 01:00
+  :END:
   * Sub-task continuing after the drawer **Expected Output / AST Behavior:** The AST generation sequence begins with the parser identifying the TODO keyword at the start of the block, which immediately flags the node for task state formatting. As the scanner transitions to the next line, which is spatially indented to become a child or property of the root TODO block, it encounters the string :LOGBOOK:. The Angstrom combinator consumes this specific token and forces the lexer into drawer mode.14 The subsequent CLOCK: line is read as raw string data by the base parser, knowing that downstream logic (specifically frontend.util.clock) will translate these temporal boundaries into the database.15
 
 The scanner continues until it matches the :END: token, which successfully terminates the drawer mode and releases the lock. In the resulting JSON AST structure, the primary node representing the TODO block contains only the textual string Implement the new AST parser within its title array. All LOGBOOK data is completely sequestered into a non-rendered :meta or :drawer object attached to the block's programmatic definition. Crucially, the string \- Sub-task continuing after the drawer is parsed normally and nested as a standard child block of the TODO block. This structural outcome proves that the drawer parser successfully and cleanly returned control to the main block-level combinator stack without consuming adjacent siblings.6
@@ -97,10 +97,10 @@ The scanner continues until it matches the :END: token, which successfully termi
 
 **Context:** Software regression reports, specifically GitHub Pull Request \#138 and Issue \#3823, explicitly highlight the parser's failure state when encountering an initialized but immediately terminated :LOGBOOK: drawer.14 Historically, if a drawer was completely empty, the lexer failed to recognize the state change, leading to severe synchronization issues where the underlying markdown file updated its state but the user interface did not accurately reflect the database modification.14 **Input Markdown:**
 
-* TODO Clean SCHEDULED: \<2022-01-08 Sat.+2d\>  
-  :LOGBOOK:  
-  :END:  
-  **Expected Output / AST Behavior:**  
+* TODO Clean SCHEDULED: \<2022-01-08 Sat.+2d\>
+  :LOGBOOK:
+  :END:
+  **Expected Output / AST Behavior:**
   The OCaml combinator responsible for executing the take\_until ":END:" directive must exhibit high tolerance for zero-length payloads. The parser matches the opening :LOGBOOK: token and prepares for sequential reading. However, as it peeks at the very next token in the stream, it encounters :END:, resulting in a payload length of absolute zero.
 
 To maintain database integrity, the AST must construct a valid but empty logbook meta-object for the block rather than faulting. The parser strictly forbids throwing a fatal exception or swallowing the subsequent document structure due to the empty array. The expected AST behavior yields an output array containing the block text TODO Clean SCHEDULED... alongside a structural :meta dictionary where the :logbook key maps directly to an empty array \`\` or nil.6 This deliberate handling ensures that the application frontend can safely clear task timers and reconcile the graph database without experiencing a desynchronization event.
@@ -109,9 +109,9 @@ To maintain database integrity, the AST must construct a valid but empty logbook
 
 **Context:** Logseq heavily leverages a double-colon syntax (e.g., collapsed:: true) inline within the Markdown stream to persist user interface state variables or block behavior toggles across distinct sessions. Because these variables do not utilize standard property blocks or drawer encapsulation, the parser must rely on localized geometric scanning to recognize these specifically defined reserved keys and dynamically strip them from the visible paragraph text.13 **Input Markdown:**
 
-* A massive block of text that the user wants to hide.  
-  collapsed:: true  
-  **Expected Output / AST Behavior:**  
+* A massive block of text that the user wants to hide.
+  collapsed:: true
+  **Expected Output / AST Behavior:**
   As the lexer evaluates the block lines, it scans for trailing directive strings appended to the paragraph nodes. The string collapsed:: true is identified against an internal dictionary of reserved noise directives. When the AST object is constructed for the string A massive block of text..., the parsing logic actively mutates the textual payload by stripping the collapsed:: true line entirely from the visible inline text tuple.
 
 In its place, the AST generation sequence injects a boolean flag directly into the block's root property definition or metadata dictionary, establishing the key-value pair :collapsed true. This guarantees that the front-end rendering engine automatically folds the block upon initialization. Conversely, if a non-reserved or user-defined keyword is utilized with the double-colon syntax in this exact same geometric position, the parser automatically routes the character stream to the secondary Properties parser instead, treating it as user-defined metadata.6
@@ -145,10 +145,10 @@ The serialization output structure—whether JSON or EDN—takes the isolated id
 
 **Context:** Advanced users frequently nest active graph links, index tags, or rich formatting within the property values to create dynamic dashboards. Consequently, the property value parser must not treat the extracted value as an opaque literal string; it must recursively tokenize the value payload for active links to ensure the Datalog database registers the backlink and updates the node graph accordingly.16 **Input Markdown:**
 
-* Primary research statement.  
-  source::\]  
-  related-tags:: \#theory, \[\[physics\]\]  
-  **Expected Output / AST Behavior:**  
+* Primary research statement.
+  source::\]
+  related-tags:: \#theory, \[\[physics\]\]
+  **Expected Output / AST Behavior:**
   The initial parsing phase for the double-colon properties splits the input string precisely at the first valid occurrence of ::. The extracted keys, source and related-tags, are converted into sanitized, machine-readable dictionary keys. Rather than halting execution, the extracted values are passed back into the inline combinator engine. The string \] is successfully parsed and converted into a PageReference AST node.
 
 The related-tags string is far more complex, requiring tokenization into two distinct reference nodes: a Tag node representing \#theory and a secondary PageReference node representing \[\[physics\]\].6 The final AST architecture populates the :meta {:properties...} object with complex arrays of these parsed inline nodes rather than basic raw strings. By representing properties as nested AST tuples, the graph database engine can flawlessly traverse the bidirectional relationships implicitly defined within the metadata schema, enabling complex queries against nested properties.6
@@ -157,9 +157,9 @@ The related-tags string is far more complex, requiring tokenization into two dis
 
 **Context:** If the double-colon syntax appears inadvertently in the middle of a continuous text paragraph rather than at the geometric beginning of a line or as a distinct, trailing metadata block, the parser must deploy spatial heuristics to determine if it is a genuine property declaration or merely standard text (such as a code snippet demonstrating the syntax).13 **Input Markdown:**
 
-* This is a standard sentence that contains a weird string like key:: value inside it.  
-  actual-prop:: true  
-  **Expected Output / AST Behavior:**  
+* This is a standard sentence that contains a weird string like key:: value inside it.
+  actual-prop:: true
+  **Expected Output / AST Behavior:**
   To prevent catastrophic false positives, the parser rigidly restricts property recognition to specific geometric bounds within the spatial block—typically localized to the end of the block and strictly delimited by line breaks. As the scanner evaluates the first sentence, the internal string key:: value is bypassed by the property engine and treated entirely as a literal inline text tuple \["Plain" "key:: value"\] because it does not follow a mandatory line break.
 
 Conversely, the string actual-prop:: true resides on a discrete new line at the terminus of the block, perfectly conforming to the spatial property boundary rules. This line is aggressively stripped from the visible text output and injected into the :properties AST map as a boolean or string pair. This strict boundary enforcement is the primary defense mechanism preventing arbitrary prose from inadvertently corrupting the block's hidden metadata schema during unstructured journaling.6
@@ -186,8 +186,8 @@ Furthermore, standard hashing utilizing the \# symbol is deployed for inline tag
 
 **Context:** The parsing engine must successfully isolate the double-parenthesis syntax indicating a hard block reference. It is required to strip the wrapping parenthesis, validate the internal string payload as an active identifier string, and separate it cleanly from any surrounding punctuation or inline text strings.9 **Input Markdown:**
 
-* The foundational argument is presented here: ((64c752b0-d33b-4448-a261-e4dc2bbe12d3)).  
-  **Expected Output / AST Behavior:**  
+* The foundational argument is presented here: ((64c752b0-d33b-4448-a261-e4dc2bbe12d3)).
+  **Expected Output / AST Behavior:**
   The inline scanner marches across the string until it matches the (( sequence, which immediately initiates a specialized take\_until "))" sequence combinator. The internal payload, 64c752b0-d33b-4448-a261-e4dc2bbe12d3, is extracted and passed to the validation engine. Upon success, the AST generation sequence constructs a highly structured tuple array representing the block's entire text geometry.
 
 The resulting structure is defined as: \["Plain" "."\]\].6 The ability of the parser to successfully isolate the trailing period and capture it as an entirely separate Plain node proves that the block reference combinator successfully and cleanly yielded execution control back to the standard text scanner after consuming the exact boundaries of the reference.6
@@ -202,8 +202,8 @@ The resulting structure is defined as: \["Plain" "."\]\].6 The ability of the pa
 
 **Context:** Users frequently require the aliasing of links using standard Markdown URL syntax combined recursively with graph references, resulting in complex geometrical arrays such as (((uuid))).17 The AST must recursively build a node hierarchy where the link target is recognized as an internal graphical entity rather than a standard HTTP URL. **Input Markdown:**
 
-* Check out this crucial definition related to the subject.  
-  **Expected Output / AST Behavior:**  
+* Check out this crucial definition related to the subject.
+  **Expected Output / AST Behavior:**
   This string introduces severe stress to the depth-first recursive tokenizer within the Angstrom library. The scanner encounters the \`
 
 ## **Scenario: Complex Lexical Precedence \- Headings vs. Tags**
@@ -244,51 +244,51 @@ The parser generates a \["Plain" "1 "\] node, followed independently by the supe
 
 **Context:** When a user wishes to document precisely how to write a code block within their notes, they must geometrically wrap a standard three-backtick string entirely inside a four-backtick string.24 This scenario rigorously tests the greedy nature of the Angstrom take\_until combinator assigned to verbatim syntax parsing. **Input Markdown:** \-\`
 
-Snippet di codice
+Code snippet
 
 code
 
-\`\`\`  
-\*\*Expected Output / AST Behavior:\*\*  
-The lexer matches the initial \`\`\`\`\` string as the opening marker sequence for a \`CodeBlock\` or \`Verbatim\` node.\[2, 24\] Critically, it must store the mathematical length of this opening delimiter (which is 4\) into its active state tracking buffer. As the scanner consumes the internal payload, it encounters \`\`\`\`lang\`. 
+\`\`\`
+\*\*Expected Output / AST Behavior:\*\*
+The lexer matches the initial \`\`\`\`\` string as the opening marker sequence for a \`CodeBlock\` or \`Verbatim\` node.\[2, 24\] Critically, it must store the mathematical length of this opening delimiter (which is 4\) into its active state tracking buffer. As the scanner consumes the internal payload, it encounters \`\`\`\`lang\`.
 
 Because the delimiter length of the internal string is 3 (which is strictly less than the state-tracked delimiter of 4), the parser engine treats it entirely as a literal string payload rather than a termination sequence. The parser only halts when it encounters the closing \`\`\`\`\` sequence matching the exact length of 4, successfully terminating the block. The AST output is a highly clean \`CodeBlock\` node containing the exact internal string \`\`\`\`lang\\ncode\\n\`\`\`\` without prematurely closing, thus mathematically verifying the dynamic delimiter-length tracking integrity within the OCaml lexer state.
 
-\#\# Scenario: Anki Cloze and LaTeX Math Boundaries  
-\*\*Context:\*\* The Logseq user base heavily integrates spaced repetition study methodologies and advanced mathematical documentation. Therefore, the parser must cleanly and flawlessly distinguish between standard curly braces, LaTeX math boundary markers (\`$\`), and specific Anki spaced-repetition cloze structures such as \`{{c1...}}\` when they are interleaved within the exact same geometric string.  
-\*\*Input Markdown:\*\*  
-\- test anki cloze 1 {{c1 $\\mathrm{K}$}}  
-\*\*Expected Output / AST Behavior:\*\*  
-The inline parser reads the initial string sequence \`test anki cloze 1 \`. Upon encountering the sequence \`{{c1 \`, it triggers a hard transition into the specialized Cloze node combinator pipeline. Deep inside the cloze execution state, it encounters the \`$\` symbol, which immediately triggers a sub-transition into the LaTeX inline math combinator. 
+\#\# Scenario: Anki Cloze and LaTeX Math Boundaries
+\*\*Context:\*\* The Logseq user base heavily integrates spaced repetition study methodologies and advanced mathematical documentation. Therefore, the parser must cleanly and flawlessly distinguish between standard curly braces, LaTeX math boundary markers (\`$\`), and specific Anki spaced-repetition cloze structures such as \`{{c1...}}\` when they are interleaved within the exact same geometric string.
+\*\*Input Markdown:\*\*
+\- test anki cloze 1 {{c1 $\\mathrm{K}$}}
+\*\*Expected Output / AST Behavior:\*\*
+The inline parser reads the initial string sequence \`test anki cloze 1 \`. Upon encountering the sequence \`{{c1 \`, it triggers a hard transition into the specialized Cloze node combinator pipeline. Deep inside the cloze execution state, it encounters the \`$\` symbol, which immediately triggers a sub-transition into the LaTeX inline math combinator.
 
 The Math combinator consumes the internal string \`\\mathrm{K}\` and elegantly closes its state upon encountering the secondary \`$\`. Subsequently, the Cloze combinator resumes and closes successfully at the \`}}\` delimiter sequence. The resulting AST array is highly nested but geometrically perfect: \`\["Cloze" {:id "c1", :content \[\["Math" "\\\\mathrm{K}"\]\]}\]\`. The parser correctly proves its deep recursive descent capabilities, allowing complex LaTeX AST nodes to exist dynamically inside spaced-repetition Cloze nodes without the \`{}\` structural braces of the LaTeX syntax maliciously confusing the closing \`}}\` sequence of the overarching Cloze tag.
 
-#### **Bibliografia**
+#### **Bibliography**
 
-1. mldoc/mlorg at master \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/mldoc/blob/master/mlorg](https://github.com/logseq/mldoc/blob/master/mlorg)  
-2. Mldoc \- Another Emacs Org-mode and Markdown parser. \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/mldoc](https://github.com/logseq/mldoc)  
-3. Allow non-outline (freeform) text \- \#45 by cannibalox \- Feature Requests \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/allow-non-outline-freeform-text/172/45](https://discuss.logseq.com/t/allow-non-outline-freeform-text/172/45)  
-4. logseq/logseq: A privacy-first, open-source platform for knowledge management and collaboration. Download link: http://github.com/logseq/logseq/releases. roadmap: https://logseq.io/p/NX4mc\_ggEV · GitHub \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq](https://github.com/logseq/logseq)  
-5. logseq/.i18n-lint.toml at master \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/blob/master/.i18n-lint.toml](https://github.com/logseq/logseq/blob/master/.i18n-lint.toml)  
-6. GitHub \- cldwalker/logseq-clis, accesso eseguito il giorno aprile 25, 2026, [https://github.com/cldwalker/logseq-clis](https://github.com/cldwalker/logseq-clis)  
-7. Use a proper markdown Standard such as GFM or Commonmark. · Issue \#9266 \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/issues/9266](https://github.com/logseq/logseq/issues/9266)  
-8. updating page name doesn't update tags prefixed with ... \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/issues/6611](https://github.com/logseq/logseq/issues/6611)  
-9. The basics of Logseq block references \- Documentation, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/the-basics-of-logseq-block-references/8458](https://discuss.logseq.com/t/the-basics-of-logseq-block-references/8458)  
-10. Different ways to structure data \- Queries \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/different-ways-to-structure-data/8819](https://discuss.logseq.com/t/different-ways-to-structure-data/8819)  
-11. Option to Make Parser Respect Standard Markdown \- General \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/option-to-make-parser-respect-standard-markdown/640](https://discuss.logseq.com/t/option-to-make-parser-respect-standard-markdown/640)  
-12. References with specific tag or task \- Queries \- Logseq forum, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/references-with-specific-tag-or-task/27734](https://discuss.logseq.com/t/references-with-specific-tag-or-task/27734)  
-13. List of special properties and tags \- Documentation \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/list-of-special-properties-and-tags/25821](https://discuss.logseq.com/t/list-of-special-properties-and-tags/25821)  
-14. LOGBOOK doesn't display state changes of repeating tasks · Issue \#3823 \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/issues/3823](https://github.com/logseq/logseq/issues/3823)  
-15. logseq/src/main/frontend/components/block.cljs at master \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/blob/master/src/main/frontend/components/block.cljs](https://github.com/logseq/logseq/blob/master/src/main/frontend/components/block.cljs)  
-16. Logseq's Export Formats \- Random Geekery, accesso eseguito il giorno aprile 25, 2026, [https://randomgeekery.org/post/2022/03/logseqs-export-formats/](https://randomgeekery.org/post/2022/03/logseqs-export-formats/)  
-17. An idea for a more standard-Markdown property syntax \- General \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/an-idea-for-a-more-standard-markdown-property-syntax/20073](https://discuss.logseq.com/t/an-idea-for-a-more-standard-markdown-property-syntax/20073)  
-18. Help Navigating & Converting Extensive Block References, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/help-navigating-converting-extensive-block-references/32051](https://discuss.logseq.com/t/help-navigating-converting-extensive-block-references/32051)  
-19. Query to format structured blocks into table, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/query-to-format-structured-blocks-into-table/26733](https://discuss.logseq.com/t/query-to-format-structured-blocks-into-table/26733)  
-20. cloze with latex doesn't work · Issue \#5087 \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/issues/5087](https://github.com/logseq/logseq/issues/5087)  
-21. Why You Should Use Block References in Logseq: A Beginner's Introduction \- YouTube, accesso eseguito il giorno aprile 25, 2026, [https://www.youtube.com/watch?v=g66G2ThmC7M](https://www.youtube.com/watch?v=g66G2ThmC7M)  
-22. Block References Issues and Ideas for Improvements \- Feature Requests, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/block-references-issues-and-ideas-for-improvements/15784](https://discuss.logseq.com/t/block-references-issues-and-ideas-for-improvements/15784)  
-23. How can I get a folder hierachy on logseq? Pics of what I mean \- Reddit, accesso eseguito il giorno aprile 25, 2026, [https://www.reddit.com/r/logseq/comments/wibfz6/how\_can\_i\_get\_a\_folder\_hierachy\_on\_logseq\_pics\_of/](https://www.reddit.com/r/logseq/comments/wibfz6/how_can_i_get_a_folder_hierachy_on_logseq_pics_of/)  
-24. Option to Make Parser Respect Standard Markdown \- \#9 by lewisia \- General \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/option-to-make-parser-respect-standard-markdown/640/9](https://discuss.logseq.com/t/option-to-make-parser-respect-standard-markdown/640/9)  
-25. Markdown: cannot put bold words inside italic sentence · Issue \#8790 \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/issues/8790](https://github.com/logseq/logseq/issues/8790)
+1. mldoc/mlorg at master \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/mldoc/blob/master/mlorg](https://github.com/logseq/mldoc/blob/master/mlorg)
+2. Mldoc \- Another Emacs Org-mode and Markdown parser. \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/mldoc](https://github.com/logseq/mldoc)
+3. Allow non-outline (freeform) text \- \#45 by cannibalox \- Feature Requests \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/allow-non-outline-freeform-text/172/45](https://discuss.logseq.com/t/allow-non-outline-freeform-text/172/45)
+4. logseq/logseq: A privacy-first, open-source platform for knowledge management and collaboration. Download link: http://github.com/logseq/logseq/releases. roadmap: https://logseq.io/p/NX4mc\_ggEV · GitHub \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq](https://github.com/logseq/logseq)
+5. logseq/.i18n-lint.toml at master \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/blob/master/.i18n-lint.toml](https://github.com/logseq/logseq/blob/master/.i18n-lint.toml)
+6. GitHub \- cldwalker/logseq-clis, accessed on April 25, 2026, [https://github.com/cldwalker/logseq-clis](https://github.com/cldwalker/logseq-clis)
+7. Use a proper markdown Standard such as GFM or Commonmark. · Issue \#9266 \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/issues/9266](https://github.com/logseq/logseq/issues/9266)
+8. updating page name doesn't update tags prefixed with ... \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/issues/6611](https://github.com/logseq/logseq/issues/6611)
+9. The basics of Logseq block references \- Documentation, accessed on April 25, 2026, [https://discuss.logseq.com/t/the-basics-of-logseq-block-references/8458](https://discuss.logseq.com/t/the-basics-of-logseq-block-references/8458)
+10. Different ways to structure data \- Queries \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/different-ways-to-structure-data/8819](https://discuss.logseq.com/t/different-ways-to-structure-data/8819)
+11. Option to Make Parser Respect Standard Markdown \- General \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/option-to-make-parser-respect-standard-markdown/640](https://discuss.logseq.com/t/option-to-make-parser-respect-standard-markdown/640)
+12. References with specific tag or task \- Queries \- Logseq forum, accessed on April 25, 2026, [https://discuss.logseq.com/t/references-with-specific-tag-or-task/27734](https://discuss.logseq.com/t/references-with-specific-tag-or-task/27734)
+13. List of special properties and tags \- Documentation \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/list-of-special-properties-and-tags/25821](https://discuss.logseq.com/t/list-of-special-properties-and-tags/25821)
+14. LOGBOOK doesn't display state changes of repeating tasks · Issue \#3823 \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/issues/3823](https://github.com/logseq/logseq/issues/3823)
+15. logseq/src/main/frontend/components/block.cljs at master \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/blob/master/src/main/frontend/components/block.cljs](https://github.com/logseq/logseq/blob/master/src/main/frontend/components/block.cljs)
+16. Logseq's Export Formats \- Random Geekery, accessed on April 25, 2026, [https://randomgeekery.org/post/2022/03/logseqs-export-formats/](https://randomgeekery.org/post/2022/03/logseqs-export-formats/)
+17. An idea for a more standard-Markdown property syntax \- General \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/an-idea-for-a-more-standard-markdown-property-syntax/20073](https://discuss.logseq.com/t/an-idea-for-a-more-standard-markdown-property-syntax/20073)
+18. Help Navigating & Converting Extensive Block References, accessed on April 25, 2026, [https://discuss.logseq.com/t/help-navigating-converting-extensive-block-references/32051](https://discuss.logseq.com/t/help-navigating-converting-extensive-block-references/32051)
+19. Query to format structured blocks into table, accessed on April 25, 2026, [https://discuss.logseq.com/t/query-to-format-structured-blocks-into-table/26733](https://discuss.logseq.com/t/query-to-format-structured-blocks-into-table/26733)
+20. cloze with latex doesn't work · Issue \#5087 \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/issues/5087](https://github.com/logseq/logseq/issues/5087)
+21. Why You Should Use Block References in Logseq: A Beginner's Introduction \- YouTube, accessed on April 25, 2026, [https://www.youtube.com/watch?v=g66G2ThmC7M](https://www.youtube.com/watch?v=g66G2ThmC7M)
+22. Block References Issues and Ideas for Improvements \- Feature Requests, accessed on April 25, 2026, [https://discuss.logseq.com/t/block-references-issues-and-ideas-for-improvements/15784](https://discuss.logseq.com/t/block-references-issues-and-ideas-for-improvements/15784)
+23. How can I get a folder hierachy on logseq? Pics of what I mean \- Reddit, accessed on April 25, 2026, [https://www.reddit.com/r/logseq/comments/wibfz6/how\_can\_i\_get\_a\_folder\_hierachy\_on\_logseq\_pics\_of/](https://www.reddit.com/r/logseq/comments/wibfz6/how_can_i_get_a_folder_hierachy_on_logseq_pics_of/)
+24. Option to Make Parser Respect Standard Markdown \- \#9 by lewisia \- General \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/option-to-make-parser-respect-standard-markdown/640/9](https://discuss.logseq.com/t/option-to-make-parser-respect-standard-markdown/640/9)
+25. Markdown: cannot put bold words inside italic sentence · Issue \#8790 \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/issues/8790](https://github.com/logseq/logseq/issues/8790)
 
 [image1]: <data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAXCAYAAAAV1F8QAAAA9ElEQVR4XmNgGAVDDXAA8XMg/o+E3wFxKJKaY2jyRUhyJAOYIdiAGANEzhJdghyAy6JMIL6NLkgJAFmyD03sIhCXoYlRBJQYIBaxQPmiUD7VwRIGhMG5UDZNLIKltKtAnA3E96BiVAcwH4hA+YJQPkXJGB3Aggod7GfALk42eM+A3UBQwgCJT0GXgAJDIOaBsjmBmAlJDivAF/G45EAZF2Q4SO48EIsD8S8gtkNWBAJhQPyGAWEQCD8BYjYkNQ/R5F8iyekAMTNUHAZAbJA41QEoI99H4mPzOVXAZyCOReLfhdJULUlAAN0HeUB8EE1sFAxyAAAvTEOc/K2MwAAAAABJRU5ErkJggg==>
