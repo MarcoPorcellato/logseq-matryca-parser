@@ -529,7 +529,7 @@ Classificare le superfici come `stable`, `experimental`, `internal`. Gli adapter
 
 ## 11. Backlog agent-ready
 
-### Nuova issue A — `bug(parser): propagate immutable node refreshes through arbitrary depth`
+### [Issue #113](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/113) — `bug(parser): propagate immutable node refreshes through arbitrary depth`
 
 **Scope:** solo `_replace_stack_tail_node`, test parser e changelog se richiesto.  
 **Non scope:** riscrittura di `parse`, nuovi eventi, package split.  
@@ -627,7 +627,10 @@ FILE_URI_RESULT /private/etc/passwd
 
 - Non è stato eseguito un benchmark su vault reale o da 10k pagine.
 - Non è stata qualificata una release pubblica né verificato un wheel installato pulito.
-- Non sono state modificate issue, milestone, branch protection o workflow remoti.
+- La successiva fase di pubblicazione ha aperto la PR #112, creato la issue
+  #113, aggiornato le issue impattate e chiuso solo completati/duplicati
+  documentati nel registro di riconciliazione. Milestone, branch protection e
+  workflow remoti non sono stati modificati.
 - Lo studio non dimostra compatibilità totale con tutte le versioni Logseq.
 - Il probe symlink dimostra il comportamento su macOS/POSIX; la policy deve includere una matrice Windows.
 - Nessuna raccomandazione autorizza refactor di hub senza nuovo impact review al momento dell'implementazione.

@@ -23,8 +23,9 @@ superseded_by: null
 - Adopted separate OKF lifecycle status and Matryca classification metadata.
 - Added decision, reference, quality, and issue-reconciliation entry points.
 - Removed volatile test totals from active operational guidance.
+- Published draft PR #112, opened parser P0 #113, reconciled the strategic
+  backlog and closed nine completed or duplicate issues with evidence.
 
 Earlier release-specific documentation history remains in
 [`CHANGELOG.md`](../CHANGELOG.md). Historical counts there are release evidence,
 not current quality claims.
-

@@ -11,6 +11,7 @@ verified: 2026-08-06
 stale_after: 2026-09-05
 supersedes: docs/quality/ISSUE_TRIAGE_2026-07.md
 superseded_by: null
+publication_pr: 112
 ---
 
 # GitHub issue reconciliation — 2026-08-06
@@ -18,6 +19,10 @@ superseded_by: null
 This ledger reviews all 37 issues that were open at the audit baseline. A
 closure is justified only by current code, tests or an explicit duplicate;
 runtime behavior without a dedicated regression test remains tracked.
+
+The reconciliation was published in [PR #112](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/112).
+After the actions below, the live backlog contains 29 open issues, including
+the newly filed parser P0.
 
 ## Decisions
 
@@ -60,13 +65,20 @@ runtime behavior without a dedicated regression test remains tracked.
 | #109 | Expand to MKQ-4 | Wave 1 | Bundle, metadata, lifecycle, links and deterministic source CI |
 | #110 | Expand | Wave 2 | Add filesystem and reload diagnostic codes |
 | #111 | Expand | Wave 5 | Include #87 seed and incremental/cold-load correctness budgets |
+| #113 | Opened, priority P0 | Wave 0 | Arbitrary-depth immutable node refresh loses deep updates |
 
-## New issue required
+## GitHub actions applied
 
-Open one dedicated P0 parser bug for immutable node refreshes that fail to
-propagate from arbitrary depth to the root. The issue must include the minimized
-probe, impact result, depth matrix, round-trip invariants and prerequisite links
-to #104 and #108.
+- Opened [#113](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/113)
+  with the minimized probe, impact result, depth matrix, round-trip invariants
+  and prerequisite links to #104 and #108.
+- Closed completed issues #8, #25, #26, #28, #63, #66 and #96 with live
+  implementation/test evidence.
+- Closed #6 as a duplicate of #3 and #97 as a duplicate subset of #89.
+- Added audit dispositions and dependencies to every remaining strategic,
+  product and contributor issue whose scope or priority changed.
+- Expanded #103, #104, #106, #108, #109, #110 and #111 with the new acceptance
+  criteria from the audit.
 
 ## Operating order
 
@@ -82,4 +94,3 @@ deep parser P0 + #106 filesystem boundary
 
 Product RFCs and contributor issues may proceed in parallel only when they do
 not touch protected parser/graph hubs or weaken these gates.
-
