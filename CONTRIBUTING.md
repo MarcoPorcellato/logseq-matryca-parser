@@ -23,11 +23,16 @@ User-facing behavior is documented in:
 - [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) — curated starter tasks for new contributors
 - [`docs/COOKBOOK.md`](docs/COOKBOOK.md) — integration recipes (Synapse, graph query, watcher)
 - [`docs/README.md`](docs/README.md) — documentation index (active vs historical)
+- [`docs/DOCUMENTATION_SYSTEM.md`](docs/DOCUMENTATION_SYSTEM.md) — documentation authority, metadata, lifecycle, validation, and federation workflow
 - [`docs/rfc/OLLAMA_RAG.md`](docs/rfc/OLLAMA_RAG.md) — draft RFC for Ollama local RAG ([#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34))
 - [`docs/quality/`](docs/quality/) — architecture backlog, GitHub roadmap (v1.6), triage
 - [`docs/internal/STATIC_ANALYSIS_POLICY.md`](docs/internal/STATIC_ANALYSIS_POLICY.md) — Ghost Tooling policy (vendor-agnostic CI and public docs)
 
 When you add or change observable parser or graph behavior, update the relevant doc sections and add a bullet under **`## [Unreleased]`** in `CHANGELOG.md` (see [`.cursor/rules/05-auto-changelog.mdc`](.cursor/rules/05-auto-changelog.mdc)).
+
+For documentation changes, first classify the target as maintained, active,
+historical, or generated. Follow the metadata, freshness, supersession, and
+projection rules in [`docs/DOCUMENTATION_SYSTEM.md`](docs/DOCUMENTATION_SYSTEM.md).
 
 ### Repository language
 

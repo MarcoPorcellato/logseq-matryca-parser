@@ -6,9 +6,13 @@ status: stable
 classification: canonical
 audience: maintainers
 owner: logseq-matryca-parser
+authority: source_repository
+execution_mode: reviewed
 last_verified: 2026-08-06
 verified: 2026-08-06
 stale_after: 2027-02-02
+okf_profile: matryca_okf_inspired_quality
+okf_spec_version: null
 supersedes: null
 superseded_by: null
 ---
@@ -33,6 +37,11 @@ The official OKF v0.2 baseline recorded there is pinned to commit
 This repository currently declares `matryca_okf_inspired_quality`, not official
 OKF conformance.
 
+The private `sources.toml` profile at this baseline registers the repository
+but does not yet declare its maintained entry points. The source bundle and the
+private registry/projection change therefore remain independently reviewed
+artifacts.
+
 ## Local contracts
 
 - [Architecture](../CLEAN_CODE_ARCHITECTURE.md)
@@ -40,4 +49,4 @@ OKF conformance.
 - [Release process](../RELEASE_PROCESS.md)
 - [Security policy](../../SECURITY.md)
 - [Current roadmap](../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md)
-
+- [Documentation system](../DOCUMENTATION_SYSTEM.md)

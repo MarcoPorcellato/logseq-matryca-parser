@@ -9,12 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Documentation system guide** — [`docs/DOCUMENTATION_SYSTEM.md`](docs/DOCUMENTATION_SYSTEM.md) explains source authority, maintained versus historical surfaces, metadata, freshness, validation, the Matryca Knowledge projection workflow, and the repository's documentation evolution.
 - **Synapse RAG example** — [`examples/run_synapse_rag.py`](examples/run_synapse_rag.py) demonstrates all four `SynapseAdapter` methods (`to_langchain_documents`, `to_llamaindex_nodes`, `to_context_enriched_chunks`, `_expand_macros_and_embeds`) plus table-driven embed expansion edge cases.
 - **Embed expansion edge-case tests** — `TestEmbedExpansionEdgeCases` in [`tests/test_synapse.py`](tests/test_synapse.py) covers cycles, missing targets, and happy-path for both `{{embed [[Page]]}}` and `{{embed ((uuid))}}` (closes [#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71)).
 - **Contributor onboarding (wave 4)** — ten new Good First Issues (GFI-39…GFI-48) filed on GitHub ([#88](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/88)–[#97](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/97)); index updated in [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md).
 
 ### Changed
 
+- **Federated documentation profile** — aligned the maintained bundle with Matryca Knowledge `origin/main` at `7a3ebd8`, separating OKF lifecycle from Matryca classification and recording authority, freshness, provenance, and the still-pending private registry activation.
 - **Ghost Tooling** — removed remaining vendor indexer blocks from `AGENTS.md` / `CLAUDE.md`; maintainer guidance now uses **audit code** terminology only.
 - **Repository language** — translated the historical audit reports, design references, Logseq Read skill, maintainer configuration comments, parser warning, demo labels, and optional SYNAPSE dependency errors into English; contributor guidance now makes English the repository default ([#69](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/69)).
 

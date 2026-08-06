@@ -6,9 +6,13 @@ status: stable
 classification: active
 audience: maintainers
 owner: logseq-matryca-parser
+authority: source_repository
+execution_mode: reviewed
 last_verified: 2026-08-06
 verified: 2026-08-06
-stale_after: 2027-02-02
+stale_after: 2026-11-04
+okf_profile: matryca_okf_inspired_quality
+okf_spec_version: null
 source_commit: 8e90b44
 supersedes: docs/REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md
 superseded_by: null
@@ -337,17 +341,23 @@ The external Matryca Knowledge OKF baseline is Google OKF v0.2 at commit `3fcbb9
 
 Source repository remains the authority for its own documents. Matryca Knowledge can maintain a revised projection only when it is reproducible and traceable to immutable repository path and commit hashes; generated Logseq views are not source of truth.
 
-### 8.2 Current measured state
+### 8.2 Current measured state after documentation adoption
 
-At the analyzed checkout:
+The initial audit findings above were addressed in the documentation adoption
+phase on 2026-08-06:
 
-- 39 markdown files exist under `docs/`, including this report;
-- no maintained document yet uses a uniform true YAML frontmatter;
-- `docs/README.md` is the only explicit documentation portal;
-- missing distinct entry points for machine-readable, historical, decision, and reference surfaces;
-- repository is registered in `matryca-knowledge/sources.toml`, but does not yet expose
-  `okf_entry_points`, so current validator cannot audit the maintained bundle;
-- historical reports and blueprints are semantically distinguishable but this distinction is not yet metadata- or CI-verified.
+- `docs/index.md`, `docs/README.md`, `docs/log.md`, `docs/decisions/index.md`,
+  and `docs/reference/index.md` now provide stable bundle surfaces;
+- maintained entry points use lifecycle, classification, ownership, authority,
+  compatibility freshness, and explicit supersession metadata;
+- [`DOCUMENTATION_SYSTEM.md`](DOCUMENTATION_SYSTEM.md) is the canonical
+  contributor and governance contract;
+- active and historical documents are separated without bulk-normalizing the
+  historical archive;
+- repository documentation and maintainer-facing text use English;
+- the private `matryca-knowledge/sources.toml` still has no parser
+  `okf_entry_points`, so the external validator cannot yet admit or enforce this
+  bundle. That registry change and projection refresh remain separate PRs.
 
 ### 8.3 Current strengths
 
@@ -357,14 +367,17 @@ At the analyzed checkout:
 - Historical roadmaps expose evolution by wave.
 - CONTRIBUTING, issue templates, and Good First Issues offer a real onboarding path.
 
-### 8.4 Current issues
+### 8.4 Remaining issues
 
-- July study is not tracked or indexed.
-- Test counts are hand-maintained and diverge across README/CONTRIBUTING/COOKBOOK/study docs.
-- Historical, active, maintained, and proposal documents do not have uniform metadata and lifecycle tags.
-- There are multiple roadmaps but no single `Now / Next / Later / Rejected` map linked to current issues.
-- No offline gate exists for markdown links, anchors, documented CLI commands, and Python snippets.
-- Asset resolution documentation states a boundary that `file://` handling currently violates.
+- The private source profile must declare parser entry points before the shared
+  validator can audit the bundle.
+- Source CI does not yet enforce maintained links, anchors, lifecycle,
+  canonical roles, documented CLI commands, and Python snippets.
+- Some release-era documents intentionally retain historical metrics; active
+  guidance must avoid copying those values as current claims.
+- Asset resolution documentation states a boundary that `file://` handling
+  currently violates; this remains a product defect, not a documentation-only
+  correction.
 
 ### 8.5 Metadata contract
 
@@ -426,6 +439,9 @@ without shifting source-of-truth authority outside the repository.
 5. Add non-mutating, source-reproducible CI gate.
 6. Declare entry points in Matryca Knowledge registry via a separate PR.
 7. Project only clean immutable commits; verify Logseq-rendered views do not alter source semantics.
+
+Steps 1-3 are complete at source level. Step 4 is partially covered by manual
+review. Steps 5-7 remain the MKQ-4 completion path tracked by issue #109.
 
 ## 9. Product and API strategy
 
