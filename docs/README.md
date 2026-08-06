@@ -6,9 +6,13 @@ status: stable
 classification: canonical
 audience: contributors
 owner: logseq-matryca-parser
+authority: source_repository
+execution_mode: reviewed
 last_verified: 2026-08-06
 verified: 2026-08-06
 stale_after: 2027-02-02
+okf_profile: matryca_okf_inspired_quality
+okf_spec_version: null
 supersedes: null
 superseded_by: null
 ---
@@ -17,17 +21,22 @@ superseded_by: null
 
 Use this page to find **active** documentation. Files under [`design-docs/`](design-docs/) are historical blueprints from the Document-Driven Development phase — see [`design-docs/README.md`](design-docs/README.md) before implementing from those specs.
 
-This repository is authoritative for its documentation. Its future projection
+This repository is authoritative for its documentation. Its projection
 into [Matryca Knowledge](https://github.com/MarcoPorcellato/matryca-knowledge)
 must remain reproducible from an immutable source commit; generated Logseq views
 are navigation layers, not the source of truth. The current target is Matryca
 quality level MKQ-4, not a claim of official OKF conformance.
+
+Read the [documentation system and evolution guide](DOCUMENTATION_SYSTEM.md)
+before changing canonical roles, metadata, lifecycle, paths, or federation
+entry points.
 
 ## Active documentation
 
 | Document | Audience | Purpose |
 | :--- | :--- | :--- |
 | [`index.md`](index.md) | Tools, maintainers | Canonical machine entry point for the maintained knowledge bundle |
+| [`DOCUMENTATION_SYSTEM.md`](DOCUMENTATION_SYSTEM.md) | Contributors, maintainers | Canonical documentation governance, metadata, lifecycle, validation, and federation workflow |
 | [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) | Contributors, maintainers | Uncle Bob rings, SOLID, module maps, layer CI |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Contributors, integrators | LOGOS, SYNAPSE, `LogseqGraph`, agents, data flow |
 | [`quality/`](quality/) | Maintainers | Architecture backlog (v1 complete), GitHub roadmap, triage |

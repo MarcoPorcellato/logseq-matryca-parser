@@ -22,7 +22,7 @@
 
 [👉 **TRY THE LIVE INTERACTIVE DEMO**](https://MarcoPorcellato.github.io/logseq-matryca-parser/)
 
-[📘 **ARCHITECTURE**](docs/ARCHITECTURE.md) · [Clean Architecture SSOT](docs/CLEAN_CODE_ARCHITECTURE.md) · [AST Primer](docs/logseq_ast_primer.md) · [Cookbook](docs/COOKBOOK.md) · [Good first issues](docs/GOOD_FIRST_ISSUES.md) · [Knowledge bundle](docs/index.md) · [Docs index](docs/README.md) · [CodeQL](docs/CODEQL.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASE_PROCESS.md)
+[📘 **ARCHITECTURE**](docs/ARCHITECTURE.md) · [Clean Architecture SSOT](docs/CLEAN_CODE_ARCHITECTURE.md) · [AST Primer](docs/logseq_ast_primer.md) · [Cookbook](docs/COOKBOOK.md) · [Good first issues](docs/GOOD_FIRST_ISSUES.md) · [Knowledge bundle](docs/index.md) · [Docs index](docs/README.md) · [Documentation system](docs/DOCUMENTATION_SYSTEM.md) · [CodeQL](docs/CODEQL.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASE_PROCESS.md)
 
 </div>
 
@@ -470,6 +470,7 @@ We welcome issues, pull requests, and constructive feedback.
 | **Contributing** | [CONTRIBUTING.md](CONTRIBUTING.md) — setup, tests, PR workflow |
 | **Cookbook** | [docs/COOKBOOK.md](docs/COOKBOOK.md) — integration recipes (Synapse, graph query, watcher) |
 | **Documentation index** | [docs/README.md](docs/README.md) — active vs historical docs |
+| **Documentation system** | [docs/DOCUMENTATION_SYSTEM.md](docs/DOCUMENTATION_SYSTEM.md) — authority, lifecycle, metadata, and federation |
 | **Code of Conduct** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — community standards |
 | **Security** | [SECURITY.md](SECURITY.md) — report vulnerabilities privately |
 

@@ -6,9 +6,13 @@ status: draft
 classification: canonical
 audience: maintainers
 owner: logseq-matryca-parser
+authority: source_repository
+execution_mode: reviewed
 last_verified: 2026-08-06
 verified: 2026-08-06
 stale_after: 2027-02-02
+okf_profile: matryca_okf_inspired_quality
+okf_spec_version: null
 supersedes: null
 superseded_by: null
 ---
@@ -26,8 +30,7 @@ introduced incrementally. Do not rewrite historical roadmaps into ADRs.
 | Writer/watcher concurrency | [Issue #103](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/103) | Proposed |
 | Filesystem confinement | [Issue #106](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/106) | Proposed |
 | Public API stability | [Issue #107](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/107) | Proposed |
-| Documentation lifecycle and MKQ | [Issue #109](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/109) | Proposed |
+| Documentation lifecycle and MKQ | [`DOCUMENTATION_SYSTEM.md`](../DOCUMENTATION_SYSTEM.md) | Source contract recorded; MKQ-4 enforcement and private profile activation pending under issue #109 |
 
 Every future ADR must identify owner, status, decision date, supersession links,
 compatibility impact, verification evidence, and rollback.
-

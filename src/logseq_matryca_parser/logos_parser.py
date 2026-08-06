@@ -1063,7 +1063,7 @@ class StackMachineParser:
         content = path.read_text(encoding="utf-8-sig")
         detected_tab = detect_tab_size_from_markdown(content)
         if not content.strip():
-            logger.warning("Il file %s è vuoto.", path)
+            logger.warning("File %s is empty.", path)
             page_title = derive_page_title_from_source_path(path)
             title_segments = [segment for segment in page_title.split("/") if segment]
             namespace_chain = title_segments[:-1] if len(title_segments) > 1 else []

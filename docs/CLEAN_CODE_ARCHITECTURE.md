@@ -1,3 +1,22 @@
+---
+type: ArchitectureGuide
+title: Clean Code and Clean Architecture for Logseq Matryca Parser
+description: Canonical architecture boundaries, SOLID guidance, public graph APIs, and contributor quality contract.
+status: stable
+classification: canonical
+audience: contributors
+owner: logseq-matryca-parser
+authority: source_repository
+execution_mode: reviewed
+last_verified: 2026-08-06
+verified: 2026-08-06
+stale_after: 2027-02-02
+okf_profile: matryca_okf_inspired_quality
+okf_spec_version: null
+supersedes: null
+superseded_by: null
+---
+
 # Clean Code & Clean Architecture — Logseq Matryca Parser
 
 **Version:** documents **v1.6.0** maintainer contracts (v1 structural backlog complete)  

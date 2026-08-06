@@ -249,7 +249,7 @@ def _demo() -> None:
         datetime(2026, 5, 11),
         datetime(2026, 5, 22),
     ]
-    print(f"{'Data Originale':<20} | {'Formato Logseq':<15} | {'Output Finale'}")
+    print(f"{'Original Date':<20} | {'Logseq Format':<15} | {'Final Output'}")
     print("-" * 60)
     for dt in test_dates:
         fmt = reader.load_journal_format()

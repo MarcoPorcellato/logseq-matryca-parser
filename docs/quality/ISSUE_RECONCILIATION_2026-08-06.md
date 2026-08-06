@@ -6,9 +6,13 @@ status: stable
 classification: active
 audience: maintainers
 owner: logseq-matryca-parser
+authority: source_repository
+execution_mode: reviewed
 last_verified: 2026-08-06
 verified: 2026-08-06
 stale_after: 2026-09-05
+okf_profile: matryca_okf_inspired_quality
+okf_spec_version: null
 supersedes: docs/quality/ISSUE_TRIAGE_2026-07.md
 superseded_by: null
 publication_pr: 112
@@ -94,3 +98,13 @@ deep parser P0 + #106 filesystem boundary
 
 Product RFCs and contributor issues may proceed in parallel only when they do
 not touch protected parser/graph hubs or weaken these gates.
+
+## Post-baseline documentation progress
+
+- Draft [PR #114](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/114)
+  standardizes repository documentation and maintainer-facing text in English;
+  it closes #69 when merged.
+- The same documentation adoption phase records the source-side lifecycle,
+  classification, authority, freshness, and federation contract requested by
+  #109. Deterministic source CI, private profile activation, and projection
+  verification remain open before MKQ-4 can be claimed.

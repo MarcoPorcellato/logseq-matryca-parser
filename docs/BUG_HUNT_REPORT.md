@@ -1,53 +1,53 @@
 # Bug Hunt Report — logseq-matryca-parser
 
-**Data:** 2026-06-23 (audit) · **Risoluzione:** 2026-06-23  
-**Scope:** audit statico + dinamico del repository (The Logos Protocol)  
-**Strumenti:** analisi statica locale (graph-based), `make all`, `scripts/debug_pre_release.py`, probe Python ad hoc  
-**Riferimenti architetturali:** [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) (R. C. Martin), [`ARCHITECTURE.md`](ARCHITECTURE.md)
+**Date:** 2026-06-23 (audit) · **Resolution:** 2026-06-23
+**Scope:** static + dynamic repository audit (The Logos Protocol)
+**Tools:** local graph-based static analysis, `make all`, `scripts/debug_pre_release.py`, ad-hoc Python probes
+**Architecture references:** [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) (R. C. Martin), [`ARCHITECTURE.md`](ARCHITECTURE.md)
 
-> **Stato risoluzione (2026-06-23):** tutti i **BUG-001…031** e le limitazioni **LIM-001/002** sono stati affrontati nel codice (vedi `CHANGELOG.md` **v1.4.0**). **DEBT-001** (`iter_canonical_pages`, `page_for_node`) è implementato; debito architetturale residuo (SRP su `kinetic.py`, OCP embed strategy) resta backlog non bloccante.
+> **Resolution status (2026-06-23):** all **BUG-001…031** and limitations **LIM-001/002** were addressed in code (see `CHANGELOG.md` **v1.4.0**). **DEBT-001** (`iter_canonical_pages`, `page_for_node`) is implemented; residual architectural debt (SRP in `kinetic.py`, OCP embed strategy) remains as non-blocking backlog.
 >
-> **Aggiornamento test (2026-06-24, v1.4.1):** GFI-04 (`logseq_paths` fallback), GFI-14 (`normalize_logseq_timestamp`), GFI-03/05/06/09/12/13 e suite totale **378** pytest — vedi `CHANGELOG.md` **v1.4.1**.
+> **Test update (2026-06-24, v1.4.1):** GFI-04 (`logseq_paths` fallback), GFI-14 (`normalize_logseq_timestamp`), GFI-03/05/06/09/12/13 and total suite **378** pytest — see `CHANGELOG.md` **v1.4.1**.
 
 ---
 
 ## 1. Executive summary
 
-| Metrica | Esito |
+| Metric | Result |
 | :--- | :--- |
 | `make all` (Ruff + Mypy + 378 pytest) | **PASS** |
-| Coverage | **90.18%** (soglia 80%; **378** pytest, v1.4.1) |
+| Coverage | **90.18%** (threshold 80%; **378** pytest, v1.4.1) |
 | Round-trip corpus (`debug_pre_release.py`) | **19/19 OK** |
-| analisi statica `check` (cicli IMPORTS) | **0 cicli** |
-| analisi statica index | `logseq-matryca-parser` — 1074 embeddings, commit `7d3f77b` |
+| Static `check` analysis (IMPORT cycles) | **0 cycles** |
+| Static index analysis | `logseq-matryca-parser` — 1074 embeddings, commit `7d3f77b` |
 
-Nonostante la suite verde, l’analisi guidata da analisi statica e da probe runtime ha individuato **31 bug/issue ID** (3 Critical parser-crash, 15 Medium/High, 13 Low) e debiti architetturali (violazione *Interface Segregation* su `graph.pages`).
+Despite a green suite, static analysis and runtime probes identified **31 bug/issue IDs** (3 Critical parser crashes, 15 Medium/High, 13 Low) and architectural debt (Interface Segregation violation on `graph.pages`).
 
-**Priorità immediata:** (1) **BUG-017** — `IndexError` su bullet vuoto + proprietà (crash `load_directory` / `scan`); (2) SYNAPSE embed hang (BUG-001); (3) collisione titoli in `load_directory` (BUG-010/013); (4) **grafo in-memory stale dopo `agent-write`** (BUG-016); (5) delete-safe invalidate (BUG-005).
+**Immediate priority:** (1) **BUG-017** — `IndexError` on empty bullet + properties (crash in `load_directory` / `scan`); (2) SYNAPSE embed hang (BUG-001); (3) title collisions in `load_directory` (BUG-010/013); (4) **in-memory graph stale after `agent-write`** (BUG-016); (5) delete-safe invalidate (BUG-005).
 
-**Wave 2 (2026-06-23):** +4 bug confermati via analisi statica `query` su `_enrich_pages_index` / `invalidate_and_reload_page` e probe alias-heavy vaults.
+**Wave 2 (2026-06-23):** +4 confirmed bugs via static `query` analysis on `_enrich_pages_index` / `invalidate_and_reload_page` and alias-heavy vault probes.
 
-**Wave 3 (2026-06-23):** +3 bug confermati via analisi statica `context(load_directory)`, `impact(get_node_by_embed_ref)`, `query(append_child_to_node)` — integrità indice graph e headless writer.
+**Wave 3 (2026-06-23):** +3 confirmed bugs via static `context(load_directory)`, `impact(get_node_by_embed_ref)`, `query(append_child_to_node)` — graph index integrity and headless writer.
 
-**Wave 4 (2026-06-23):** +4 bug via analisi statica `query(forge/agent_write)`, `context(LogseqGraphWatcher)` — grafo in-memory stale, watcher incompleto, `title::` collision cross-file.
+**Wave 4 (2026-06-23):** +4 bugs via static `query(forge/agent_write)`, `context(LogseqGraphWatcher)` — stale in-memory graph, incomplete watcher, cross-file `title::` collision.
 
-**Wave 5–6 (2026-06-23):** +4 bug via analisi statica `impact(_refresh_node)` risk **CRITICAL**, probe `load_directory` / `_parse_graph` / LENS / SYNAPSE — crash parser su outline Logseq reale, metadata RAG errati, statistiche LENS duplicate.
+**Wave 5–6 (2026-06-23):** +4 bugs via static `impact(_refresh_node)` risk **CRITICAL**, probes on `load_directory` / `_parse_graph` / LENS / SYNAPSE — parser crash on real Logseq outline, incorrect RAG metadata, duplicate LENS statistics.
 
-**Wave 7 (2026-06-23):** +5 bug via analisi statica `impact(search_content)` → `agent_read`, probe serialize / export markdown / ghost registry — round-trip 4 spazi, nodi orfani in search/agent-read/RAG, export markdown duplicato, `strict_refs` solo same-page.
+**Wave 7 (2026-06-23):** +5 bugs via static `impact(search_content)` → `agent_read`, serialize/export markdown/ghost registry probes — 4-space round-trip, orphan nodes in search/agent-read/RAG, duplicate markdown export, `strict_refs` only same-page.
 
-**Wave 8 (2026-06-23):** +6 bug via analisi statica `query(resolve_relative_page_link)`, `query(agent_press)`, probe backlink/namespace/tag case, `_export_json`, `resolve_asset_path` — chiusura mappatura moduli core.
+**Wave 8 (2026-06-23):** +6 bugs via static `query(resolve_relative_page_link)`, `query(agent_press)`, namespace/tag/backlink case probes, `_export_json`, `resolve_asset_path` — completion of core module mapping.
 
-**Wave 9–10 (2026-06-29):** issue GitHub [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71) — LENS ghost wikilinks, X-Ray state corrupto, SYNAPSE cyclic embed / unresolved semantics, kinetic dead code, watcher DIP, DX inglese, OCP embed refactor. Vedi `CHANGELOG.md` [Unreleased].
+**Wave 9–10 (2026-06-29):** GitHub issues [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71) — LENS ghost wikilinks, corrupted X-Ray state, SYNAPSE cyclic embed / unresolved semantics, kinetic dead code, watcher DIP, English DX, OCP embed refactor. See `CHANGELOG.md` [Unreleased].
 
-**Wave 11 (2026-06-29):** [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72) — `append_child_to_node` corrompe il Markdown quando l'ultima riga del file sorgente **non** termina con `\n` (splice sulla stessa riga → outline corrotto dopo `agent-write`). Probe: `impact(append_child_to_node)` → CLI `agent_write`. Paired test issue [#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73).
+**Wave 11 (2026-06-29):** [#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72) — `append_child_to_node` corrupts markdown when the source file last line **does not** end with `\n` (same-line splice → corrupted outline after `agent-write`). Probe: `impact(append_child_to_node)` → CLI `agent_write`. Paired test issue [#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73).
 
 ---
 
-## 2. Metodologia (Clean Architecture lens)
+## 2. Methodology (Clean Architecture lens)
 
-### 2.1 Anelli concentrici del progetto
+### 2.1 Project concentric layers
 
-Il codice mappa ragionevolmente sugli anelli di Clean Architecture:
+The code maps reasonably to Clean Architecture rings:
 
 ```mermaid
 flowchart TB
@@ -81,241 +81,241 @@ flowchart TB
     KN --> FG
 ```
 
-**Regola delle dipendenze:** le frecce puntano verso l’interno. Violazioni osservate (vedi §6) sono concentrate negli adapter che aggirano API pubbliche del dominio.
+**Dependency rule:** arrows point inward. Observed violations (see §6) are concentrated in adapters that bypass public domain APIs.
 
-### 2.2 Pipeline di indagine
+### 2.2 Investigation pipeline
 
-1. **Bootstrap analisi statica locale** — `check(cycles)`, `query`, `impact`, `context` su `StackMachineParser`, `serialize_logseq_page`, `LogseqGraph`, `logseq_agent_write`.
-2. **Gate qualità** — `make all`.
-3. **Corpus round-trip** — `uv run python scripts/debug_pre_release.py`.
-4. **Probe mirati** — script Python isolati con `SIGALRM` per rilevare hang; confronto semantico settimane ISO vs `%W`.
-5. **Mappatura coverage** — linee non coperte vs rischio (vedi §7).
+1. **Local static analysis bootstrap** — `check(cycles)`, `query`, `impact`, `context` on `StackMachineParser`, `serialize_logseq_page`, `LogseqGraph`, `logseq_agent_write`.
+2. **Quality gate** — `make all`.
+3. **Round-trip corpus** — `uv run python scripts/debug_pre_release.py`.
+4. **Targeted probes** — isolated Python scripts with `SIGALRM` to detect hangs; semantic comparison of ISO weeks vs `%W`.
+5. **Coverage mapping** — uncovered lines vs risk (see §7).
 
 ---
 
-## 3. Evidenze strutturali (analisi statica locale)
+## 3. Static evidence (local analysis)
 
-| Query / tool | Risultato | Implicazione |
+| Query / tool | Result | Implication |
 | :--- | :--- | :--- |
-| `check(cycles)` | `cycleCount: 0` | Nessun ciclo di import tra file; layering import è sano. |
-| `impact(StackMachineParser, upstream)` | risk **MEDIUM**, 6 caller diretti | Refactor parser = blast radius moderato; serve `impact` prima di ogni modifica FSM. |
-| `impact(serialize_logseq_page, upstream)` | risk **LOW**, 1 caller | Serialization è confinata; round-trip testabile in isolamento. |
-| `context(LogseqGraph)` | Importato da `kinetic`, `synapse`, `agent_writer`, `__init__` | Hub applicativo — API graph devono restare stabili e complete. |
-| `impact(logseq_agent_write, downstream)` | 2 processi (`logseq_agent_write`, `_demo`) | Cambio naming file settimanale impatta solo KINETIC/agent path. |
-| `impact(_refresh_node, upstream)` | risk **CRITICAL**, 5 processi (`scan`, `load_and_convert`, `parse`) | BUG-017 — un guard mancante blocca tutti gli entrypoint parse. |
-| `impact(load_directory, upstream)` | risk **HIGH**, `agent_read` / `export` / `agent_write` | BUG-010/013/017 condividono il percorso `load_directory`. |
-| `query(to_llamaindex_nodes SOURCE)` | `LlamaIndexVisitor`, `page_source_node_id` | BUG-018 — SOURCE singolo su root multi-pagina. |
-| `query(get_deep_statistics largest_pages)` | `GraphVisualizer._count_page_blocks` | BUG-019 — lista `_pages` senza dedup alias. |
-| `impact(search_content, upstream)` | risk **LOW**, processo `agent_read` | BUG-022 — scan su `_node_registry` include nodi fantasma. |
-| `query(strict_refs BlockReferenceError)` | `_validate_references`, `BlockReferenceError` | BUG-025 — validazione solo intra-pagina. |
-| `impact(resolve_relative_page_link)` | **0 caller** upstream | API pubblica ma non usata internamente; BUG-029 gap `../`. |
-| `query(agent_press to_xray_markdown)` | `SessionAliasRegistry`, `agent_read` | Dup X-Ray solo se consumer passa `pages.values()` roots. |
+| `check(cycles)` | `cycleCount: 0` | No import cycles between files; layering is healthy. |
+| `impact(StackMachineParser, upstream)` | risk **MEDIUM**, 6 direct callers | Parser refactor has moderate blast radius; run `impact` before any FSM change. |
+| `impact(serialize_logseq_page, upstream)` | risk **LOW**, 1 caller | Serialization is contained; round-trip can be tested in isolation. |
+| `context(LogseqGraph)` | Imported by `kinetic`, `synapse`, `agent_writer`, `__init__` | Application hub — graph APIs must stay stable and complete. |
+| `impact(logseq_agent_write, downstream)` | 2 processes (`logseq_agent_write`, `_demo`) | Weekly file naming change impacts only KINETIC/agent path. |
+| `impact(_refresh_node, upstream)` | risk **CRITICAL**, 5 processes (`scan`, `load_and_convert`, `parse`) | BUG-017 — missing guard blocks all parse entrypoints. |
+| `impact(load_directory, upstream)` | risk **HIGH**, `agent_read` / `export` / `agent_write` | BUG-010/013/017 share the `load_directory` path. |
+| `query(to_llamaindex_nodes SOURCE)` | `LlamaIndexVisitor`, `page_source_node_id` | BUG-018 — single SOURCE for multi-page root. |
+| `query(get_deep_statistics largest_pages)` | `GraphVisualizer._count_page_blocks` | BUG-019 — `_pages` list without alias dedup. |
+| `impact(search_content, upstream)` | risk **LOW**, process `agent_read` | BUG-022 — scan on `_node_registry` includes orphan nodes. |
+| `query(strict_refs BlockReferenceError)` | `_validate_references`, `BlockReferenceError` | BUG-025 — validation only intra-page. |
+| `impact(resolve_relative_page_link)` | **0 caller** upstream | Public API currently unused internally; BUG-029 gap for `../`. |
+| `query(agent_press to_xray_markdown)` | `SessionAliasRegistry`, `agent_read` | X-Ray duplicates only when consumer passes `pages.values()` roots. |
 
-**Staleness:** l’indice locale è allineato al commit indicizzato; dopo merge significativi eseguire `refresh dell'indice locale`.
+**Staleness:** local index is aligned to indexed commit; after significant merges, run a local index refresh.
 
 ---
 
-## 4. Findings — bug confermati (runtime evidence)
+## 4. Findings — confirmed bugs (runtime evidence)
 
-### BUG-001 — CRITICAL: loop infinito in espansione page embed (SYNAPSE)
+### BUG-001 — CRITICAL: infinite loop during page embed expansion (SYNAPSE)
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/synapse.py` |
-| **Funzione** | `_expand_macros_and_embeds_impl` (circa L164–217) |
-| **Severità** | **Critical** (hang / CPU 100% su export RAG) |
-| **Clean Architecture** | Violazione *robustness* nel adapter; il use case `LogseqGraph.get_page` esiste ma non viene usato. |
+| **Function** | `_expand_macros_and_embeds_impl` (around L164–217) |
+| **Severity** | **Critical** (hang / CPU at 100% on RAG export) |
+| **Clean Architecture** | Robustness violation in adapter; use case `LogseqGraph.get_page` exists but is not used. |
 
-**Root cause:** quando `graph.pages.get(title)` non trova la pagina, `replacement = match.group(0)` lascia la stringa **identica**. Il `while True` ri-matcha lo stesso embed all’infinito.
+**Root cause:** when `graph.pages.get(title)` fails, `replacement = match.group(0)` keeps the same string. The `while True` loop rematches the same embed indefinitely.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
-# Pagina inesistente → hang confermato (SIGALRM 3s)
+# Missing page → hang confirmed (SIGALRM 3s)
 missing page INFINITE_LOOP
 
-# Casing errato (Logseq routing case-insensitive via get_page)
-embed [[target]] con pagina "Target" → INFINITE_LOOP
+# Wrong case (Logseq routing case-insensitive via get_page)
+embed [[target]] with page "Target" → INFINITE_LOOP
 embed [[Target]] → OK: 'x shared content'
 
-# UUID block valido ma assente nel grafo → hang
+# Valid block UUID missing from graph → hang
 double-brace missing uuid INFINITE_LOOP
 ```
 
-**Percorso utente:** `SynapseAdapter.to_context_enriched_chunks` → `kinetic export --format langchain-enriched` su un grafo con embed irrisolti.
+**User path:** `SynapseAdapter.to_context_enriched_chunks` → `kinetic export --format langchain-enriched` on a graph with unresolved embeds.
 
-**Fix raccomandato (SRP + fail-safe):**
+**Recommended fix (SRP + fail-safe):**
 
-1. Usare `graph.get_page(title)` al posto di `graph.pages.get(title)` (case-insensitive).
-2. Su risoluzione fallita: sostituire con stringa vuota o placeholder, **mai** con `match.group(0)`.
-3. Aggiungere test regressione in `tests/test_synapse.py` per: pagina mancante, casing errato, UUID block assente.
+1. Use `graph.get_page(title)` instead of `graph.pages.get(title)` (case-insensitive).
+2. On failed resolution, replace with empty string or placeholder, **never** with `match.group(0)`.
+3. Add regression tests in `tests/test_synapse.py` for: missing page, wrong case, missing UUID block.
 
-**Blast radius (analisi statica):** `impact(SynapseAdapter.to_context_enriched_chunks, upstream)` prima del fix.
+**Blast radius (static analysis):** `impact(SynapseAdapter.to_context_enriched_chunks, upstream)` before fix.
 
 ---
 
-### BUG-005 — HIGH: `invalidate_and_reload_page` crash su file cancellato
+### BUG-005 — HIGH: `invalidate_and_reload_page` crashes on deleted file
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L641–647 |
-| **Severità** | **High** (watcher / incremental index) |
-| **Clean Architecture** | Use case non gestisce evento *delete* del driver filesystem. |
+| **Severity** | **High** (watcher / incremental index) |
+| **Clean Architecture** | Use case does not handle filesystem *delete* event. |
 
-**Root cause:** `invalidate_and_reload_page` chiama sempre `parse_page_file(resolved)` senza verificare `resolved.exists()`. Su cancellazione pagina → `FileNotFoundError`.
+**Root cause:** `invalidate_and_reload_page` always calls `parse_page_file(resolved)` without checking `resolved.exists()`. On page deletion → `FileNotFoundError`.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
 BUG-005 exception: FileNotFoundError .../pages/Gone.md
 ```
 
-**Percorso utente:** `LogseqGraphWatcher` → `_route_event` → `invalidate_and_reload_page` quando l’utente elimina un `.md` in Logseq.
+**User path:** `LogseqGraphWatcher` → `_route_event` → `invalidate_and_reload_page` when user deletes a `.md` in Logseq.
 
-**Fix raccomandato:** se `not resolved.exists()`, purgare chiavi/backlink/nodi per quel `source_path` (simmetrico a reload) e uscire senza parse.
+**Recommended fix:** if `not resolved.exists()`, purge key/backlink/node entries for that `source_path` (symmetrical with reload) and return without parse.
 
-**Analisi statica:** `context(invalidate_and_reload_page)` — caller diretto: watcher handler; test esistente copre solo *edit*, non *delete*.
+**Static analysis:** `context(invalidate_and_reload_page)` — direct caller is watcher handler; existing test only covers *edit*, not *delete*.
 
 ---
 
-### BUG-006 — MEDIUM: `langchain-enriched` export duplica chunk per alias pagina
+### BUG-006 — MEDIUM: `langchain-enriched` export duplicates chunks per page alias
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/kinetic.py` L347–349 |
-| **Severità** | **Medium** (RAG embeddings duplicati, costo/token doppio) |
+| **Severity** | **Medium** (duplicate RAG embeddings, token / cost overhead) |
 
-**Root cause:** `_export_langchain_enriched` fa `for page in graph.pages.values()`; `_enrich_pages_index` duplica la stessa `LogseqPage` sotto chiavi alias (`alias::`). `all_roots.extend(page.root_nodes)` inserisce gli stessi blocchi N volte.
+**Root cause:** `_export_langchain_enriched` does `for page in graph.pages.values()`; `_enrich_pages_index` duplicates the same `LogseqPage` under alias keys (`alias::`). `all_roots.extend(page.root_nodes)` inserts the same blocks N times.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
-# alias:: Alt su pagina con 1 blocco
+# alias:: Alt on a page with 1 block
 BUG-006 chunk count: 2 payload len: 2
 BUG-006 duplicate contents: ['[P] only block', '[P] only block']
 ```
 
-**Fix raccomandato:** introdurre `LogseqGraph.iter_canonical_pages()` (pattern già in `_enrich_pages_index` L219: `key == page.title` + dedup `id(page)`).
+**Recommended fix:** introduce `LogseqGraph.iter_canonical_pages()` (pattern already in `_enrich_pages_index` L219: `key == page.title` + `id(page)` dedup).
 
 ---
 
-### BUG-007 — MEDIUM: `get_namespace_children` restituisce duplicati con alias namespace-like
+### BUG-007 — MEDIUM: `get_namespace_children` duplicates entries with namespace-like aliases
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L558–577 |
-| **Severità** | **Medium** (API graph errata per tooling namespace) |
+| **Severity** | **Medium** (incorrect namespace API) |
 
-**Root cause:** itera `self.pages.items()` senza dedup per oggetto pagina. Un `alias:: NS/AliasLeaf` crea una chiave `NS/AliasLeaf` che matcha il prefisso `NS/` oltre alla chiave canonica `NS/Leaf`.
+**Root cause:** iterates `self.pages.items()` without dedup by page object. `alias:: NS/AliasLeaf` creates key `NS/AliasLeaf` that also matches prefix `NS/` in addition to canonical `NS/Leaf`.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
 H17 ns children count: 2 ['NS/Leaf', 'NS/Leaf']
 ```
 
-**Fix raccomandato:** stesso helper `iter_canonical_pages()` o `seen_page_ids` come in `_build_backlink_registry`.
+**Recommended fix:** reuse `iter_canonical_pages()` helper or `seen_page_ids` like `_build_backlink_registry`.
 
 ---
 
-### BUG-008 — LOW: `search_content` case-sensitive vs routing case-insensitive
+### BUG-008 — LOW: `search_content` is case-sensitive while routing is case-insensitive
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L521–528 |
-| **Severità** | **Low** (inconsistenza API) |
+| **Severity** | **Low** (API inconsistency) |
 
-**Evidenza:**
+**Evidence:**
 
 ```text
-search_content('hello') → 0 risultati
-search_content('Hello') → 1 risultato
+search_content('hello') → 0 results
+search_content('Hello') → 1 result
 ```
 
-`get_page` e `get_backlinks` sono case-insensitive; `search_content` no. Documentare o allineare.
+`get_page` and `get_backlinks` are case-insensitive; `search_content` is not. Document or align.
 
 ---
 
-### BUG-009 — LOW: `SessionAliasRegistry.load_from_disk` stato inconsistente con UUID duplicati
+### BUG-009 — LOW: `SessionAliasRegistry.load_from_disk` inconsistent state with duplicate UUIDs
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/agent_press.py` L70–78 |
-| **Severità** | **Low** (agent session corrupta su disco) |
+| **Severity** | **Low** (corrupt on-disk agent session) |
 
-**Evidenza:**
+**Evidence:**
 
 ```text
 load {"0": "uuid-a", "1": "uuid-a"}
 resolve_alias(0) → uuid-a, resolve_alias(1) → uuid-a
-alias_for_uuid('uuid-a') → 1  # alias 0 “orfano” per reverse lookup
+alias_for_uuid('uuid-a') → 1  # alias 0 is “orphan” in reverse lookup
 ```
 
-**Fix raccomandato:** validazione al load (rifiuta o merge duplicati); test regressione.
+**Recommended fix:** validate on load (reject or merge duplicates); add regression test.
 
 ---
 
-### BUG-010 — HIGH: collisione titolo `pages/` vs `journals/` + nodi fantasma nel registry
+### BUG-010 — HIGH: `pages/` vs `journals/` title collision + ghost registry nodes
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L384–387 |
-| **Severità** | **High** (integrità indice, agent-read, RAG) |
-| **Clean Architecture** | Use case `load_directory` viola invariante “un titolo → una pagina indexata”. |
+| **Severity** | **High** (index integrity, agent-read, RAG) |
+| **Clean Architecture** | `load_directory` use case violates invariant “one title → one indexed page”. |
 
-**Root cause:** `pages[page.title] = page` usa solo il titolo come chiave. File distinti con lo stesso stem (es. `pages/Daily.md` e `journals/Daily.md`) collidono; l’ultimo path ordinato vince nel dizionario, ma **entrambi** i nodi restano in `_node_registry` (registrati nel loop precedente L386–387).
+**Root cause:** `pages[page.title] = page` uses title as only key. Distinct files with same stem (e.g., `pages/Daily.md` and `journals/Daily.md`) collide. The sorted later path wins in dict; **both** nodes remain in `_node_registry` (registered in previous loop L386–387).
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
-# pages/Daily.md + journals/Daily.md (stesso titolo "Daily")
+# pages/Daily.md + journals/Daily.md (same title "Daily")
 registry nodes: ['from-journals', 'from-pages']  # count: 2
-pages['Daily'] → pages/Daily.md (vincitore)
-_page_for_node(journal_node) → None  # fantasma
-query().execute() → 2 nodi, uno orfano
+pages['Daily'] → pages/Daily.md (winner)
+_page_for_node(journal_node) → None  # ghost
+query().execute() → 2 nodes, one orphan
 ```
 
-**Percorso utente:** `agent-read` senza filtri include nodi journal non collegati a nessuna `LogseqPage`; export enriched indicizza contenuto “fantasma”.
+**User path:** unfiltered `agent-read` includes journal nodes not linked to any `LogseqPage`; enriched export indexes ghost content.
 
-**Fix raccomandato:** chiave composta `(source_kind, title)` o namespace titoli journal (`[[Apr 25th, 2024]]`); oppure purge registry nodes non appartenenti alla pagina vincitrice dopo merge.
+**Recommended fix:** use composite key `(source_kind, title)` or journal title namespace (`[[Apr 25th, 2024]]`); alternatively purge non-winning `_node_registry` nodes after merge.
 
-**Analisi statica:** `context(load_directory)` — 25+ test caller; `impact` risk alto su refactor.
+**Static analysis:** `context(load_directory)` — 25+ test callers; high `impact` risk on refactor.
 
 ---
 
-### BUG-011 — MEDIUM: `append_child_to_node` ignora indentazione reale del file
+### BUG-011 — MEDIUM: `append_child_to_node` ignores real file indentation
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/agent_writer.py` L192–194 |
-| **Severità** | **Medium** (headless writer corrompe outline) |
+| **Severity** | **Medium** (headless writer corrupts outline) |
 
-**Root cause:** indent calcolato come `graph.tab_size` (hardcoded 2) × `indent_level`, non dagli spazi effettivi nel sorgente. Vault con indentazione 4 spazi (o mista) ricevono bullet figli con 2 spazi.
+**Root cause:** indentation is computed as hardcoded `graph.tab_size` (2) × `indent_level`, not actual spaces in source. Vaults using 4-space or mixed indentation add children with 2 spaces.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
 # File: '- root\n    - four-space child\n'
 append_child_to_node(..., 'appended')
-→ ['- root', '    - four-space child', '  - appended']  # 2 spazi, non 4
+→ ['- root', '    - four-space child', '  - appended']  # 2 spaces, not 4
 ```
 
-**Fix raccomandato:** derivare indent dal bullet parent nel file (`line_start` / regex sulle leading spaces) o da `node.indent_level` × indent width rilevato per pagina.
+**Recommended fix:** derive indentation from parent bullet in source (`line_start` / leading-space regex) or from `node.indent_level` × detected per-page indent width.
 
-**Analisi statica:** `impact(append_child_to_node)` → `agent_write` CLI (7 process hits).
+**Static analysis:** `impact(append_child_to_node)` → `agent_write` CLI (7 process hits).
 
 ---
 
-### BUG-012 — MEDIUM: `get_node_by_embed_ref` case-sensitive su UUID
+### BUG-012 — MEDIUM: `get_node_by_embed_ref` is case-sensitive for UUID
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L432–445 |
-| **Severità** | **Medium** (embed Obsidian / Synapse falliscono) |
+| **Severity** | **Medium** (Obsidian / Synapse embeds fail) |
 
-**Root cause:** lookup diretto `get_node_by_uuid(stripped)` e confronto `node.source_uuid == stripped` senza normalizzazione case; Logseq/OS spesso usano UUID lowercase negli embed `((...))` mentre `id::` nel file può essere uppercase.
+**Root cause:** direct lookup `get_node_by_uuid(stripped)` and `node.source_uuid == stripped` compare without case normalization. Logseq/Obsidian often uses lowercase UUIDs in `((...))` while page `id::` may be uppercase.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
 id:: AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA
@@ -323,58 +323,58 @@ get_node_by_embed_ref(upper) → hit
 get_node_by_embed_ref(lower) → miss
 ```
 
-**Fix raccomandato:** normalizzare a lowercase per confronto UUID (come `_node_identity_keys` in `forge.py`).
+**Recommended fix:** normalize UUID comparisons to lowercase (as with `_node_identity_keys` in `forge.py`).
 
-**Analisi statica:** `impact(get_node_by_embed_ref)` → `to_context_enriched_chunks`, `embed_resolver` Obsidian.
+**Static analysis:** `impact(get_node_by_embed_ref)` → `to_context_enriched_chunks`, Obsidian `embed_resolver`.
 
 ---
 
-### BUG-013 — HIGH: collisione `title::` identico su file diversi (variante BUG-010)
+### BUG-013 — HIGH: identical `title::` collision across files (BUG-010 variant)
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L384–387 |
-| **Severità** | **High** (stesso meccanismo di BUG-010) |
+| **Severity** | **High** (same mechanism as BUG-010) |
 
-**Scenario:** `pages/A.md` e `pages/B.md` entrambi con `title:: Shared`. Il dizionario `pages` conserva un solo vincitore (`B.md` per sort path), ma **entrambi** i nodi (`from-A`, `from-B`) restano in `_node_registry`.
+**Scenario:** `pages/A.md` and `pages/B.md` both have `title:: Shared`. Dict keeps one winner (`B.md` by path order), but both nodes (`from-A`, `from-B`) remain in `_node_registry`.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
 shared title pages dict: 1
-registry nodes: ['a', 'b']   # o ['from-A', 'from-B']
+registry nodes: ['a', 'b']   # or ['from-A', 'from-B']
 winner: B.md / from-B
 ```
 
-**Fix:** unificare con BUG-010 — chiave indice = `source_path` o `(kind, canonical_title)`; purge registry orphan.
+**Fix:** unify with BUG-010 — index key should be `source_path` or `(kind, canonical_title)`; purge orphan registry entries.
 
 ---
 
-### BUG-014 — MEDIUM: `LogseqGraphWatcher` senza `on_deleted` / `on_moved`
+### BUG-014 — MEDIUM: `LogseqGraphWatcher` without `on_deleted` / `on_moved`
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L725–730 |
-| **Severità** | **Medium** (indice stale finché non si riavvia) |
+| **Severity** | **Medium** (stale index until restart) |
 
-**Root cause:** handler registra solo `on_modified` e `on_created`. Cancellazione o rename di `.md` non invalida l’indice (a differenza di Logseq che aggiorna il DB).
+**Root cause:** handler registers only `on_modified` and `on_created`. Deleted/renamed `.md` files do not invalidate index (unlike Logseq DB updates).
 
-**Evidenza:** ispezione sorgente `start()` — assenza `on_deleted`/`on_moved`; combinato con BUG-005 se un evento successivo tenta reload su path sparito.
+**Evidence:** source inspection of `start()` shows missing `on_deleted`/`on_moved`; combined with BUG-005 if a later event attempts reload on missing path.
 
-**Analisi statica:** `context(LogseqGraphWatcher)` — processi `on_modified`/`on_created` only.
+**Static analysis:** `context(LogseqGraphWatcher)` — only `on_modified`/`on_created` processes.
 
-**Fix:** aggiungere `on_deleted` → purge per `source_path`; `on_moved` → invalidate old + new path.
+**Fix:** add `on_deleted` → purge by `source_path`; `on_moved` → invalidate old + new path.
 
 ---
 
-### BUG-015 — LOW: `GraphQuery.has_tag` non accetta prefisso `#`
+### BUG-015 — LOW: `GraphQuery.has_tag` does not accept `#` prefix
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L93–96 |
-| **Severità** | **Low** (UX API / CLI) |
+| **Severity** | **Low** (API / CLI UX) |
 
-**Evidenza:**
+**Evidence:**
 
 ```text
 node.tags: ['mytag']
@@ -382,310 +382,310 @@ has_tag('mytag') → 1
 has_tag('#mytag') → 0
 ```
 
-Il parser normalizza `#` via `tags`; `has_tag` confronta literal. Stessa classe di inconsistenza di BUG-008 (`search_content` case).
+Parser normalizes `#` via `tags`; `has_tag` does literal comparison. Same inconsistency class as BUG-008 (`search_content` case).
 
-**Fix:** strip `#` in `has_tag` (e opzionalmente `search_content` casefold).
+**Fix:** strip `#` in `has_tag` (and optionally casefold `search_content`).
 
 ---
 
-### BUG-016 — HIGH: `append_child_to_node` non aggiorna il grafo in-memory
+### BUG-016 — HIGH: `append_child_to_node` does not update in-memory graph
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/agent_writer.py` L181–228; `kinetic.py` `agent_write` L641 |
-| **Severità** | **High** (workflow agente incoerente) |
+| **Severity** | **High** (inconsistent agent workflow) |
 
-**Root cause:** splice scrive solo su disco. `LogseqGraph` caricato prima della scrittura resta con AST/registry obsoleti; nessuna chiamata a `invalidate_and_reload_page`.
+**Root cause:** splice writes to disk only. A `LogseqGraph` loaded before write keeps stale AST/registry; no call to `invalidate_and_reload_page`.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
 registry before/after append: 1 1
-parent.children after append: 0   # AST non aggiornato
-# file on disk contiene il nuovo bullet
+parent.children after append: 0   # AST not updated
+# file on disk contains new bullet
 ```
 
-**Percorso utente:** `agent-read` → `agent-write` nella stessa sessione Python / pipeline che riusa `LogseqGraph` → export o query ignorano il blocco appena scritto.
+**User path:** `agent-read` → `agent-write` in same Python session/pipeline reusing `LogseqGraph` → export/query ignores just-written block.
 
-**Fix:** dopo splice, `graph.invalidate_and_reload_page(source_path)` (o parse incrementale del sottoalbero).
+**Fix:** after splice, call `graph.invalidate_and_reload_page(source_path)` (or incremental subtree parse).
 
-**Analisi statica:** `impact(append_child_to_node)` → `agent_write` (7 process hits).
+**Static analysis:** `impact(append_child_to_node)` → `agent_write` (7 process hits).
 
 ---
 
-### BUG-017 — CRITICAL: `IndexError` in `_refresh_node` su bullet vuoto con proprietà blocco
+### BUG-017 — CRITICAL: `IndexError` in `_refresh_node` on empty bullet with block properties
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/logos_parser.py` L1376–1379 |
-| **Funzione** | `StackMachineParser._refresh_node` |
-| **Severità** | **Critical** (crash parse — intero grafo non caricabile) |
-| **Clean Architecture** | Use case parser non rispetta invariante “outline Logseq valido”; nessun fail-soft su contenuto vuoto dopo strip proprietà. |
+| **Function** | `StackMachineParser._refresh_node` |
+| **Severity** | **Critical** (parse crash — full graph cannot load) |
+| **Clean Architecture** | Parser use case violates invariant “valid Logseq outline”; no fail-soft on empty content after property strip. |
 
-**Root cause:** alla riga 1376 `first_line` usa un guard `if content.splitlines() else ""`, ma alla riga 1379 `_extract_task_status(content.splitlines()[0].strip())` **non** ha lo stesso guard. Quando il bullet parent ha solo spazi dopo `-` e le proprietà (`id::`, `tags::`, …) sono su righe figlie indentate, `content` risulta stringa vuota → `splitlines()[0]` → `IndexError`.
+**Root cause:** at line 1376 `first_line` uses guard `if content.splitlines() else ""`, but line 1379 `_extract_task_status(content.splitlines()[0].strip())` does not use the same guard. When a parent bullet has only spaces after `-` and child properties (`id::`, `tags::`, …) are on indented child lines, `content` becomes empty string → `splitlines()[0]` raises `IndexError`.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
 Input: '- \n  id:: abc\n  - real\n'
 parse() → IndexError: list index out of range  (L1379)
 
-Varianti che crashano (senza figlio obbligatorio):
+Variants that crash (without mandatory child):
   '- \n  id:: abc\n'
   '- \n  tags:: foo\n  - c\n'
   'id:: page\n\n- \n  id:: block\n  - c\n'
 
-load_directory con 1 file valido + 1 file bad → IndexError (nessuna pagina caricata)
-_parse_graph (kinetic scan) → IndexError a metà progress bar
+load_directory with 1 valid + 1 bad file → IndexError (no pages loaded)
+_parse_graph (kinetic scan) → IndexError mid progress bar
 ```
 
-**Percorso utente:** vault Logseq con bullet “contenitore” vuoto e `id::` / metadati sul blocco (pattern comune per block embed); `logseq-matryca-parser scan`, `export`, `agent-read` su grafo intero.
+**User path:** Logseq vault with empty “container” bullet and `id::` / metadata on block (common for block embed); `logseq-matryca-parser scan`, `export`, `agent-read` on full graph.
 
-**Fix raccomandato:** riusare `first_line` (o `content.splitlines()[0] if content.splitlines() else ""`) anche per `_extract_task_status`; test regressione `test_empty_bullet_with_block_properties` (distinto da `test_empty_bullet_without_trailing_space` che copre solo `"-"`).
+**Recommended fix:** reuse `first_line` (or `content.splitlines()[0] if content.splitlines() else ""`) for `_extract_task_status` too; add regression test `test_empty_bullet_with_block_properties` (separate from `test_empty_bullet_without_trailing_space` which covers only `"-"`).
 
-**Analisi statica:** `impact(_refresh_node, upstream)` → risk **CRITICAL**, processi `load_and_convert`, `scan`, `parse`, `parse_file`, `main` (debug_pre_release).
+**Static analysis:** `impact(_refresh_node, upstream)` → risk **CRITICAL**, processes `load_and_convert`, `scan`, `parse`, `parse_file`, `main` (debug_pre_release).
 
 ---
 
-### BUG-018 — MEDIUM: `to_llamaindex_nodes` con radici multi-pagina condivide un solo `SOURCE`
+### BUG-018 — MEDIUM: `to_llamaindex_nodes` assigns one `SOURCE` for multi-page roots
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/synapse.py` L354–359 |
-| **Severità** | **Medium** (metadata RAG errati se si passano root di più pagine) |
+| **Severity** | **Medium** (incorrect RAG metadata when passing multi-page roots) |
 
-**Root cause:** se `page_source_id` non è fornito, viene calcolato una sola volta dal `first_path` del primo nodo in ordine preorder. Tutti i nodi LlamaIndex ricevono lo stesso `NodeRelationship.SOURCE`.
+**Root cause:** if `page_source_id` omitted, it is computed once from first path among first node in preorder. All LlamaIndex nodes receive same `NodeRelationship.SOURCE`.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
-# Root da pages A.md e B.md in un'unica lista
+# Root from A.md and B.md in one list
 to_llamaindex_nodes(all_roots) → SOURCE count: 1, nodes: 2
 ```
 
-**Percorso utente:** integrazione custom che aggrega `graph.pages.values()` root_nodes (stesso anti-pattern di BUG-006) prima di `to_llamaindex_nodes`. KINETIC non espone oggi export LlamaIndex bulk, ma l’API pubblica è fuorviante.
+**User path:** custom integration aggregates `graph.pages.values()` roots (same anti-pattern as BUG-006) before calling `to_llamaindex_nodes`. KINETIC does not currently expose bulk LlamaIndex export, but the public API is misleading.
 
-**Fix raccomandato:** documentare che `to_llamaindex_nodes` è per-page; oppure derivare `SOURCE` per nodo da `node.source_path` / `page_source_node_id(page_title, path)`.
+**Fix:** document `to_llamaindex_nodes` as per-page, or derive `SOURCE` from `node.source_path` / `page_source_node_id(page_title, path)`.
 
-**Analisi statica:** `query(to_llamaindex_nodes SOURCE)` → `LlamaIndexVisitor`, test `test_to_llamaindex_nodes_injects_parent_child_relationships`.
+**Static analysis:** `query(to_llamaindex_nodes SOURCE)` → `LlamaIndexVisitor`, test `test_to_llamaindex_nodes_injects_parent_child_relationships`.
 
 ---
 
-### BUG-019 — LOW/MEDIUM: `get_deep_statistics` duplica `largest_pages` con alias in `_pages`
+### BUG-019 — LOW/MEDIUM: `get_deep_statistics` duplicates `largest_pages` for alias entries in `_pages`
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/lens.py` L109–117 |
-| **Severità** | **Low/Medium** (statistiche HTML/KINETIC visualize se alimentate da `graph.pages.values()`) |
+| **Severity** | **Low/Medium** (HTML/LENS stats can be incorrect if fed alias-expanded `graph.pages.values()`) |
 
-**Root cause:** `largest_pages` itera `self._pages` senza dedup; stesso oggetto `LogseqPage` compare due volte se la lista proviene da `list(graph.pages.values())` (chiave canonica + alias).
+**Root cause:** `largest_pages` iterates `self._pages` without dedup; same `LogseqPage` appears multiple times when list originates from `list(graph.pages.values())` (canonical key + alias).
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
 # alias:: Alt, _pages = list(graph.pages.values())
 largest_pages: [{'page': 'P', 'block_count': 2}, {'page': 'P', 'block_count': 2}]
 ```
 
-**Nota:** `kinetic visualize` usa `_parse_graph` (una entry per file) — non colpito di default. Colpito se un consumer passa il dizionario graph arricchito.
+**Note:** `kinetic visualize` uses `_parse_graph` (one entry per file), so default flow is not affected. Affected only when consumer passes enriched graph dict.
 
-**Fix:** dedup per `id(page)` o `iter_canonical_pages()` (DEBT-001).
+**Fix:** dedup by `id(page)` or `iter_canonical_pages()` (DEBT-001).
 
 ---
 
-### BUG-020 — LOW: LENS crea nodo “pagina fantasma” per alias wikilink
+### BUG-020 — LOW: LENS creates “ghost page” node for alias wikilink
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/lens.py` `NetworkXVisitor.visit_node` L26–30 |
-| **Severità** | **Low** (visualizzazione fuorviante) |
+| **Severity** | **Low** (misleading visualization) |
 
-**Root cause:** ogni `ref` in `node.refs` diventa nodo grafo con `group="page"`. Un wikilink `[[Alt]]` dove `Alt` è solo `alias::` della pagina `P` crea nodo `Alt` separato da `P`, con arco `P → Alt`.
+**Root cause:** every `ref` in `node.refs` becomes a graph node with `group="page"`. A wikilink `[[Alt]]` where `Alt` is only `alias::` for page `P` creates separate `Alt` node and edge `P → Alt`.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
-# pages/P.md: alias:: Alt, contenuto - [[Alt]]
+# pages/P.md: alias:: Alt, content - [[Alt]]
 lens nodes: ['P', 'Alt'], edges: 1
 ```
 
-**Fix opzionale:** risolvere ref via `graph.get_page(ref)` e usare `page.title` canonico come nodo destinazione (richiede passare `LogseqGraph` al visualizer).
+**Optional fix:** resolve refs via `graph.get_page(ref)` and use canonical `page.title` as destination node (requires passing `LogseqGraph` to visualizer).
 
 ---
 
-### BUG-021 — MEDIUM: `serialize_logseq_page` forza `tab_size=2` e corrompe vault a 4 spazi
+### BUG-021 — MEDIUM: `serialize_logseq_page` hardcodes `tab_size=2` and corrupts 4-space vaults
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/logseq_markdown.py` L168–186, L211 |
-| **Severità** | **Medium** (round-trip altera indentazione reale) |
+| **Severity** | **Medium** (round-trip changes real indentation) |
 
-**Root cause:** la serializzazione calcola indent come `node.indent_level * tab_size` con default `tab_size=2`. Il parser registra solo `indent_level` (0, 1, 2…), non la larghezza effettiva in spazi del sorgente. Un file con figli a 4 spazi viene riscritto a 2 spazi.
+**Root cause:** serialization computes indent as `node.indent_level * tab_size` with default `tab_size=2`. Parser stores only indent level (0, 1, 2, …), not original width in source spaces. 4-space child file is rewritten to 2-space indentation.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
-Input file:  '- root\n    - child\n'   # 4 spazi
-parse → indent_level root=0 child=1
-serialize_logseq_page(page) → '- root\n  - child\n'   # 2 spazi — match=False
-serialize_logseq_page(page, tab_size=4) → match=True   # ma tab_size non è auto-rilevato
+Input file:  '- root\n    - child\n'   # 4 spaces
+parse → root indent=0 child=1
+serialize_logseq_page(page) → '- root\n  - child\n'   # 2 spaces — match=False
+serialize_logseq_page(page, tab_size=4) → match=True   # tab_size is not auto-detected
 ```
 
-**Percorso utente:** `write_logseq_page`, round-trip test, qualsiasi pipeline che riscrive AST senza conoscere `tab_size` del vault.
+**User path:** `write_logseq_page`, round-trip tests, any pipeline re-writing AST without knowing vault tab size.
 
-**Fix raccomandato:** rilevare `tab_size` per pagina al parse (GCD degli incrementi di indent) e propagarlo su `LogseqPage` / `LogseqGraph.tab_size`; oppure memorizzare leading spaces originali.
+**Recommended fix:** detect `tab_size` per page at parse time (GCD of indent increments) and propagate to `LogseqPage` / `LogseqGraph.tab_size`, or store leading spaces.
 
-**Relazione:** stessa famiglia di BUG-011 (`append_child_to_node`); analisi statica `impact(serialize_logseq_page)` risk **LOW**.
+**Relation:** same family as BUG-011 (`append_child_to_node`); static `impact(serialize_logseq_page)` risk **LOW**.
 
 ---
 
-### BUG-022 — HIGH: `search_content` / `GraphQuery` / `agent-read` includono nodi fantasma
+### BUG-022 — HIGH: `search_content` / `GraphQuery` / `agent-read` include ghost nodes
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L521–528; `kinetic.py` `agent_read` L567–573 |
-| **Severità** | **High** (manifestazione user-visible di BUG-010/013) |
+| **Severity** | **High** (user-visible manifestation of BUG-010/013) |
 
-**Root cause:** `search_content` e `GraphQuery.execute()` iterano `self._node_registry.values()` senza filtrare nodi il cui `_page_for_node(node)` è `None`. Dopo collisione `pages/` vs `journals/` (o `title::` duplicato), i nodi del file “perdente” restano nel registry ma non in `pages`.
+**Root cause:** `search_content` and `GraphQuery.execute()` iterate `self._node_registry.values()` without filtering nodes where `_page_for_node(node)` is `None`. After page collision (`pages/` vs `journals/` or duplicate `title::`), losing-file nodes remain in registry but not in `pages`.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
-# pages/Daily.md + journals/Daily.md (collisione titolo)
-search_content('journals-only') → 1 hit ['journals-only-text']   # nodo fantasma
-query().execute() → 2 nodi, 1 orfano
-agent-read (no filter) → X-Ray include 'GHOST-UNIQUE' dal journal perdente
-get_nodes_by_tag('orphan') → 1 hit su nodo fantasma
+# pages/Daily.md + journals/Daily.md (title collision)
+search_content('journals-only') → 1 hit ['journals-only-text']   # ghost node
+query().execute() → 2 nodes, 1 orphan
+agent-read (no filter) → X-Ray includes 'GHOST-UNIQUE' from losing journal
+get_nodes_by_tag('orphan') → 1 hit on ghost node
 ```
 
-**Percorso utente:** `logseq-matryca-parser agent-read` su vault con journal + page stesso stem; `--query` trova contenuto “fantasma” non collegato a nessuna pagina indicizzata.
+**User path:** `logseq-matryca-parser agent-read` on vault with same-stem page/journal; `--query` surfaces ghost content not attached to any indexed page.
 
-**Fix raccomandato:** unificare con BUG-010 purge; oppure `iter_attached_nodes()` che esclude orfani; `agent_read` dovrebbe usarlo di default.
+**Recommended fix:** align with BUG-010 purge, or provide `iter_attached_nodes()` excluding orphans; make `agent_read` use that by default.
 
-**Analisi statica:** `impact(search_content, upstream)` → `agent_read` (6 process hits).
+**Static analysis:** `impact(search_content, upstream)` → `agent_read` (6 process hits).
 
 ---
 
-### BUG-023 — MEDIUM: SYNAPSE enriched chunk su nodo fantasma — metadata incompleti
+### BUG-023 — MEDIUM: SYNAPSE enriched chunk on ghost node has incomplete metadata
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/synapse.py` `_build_breadcrumbs`, `to_context_enriched_chunks` |
-| **Severità** | **Medium** (RAG chunk senza contesto pagina) |
+| **Severity** | **Medium** (RAG chunk without page context) |
 
-**Root cause:** per nodi orfani `_page_for_node` → `None`; breadcrumbs vuoti, `page_title` metadata `""`, ma `get_effective_properties` eredita ancora proprietà dagli antenati nel registry.
+**Root cause:** for ghost nodes, `_page_for_node` → `None`; breadcrumbs empty, `page_title` metadata `""`, but `get_effective_properties` still inherits ancestor properties from registry.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
-# journals/T.md vince su pages/T.md; child 'child' con tags:: inherited è fantasma
+# journals/T.md wins over pages/T.md; child 'child' with inherited tags is ghost
 _build_breadcrumbs(ghost) → ('', None)
 to_context_enriched_chunks([ghost_child], graph):
   metadata page_title=''  effective_properties={'tags': 'inherited'}
 ```
 
-**Fix:** dipende da BUG-010 purge; in alternativa saltare nodi orfani in export enriched.
+**Fix:** depends on BUG-010 purge; alternatively skip ghost nodes in enriched export.
 
-**Analisi statica:** `impact(get_effective_properties)` → `to_context_enriched_chunks`.
+**Static analysis:** `impact(get_effective_properties)` → `to_context_enriched_chunks`.
 
 ---
 
-### BUG-024 — MEDIUM: `_export_markdown` duplica sezioni `# Title` con alias
+### BUG-024 — MEDIUM: `_export_markdown` duplicates `# Title` sections with alias
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/kinetic.py` L318–325 |
-| **Severità** | **Medium** (export markdown ridondante) |
+| **Severity** | **Medium** (duplicated markdown output) |
 
-**Root cause:** `_export_markdown(pages)` riceve `list(graph.pages.values())` con alias duplicati; ogni entry genera `# {page.title}` anche se stesso oggetto.
+**Root cause:** `_export_markdown(pages)` receives `list(graph.pages.values())` with alias duplicates; each entry renders `# {page.title}` even for same object.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
-# alias:: Alt su pagina P
+# alias:: Alt
 _export_markdown(list(g.pages.values()), out)
-graph.md → '# P' compare 2 volte, stesso body 'body'
+graph.md → '# P' appears 2 times with same body 'body'
 ```
 
-**Fix:** `iter_canonical_pages()` (DEBT-001) — stesso pattern di BUG-002/006.
+**Fix:** use `iter_canonical_pages()` (DEBT-001), same pattern as BUG-002/006.
 
 ---
 
-### BUG-025 — LOW: `strict_refs=True` valida solo ref intra-pagina
+### BUG-025 — LOW: `strict_refs=True` validates only same-page references
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/logos_parser.py` `_validate_references` L1329–1342 |
-| **Severità** | **Low** (inconsistenza API / documentazione) |
+| **Severity** | **Low** (API / docs inconsistency) |
 
-**Root cause:** `strict_refs` solleva `BlockReferenceError` solo per `((uuid))` irrisolti **nella stessa pagina**. Ref cross-page verso UUID assente passano silenziosamente.
+**Root cause:** `strict_refs` raises `BlockReferenceError` only for unresolved `((uuid))` **inside the same page**. Cross-page `((uuid))` errors pass silently.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
 parse_page_file('- ((missing-uuid))') strict_refs=True → OK (no raise)
 parse_page_file('- ((aaaaaaaa-...))') same-page missing strict_refs=True → BlockReferenceError
 ```
 
-**Fix:** documentare il comportamento o estendere validazione cross-graph (con `LogseqGraph` caricato).
+**Fix:** document current behavior or expand cross-graph validation with loaded `LogseqGraph`.
 
-**Analisi statica:** `query(strict_refs BlockReferenceError)` → test `test_strict_refs_raises_on_unresolved_block_reference` copre solo same-page.
+**Static analysis:** `query(strict_refs BlockReferenceError)` → `test_strict_refs_raises_on_unresolved_block_reference` covers same-page only.
 
 ---
 
-### BUG-026 — MEDIUM: `get_backlinks` non risolve alias → titolo canonico
+### BUG-026 — MEDIUM: `get_backlinks` does not resolve aliases to canonical title
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` `_append_page_backlinks` L626–631, `get_backlinks` L465–481 |
-| **Severità** | **Medium** (API graph incoerente con `get_page`) |
+| **Severity** | **Medium** (API inconsistency with `get_page`) |
 
-**Root cause:** i backlink sono indicizzati sulla stringa letterale del wikilink (`node.wikilinks`), normalizzata in lowercase. `get_page('Alt')` e `get_page('P')` risolvono entrambi la stessa pagina con `alias::`, ma `get_backlinks('P')` non trova link scritti come `[[Alt]]` e viceversa.
+**Root cause:** backlinks are indexed using literal wikilink string (`node.wikilinks`) lowercased. `get_page('Alt')` and `get_page('P')` both resolve to same page via `alias::`, but `get_backlinks('P')` does not match links written as `[[Alt]]`, and vice versa.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
 # P.md: alias:: Alt; Src.md: - [[Alt]]
 get_backlinks('Alt') → 1
 get_backlinks('P')   → 0
 
-# Src.md: - [[P]]  (link al titolo canonico)
+# Src.md: - [[P]] (canonical link)
 get_backlinks('P')   → 1
 get_backlinks('Alt') → 0
 ```
 
-**Fix raccomandato:** all’indicizzazione, risolvere ogni wikilink via `get_page` e registrare il backlink anche sotto `page.title` e tutti gli alias.
+**Recommended fix:** during index build, resolve each wikilink through `get_page` and record backlinks under both `page.title` and aliases.
 
 ---
 
-### BUG-027 — MEDIUM: `_export_json` duplica entry pagina con `alias::`
+### BUG-027 — MEDIUM: `_export_json` duplicates page entry with `alias::`
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
-| **File** | `src/logseq_matryca_parser/kinetic.py` `_export_json` (passa `list(graph.pages.values())`) |
-| **Severità** | **Medium** (payload JSON doppio, stessi UUID blocco) |
+| **File** | `src/logseq_matryca_parser/kinetic.py` `_export_json` (passes `list(graph.pages.values())`) |
+| **Severity** | **Medium** (duplicated JSON payload, same block UUIDs) |
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
-# alias:: Alt, un solo blocco
+# alias:: Alt, one block
 _export_json(list(g.pages.values()), out)
 → len(graph.json pages) = 2
-→ block UUIDs nel payload: 2 entry, 1 unique uuid
+→ block UUIDs in payload: 2 entries, 1 unique uuid
 ```
 
-**Fix:** `iter_canonical_pages()` (DEBT-001).
+**Fix:** use `iter_canonical_pages()` (DEBT-001).
 
 ---
 
-### BUG-028 — LOW: `get_namespace_children` case-sensitive
+### BUG-028 — LOW: `get_namespace_children` is case-sensitive
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L558–571 |
-| **Severità** | **Low** (inconsistenza con `get_page` case-insensitive) |
+| **Severity** | **Low** (inconsistency with case-insensitive `get_page`) |
 
-**Evidenza:**
+**Evidence:**
 
 ```text
 pages/MyNS/Page.md
@@ -693,18 +693,18 @@ get_namespace_children('MyNS') → ['MyNS/Page']
 get_namespace_children('myns') → []
 ```
 
-**Fix:** casefold del prefisso o lookup via `lower_title_map`.
+**Fix:** casefold namespace prefix or lookup via `lower_title_map`.
 
 ---
 
-### BUG-029 — LOW/MEDIUM: `resolve_relative_page_link` ignora `../` e `./`
+### BUG-029 — LOW/MEDIUM: `resolve_relative_page_link` ignores `../` and `./`
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L531–556 |
-| **Severità** | **Low/Medium** (API incompleta vs Logseq OG) |
+| **Severity** | **Low/Medium** (public API incomplete vs Logseq OG semantics) |
 
-**Evidenza:**
+**Evidence:**
 
 ```text
 current='NS/Child', target='Global'   → 'Global'
@@ -712,40 +712,40 @@ current='NS/Child', target='../Global' → None
 current='NS/Child', target='./Global'  → None
 ```
 
-**Nota analisi statica:** `impact(resolve_relative_page_link)` → 0 caller diretti; API pubblica non usata internamente.
+**Static analysis note:** `impact(resolve_relative_page_link)` → 0 direct callers; API is currently unused internally.
 
-**Fix:** normalizzare path relativi Logseq (`../`, `./`) prima del loop namespace.
+**Fix:** normalize Logseq relative paths (`../`, `./`) before namespace loop.
 
 ---
 
-### BUG-030 — LOW: `resolve_asset_path` risolve path assoluti fuori dal vault
+### BUG-030 — LOW: `resolve_asset_path` resolves absolute paths outside vault
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/logos_core.py` L125–128 |
-| **Severità** | **Low** (superficie security per tooling automatizzato) |
+| **Severity** | **Low** (security surface for automation tooling) |
 
-**Root cause:** `(Path(page.parent) / '/etc/passwd').resolve()` → `/etc/passwd`; se il path esiste, viene restituito senza vincolo al `graph_root`.
+**Root cause:** `(Path(page.parent) / '/etc/passwd').resolve()` becomes `/etc/passwd`; if file exists, it is returned without `graph_root` containment enforcement.
 
-**Evidenza:**
+**Evidence:**
 
 ```text
 content: - ![](/etc/passwd)
-resolve_asset_path('/etc/passwd') → '/private/etc/passwd'  (se file esiste)
+resolve_asset_path('/etc/passwd') → '/private/etc/passwd'  (if file exists)
 ```
 
-**Fix:** rifiutare link assoluti o richiedere che il risultato risieda sotto `graph_root`.
+**Fix:** reject absolute links or require resolved path to stay under `graph_root`.
 
 ---
 
-### BUG-031 — LOW: `get_nodes_by_tag` case-sensitive
+### BUG-031 — LOW: `get_nodes_by_tag` is case-sensitive
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/graph.py` L513–518 |
-| **Severità** | **Low** (stessa famiglia BUG-008 / BUG-015) |
+| **Severity** | **Low** (same family as BUG-008 / BUG-015) |
 
-**Evidenza:**
+**Evidence:**
 
 ```text
 content: - #MyTag
@@ -753,190 +753,190 @@ get_nodes_by_tag('MyTag') → 1
 get_nodes_by_tag('mytag') → 0
 ```
 
-**Fix:** casefold tag in query e in parser, o documentare.
+**Fix:** casefold tags in query and parser, or document behavior.
 
 ---
 
-### Pattern architetturale — DEBT-001: leaky `graph.pages` dict
+### Architectural pattern — DEBT-001: leaky `graph.pages` dict
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
-| **Severità** | **Design debt** (causa radice di BUG-002, BUG-006, BUG-007, BUG-024, BUG-027) |
-| **Principio Uncle Bob** | **ISP** — i consumer non dovrebbero conoscere alias vs chiavi canoniche. |
+| **Severity** | **Design debt** (root cause of BUG-002, BUG-006, BUG-007, BUG-024, BUG-027) |
+| **Uncle Bob principle** | **ISP** — consumers should not rely on alias-aware keys in public dict internals. |
 
-**Sintomo:** `_enrich_pages_index` espone un `dict[str, LogseqPage]` con più chiavi per la stessa pagina (feature per `get_page` / backlink). I consumer che iterano `.values()` senza dedup violano la *dependency rule* verso l’invariante “una pagina = un oggetto”.
+**Symptom:** `_enrich_pages_index` exposes `dict[str, LogseqPage]` with multiple keys per page (feature for `get_page` / backlinks). Consumers iterating `.values()` without dedup are bypassing dependency rule for invariant “one physical page = one object”.
 
-**Raccomandazione Clean Architecture:** aggiungere al use case `LogseqGraph`:
+**Clean Architecture recommendation:** add to `LogseqGraph` use case:
 
 ```python
 def iter_canonical_pages(self) -> Iterator[LogseqPage]:
-    """Yield each physical page once (title key == page.title, dedupe by id)."""
+    """Yield each physical page once (key title equals page.title), deduplicating by id."""
 ```
 
-Usarlo in `kinetic._export_*`, `get_namespace_children`, e documentarlo in `ARCHITECTURE.md`.
+Use it in `kinetic._export_*`, `get_namespace_children`, and document in `ARCHITECTURE.md`.
 
-**Analisi statica:** `query("pages.values alias enrich_pages_index")` → hub `_enrich_pages_index` collegato ad `agent_write`, `scan`, `_export_langchain_enriched`.
+**Static analysis:** `query("pages.values alias enrich_pages_index")` → `_enrich_pages_index` hub connected to `agent_write`, `scan`, `_export_langchain_enriched`.
 
 ---
 
-### BUG-002 — MEDIUM: export Obsidian conta e processa alias duplicati (KINETIC)
+### BUG-002 — MEDIUM: Obsidian export counts and processes alias duplicates (KINETIC)
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/kinetic.py` |
-| **Funzione** | `_export_obsidian` (circa L380–414) |
-| **Severità** | **Medium** (conteggio errato, lavoro ridondante; possibile overwrite) |
+| **Function** | `_export_obsidian` (around L380–414) |
+| **Severity** | **Medium** (wrong counts, redundant processing, possible overwrite) |
 
-**Root cause:** `for page in graph.pages.values()` itera **tutte** le chiavi del dizionario, incluse **alias** (`alias::`) che puntano allo stesso oggetto `LogseqPage`. `_enrich_pages_index` in `graph.py` inietta alias come chiavi aggiuntive.
+**Root cause:** `for page in graph.pages.values()` iterates all dictionary keys, including alias entries (`alias::`) that point to same `LogseqPage`. `_enrich_pages_index` inserts aliases as extra keys.
 
-**Evidenza runtime:**
+**Runtime evidence:**
 
 ```text
-# Pagina con alias:: Alt
+# page with alias:: Alt
 obsidian files: ['Real.md'] count= 2
-# count=2 ma un solo file — stessa page.title "Real" scritta due volte
+# count=2 but single file — same page.title "Real" written twice
 ```
 
-**Fix raccomandato:** iterare pagine canoniche (es. `title == page.title` e `source_path` unico), pattern già usato in `_build_backlink_registry`.
+**Recommended fix:** iterate canonical pages only (e.g., `title == page.title` and unique `source_path`), pattern already used in `_build_backlink_registry`.
 
 ---
 
-### BUG-003 — MEDIUM: page embed case-sensitive in SYNAPSE (sottoinsieme di BUG-001)
+### BUG-003 — MEDIUM: SYNAPSE page embed resolution is case-sensitive (BUG-001 subset)
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/synapse.py` L197 |
-| **Severità** | **Medium** (comportamento diverso da `LogseqGraph.get_page`) |
+| **Severity** | **Medium** (different behavior from `LogseqGraph.get_page`) |
 
-**Evidenza:**
+**Evidence:**
 
 ```text
 get_page('mypage') → True   # case-insensitive
-pages.get('mypage') → None  # usato da synapse
+pages.get('mypage') → None  # used by synapse
 ```
 
-**Principio Uncle Bob:** *Consistency* — un solo modo di risolvere i titoli (API graph pubblica).
+**Uncle Bob principle:** *Consistency* — one title resolution path via public graph API.
 
 ---
 
-### BUG-004 — LOW / design ambiguity: week file agent usa `%W` non settimana ISO
+### BUG-004 — LOW / design ambiguity: agent week file uses `%W` not ISO week
 
-| Campo | Valore |
+| Field | Value |
 | :--- | :--- |
 | **File** | `src/logseq_matryca_parser/agent_writer.py` L144 |
-| **Codice** | `week_id = now.strftime("%Y-W%W")` |
-| **Severità** | **Low** (comportamento documentato dai test, ma semanticamente ambiguo) |
+| **Code** | `week_id = now.strftime("%Y-W%W")` |
+| **Severity** | **Low** (documented in tests, but semantically ambiguous) |
 
-**Evidenza:**
+**Evidence:**
 
 ```text
 2026-05-10  isocal=2026-W19  strftime_W=2026-W18  match=False
 2026-01-01  isocal=2026-W01  strftime_W=2026-W00  match=False
 ```
 
-Il test `test_logseq_agent_write_append_only` **codifica** `2026-W18-agent.md` per il 2026-05-10 (`%W` US week). Se l’operatore si aspetta **ISO 8601** (comune in tooling europeo), i file settimanali finiscono nella settimana sbagliata a inizio/fine anno.
+`test_logseq_agent_write_append_only` currently encodes `2026-W18-agent.md` for 2026-05-10 (`%W` US week). If users expect **ISO 8601** (common in European tooling), weekly files land in wrong week around year boundaries.
 
-**Raccomandazione:** decisione di prodotto esplicita in `ARCHITECTURE.md`; se ISO → `isocalendar()` + aggiornamento test.
+**Recommendation:** make explicit product decision in `ARCHITECTURE.md`; if ISO is required, use `isocalendar()` and update tests.
 
 ---
 
-## 5. Findings — limiti noti (non classificati come bug di regressione)
+## 5. Findings — known limitations (not classified as regressions)
 
-### LIM-001 — Round-trip titoli con punto letterale
+### LIM-001 — Round-trip behavior for literal dots in titles
 
-`filename_to_page_title` applica la regola **legacy Dendron** `.` → `/` (documentata in `ARCHITECTURE.md` § path encoding).
+`filename_to_page_title` applies legacy Dendron rule `.` → `/` (documented in `ARCHITECTURE.md` § path encoding).
 
 ```text
 'Dr. Smith' → back='Dr/ Smith'  (round-trip FAIL)
-'Projects.Secret' → 'Projects/Secret'  (intenzionale legacy)
+'Projects.Secret' → 'Projects/Secret'  (intentional legacy behavior)
 ```
 
-**Status:** comportamento documentato; non è un bug se il vault usa solo namespace `___` o cartelle. È un **trade-off** esplicito tra compatibilità Dendron e titoli con punti letterali.
+**Status:** documented behavior; not a bug when vault uses only `___` namespace or folders. It is an explicit trade-off between Dendron compatibility and literal-dot titles.
 
-### LIM-002 — Titolo pagina vuoto → `untitled.md`
+### LIM-002 — Empty page title maps to `untitled.md`
 
 ```text
 page_title_to_filename('') → ''
 page_title_to_relative_path('') → PosixPath('untitled.md')
-write_logseq_page(page, dest) → scrive su pages/untitled.md (non crash)
+write_logseq_page(page, dest) → writes to pages/untitled.md (no crash)
 ```
 
-Comportamento diverso dalla nota precedente (non più `Errno 21` su path vuoto grazie al fallback `untitled.md`). Resta ambiguo per vault reali. **Copertura:** GFI-04 chiuso in **v1.4.1** (`tests/test_logseq_paths.py`).
+Behavior differs from prior note (no longer `Errno 21` on empty path due to `untitled.md` fallback). Still ambiguous for real vaults. **Coverage:** GFI-04 closed in **v1.4.1** (`tests/test_logseq_paths.py`).
 
 ---
 
-## 6. Debito architetturale (Clean Code / SOLID)
+## 6. Architectural debt (Clean Code / SOLID)
 
-Valutazione secondo i principi di R. C. Martin, senza implicare che il codice sia “sporco” in senso assoluto — il progetto è maturo — ma con margini di miglioramento mirati.
+Evaluation is by Uncle Bob principles and does not imply the code is “dirty”; the project is mature but has precise improvement targets.
 
-| Principio | Osservazione | File / area | Raccomandazione |
+| Principle | Observation | File / area | Recommendation |
 | :--- | :--- | :--- | :--- |
-| **SRP** | `kinetic.py` (~655 righe) orchestra parse, export, stats, agent CLI | `kinetic.py` | Estrarre `export_handlers.py` o visitor registry (già parzialmente fattorizzato con `_export_*`). |
-| **OCP** | Espansione embed in SYNAPSE è un `while` monolitico | `synapse.py` | Strategy per tipo embed (block/page/macro) estendibile senza modificare il loop. |
-| **LSP** | `LogosNode` mutabile vs `LogseqNode` frozen | `logos_core.py` | Mantenere `LogosNode` solo per legacy; evitare nuovi consumer. |
-| **ISP** | Adapter SYNAPSE accede a `graph._page_for_node` (privato) | `synapse.py` L222 | Esporre `graph.page_for_node()` pubblico o protocol `GraphLookup`. |
-| **DIP** | Import lazy `logseq_paths` dentro metodo entity | `logos_core.py` L144 | Accettabile per evitare cicli; alternativa: spostare `resolve_asset_path` in use case layer. |
-| **Boundaries** | `assert bm is not None` in produzione | `synapse.py` L171, L190 | Sostituire con guard espliciti (Clean Code: fail fast leggibile, no assert in `-O`). |
-| **Error handling** | `except ValueError: pass` in normalizzazione timestamp | `logos_parser.py` L500 | Accettabile come fallback chain; **GFI-14 chiuso in v1.4.1** (`tests/test_logos_parser.py`). |
-| **ISP / encapsulation** | Consumer iterano `graph.pages.values()` raw | `kinetic.py`, `graph.py` | `iter_canonical_pages()` — DEBT-001; radice di BUG-002/006/007. |
-| **Use case completeness** | Nessun ramo *delete* in invalidazione incrementale | `graph.py` L641 | BUG-005; watcher senza delete/move — BUG-014 |
+| **SRP** | `kinetic.py` (~655 lines) orchestrates parse, export, stats, agent CLI | `kinetic.py` | Extract `export_handlers.py` or visitor registry (already partially factored with `_export_*`). |
+| **OCP** | SYNAPSE embed expansion is monolithic `while` loop | `synapse.py` | Introduce embed-type strategy (block/page/macro) to extend without changing loop. |
+| **LSP** | Mutable `LogosNode` vs frozen `LogseqNode` | `logos_core.py` | Keep `LogosNode` legacy-only; avoid new consumers. |
+| **ISP** | SYNAPSE adapter reads `graph._page_for_node` (private) | `synapse.py` L222 | Expose public `graph.page_for_node()` or `GraphLookup` protocol. |
+| **DIP** | Lazy import `logseq_paths` inside entity method | `logos_core.py` L144 | Acceptable to avoid cycles; alternative is moving `resolve_asset_path` into use-case layer. |
+| **Boundaries** | `assert bm is not None` in production | `synapse.py` L171, L190 | Replace with explicit guards (Clean Code: readable fail-fast, avoid asserts under `-O`). |
+| **Error handling** | `except ValueError: pass` in timestamp normalization | `logos_parser.py` L500 | Acceptable fallback chain; **GFI-14 closed in v1.4.1** (`tests/test_logos_parser.py`). |
+| **ISP / encapsulation** | Consumers iterate raw `graph.pages.values()` | `kinetic.py`, `graph.py` | `iter_canonical_pages()` — DEBT-001; root of BUG-002/006/007. |
+| **Use case completeness** | No delete branch in incremental invalidation | `graph.py` L641 | BUG-005; watcher without delete/move — BUG-014 |
 
-**Dependency rule:** nessun ciclo di import (analisi statica `check`); la violazione principale è **leaky abstraction** (accesso a membri privati e dizionario `pages` raw).
+**Dependency rule:** no import cycles (static `check`); main violation remains **leaky abstraction** (private member and raw `pages` dict access).
 
 ---
 
-## 7. Gap di copertura test (risk-based)
+## 7. High-risk coverage gap mapping
 
-Linee non coperte con **alto rischio funzionale** (non solo numeri):
+Uncovered lines with **high functional risk** (not just counts):
 
-| Modulo | Miss | Rischio |
+| Module | Miss | Risk |
 | :--- | :--- | :--- |
-| `logos_parser.py` | `_refresh_node` empty bullet + properties | **Critico** — BUG-017 non intercettato |
-| `synapse.py` | embed irrisolti, cicli page | **Alto** — BUG-001 non intercettato |
-| `kinetic.py` | `_export_obsidian`, `_resolve_graph_path` error paths | **Medio** — GFI-01, GFI-19 |
-| `logseq_markdown.py` | round-trip 4-space indent | **Alto** — BUG-021 |
-| `graph.py` | ghost nodes in search/query | **Alto** — BUG-022 (con BUG-010) |
-| `graph.py` | delete invalidate, alias dupes, **pages/journals collision** | **Alto** — BUG-005, BUG-007, **BUG-010** |
-| `agent_writer.py` | **in-memory stale after append**, indent mismatch | **Alto** — BUG-016, BUG-011 |
-| `logseq_markdown.py` | round-trip 4-space indent | **Alto** — BUG-021 |
-| `graph.py` | ghost nodes in search/query/agent-read | **Alto** — BUG-022 (con BUG-010) |
-| `kinetic.py` | `_export_langchain_enriched` alias dupes | **Alto** — BUG-006 |
-| `logseq_paths.py` | titolo vuoto, fallback graph root | **Risolto (v1.4.1)** — GFI-04 |
+| `logos_parser.py` | `_refresh_node` empty bullet + properties | **Critical** — BUG-017 not covered |
+| `synapse.py` | unresolved embeds, page cycles | **High** — BUG-001 not covered |
+| `kinetic.py` | `_export_obsidian`, `_resolve_graph_path` error paths | **Medium** — GFI-01, GFI-19 |
+| `logseq_markdown.py` | round-trip 4-space indentation | **High** — BUG-021 |
+| `graph.py` | ghost nodes in search/query | **High** — BUG-022 (with BUG-010) |
+| `graph.py` | delete invalidate, alias duplicates, **pages/journals collision** | **High** — BUG-005, BUG-007, **BUG-010** |
+| `agent_writer.py` | **in-memory stale after append**, indent mismatch | **High** — BUG-016, BUG-011 |
+| `logseq_markdown.py` | round-trip 4-space indentation | **High** — BUG-021 |
+| `graph.py` | ghost nodes in search/query/agent-read | **High** — BUG-022 (with BUG-010) |
+| `kinetic.py` | `_export_langchain_enriched` alias duplicates | **High** — BUG-006 |
+| `logseq_paths.py` | empty title, fallback graph root | **Fixed (v1.4.1)** — GFI-04 |
 
 ---
 
-## 8. Piano di remediation (ordine suggerito)
+## 8. Remediation plan (suggested order)
 
-| Priorità | ID | Azione | Stima |
+| Priority | ID | Action | Estimate |
 | :--- | :--- | :--- | :--- |
-| P0 | BUG-017 | Guard `first_line` in `_refresh_node` + test outline reale | 1 h |
-| P0 | BUG-001 | Fix loop embed + test synapse | 2–4 h |
-| P0 | BUG-016 | Reload graph dopo `append_child_to_node` | 1–2 h |
-| P0 | BUG-010, BUG-013 | Chiave univoca load_directory + purge ghost registry | 3–4 h |
-| P0 | BUG-005 | Delete-safe `invalidate_and_reload_page` + test watcher | 1–2 h |
-| P1 | BUG-003 | `get_page` in synapse (incluso in P0) | — |
-| P1 | BUG-011, BUG-021 | Indent reale: append + serialize (`tab_size` detection) | 3–4 h |
-| P1 | BUG-022, BUG-023 | Filtro nodi fantasma in search/agent-read/export | con BUG-010 |
-| P1 | BUG-012 | UUID case-normalize in `get_node_by_embed_ref` | 1 h |
-| P1 | DEBT-001 | `iter_canonical_pages()` + usarlo in export/namespace | 2–3 h |
-| P2 | BUG-002, BUG-006, BUG-007 | Deduplica via helper canonico | incluso in P1 |
-| P2 | BUG-026 | Backlink index alias-aware | 2 h |
+| P0 | BUG-017 | Guard `first_line` in `_refresh_node` + real outline test | 1 h |
+| P0 | BUG-001 | Fix embed loop + synapse test | 2–4 h |
+| P0 | BUG-016 | Reload graph after `append_child_to_node` | 1–2 h |
+| P0 | BUG-010, BUG-013 | Unique load_directory key + ghost registry purge | 3–4 h |
+| P0 | BUG-005 | Delete-safe `invalidate_and_reload_page` + watcher test | 1–2 h |
+| P1 | BUG-003 | `get_page` in synapse (included in P0) | — |
+| P1 | BUG-011, BUG-021 | Real indentation handling (`append` + serialize, `tab_size` detection) | 3–4 h |
+| P1 | BUG-022, BUG-023 | Filter ghost nodes in search/agent-read/export | with BUG-010 |
+| P1 | BUG-012 | UUID case normalization in `get_node_by_embed_ref` | 1 h |
+| P1 | DEBT-001 | `iter_canonical_pages()` + use in export/namespace | 2–3 h |
+| P2 | BUG-002, BUG-006, BUG-007 | Canonical dedup via helper | included in P1 |
+| P2 | BUG-026 | Alias-aware backlink index | 2 h |
 | P2 | BUG-014 | Watcher `on_deleted` / `on_moved` | 2 h |
-| P3 | BUG-004 | Decisione ISO vs `%W` + doc/test | 1 h |
-| P4 | BUG-008, BUG-009, BUG-015, BUG-018–020, BUG-024–025, BUG-028–031 | case/`#`/namespace; export dup; asset path | backlog |
-| P5 | Debito | `graph.page_for_node` pubblico; rimuovere `assert` | 2 h |
-| P6 | Coverage | Chiudere GFI-01, GFI-02; wave 2 ([#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) | backlog |
+| P3 | BUG-004 | ISO vs `%W` decision + docs/tests | 1 h |
+| P4 | BUG-008, BUG-009, BUG-015, BUG-018–020, BUG-024–025, BUG-028–031 | case/`#`/namespace; export duplicates; asset path | backlog |
+| P5 | Debt | Public `graph.page_for_node`; remove `assert` | 2 h |
+| P6 | Coverage | Close GFI-01, GFI-02; wave 2 ([#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) | backlog |
 
-Dopo ogni fix: `make all` + `refresh dell'indice locale` + `impact` sul simbolo modificato.
+After each fix: `make all` + local index refresh + `impact` on changed symbol.
 
 ---
 
-## 9. Script di riproduzione rapida
+## 9. Fast reproduction scripts
 
-Salvare come `scripts/repro_bug_hunt.py` (opzionale) o eseguire inline:
+Save as `scripts/repro_bug_hunt.py` (optional) or execute inline:
 
 ```python
-# BUG-001: hang page embed mancante
+# BUG-001: missing page embed hang
 import signal, tempfile
 from pathlib import Path
 from logseq_matryca_parser.graph import LogseqGraph
@@ -1192,60 +1192,58 @@ with tempfile.TemporaryDirectory() as d:
     print("Alt:", len(g.get_backlinks("Alt")), "P:", len(g.get_backlinks("P")))  # 1, 0
 ```
 
----
+## 10. Full module coverage inventory
 
-## 10. Inventario copertura moduli (mappatura completa)
+Audited all core modules in `src/logseq_matryca_parser/` (waves 1–8). **Status:** no core subsystem without targeted probe.
 
-Audit esauriente su tutti i moduli in `src/logseq_matryca_parser/` (wave 1–8). **Stato:** nessun sotto-sistema core rimasto senza probe mirato.
-
-| Modulo | Probe / analisi statica | Esito |
+| Module | Probe / static analysis | Outcome |
 | :--- | :--- | :--- |
-| `logos_parser.py` | `_refresh_node`, strict_refs, indent, deep nest, properties | BUG-017, BUG-025; altrimenti solido |
-| `logseq_markdown.py` | round-trip 4sp, list props | BUG-021; list props OK |
+| `logos_parser.py` | `_refresh_node`, strict_refs, indent, deep nest, properties | BUG-017, BUG-025; otherwise stable |
+| `logseq_markdown.py` | 4-space round-trip, list props | BUG-021; list props OK |
 | `graph.py` | load, invalidate, query, backlinks, namespace, search | BUG-005,010,013,022,026,028,029,031 |
-| `synapse.py` | embed hang, cycle, enriched | BUG-001,003,018,023 |
-| `kinetic.py` | export `_*`, scan, agent CLI | BUG-002,006,024,027 |
+| `synapse.py` | embed hang, cycles, enriched | BUG-001,003,018,023 |
+| `kinetic.py` | export `_ *`, scan, agent CLI | BUG-002,006,024,027 |
 | `agent_writer.py` | append, indent | BUG-011,016 |
 | `agent_press.py` | X-Ray, alias registry | BUG-009; agent_read path OK (no dup) |
-| `forge.py` | Obsidian suffix, embed resolver | OK (suffix collision non riprodotto) |
+| `forge.py` | Obsidian suffix, embed resolver | OK (suffix collision not reproduced) |
 | `lens.py` | network, stats | BUG-019,020 |
 | `logseq_paths.py` | encode, discover, legacy dot | LIM-001; `.recycle` skip OK |
 | `logos_core.py` | `resolve_asset_path` | BUG-030 |
-| `exceptions.py` | — | Nessun issue (tipi sottili) |
-| `__init__.py` / `__main__.py` | — | Nessun issue |
+| `exceptions.py` | — | No issues (type edge cases) |
+| `__init__.py` / `__main__.py` | — | No issues |
 
-**Comportamenti verificati OK (non bug):** purge UUID su `invalidate_and_reload_page`; catena embed pagina profonda 5 livelli; ciclo A↔B page embed; block backlink registry; `discover_graph_files` esclude `.recycle`; `title::` reload purga vecchia chiave; tab/mixed indent parse; nesting 200 livelli.
+**Verified OK behavior (not bugs):** UUID purge during `invalidate_and_reload_page`; deep page-chain embed of 5 levels; 5-level cyclical embed A↔B; block backlink registry; `discover_graph_files` excludes `.recycle`; `title::` reload purges old key; mixed/tab indentation parse; nesting depth 200.
 
-**Famiglie consolidate (fix unificati):**
+**Consolidated families (unified fixes):**
 
-| Famiglia | Bug ID | Fix unico |
+| Family | Bug ID | Single fix |
 | :--- | :--- | :--- |
 | Ghost registry | 010, 013, 022, 023 | Purge `_node_registry` + `iter_attached_nodes()` |
-| `pages.values()` dup | 002, 006, 019, 024, 027 | `iter_canonical_pages()` (DEBT-001) |
-| Case / `#` tag API | 008, 015, 028, 031 | Normalizzazione unificata in `GraphQuery` / search |
-| Indent / tab_size | 011, 021 | Rilevamento `tab_size` per pagina |
+| `pages.values()` duplicates | 002, 006, 019, 024, 027 | `iter_canonical_pages()` (DEBT-001) |
+| Case / `#` tag API | 008, 015, 028, 031 | Unified normalization in `GraphQuery` / search |
+| Indent / tab_size | 011, 021 | Per-page `tab_size` detection |
 | SYNAPSE embed | 001, 003, 013-block | Fail-safe + `get_page()` |
 
 ---
 
-## 11. Conclusione
+## 11. Conclusion
 
-Il progetto rispetta solidi invarianti deterministici (parser stack-machine, round-trip corpus, assenza cicli di import). I bug più gravi sono:
+The project maintains strong deterministic invariants (stack-machine parser, round-trip corpus, no import cycles). The most serious bugs are:
 
-1. **LOGOS Parser** — crash `IndexError` su bullet vuoto + proprietà (BUG-017); un solo file malformato blocca `load_directory` e `scan`.
-2. **SYNAPSE** — hang su embed irrisolti (BUG-001).
-3. **LOGOS Graph load** — collisioni titolo e nodi fantasma (BUG-010, BUG-013).
-4. **Agent Writer** — disco aggiornato ma AST stale (BUG-016); indent errato (BUG-011).
-5. **LOGOS Graph / Watcher** — crash su delete (BUG-005); eventi delete/move assenti (BUG-014).
-6. **Ghost registry leak** — `search_content`, `agent-read`, SYNAPSE enriched vedono nodi orfani (BUG-022, BUG-023); radice BUG-010/013.
-7. **Serialization** — round-trip 4 spazi → 2 spazi (BUG-021); export markdown duplicato (BUG-024).
-8. **KINETIC export / LENS** — duplicazione con `alias::` (BUG-006, BUG-002, BUG-019, BUG-027) → `iter_canonical_pages()` (DEBT-001).
-9. **API graph incoerenti** — backlinks alias (BUG-026), namespace/tag case (BUG-028, BUG-031).
+1. **LOGOS Parser** — `IndexError` on empty bullet + properties (BUG-017); a single malformed file blocks `load_directory` and `scan`.
+2. **SYNAPSE** — hang on unresolved embeds (BUG-001).
+3. **LOGOS Graph load** — title collisions and ghost nodes (BUG-010, BUG-013).
+4. **Agent Writer** — disk update succeeds but AST remains stale (BUG-016); wrong indentation (BUG-011).
+5. **LOGOS Graph / Watcher** — crash on delete (BUG-005); delete/move events missing (BUG-014).
+6. **Ghost registry leak** — `search_content`, `agent-read`, SYNAPSE enriched see orphan nodes (BUG-022, BUG-023); root cause BUG-010/013.
+7. **Serialization** — round-trip 4-space → 2-space (BUG-021); duplicate markdown export (BUG-024).
+8. **KINETIC export / LENS** — duplication with `alias::` (BUG-006, BUG-002, BUG-019, BUG-027) → `iter_canonical_pages()` (DEBT-001).
+9. **Inconsistent graph API** — alias backlinks (BUG-026), namespace/tag case (BUG-028, BUG-031).
 
-**Mappatura:** 31 bug ID + 2 limitazioni documentate (LIM-001/002) + DEBT-001. Nessun modulo core senza copertura.
+**Coverage:** 31 bug IDs + 2 documented limitations (LIM-001/002) + DEBT-001. No core module lacks coverage.
 
-Prossima fase consigliata: **implementazione fix** — partire da BUG-017 → BUG-010/013 → BUG-001/016 (vedi §8 priorità).
+Next recommended phase: **implement fixes** — start with BUG-017 → BUG-010/013 → BUG-001/016 (see §8 priority).
 
 ---
 
-*Report generato con assistenza da analisi statica locale. Per aggiornare l'indice dopo fix: `refresh dell'indice locale`.*
+*Report generated with local static analysis support. To refresh index after fixes: local index refresh.*

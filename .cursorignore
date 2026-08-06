@@ -1,5 +1,5 @@
 # .cursorignore
-# (Nota: Cursor ignora già automaticamente tutto ciò che è nel .gitignore)
+# Note: Cursor already ignores everything listed in .gitignore.
 
 # =========================
 # Python & Virtual Environments
@@ -27,10 +27,10 @@ build/
 *.egg-info/
 
 # =========================
-# Lockfiles (Letali per il Codebase Indexing)
+# Lockfiles (harmful to codebase indexing)
 # =========================
-# I lockfile devono stare su Git, ma l'IA non deve MAI leggerli,
-# sono solo un muro di versioni incomprensibili.
+# Lockfiles belong in Git, but the AI should never read them because they are
+# only a wall of dependency versions with no useful semantic context.
 poetry.lock
 uv.lock
 package-lock.json
@@ -38,36 +38,36 @@ yarn.lock
 pnpm-lock.yaml
 
 # =========================
-# Output AI e Report (Evitare loop di contesto)
+# AI Outputs and Reports (avoid context loops)
 # =========================
-# Se committi per sbaglio un output, non vogliamo che Cursor lo studi.
+# If an output is committed accidentally, keep it out of the code index.
 repomix-output.*
 output_langchain/
 mappa_cervello.html
 
 # =========================
-# Dati di Test e Fixtures Mock
+# Test Data and Mock Fixtures
 # =========================
-# Se hai dei file Markdown o JSON enormi che usi solo per testare il parser,
-# a Git servono, ma all'IA confondono solo le idee.
+# Large Markdown or JSON fixtures may belong in Git for parser tests, but they
+# should not consume indexing context.
 tests/fixtures/*.json
 tests/fixtures/*.edn
 tests/fixtures/*.md
 *.csv
 
 # =========================
-# Assets Vettoriali
+# Vector Assets
 # =========================
-# Le immagini PNG/JPG Cursor le ignora da solo, ma gli SVG sono file di testo!
-# Se l'IA legge un SVG, legge migliaia di coordinate matematiche inutili.
+# PNG and JPG files are ignored automatically, while SVG files are text and can
+# add thousands of irrelevant coordinate values to the index.
 *.svg
 
 # =========================
-# File di Configurazione Editor
+# Editor Configuration Files
 # =========================
 .vscode/
 .idea/
 .clinerules
 
-# Esclude lo storico delle metriche per preservare il contesto LLM
+# Exclude historical metrics to preserve LLM context.
 metrics/history.json

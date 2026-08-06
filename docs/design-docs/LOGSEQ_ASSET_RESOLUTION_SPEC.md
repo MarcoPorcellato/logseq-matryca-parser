@@ -39,8 +39,8 @@ Because the physical depth of the file on the disk does not change regardless of
 
 Logseq makes a sharp distinction between "Local Assets"—those stored within the graph's own /assets directory—and "Global Assets" or external files. Local assets are treated as internal components of the knowledge graph and are indexed by the Datascript database with specific metadata.11
 
-1. **Local Assets**: These are typically referenced using relative paths (../assets/). They are essential for graph portability. When the graph is moved to another computer, these relative links continue to function because they are resolved against the new graph root.3  
-2. **Absolute Paths**: References using file:/// or absolute Windows/POSIX paths are considered external. These are not portable and will break if the graph is synchronized to a different device or if the external folder structure changes.5  
+1. **Local Assets**: These are typically referenced using relative paths (../assets/). They are essential for graph portability. When the graph is moved to another computer, these relative links continue to function because they are resolved against the new graph root.3
+2. **Absolute Paths**: References using file:/// or absolute Windows/POSIX paths are considered external. These are not portable and will break if the graph is synchronized to a different device or if the external folder structure changes.5
 3. **Zotero and Symbolic Links**: Advanced users often manage large PDF libraries via Zotero. Because Logseq's relative path handling for external directories can be unreliable, the community often employs symbolic links within the /assets folder to trick Logseq into treating external folders as local ones.4
 
 ## **Namespace and Hierarchy Mapping: Filesystem Translation**
@@ -66,7 +66,7 @@ The LOGOS parser must be capable of bidirectional translation: it must be able t
 
 When a user renames a parent namespace, Logseq does not perform a directory-level rename (as there are no actual directories for namespaces). Instead, it performs a bulk rename of all files in the /pages folder that share the affected prefix.12 For example, renaming the namespace Work to Job would trigger the following transformations:
 
-* Work\_\_Tasks.md becomes Job\_\_Tasks.md  
+* Work\_\_Tasks.md becomes Job\_\_Tasks.md
 * Work\_\_Projects\_\_Alpha.md becomes Job\_\_Projects\_\_Alpha.md
 
 Because asset references are relative to the graph root (e.g., ../assets/file.png), they remain functional after the rename. The relative distance between the page file (in /pages) and the asset file (in /assets) is preserved.10 The database maintains the integrity of internal links by updating the :block/content and :block/path-refs attributes in Datascript.11 This mechanism ensures that child page links and their asset references do not break during organizational refactoring.
@@ -94,12 +94,12 @@ The mapping back to the physical PDF is achieved through the file:: property in 
 
 Logseq's strategy for storing annotations is designed to keep them searchable and linkable.
 
-1. **Markdown Annotation Pages**: For every annotated PDF, Logseq generates a Markdown file in the /pages directory named hls\_\_\<pdf\_filename\_without\_extension\>.md.16 This file contains all highlights for that PDF as individual blocks.  
-2. **EDN Metadata**: While the text of the highlight is in Markdown, the technical metadata (coordinates, colors) is often stored in a companion .edn file within the /assets directory or embedded as hidden properties in the annotation blocks.14  
-3. **The Link Chain**: The LOGOS parser can resolve a highlight link by following this chain:  
-   * Identify ((block-ref)) in a user's note.  
-   * Look up the block in Datascript to find its source page (the hls\_\_ page).  
-   * Retrieve the hl-page and ls-pos properties from the block or sidecar file.  
+1. **Markdown Annotation Pages**: For every annotated PDF, Logseq generates a Markdown file in the /pages directory named hls\_\_\<pdf\_filename\_without\_extension\>.md.16 This file contains all highlights for that PDF as individual blocks.
+2. **EDN Metadata**: While the text of the highlight is in Markdown, the technical metadata (coordinates, colors) is often stored in a companion .edn file within the /assets directory or embedded as hidden properties in the annotation blocks.14
+3. **The Link Chain**: The LOGOS parser can resolve a highlight link by following this chain:
+   * Identify ((block-ref)) in a user's note.
+   * Look up the block in Datascript to find its source page (the hls\_\_ page).
+   * Retrieve the hl-page and ls-pos properties from the block or sidecar file.
    * Use the file:: property of the hls\_\_ page to find the absolute path to the PDF asset. 11
 
 ## **Resource Indexing in the Database: Datascript Attributes**
@@ -126,9 +126,9 @@ Logseq's internal classification of assets determines the rendering component us
 
 Logseq classifies resources into several buckets:
 
-* **Images**: Rendered via the frontend.extensions.lightbox and standard \<img\> tags. Supported formats include .png, .jpg, .jpeg, .gif, .svg, and .webp.19  
-* **Videos**: Rendered via an internal player component (e.g., frontend.extensions.video.youtube or a local HTML5 video tag). Supported formats include .mp4, .webm, and .ogv.  
-* **Audio**: Handled via the :audio renderer, which supports .mp3, .wav, and .m4a.5  
+* **Images**: Rendered via the frontend.extensions.lightbox and standard \<img\> tags. Supported formats include .png, .jpg, .jpeg, .gif, .svg, and .webp.19
+* **Videos**: Rendered via an internal player component (e.g., frontend.extensions.video.youtube or a local HTML5 video tag). Supported formats include .mp4, .webm, and .ogv.
+* **Audio**: Handled via the :audio renderer, which supports .mp3, .wav, and .m4a.5
 * **Documents**: Specifically .pdf files, which trigger the specialized frontend.extensions.pdf module.19
 
 The classification logic is crucial for the LOGOS parser's "AI-Ready" objective. For a multimodal RAG system, the parser must identify the MIME type and route the asset to the appropriate model (e.g., a vision model for images or a text extraction pipeline for PDFs).
@@ -145,10 +145,10 @@ Logseq supports both Markdown and Org-mode syntax. The parser must utilize the f
 
 Python
 
-\# Captures:\!\[Label\](../assets/file.png) or \[Label\](../assets/file.pdf)  
+\# Captures:\!\[Label\](../assets/file.png) or \[Label\](../assets/file.pdf)
 MARKDOWN\_ASSET\_REGEX \= r'\!?(?:\\\[.\*?\\\])\\(((?:\\.\\.\\/)\*assets\\/\[^ \\)\]+)\\)'
 
-\# Captures: file::../assets/file.pdf (Page/Block Properties)  
+\# Captures: file::../assets/file.pdf (Page/Block Properties)
 PROPERTY\_ASSET\_REGEX \= r'^\\s\*file::\\s\*((?:\\.\\.\\/)\*assets\\/\[^\\s\]+)'
 
 7
@@ -157,7 +157,7 @@ PROPERTY\_ASSET\_REGEX \= r'^\\s\*file::\\s\*((?:\\.\\.\\/)\*assets\\/\[^\\s\]+)
 
 Python
 
-\# Captures: \[\[../assets/file.png\]\]  
+\# Captures: \[\[../assets/file.png\]\]
 ORG\_ASSET\_REGEX \= r'\\\[\\\[(?:\\.\\.\\/)\*assets\\/(\[^\\\]\]+)\\\]\\\]'
 
 1
@@ -166,7 +166,7 @@ ORG\_ASSET\_REGEX \= r'\\\[\\\[(?:\\.\\.\\/)\*assets\\/(\[^\\\]\]+)\\\]\\\]'
 
 Python
 
-\# Captures: \[\[hls://1698059081568\_0\]\]  
+\# Captures: \[\[hls://1698059081568\_0\]\]
 HLS\_PROTOCOL\_REGEX \= r'\\\[\\\[(hls:\\/\\/\[^\\\]\]+)\\\]\\\]'
 
 14
@@ -177,40 +177,40 @@ The following algorithm provides a step-by-step resolution of a Logseq link to a
 
 Python
 
-def ResolveAssetPath(graphRoot, currentFilePath, linkContent):  
-    """  
-    Standardizes the resolution of a Logseq asset link to an absolute system path.  
-    """  
-    \# 1\. Normalize the link string  
-    normalizedLink \= linkContent.replace('\\\\', '/')  
-      
-    \# 2\. Check for absolute file protocol  
-    if normalizedLink.startswith("file://"):  
-        \# Handle Electron/Windows path inconsistencies  
-        path \= normalizedLink.replace("file://", "")  
-        if path.startswith("/") and os.name \== 'nt':  
-            path \= path\[1:\] \# Strip leading slash for Windows paths like /C:/  
-        return os.path.abspath(path)  
-      
-    \# 3\. Handle Relative Assets (The Logseq Core Logic)  
-    \# Logseq resolves '../assets/' and 'assets/' relative to the graph root.  
-    if normalizedLink.startswith("../assets/") or normalizedLink.startswith("assets/"):  
-        \# Remove any leading '../' to get the root-relative path  
-        rootRelativePath \= normalizedLink.replace("../assets/", "assets/")  
-        absolutePath \= os.path.join(graphRoot, rootRelativePath)  
-        return os.path.normpath(absolutePath)  
-          
-    \# 4\. Handle Namespace-specific resolution (Edge Case)  
-    \# If the current page is a namespace with physical folders (rare/manual)  
-    \# we would look relative to currentFilePath.  
-    localPath \= os.path.join(os.path.dirname(currentFilePath), normalizedLink)  
-    if os.path.exists(localPath):  
-        return os.path.normpath(localPath)  
-          
-    \# 5\. Fallback: Search the entire /assets folder for the filename (Logseq's soft resolution)  
-    filename \= os.path.basename(normalizedLink)  
-    globalAssetPath \= os.path.join(graphRoot, "assets", filename)  
-    if os.path.exists(globalAssetPath):  
+def ResolveAssetPath(graphRoot, currentFilePath, linkContent):
+    """
+    Standardizes the resolution of a Logseq asset link to an absolute system path.
+    """
+    \# 1\. Normalize the link string
+    normalizedLink \= linkContent.replace('\\\\', '/')
+
+    \# 2\. Check for absolute file protocol
+    if normalizedLink.startswith("file://"):
+        \# Handle Electron/Windows path inconsistencies
+        path \= normalizedLink.replace("file://", "")
+        if path.startswith("/") and os.name \== 'nt':
+            path \= path\[1:\] \# Strip leading slash for Windows paths like /C:/
+        return os.path.abspath(path)
+
+    \# 3\. Handle Relative Assets (The Logseq Core Logic)
+    \# Logseq resolves '../assets/' and 'assets/' relative to the graph root.
+    if normalizedLink.startswith("../assets/") or normalizedLink.startswith("assets/"):
+        \# Remove any leading '../' to get the root-relative path
+        rootRelativePath \= normalizedLink.replace("../assets/", "assets/")
+        absolutePath \= os.path.join(graphRoot, rootRelativePath)
+        return os.path.normpath(absolutePath)
+
+    \# 4\. Handle Namespace-specific resolution (Edge Case)
+    \# If the current page is a namespace with physical folders (rare/manual)
+    \# we would look relative to currentFilePath.
+    localPath \= os.path.join(os.path.dirname(currentFilePath), normalizedLink)
+    if os.path.exists(localPath):
+        return os.path.normpath(localPath)
+
+    \# 5\. Fallback: Search the entire /assets folder for the filename (Logseq's soft resolution)
+    filename \= os.path.basename(normalizedLink)
+    globalAssetPath \= os.path.join(graphRoot, "assets", filename)
+    if os.path.exists(globalAssetPath):
         return globalAssetPath
 
     return None \# Link could not be resolved
@@ -225,35 +225,35 @@ The extraction of PDF highlights requires parsing the sidecar .edn files or page
 
 JSON
 
-{  
-  "protocol": "hls://",  
-  "annotation\_id": "1698059081568\_0",  
-  "source\_pdf": {  
-    "logical\_name": "how\_to\_take\_smart\_notes.pdf",  
-    "absolute\_path": "/home/user/graph/assets/how\_to\_take\_smart\_notes.pdf",  
-    "mime\_type": "application/pdf"  
-  },  
-  "highlight\_data": {  
-    "page\_number": 12,  
-    "coordinates": {  
-      "x1": 52.9556,  
-      "y1": 728.343,  
-      "x2": 191.196,  
-      "y2": 743.218  
-    },  
-    "color\_rgb": \[1.0, 1.0, 0.0\],  
-    "text": "Writing is not the outcome of thinking; it is the medium in which thinking takes place."  
-  }  
+{
+  "protocol": "hls://",
+  "annotation\_id": "1698059081568\_0",
+  "source\_pdf": {
+    "logical\_name": "how\_to\_take\_smart\_notes.pdf",
+    "absolute\_path": "/home/user/graph/assets/how\_to\_take\_smart\_notes.pdf",
+    "mime\_type": "application/pdf"
+  },
+  "highlight\_data": {
+    "page\_number": 12,
+    "coordinates": {
+      "x1": 52.9556,
+      "y1": 728.343,
+      "x2": 191.196,
+      "y2": 743.218
+    },
+    "color\_rgb": \[1.0, 1.0, 0.0\],
+    "text": "Writing is not the outcome of thinking; it is the medium in which thinking takes place."
+  }
 }
 
 14
 
 **Technical Mapping Logic**:
 
-1. When the parser encounters \], it queries the database for a block where :block/content or a custom property matches \<ID\>.  
-2. The parser retrieves the parent page (e.g., hls\_\_how\_to\_take\_smart\_notes).  
-3. It resolves the file:: property of that page to locate the physical PDF in /assets.  
-4. It extracts the ls-pos (coordinates) and hl-page (page number) from the annotation block properties.  
+1. When the parser encounters \], it queries the database for a block where :block/content or a custom property matches \<ID\>.
+2. The parser retrieves the parent page (e.g., hls\_\_how\_to\_take\_smart\_notes).
+3. It resolves the file:: property of that page to locate the physical PDF in /assets.
+4. It extracts the ls-pos (coordinates) and hl-page (page number) from the annotation block properties.
 5. These coordinates are passed to the RAG system, allowing a visual processing agent to crop the specific region of the PDF for the LLM to "see." 14
 
 ## **Evolution and Future Trajectory of the Logseq Filesystem**
@@ -268,38 +268,38 @@ There is a long-standing proposal within the Logseq community to move from encod
 
 The primary motivation for the LOGOS parser—making Logseq "AI-Ready"—requires a level of filesystem precision that goes beyond standard note-taking apps. By mastering the Asset Resolution Engine, the LOGOS parser can provide an LLM with a comprehensive context window that includes:
 
-* **Spatial Context**: Exactly where on a PDF page a highlight was made.  
-* **Hierarchical Context**: How a specific asset fits into the larger namespace taxonomy.  
+* **Spatial Context**: Exactly where on a PDF page a highlight was made.
+* **Hierarchical Context**: How a specific asset fits into the larger namespace taxonomy.
 * **Relational Context**: How an image or video is linked across different blocks via block references.
 
 This technical specification provides the roadmap for building a high-fidelity bridge between the unstructured filesystem and the structured data needs of modern artificial intelligence. The ability to resolve any hls:// link or ../assets/ reference to an absolute system path is the final piece of the puzzle for a fully integrated, multimodal knowledge retrieval system.3
 
-#### **Bibliografia**
+#### **Bibliography**
 
-1. Logseq from an Org-mode Point of View \- of Karl Voit, accesso eseguito il giorno aprile 25, 2026, [https://karl-voit.at/2024/01/28/logseq-from-org-pov/](https://karl-voit.at/2024/01/28/logseq-from-org-pov/)  
-2. Just realized the difference between page properties and block properties \- please double check, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/just-realized-the-difference-between-page-properties-and-block-properties-please-double-check/30433](https://discuss.logseq.com/t/just-realized-the-difference-between-page-properties-and-block-properties-please-double-check/30433)  
-3. The relative path for files in "assets" folder · logseq logseq ... \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/discussions/4582](https://github.com/logseq/logseq/discussions/4582)  
-4. Relative Paths in file links don't work (incorrect handling of double-dot ..) \- Bug Reports, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/relative-paths-in-file-links-dont-work-incorrect-handling-of-double-dot/8952](https://discuss.logseq.com/t/relative-paths-in-file-links-dont-work-incorrect-handling-of-double-dot/8952)  
-5. Support relative path in audio component \- Feature Requests \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/support-relative-path-in-audio-component/5518](https://discuss.logseq.com/t/support-relative-path-in-audio-component/5518)  
-6. Understanding the proper way to handle attachements ("assets") \- \#7 by gax, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/understanding-the-proper-way-to-handle-attachements-assets/8910/7](https://discuss.logseq.com/t/understanding-the-proper-way-to-handle-attachements-assets/8910/7)  
-7. logseq/.i18n-lint.toml at master \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/blob/master/.i18n-lint.toml](https://github.com/logseq/logseq/blob/master/.i18n-lint.toml)  
-8. How to use Logseq Namespaces, accesso eseguito il giorno aprile 25, 2026, [https://www.logseqmastery.com/blog/logseq-namespaces](https://www.logseqmastery.com/blog/logseq-namespaces)  
-9. Proposal: Changing How Namespaces Function in Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/proposal-changing-how-namespaces-function-in-logseq/3727](https://discuss.logseq.com/t/proposal-changing-how-namespaces-function-in-logseq/3727)  
-10. Cleaner file names \- Feature Requests \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/cleaner-file-names/11014](https://discuss.logseq.com/t/cleaner-file-names/11014)  
-11. Logseq datascript schema · GitHub, accesso eseguito il giorno aprile 25, 2026, [https://gist.github.com/tiensonqin/9a40575827f8f63eec54432443ecb929](https://gist.github.com/tiensonqin/9a40575827f8f63eec54432443ecb929)  
-12. Support subdirs for namespace hierarchy \- Page 4 \- Feature Requests \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/support-subdirs-for-namespace-hierarchy/9763?page=4](https://discuss.logseq.com/t/support-subdirs-for-namespace-hierarchy/9763?page=4)  
-13. General question about data structures to maximize benefits of datalog db and queries, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063](https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063)  
-14. Export PDF with Highlights / Save highlights to PDF file \- Feature Requests \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/export-pdf-with-highlights-save-highlights-to-pdf-file/6076](https://discuss.logseq.com/t/export-pdf-with-highlights-save-highlights-to-pdf-file/6076)  
-15. PDF annotation in Logseq \- Feature Requests, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/pdf-annotation-in-logseq/1427](https://discuss.logseq.com/t/pdf-annotation-in-logseq/1427)  
-16. Inconsistent behavior when using built-in PDF reader & annotator \- General \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/inconsistent-behavior-when-using-built-in-pdf-reader-annotator/22305](https://discuss.logseq.com/t/inconsistent-behavior-when-using-built-in-pdf-reader-annotator/22305)  
-17. Feature Request: PDF annotations link jumps back to corresponding location in the PDF file, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/feature-request-pdf-annotations-link-jumps-back-to-corresponding-location-in-the-pdf-file/4518](https://discuss.logseq.com/t/feature-request-pdf-annotations-link-jumps-back-to-corresponding-location-in-the-pdf-file/4518)  
-18. HTTP server in cljs.browser.repl doesn't serve files with extensions other than specified in ext-\>mime-type \- Clojure Q\&A, accesso eseguito il giorno aprile 25, 2026, [https://ask.clojure.org/index.php/5893/server-browser-doesnt-serve-files-extensions-other-specified](https://ask.clojure.org/index.php/5893/server-browser-doesnt-serve-files-extensions-other-specified)  
-19. logseq/src/main/frontend/components/block.cljs at master \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/blob/master/src/main/frontend/components/block.cljs](https://github.com/logseq/logseq/blob/master/src/main/frontend/components/block.cljs)  
-20. logseq/src/main/frontend/modules/shortcut/config.cljs at master \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/blob/master/src/main/frontend/modules/shortcut/config.cljs](https://github.com/logseq/logseq/blob/master/src/main/frontend/modules/shortcut/config.cljs)  
-21. Macros to improve assets management \- Look what I built \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/macros-to-improve-assets-management/13606](https://discuss.logseq.com/t/macros-to-improve-assets-management/13606)  
-22. Logseq doesn't seem to support Markdown Reference Links\!? \- Questions & Help, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/logseq-doesnt-seem-to-support-markdown-reference-links/19245](https://discuss.logseq.com/t/logseq-doesnt-seem-to-support-markdown-reference-links/19245)  
-23. Creating Link Aliases in Logseq \- by Preslav Rachev \- Medium, accesso eseguito il giorno aprile 25, 2026, [https://medium.com/@p5v/creating-link-aliases-in-logseq-fe321d38fd7b](https://medium.com/@p5v/creating-link-aliases-in-logseq-fe321d38fd7b)  
-24. Markdown vs Orgmode \- Which format should one choose? : r/logseq \- Reddit, accesso eseguito il giorno aprile 25, 2026, [https://www.reddit.com/r/logseq/comments/1by05ql/markdown\_vs\_orgmode\_which\_format\_should\_one\_choose/](https://www.reddit.com/r/logseq/comments/1by05ql/markdown_vs_orgmode_which_format_should_one_choose/)  
-25. 0.8.18 · Milestone \#12 · logseq/logseq \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/logseq/milestone/12?closed=1](https://github.com/logseq/logseq/milestone/12?closed=1)  
-26. Creating Link Aliases in Logseq \- Preslav Rachev, accesso eseguito il giorno aprile 25, 2026, [https://preslav.me/2022/04/10/create-link-aliases-in-logseq/](https://preslav.me/2022/04/10/create-link-aliases-in-logseq/)  
-27. Support subdirs for namespace hierarchy \- Feature Requests \- Logseq forum, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/support-subdirs-for-namespace-hierarchy/9763](https://discuss.logseq.com/t/support-subdirs-for-namespace-hierarchy/9763)
+1. Logseq from an Org-mode Point of View \- of Karl Voit, accessed on April 25, 2026, [https://karl-voit.at/2024/01/28/logseq-from-org-pov/](https://karl-voit.at/2024/01/28/logseq-from-org-pov/)
+2. Just realized the difference between page properties and block properties \- please double check, accessed on April 25, 2026, [https://discuss.logseq.com/t/just-realized-the-difference-between-page-properties-and-block-properties-please-double-check/30433](https://discuss.logseq.com/t/just-realized-the-difference-between-page-properties-and-block-properties-please-double-check/30433)
+3. The relative path for files in "assets" folder · logseq logseq ... \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/discussions/4582](https://github.com/logseq/logseq/discussions/4582)
+4. Relative Paths in file links don't work (incorrect handling of double-dot ..) \- Bug Reports, accessed on April 25, 2026, [https://discuss.logseq.com/t/relative-paths-in-file-links-dont-work-incorrect-handling-of-double-dot/8952](https://discuss.logseq.com/t/relative-paths-in-file-links-dont-work-incorrect-handling-of-double-dot/8952)
+5. Support relative path in audio component \- Feature Requests \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/support-relative-path-in-audio-component/5518](https://discuss.logseq.com/t/support-relative-path-in-audio-component/5518)
+6. Understanding the proper way to handle attachements ("assets") \- \#7 by gax, accessed on April 25, 2026, [https://discuss.logseq.com/t/understanding-the-proper-way-to-handle-attachements-assets/8910/7](https://discuss.logseq.com/t/understanding-the-proper-way-to-handle-attachements-assets/8910/7)
+7. logseq/.i18n-lint.toml at master \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/blob/master/.i18n-lint.toml](https://github.com/logseq/logseq/blob/master/.i18n-lint.toml)
+8. How to use Logseq Namespaces, accessed on April 25, 2026, [https://www.logseqmastery.com/blog/logseq-namespaces](https://www.logseqmastery.com/blog/logseq-namespaces)
+9. Proposal: Changing How Namespaces Function in Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/proposal-changing-how-namespaces-function-in-logseq/3727](https://discuss.logseq.com/t/proposal-changing-how-namespaces-function-in-logseq/3727)
+10. Cleaner file names \- Feature Requests \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/cleaner-file-names/11014](https://discuss.logseq.com/t/cleaner-file-names/11014)
+11. Logseq datascript schema · GitHub, accessed on April 25, 2026, [https://gist.github.com/tiensonqin/9a40575827f8f63eec54432443ecb929](https://gist.github.com/tiensonqin/9a40575827f8f63eec54432443ecb929)
+12. Support subdirs for namespace hierarchy \- Page 4 \- Feature Requests \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/support-subdirs-for-namespace-hierarchy/9763?page=4](https://discuss.logseq.com/t/support-subdirs-for-namespace-hierarchy/9763?page=4)
+13. General question about data structures to maximize benefits of datalog db and queries, accessed on April 25, 2026, [https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063](https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063)
+14. Export PDF with Highlights / Save highlights to PDF file \- Feature Requests \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/export-pdf-with-highlights-save-highlights-to-pdf-file/6076](https://discuss.logseq.com/t/export-pdf-with-highlights-save-highlights-to-pdf-file/6076)
+15. PDF annotation in Logseq \- Feature Requests, accessed on April 25, 2026, [https://discuss.logseq.com/t/pdf-annotation-in-logseq/1427](https://discuss.logseq.com/t/pdf-annotation-in-logseq/1427)
+16. Inconsistent behavior when using built-in PDF reader & annotator \- General \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/inconsistent-behavior-when-using-built-in-pdf-reader-annotator/22305](https://discuss.logseq.com/t/inconsistent-behavior-when-using-built-in-pdf-reader-annotator/22305)
+17. Feature Request: PDF annotations link jumps back to corresponding location in the PDF file, accessed on April 25, 2026, [https://discuss.logseq.com/t/feature-request-pdf-annotations-link-jumps-back-to-corresponding-location-in-the-pdf-file/4518](https://discuss.logseq.com/t/feature-request-pdf-annotations-link-jumps-back-to-corresponding-location-in-the-pdf-file/4518)
+18. HTTP server in cljs.browser.repl doesn't serve files with extensions other than specified in ext-\>mime-type \- Clojure Q\&A, accessed on April 25, 2026, [https://ask.clojure.org/index.php/5893/server-browser-doesnt-serve-files-extensions-other-specified](https://ask.clojure.org/index.php/5893/server-browser-doesnt-serve-files-extensions-other-specified)
+19. logseq/src/main/frontend/components/block.cljs at master \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/blob/master/src/main/frontend/components/block.cljs](https://github.com/logseq/logseq/blob/master/src/main/frontend/components/block.cljs)
+20. logseq/src/main/frontend/modules/shortcut/config.cljs at master \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/blob/master/src/main/frontend/modules/shortcut/config.cljs](https://github.com/logseq/logseq/blob/master/src/main/frontend/modules/shortcut/config.cljs)
+21. Macros to improve assets management \- Look what I built \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/macros-to-improve-assets-management/13606](https://discuss.logseq.com/t/macros-to-improve-assets-management/13606)
+22. Logseq doesn't seem to support Markdown Reference Links\!? \- Questions & Help, accessed on April 25, 2026, [https://discuss.logseq.com/t/logseq-doesnt-seem-to-support-markdown-reference-links/19245](https://discuss.logseq.com/t/logseq-doesnt-seem-to-support-markdown-reference-links/19245)
+23. Creating Link Aliases in Logseq \- by Preslav Rachev \- Medium, accessed on April 25, 2026, [https://medium.com/@p5v/creating-link-aliases-in-logseq-fe321d38fd7b](https://medium.com/@p5v/creating-link-aliases-in-logseq-fe321d38fd7b)
+24. Markdown vs Orgmode \- Which format should one choose? : r/logseq \- Reddit, accessed on April 25, 2026, [https://www.reddit.com/r/logseq/comments/1by05ql/markdown\_vs\_orgmode\_which\_format\_should\_one\_choose/](https://www.reddit.com/r/logseq/comments/1by05ql/markdown_vs_orgmode_which_format_should_one_choose/)
+25. 0.8.18 · Milestone \#12 · logseq/logseq \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/logseq/milestone/12?closed=1](https://github.com/logseq/logseq/milestone/12?closed=1)
+26. Creating Link Aliases in Logseq \- Preslav Rachev, accessed on April 25, 2026, [https://preslav.me/2022/04/10/create-link-aliases-in-logseq/](https://preslav.me/2022/04/10/create-link-aliases-in-logseq/)
+27. Support subdirs for namespace hierarchy \- Feature Requests \- Logseq forum, accessed on April 25, 2026, [https://discuss.logseq.com/t/support-subdirs-for-namespace-hierarchy/9763](https://discuss.logseq.com/t/support-subdirs-for-namespace-hierarchy/9763)

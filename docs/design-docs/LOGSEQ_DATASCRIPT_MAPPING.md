@@ -64,10 +64,10 @@ Task management is a native feature of the Logseq database. When a block starts 
 
 The following markers are hardcoded within the Logseq core logic and recognized by the database:
 
-* TODO, LATER: Representing pending tasks.  
-* DOING, NOW: Representing active tasks.  
-* DONE: Representing completed tasks.  
-* WAITING, WAIT: Representing tasks stalled by external dependencies.  
+* TODO, LATER: Representing pending tasks.
+* DOING, NOW: Representing active tasks.
+* DONE: Representing completed tasks.
+* WAITING, WAIT: Representing tasks stalled by external dependencies.
 * CANCELED, CANCELLED: Representing tasks that have been aborted.19
 
 If a block possesses a marker, it may also have a :block/priority, typically stored as a single character ("A", "B", or "C").10 These are not just part of the content string; they are distinct attributes that enable the sorting and filtering required for high-performance task dashboards.
@@ -80,7 +80,7 @@ One of the most critical aspects of the LOGOS parser is the reconstruction of th
 
 The hierarchy is defined by two primary pointers: :block/parent and :block/left.
 
-* **:block/parent**: This attribute points to the database ID of the entity directly above the current block. If a block is at the root level of a page, its parent is the page entity itself.6  
+* **:block/parent**: This attribute points to the database ID of the entity directly above the current block. If a block is at the root level of a page, its parent is the page entity itself.6
 * **:block/left**: This attribute manages the sequence of blocks at the same level of indentation. It points to the block immediately "to the left" (i.e., preceding it). The first block under a parent will have a :block/left value that is either null or, in some internal transactions, points back to the parent to signal the start of a list.6
 
 This structure is effectively a linked list for siblings, combined with a parent pointer for the tree structure. To reconstruct a page in Python, the LOGOS parser must follow the :block/parent references to establish the tree and then use the :block/left references to sort each level of the tree. This is a departure from standard Markdown parsers that treat indentation as a simple depth integer.
@@ -89,9 +89,9 @@ This structure is effectively a linked list for siblings, combined with a parent
 
 Logseq implements a specialized attribute called :block/path-refs to handle context inheritance in the graph.23 While :block/refs contains only the pages and blocks explicitly mentioned in a block’s content, :block/path-refs is a transitive collection that includes:
 
-1. All direct references in the block.  
-2. All references made by the block's parent.  
-3. All references made by every ancestor up to the page level.  
+1. All direct references in the block.
+2. All references made by the block's parent.
+3. All references made by every ancestor up to the page level.
 4. The ID of the page itself.6
 
 This inheritance logic is the engine behind Logseq’s powerful search capabilities. It allows a query for \#research to return a specific bullet point even if that bullet does not contain the tag, provided that one of its parent blocks or the page itself is tagged with \#research.20 For the LOGOS parser, calculating :block/path-refs is essential for ensuring that Python-serialized objects can support the same level of discoverability as the original Logseq app.
@@ -106,7 +106,7 @@ The :block/properties attribute is a map where keys are stored as keywords. Logs
 
 The storage of values within this map is determined by the content type:
 
-* **Plain Text**: Stored as a simple string.  
+* **Plain Text**: Stored as a simple string.
 * **Page References**: If a value is enclosed in brackets \[\[ref\]\] or prefixed with \#, it is stored in the database as a **Clojure Set** of strings.11 This allows a single property to point to multiple entities. For example, tags:: \[\[work\]\]\[\[urgent\]\] is stored as \#{"work" "urgent"}.
 
 ### **Maintaining Document Order**
@@ -157,61 +157,61 @@ To guide the development of the Python LogseqNode object, the following JSON rep
 
 ### **Markdown Source**
 
-* TODO Deliver the\] technical report \#urgent  
-  id:: 64909c2c-2838-405f-8c02-4a0d53356518  
-  type::\]  
-  priority:: A  
-  scheduled:: 20240520  
+* TODO Deliver the\] technical report \#urgent
+  id:: 64909c2c-2838-405f-8c02-4a0d53356518
+  type::\]
+  priority:: A
+  scheduled:: 20240520
   * Ensure 100% semantic parity with the graph
 
 ### **Datascript JSON Mapping**
 
 JSON
 
-\] technical report \#urgent\\n  type::\]\\n  priority:: A\\n  scheduled:: 20240520",  
-    "block/marker": "TODO",  
-    "block/priority": "A",  
-    "block/scheduled": 20240520,  
-    "block/page": { "db/id": 100 },  
-    "block/parent": { "db/id": 100 },  
-    "block/left": { "db/id": 5000 },  
-    "block/format": "markdown",  
-    "block/properties": {  
-      "type":,  
-      "priority": "A",  
-      "scheduled": 20240520  
-    },  
-    "block/properties-order": \["type", "priority", "scheduled"\],  
-    "block/refs": \[  
-      { "db/id": 101, "block/name": "logos" },  
-      { "db/id": 102, "block/name": "urgent" },  
-      { "db/id": 103, "block/name": "documentation" }  
-    \],  
-    "block/path-refs": \[  
-      { "db/id": 100 },  
-      { "db/id": 101 },  
-      { "db/id": 102 },  
-      { "db/id": 103 }  
-    \],  
-    "block/created-at": 1716200000000,  
-    "block/updated-at": 1716210000000  
-  },  
-  {  
-    "db/id": 5002,  
-    "block/uuid": "9b12c3d4-e567\-890a-bc1d\-2e3f4a5b6c7d",  
-    "block/content": "Ensure 100% semantic parity with the graph",  
-    "block/page": { "db/id": 100 },  
-    "block/parent": { "db/id": 5001 },  
-    "block/left": null,  
-    "block/format": "markdown",  
-    "block/path-refs": \[  
-      { "db/id": 100 },  
-      { "db/id": 5001 },  
-      { "db/id": 101 },  
-      { "db/id": 102 },  
-      { "db/id": 103 }  
-    \]  
-  }  
+\] technical report \#urgent\\n  type::\]\\n  priority:: A\\n  scheduled:: 20240520",
+    "block/marker": "TODO",
+    "block/priority": "A",
+    "block/scheduled": 20240520,
+    "block/page": { "db/id": 100 },
+    "block/parent": { "db/id": 100 },
+    "block/left": { "db/id": 5000 },
+    "block/format": "markdown",
+    "block/properties": {
+      "type":,
+      "priority": "A",
+      "scheduled": 20240520
+    },
+    "block/properties-order": \["type", "priority", "scheduled"\],
+    "block/refs": \[
+      { "db/id": 101, "block/name": "logos" },
+      { "db/id": 102, "block/name": "urgent" },
+      { "db/id": 103, "block/name": "documentation" }
+    \],
+    "block/path-refs": \[
+      { "db/id": 100 },
+      { "db/id": 101 },
+      { "db/id": 102 },
+      { "db/id": 103 }
+    \],
+    "block/created-at": 1716200000000,
+    "block/updated-at": 1716210000000
+  },
+  {
+    "db/id": 5002,
+    "block/uuid": "9b12c3d4-e567\-890a-bc1d\-2e3f4a5b6c7d",
+    "block/content": "Ensure 100% semantic parity with the graph",
+    "block/page": { "db/id": 100 },
+    "block/parent": { "db/id": 5001 },
+    "block/left": null,
+    "block/format": "markdown",
+    "block/path-refs": \[
+      { "db/id": 100 },
+      { "db/id": 5001 },
+      { "db/id": 101 },
+      { "db/id": 102 },
+      { "db/id": 103 }
+    \]
+  }
 \]
 
 ## **Logic for Serializing Python Objects to Datascript**
@@ -234,49 +234,49 @@ The parser must iterate through the :block/content and extract wikilinks, tags, 
 
 The parser must extract the property block (the lines immediately following the first line of content).
 
-1. Keys are converted to keywords (e.g., Type:: \-\> :type).  
-2. Values are inspected for brackets. If present, the value is wrapped in a set.  
+1. Keys are converted to keywords (e.g., Type:: \-\> :type).
+2. Values are inspected for brackets. If present, the value is wrapped in a set.
 3. The original order of keys is recorded in the :block/properties-order vector.
 
 ## **Conclusion**
 
 The mapping between Logseq Markdown and Datascript is a sophisticated transformation that turns a hierarchical text file into a contextual graph. Achieving semantic parity requires the LOGOS parser to meticulously manage normalized page identities, linked-list hierarchy pointers, and set-based property values. By following the schema specifications outlined in this technical document, the LOGOS project can ensure that its Python objects are mathematically equivalent to the data structures used in Logseq, providing a solid foundation for advanced graph-based applications and RAG systems. This specification serves as the authoritative guide for the implementation of the LogseqPage and LogseqNode classes, ensuring that the "sovereign" parser maintains the integrity of the user's graph data.
 
-#### **Bibliografia**
+#### **Bibliography**
 
-1. How advanced queries work \- step-by-step explainer \- Queries \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/how-advanced-queries-work-step-by-step-explainer/30544](https://discuss.logseq.com/t/how-advanced-queries-work-step-by-step-explainer/30544)  
-2. LogSeq: Personal Knowledge Graphs with DB power | by Volodymyr Pavlyshyn \- Medium, accesso eseguito il giorno aprile 25, 2026, [https://volodymyrpavlyshyn.medium.com/logseq-personal-knowledge-graphs-with-db-power-85687d17cc4a](https://volodymyrpavlyshyn.medium.com/logseq-personal-knowledge-graphs-with-db-power-85687d17cc4a)  
-3. How to create page with properties? Page templates? \- Questions & Help \- Logseq forum, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/how-to-create-page-with-properties-page-templates/26029](https://discuss.logseq.com/t/how-to-create-page-with-properties-page-templates/26029)  
-4. nbb with features enabled for logseq \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/nbb-logseq](https://github.com/logseq/nbb-logseq)  
-5. nbb-logseq/examples/from-js/README.md at main \- GitHub, accesso eseguito il giorno aprile 25, 2026, [https://github.com/logseq/nbb-logseq/blob/main/examples/from-js/README.md](https://github.com/logseq/nbb-logseq/blob/main/examples/from-js/README.md)  
-6. General question about data structures to maximize benefits of ..., accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063](https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063)  
-7. Data structure in logseq \- Questions & Help, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/data-structure-in-logseq/21179](https://discuss.logseq.com/t/data-structure-in-logseq/21179)  
-8. Where I can know the detail schema of logseq db \- Questions & Help, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/where-i-can-know-the-detail-schema-of-logseq-db/6053](https://discuss.logseq.com/t/where-i-can-know-the-detail-schema-of-logseq-db/6053)  
-9. Option to treat specific blocks as pages \- Feature Requests \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/option-to-treat-specific-blocks-as-pages/13203](https://discuss.logseq.com/t/option-to-treat-specific-blocks-as-pages/13203)  
-10. Logseq datascript schema · GitHub, accesso eseguito il giorno aprile 25, 2026, [https://gist.github.com/tiensonqin/9a40575827f8f63eec54432443ecb929](https://gist.github.com/tiensonqin/9a40575827f8f63eec54432443ecb929)  
-11. A Little Guy and His Blog \- Investing and Technical ExcellenceA ..., accesso eseguito il giorno aprile 25, 2026, [https://www.eriksuniverse.com/](https://www.eriksuniverse.com/)  
-12. Advanced query for sorted tasks with custom table view \- Look what I built \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/advanced-query-for-sorted-tasks-with-custom-table-view/29101](https://discuss.logseq.com/t/advanced-query-for-sorted-tasks-with-custom-table-view/29101)  
-13. Official, comprehensive list of \`config.edn\` options \- Archive \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/official-comprehensive-list-of-config-edn-options/4935](https://discuss.logseq.com/t/official-comprehensive-list-of-config-edn-options/4935)  
-14. Different ways to structure data \- Page 4 \- Queries \- Logseq forum, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/different-ways-to-structure-data/8819?page=4](https://discuss.logseq.com/t/different-ways-to-structure-data/8819?page=4)  
-15. The difference between \[\[page links\]\], \#tags, and properties:: \- Documentation \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/the-difference-between-page-links-tags-and-properties/8393](https://discuss.logseq.com/t/the-difference-between-page-links-tags-and-properties/8393)  
-16. Queries for task management \- Look what I built \- Logseq forum, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/queries-for-task-management/14937](https://discuss.logseq.com/t/queries-for-task-management/14937)  
-17. Different ways to structure data \- Queries \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/different-ways-to-structure-data/8819](https://discuss.logseq.com/t/different-ways-to-structure-data/8819)  
-18. Pages vs Blocks \- General \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/pages-vs-blocks/205](https://discuss.logseq.com/t/pages-vs-blocks/205)  
-19. Custom workflows/TODO markers via plugins? \- Questions & Help \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/custom-workflows-todo-markers-via-plugins/18630](https://discuss.logseq.com/t/custom-workflows-todo-markers-via-plugins/18630)  
-20. Queries for task management \- Page 6 \- Look what I built \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/queries-for-task-management/14937?page=6](https://discuss.logseq.com/t/queries-for-task-management/14937?page=6)  
-21. Pinning active projects to journal page \- Questions & Help \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/pinning-active-projects-to-journal-page/25374](https://discuss.logseq.com/t/pinning-active-projects-to-journal-page/25374)  
-22. Just realized the difference between page properties and block properties \- please double check, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/just-realized-the-difference-between-page-properties-and-block-properties-please-double-check/30433](https://discuss.logseq.com/t/just-realized-the-difference-between-page-properties-and-block-properties-please-double-check/30433)  
-23. Automatic Query based on the parent block reference, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/automatic-query-based-on-the-parent-block-reference/16023](https://discuss.logseq.com/t/automatic-query-based-on-the-parent-block-reference/16023)  
-24. Advanced Query that pulls all reference AND recursive name spaces \- Logseq forum, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/advanced-query-that-pulls-all-reference-and-recursive-name-spaces/21275](https://discuss.logseq.com/t/advanced-query-that-pulls-all-reference-and-recursive-name-spaces/21275)  
-25. Tag based task aggregator \- Look what I built \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/tag-based-task-aggregator/21378](https://discuss.logseq.com/t/tag-based-task-aggregator/21378)  
-26. Using 'contains?' on bracketed vs non-bracketed property values \- Queries \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/using-contains-on-bracketed-vs-non-bracketed-property-values/27221](https://discuss.logseq.com/t/using-contains-on-bracketed-vs-non-bracketed-property-values/27221)  
-27. Lesson 5: How to Power Your Workflows Using Properties and Dynamic Variables \- Queries, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/lesson-5-how-to-power-your-workflows-using-properties-and-dynamic-variables/10173](https://discuss.logseq.com/t/lesson-5-how-to-power-your-workflows-using-properties-and-dynamic-variables/10173)  
-28. Logseq makes \#tags and \[\[pages\]\] the same construct. How has that worked for you? \- Reddit, accesso eseguito il giorno aprile 25, 2026, [https://www.reddit.com/r/logseq/comments/1mkhxqz/logseq\_makes\_tags\_and\_pages\_the\_same\_construct/](https://www.reddit.com/r/logseq/comments/1mkhxqz/logseq_makes_tags_and_pages_the_same_construct/)  
-29. Difference between \[\[\]\] and \# : r/logseq \- Reddit, accesso eseguito il giorno aprile 25, 2026, [https://www.reddit.com/r/logseq/comments/t41f6b/difference\_between\_and/](https://www.reddit.com/r/logseq/comments/t41f6b/difference_between_and/)  
-30. Introducing NewTags (with examples) \- Look what I built \- Logseq, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/introducing-newtags-with-examples/32310](https://discuss.logseq.com/t/introducing-newtags-with-examples/32310)  
-31. Tags vs Pages in the New Logseq DB: A Missed Chance for Unification?, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/tags-vs-pages-in-the-new-logseq-db-a-missed-chance-for-unification/33684](https://discuss.logseq.com/t/tags-vs-pages-in-the-new-logseq-db-a-missed-chance-for-unification/33684)  
-32. Help Navigating & Converting Extensive Block References, accesso eseguito il giorno aprile 25, 2026, [https://discuss.logseq.com/t/help-navigating-converting-extensive-block-references/32051](https://discuss.logseq.com/t/help-navigating-converting-extensive-block-references/32051)  
-33. Logseq query to find all references to a block \- Hugo Ideler, accesso eseguito il giorno aprile 25, 2026, [https://hugoideler.com/2024/01/logseq-query-to-find-all-references-to-a-block/](https://hugoideler.com/2024/01/logseq-query-to-find-all-references-to-a-block/)
+1. How advanced queries work \- step-by-step explainer \- Queries \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/how-advanced-queries-work-step-by-step-explainer/30544](https://discuss.logseq.com/t/how-advanced-queries-work-step-by-step-explainer/30544)
+2. LogSeq: Personal Knowledge Graphs with DB power | by Volodymyr Pavlyshyn \- Medium, accessed on April 25, 2026, [https://volodymyrpavlyshyn.medium.com/logseq-personal-knowledge-graphs-with-db-power-85687d17cc4a](https://volodymyrpavlyshyn.medium.com/logseq-personal-knowledge-graphs-with-db-power-85687d17cc4a)
+3. How to create page with properties? Page templates? \- Questions & Help \- Logseq forum, accessed on April 25, 2026, [https://discuss.logseq.com/t/how-to-create-page-with-properties-page-templates/26029](https://discuss.logseq.com/t/how-to-create-page-with-properties-page-templates/26029)
+4. nbb with features enabled for logseq \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/nbb-logseq](https://github.com/logseq/nbb-logseq)
+5. nbb-logseq/examples/from-js/README.md at main \- GitHub, accessed on April 25, 2026, [https://github.com/logseq/nbb-logseq/blob/main/examples/from-js/README.md](https://github.com/logseq/nbb-logseq/blob/main/examples/from-js/README.md)
+6. General question about data structures to maximize benefits of ..., accessed on April 25, 2026, [https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063](https://discuss.logseq.com/t/general-question-about-data-structures-to-maximize-benefits-of-datalog-db-and-queries/20063)
+7. Data structure in logseq \- Questions & Help, accessed on April 25, 2026, [https://discuss.logseq.com/t/data-structure-in-logseq/21179](https://discuss.logseq.com/t/data-structure-in-logseq/21179)
+8. Where I can know the detail schema of logseq db \- Questions & Help, accessed on April 25, 2026, [https://discuss.logseq.com/t/where-i-can-know-the-detail-schema-of-logseq-db/6053](https://discuss.logseq.com/t/where-i-can-know-the-detail-schema-of-logseq-db/6053)
+9. Option to treat specific blocks as pages \- Feature Requests \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/option-to-treat-specific-blocks-as-pages/13203](https://discuss.logseq.com/t/option-to-treat-specific-blocks-as-pages/13203)
+10. Logseq datascript schema · GitHub, accessed on April 25, 2026, [https://gist.github.com/tiensonqin/9a40575827f8f63eec54432443ecb929](https://gist.github.com/tiensonqin/9a40575827f8f63eec54432443ecb929)
+11. A Little Guy and His Blog \- Investing and Technical ExcellenceA ..., accessed on April 25, 2026, [https://www.eriksuniverse.com/](https://www.eriksuniverse.com/)
+12. Advanced query for sorted tasks with custom table view \- Look what I built \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/advanced-query-for-sorted-tasks-with-custom-table-view/29101](https://discuss.logseq.com/t/advanced-query-for-sorted-tasks-with-custom-table-view/29101)
+13. Official, comprehensive list of \`config.edn\` options \- Archive \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/official-comprehensive-list-of-config-edn-options/4935](https://discuss.logseq.com/t/official-comprehensive-list-of-config-edn-options/4935)
+14. Different ways to structure data \- Page 4 \- Queries \- Logseq forum, accessed on April 25, 2026, [https://discuss.logseq.com/t/different-ways-to-structure-data/8819?page=4](https://discuss.logseq.com/t/different-ways-to-structure-data/8819?page=4)
+15. The difference between \[\[page links\]\], \#tags, and properties:: \- Documentation \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/the-difference-between-page-links-tags-and-properties/8393](https://discuss.logseq.com/t/the-difference-between-page-links-tags-and-properties/8393)
+16. Queries for task management \- Look what I built \- Logseq forum, accessed on April 25, 2026, [https://discuss.logseq.com/t/queries-for-task-management/14937](https://discuss.logseq.com/t/queries-for-task-management/14937)
+17. Different ways to structure data \- Queries \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/different-ways-to-structure-data/8819](https://discuss.logseq.com/t/different-ways-to-structure-data/8819)
+18. Pages vs Blocks \- General \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/pages-vs-blocks/205](https://discuss.logseq.com/t/pages-vs-blocks/205)
+19. Custom workflows/TODO markers via plugins? \- Questions & Help \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/custom-workflows-todo-markers-via-plugins/18630](https://discuss.logseq.com/t/custom-workflows-todo-markers-via-plugins/18630)
+20. Queries for task management \- Page 6 \- Look what I built \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/queries-for-task-management/14937?page=6](https://discuss.logseq.com/t/queries-for-task-management/14937?page=6)
+21. Pinning active projects to journal page \- Questions & Help \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/pinning-active-projects-to-journal-page/25374](https://discuss.logseq.com/t/pinning-active-projects-to-journal-page/25374)
+22. Just realized the difference between page properties and block properties \- please double check, accessed on April 25, 2026, [https://discuss.logseq.com/t/just-realized-the-difference-between-page-properties-and-block-properties-please-double-check/30433](https://discuss.logseq.com/t/just-realized-the-difference-between-page-properties-and-block-properties-please-double-check/30433)
+23. Automatic Query based on the parent block reference, accessed on April 25, 2026, [https://discuss.logseq.com/t/automatic-query-based-on-the-parent-block-reference/16023](https://discuss.logseq.com/t/automatic-query-based-on-the-parent-block-reference/16023)
+24. Advanced Query that pulls all reference AND recursive name spaces \- Logseq forum, accessed on April 25, 2026, [https://discuss.logseq.com/t/advanced-query-that-pulls-all-reference-and-recursive-name-spaces/21275](https://discuss.logseq.com/t/advanced-query-that-pulls-all-reference-and-recursive-name-spaces/21275)
+25. Tag based task aggregator \- Look what I built \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/tag-based-task-aggregator/21378](https://discuss.logseq.com/t/tag-based-task-aggregator/21378)
+26. Using 'contains?' on bracketed vs non-bracketed property values \- Queries \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/using-contains-on-bracketed-vs-non-bracketed-property-values/27221](https://discuss.logseq.com/t/using-contains-on-bracketed-vs-non-bracketed-property-values/27221)
+27. Lesson 5: How to Power Your Workflows Using Properties and Dynamic Variables \- Queries, accessed on April 25, 2026, [https://discuss.logseq.com/t/lesson-5-how-to-power-your-workflows-using-properties-and-dynamic-variables/10173](https://discuss.logseq.com/t/lesson-5-how-to-power-your-workflows-using-properties-and-dynamic-variables/10173)
+28. Logseq makes \#tags and \[\[pages\]\] the same construct. How has that worked for you? \- Reddit, accessed on April 25, 2026, [https://www.reddit.com/r/logseq/comments/1mkhxqz/logseq\_makes\_tags\_and\_pages\_the\_same\_construct/](https://www.reddit.com/r/logseq/comments/1mkhxqz/logseq_makes_tags_and_pages_the_same_construct/)
+29. Difference between \[\[\]\] and \# : r/logseq \- Reddit, accessed on April 25, 2026, [https://www.reddit.com/r/logseq/comments/t41f6b/difference\_between\_and/](https://www.reddit.com/r/logseq/comments/t41f6b/difference_between_and/)
+30. Introducing NewTags (with examples) \- Look what I built \- Logseq, accessed on April 25, 2026, [https://discuss.logseq.com/t/introducing-newtags-with-examples/32310](https://discuss.logseq.com/t/introducing-newtags-with-examples/32310)
+31. Tags vs Pages in the New Logseq DB: A Missed Chance for Unification?, accessed on April 25, 2026, [https://discuss.logseq.com/t/tags-vs-pages-in-the-new-logseq-db-a-missed-chance-for-unification/33684](https://discuss.logseq.com/t/tags-vs-pages-in-the-new-logseq-db-a-missed-chance-for-unification/33684)
+32. Help Navigating & Converting Extensive Block References, accessed on April 25, 2026, [https://discuss.logseq.com/t/help-navigating-converting-extensive-block-references/32051](https://discuss.logseq.com/t/help-navigating-converting-extensive-block-references/32051)
+33. Logseq query to find all references to a block \- Hugo Ideler, accessed on April 25, 2026, [https://hugoideler.com/2024/01/logseq-query-to-find-all-references-to-a-block/](https://hugoideler.com/2024/01/logseq-query-to-find-all-references-to-a-block/)
 
 [image1]: <data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAE0AAAAXCAYAAABOHMIhAAADKklEQVR4Xu2XS8hNURTHlzcDCX0og6skBkoMPAp9UwYirygTUoYkAykyIV8xMjE1IUUmkpQBKYVEKY9EnqG85RnW/+y1fOv8v73v1R3q/Orf3eu/19lnn3323mdfkYaGhob/l0GqZfbbjlmqJWwSo1XLVaO4okBLdZFNY6qktgZzhTGbDWUCG4b3qxOLVXPYZF6pHqvOqH6rvtSrKyZLqjuoWmTlXMPwL6luWBnqROmex1SnVHNVt1Vv6tUVfo+ot7UMkXHmx35dr2Uktkqq26hao/ophUmEpHkZLz7sJIvjG8Sbh9cbvHeS3mbkh7QfOL8XDxoeiq87kvEQ42VflvSwDB4aObFf08yLbR2iGKzLeBV+cRzRr+bttviaxQy8BxRz3i7zhpMPsCRnSqrnQYP3lDzMbG6fY8YfnPPc837lcgC8DWxiaX4k75mk5H0Wt2sw+idVV0IMNkvK4f0NexVeBkB9HLQh5mH2RMabH+E4B3K4X9537xc/iwPvJZs5vIEWxUzJj9yUfE70UI6D1msell1kqPkRxFh63pct9eoi3HeUP4fY4bws8yUlvQ5e6cKSH0H9AfKwFeAr7CAnDtpq804Hz+H7Ib4X4l+qJyHOcVYG9gsx9mTmX56xSvie8XIXlnznvuTrP1DMg7bKvNKgjQjxjlAG6yXlrCQ/gnp8SdnratCwlGawKeULSz6A73tiBMeBYeTxoE0071zwwEjz2+FLuJQHP3eMgP+NTWnflhyX+gFzrGqblUsXlvxPqrUh3q4aY2W/piQH5VshBlPMdy5Y3Aqef0S67RcD7w6bYKekg2QE036plfdLuUGeDQ9VC8nj5cigndyRA4fLyArzHexfiOPqQBne3eCBTv3yY1YEEwfeAvKrgcHN8fnHZxmHSmysSI5/XRDHfWK6eT3Bw5nnheqqpLbwi5M8d4ZBPS+N3EGW98g90n+WdM5Lyon7HmZk7Bf+FTySelt+nsNMdY6aNwCYJUX2mueDhPKJ/uq/Xkk5/Dzoel6vrmaf/1XbJCkHbz/yXtUn6bx1WFJOXIL+JS4pgr+ScfahHqeJhoaGhoaGhq75A2ztO31XlLFcAAAAAElFTkSuQmCC>
 
