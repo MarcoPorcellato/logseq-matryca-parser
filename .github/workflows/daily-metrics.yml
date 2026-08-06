@@ -2,8 +2,8 @@ name: Daily Metrics Saver
 
 on:
   schedule:
-    - cron: '0 3 * * *' # Gira ogni giorno alle 03:00 UTC
-  workflow_dispatch: # Permette l'avvio manuale con un click
+    - cron: '0 3 * * *' # Runs daily at 03:00 UTC.
+  workflow_dispatch: # Allows one-click manual runs.
 
 concurrency:
   group: daily-metrics-${{ github.repository }}
