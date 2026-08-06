@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.6.0** — Clean Architecture slices (`kinetic_export`, `synapse_embed`, layer CI), public `iter_attached_nodes()` / `is_tracked_markdown_path()`. **456 tests**. See [CHANGELOG](CHANGELOG.md).
+**v1.6.0** — Clean Architecture slices (`kinetic_export`, `synapse_embed`, layer CI), public `iter_attached_nodes()` / `is_tracked_markdown_path()`. See [CHANGELOG](CHANGELOG.md); current quality evidence lives in the [repository roadmap](docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md).
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -22,7 +22,7 @@
 
 [👉 **TRY THE LIVE INTERACTIVE DEMO**](https://MarcoPorcellato.github.io/logseq-matryca-parser/)
 
-[📘 **ARCHITECTURE**](docs/ARCHITECTURE.md) · [Clean Architecture SSOT](docs/CLEAN_CODE_ARCHITECTURE.md) · [AST Primer](docs/logseq_ast_primer.md) · [Cookbook](docs/COOKBOOK.md) · [Good first issues](docs/GOOD_FIRST_ISSUES.md) · [Docs index](docs/README.md) · [CodeQL](docs/CODEQL.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASE_PROCESS.md)
+[📘 **ARCHITECTURE**](docs/ARCHITECTURE.md) · [Clean Architecture SSOT](docs/CLEAN_CODE_ARCHITECTURE.md) · [AST Primer](docs/logseq_ast_primer.md) · [Cookbook](docs/COOKBOOK.md) · [Good first issues](docs/GOOD_FIRST_ISSUES.md) · [Knowledge bundle](docs/index.md) · [Docs index](docs/README.md) · [CodeQL](docs/CODEQL.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASE_PROCESS.md)
 
 </div>
 
