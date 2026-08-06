@@ -139,7 +139,7 @@ Pick a scoped task from [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) (wave 2: 
 
 ```bash
 uv sync --all-extras
-make all   # 378 pytest cases, ≥80% coverage gate
+make all   # current suite, ≥80% coverage gate
 ```
 
 | Pattern | Example module | Test file |

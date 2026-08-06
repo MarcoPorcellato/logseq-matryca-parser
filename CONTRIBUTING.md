@@ -146,7 +146,12 @@ CI runs the same commands as your local environment: `uv sync --all-extras`, the
 make all
 ```
 
-As of **v1.6.0**, `make all` runs **456** pytest cases with **≥80%** line coverage on `src/logseq_matryca_parser` (currently ~**91%**), plus `make vendor-name-check`. New contributors should mirror patterns in [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) and the module map in that file’s **Test suite** section.
+`make all` runs the current pytest suite with a **≥80%** line-coverage gate on
+`src/logseq_matryca_parser`, plus the vendor-neutral documentation check. Exact
+counts are intentionally not duplicated here; see the dated
+[repository audit](docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) for a verified
+snapshot. New contributors should mirror patterns in
+[`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md).
 
 Or run each step individually:
 

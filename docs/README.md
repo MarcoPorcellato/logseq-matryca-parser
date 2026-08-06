@@ -27,6 +27,7 @@ quality level MKQ-4, not a claim of official OKF conformance.
 
 | Document | Audience | Purpose |
 | :--- | :--- | :--- |
+| [`index.md`](index.md) | Tools, maintainers | Canonical machine entry point for the maintained knowledge bundle |
 | [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) | Contributors, maintainers | Uncle Bob rings, SOLID, module maps, layer CI |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Contributors, integrators | LOGOS, SYNAPSE, `LogseqGraph`, agents, data flow |
 | [`quality/`](quality/) | Maintainers | Architecture backlog (v1 complete), GitHub roadmap, triage |
@@ -38,6 +39,10 @@ quality level MKQ-4, not a claim of official OKF conformance.
 | [`CODEQL.md`](CODEQL.md) | Maintainers | CodeQL default setup notes |
 | [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) | Maintainers, contributors | Local static analysis bug audit (Clean Architecture lens, runtime evidence) |
 | [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Maintainers, contributors | Evidence-backed repository audit, confirmed defects, issue map, and sequenced improvement roadmap |
+| [`quality/ISSUE_RECONCILIATION_2026-08-06.md`](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Maintainers, contributors | Evidence-backed disposition of every issue open at the audit baseline |
+| [`decisions/index.md`](decisions/index.md) | Maintainers | Canonical decision registry and ADR gaps |
+| [`reference/index.md`](reference/index.md) | Maintainers, integrators | Provenance and Matryca ecosystem relations |
+| [`log.md`](log.md) | Maintainers | Maintained documentation chronology |
 | [`rfc/OLLAMA_RAG.md`](rfc/OLLAMA_RAG.md) | Integrators | Draft RFC for local Ollama RAG (issue [#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)) |
 | [`roadmaps/`](roadmaps/) | Historians | Executed architectural contracts (Waves 2–12) |
 
@@ -48,6 +53,7 @@ quality level MKQ-4, not a claim of official OKF conformance.
 | [`design-docs/`](design-docs/) | Original DDD scaffolds and mldoc parity research |
 | [`error_log.md`](error_log.md) | Informal internal fix log |
 | [`REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md`](REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md) | Superseded audit baseline; retained for provenance |
+| [`quality/ISSUE_TRIAGE_2026-07.md`](quality/ISSUE_TRIAGE_2026-07.md) | Superseded July issue-triage baseline |
 
 ## Root-level docs
 

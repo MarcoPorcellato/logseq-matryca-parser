@@ -585,9 +585,15 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 | [`COOKBOOK.md`](COOKBOOK.md) | Integration examples (Synapse, `LogseqGraph`, watcher) |
 | [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | Picking a first PR ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)); wave 1 in **v1.4.1**, wave 2 in **v1.4.2**, **GFI-11** in **v1.5.0**, Clean Architecture v1 in **v1.6.0** |
 | [`README.md`](README.md) | Project overview and quickstart |
-| [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | `uv` setup, `make all` (**456** pytest, ~**91%** coverage, `vendor-name-check`), PR checklist |
+| [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | `uv` setup, quality target, coverage threshold, documentation check, PR checklist |
+| [`index.md`](index.md) | Canonical maintained knowledge-bundle entry point |
 | [`design-docs/README.md`](design-docs/README.md) | Warning before using historical DDD blueprints |
 
 ### Quality gate (v1.6.0)
 
-Local and CI parity: `uv sync --all-extras` → `make lint` → `make check` → `make test` → `make vendor-name-check`. The test gate enforces **≥80%** coverage on `src/logseq_matryca_parser` with **456** pytest cases as of **v1.6.0** (layer boundary tests, KINETIC/SYNAPSE structural slices, community waves via [#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58) and **`scan --broken-refs`** via [#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)). Dedicated modules: `tests/test_layer_boundary.py`, `tests/test_exceptions.py`, `tests/test_extract_changelog.py` — see [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) § Test suite.
+Local and CI parity: `uv sync --all-extras` → `make lint` → `make check` →
+`make test` → `make vendor-name-check`. The test gate enforces **≥80%**
+coverage on `src/logseq_matryca_parser`. Exact totals belong to dated audit
+evidence rather than this maintained architecture contract. Dedicated modules
+include `tests/test_layer_boundary.py`, `tests/test_exceptions.py` and
+`tests/test_extract_changelog.py`.
