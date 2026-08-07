@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Deep parser refreshes** — immutable node updates now rebuild the complete
+  active branch to the root at arbitrary nesting depth, preserving soft breaks,
+  properties, fenced code, queries, list properties, ordering, identity, and
+  parent/left relationships ([#113](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/113)).
 - **LENS topology** — unresolved wikilinks no longer create phantom page nodes when visualization uses a loaded `LogseqGraph`; valid page aliases and tags remain visible ([#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)).
 
 ## [1.6.0] - 2026-07-02

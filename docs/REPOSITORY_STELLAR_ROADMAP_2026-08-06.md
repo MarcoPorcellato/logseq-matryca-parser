@@ -180,7 +180,9 @@ The future design must make these four contracts explicit.
 
 ### P0.1 — Content loss in deeply nested nodes
 
-**Status:** current bug, high confidence, not sufficiently covered by existing issues.
+**Status:** implementation published in
+[draft PR #118](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/118),
+stacked on #117; pending merge.
 
 `StackMachineParser._replace_stack_tail_node` updates the node, parent, and grandparent, but does not propagate the new branch back to the root for depths above the third level. Soft-break text is recorded on local stack state, while the returned AST keeps the previous root.
 
@@ -210,7 +212,9 @@ Protected input:
 
 **Required tests:** depths 1, 2, 3, 4, 8, and 32; soft-break, property, code fence, property-list cases; `line_end`; parent/left pointers; UUID; serialization and re-parse; shallow vs deep nesting equivalence.
 
-**Recommended tracking:** add a dedicated bug issue. Link it to #104 and make the fix prerequisite for #108.
+**Delivery evidence:** issue #113 now has the required iterative leaf-to-root
+rebuild and depth/family regression matrix in PR #118. Keep the fixture as an
+input to #104 and retain this fix as a prerequisite for #108 until merged.
 
 ### P0.2 — Writer may write outside vault via symlink
 

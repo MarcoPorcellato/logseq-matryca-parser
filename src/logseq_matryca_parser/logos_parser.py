@@ -1242,28 +1242,21 @@ class StackMachineParser:
         root_nodes: list[LogseqNode],
         updated_node: LogseqNode,
     ) -> None:
+        """Replace the active leaf and rebuild every immutable ancestor to the root."""
         if not stack:
             return
 
         stack[-1] = updated_node
-        if len(stack) == 1:
-            root_nodes[-1] = updated_node
-            return
+        updated_ancestor = updated_node
 
-        parent = stack[-2]
-        parent_children = list(parent.children)
-        parent_children[-1] = updated_node
-        updated_parent = parent.model_copy(update={"children": parent_children})
-        stack[-2] = updated_parent
+        for idx in range(len(stack) - 2, -1, -1):
+            ancestor = stack[idx]
+            ancestor_children = list(ancestor.children)
+            ancestor_children[-1] = updated_ancestor
+            updated_ancestor = ancestor.model_copy(update={"children": ancestor_children})
+            stack[idx] = updated_ancestor
 
-        if len(stack) == 2:
-            root_nodes[-1] = updated_parent
-            return
-
-        grand_parent = stack[-3]
-        grand_parent_children = list(grand_parent.children)
-        grand_parent_children[-1] = updated_parent
-        stack[-3] = grand_parent.model_copy(update={"children": grand_parent_children})
+        root_nodes[-1] = updated_ancestor
 
     def _attach_node_to_parent(
         self,

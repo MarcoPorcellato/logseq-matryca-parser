@@ -21,6 +21,11 @@ superseded_by: null
 
 ## 2026-08-07
 
+- Published [draft PR #118](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/118),
+  stacked on #117, for the confirmed parser P0 #113. The surgical iterative
+  rebuild propagates immutable leaf updates to the root at depths through 32
+  and is covered across soft breaks, properties, fences, queries, list values,
+  ordering, identity, parent/left pointers, and round trips.
 - Published [draft PR #117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117)
   for issue #107: PEP 561 wheel metadata, a single derived version source,
   stable/experimental/internal API policy, root export and signature contracts,
