@@ -63,7 +63,7 @@ the newly filed parser P0.
 | #103 | Expand | Wave 0/3 | Add rename/backlink cold-load equivalence |
 | #104 | Expand | Wave 0/3 | Add arbitrary-depth parser regression matrix |
 | #105 | Keep | Wave 4 | Immutable build-once release lineage remains absent |
-| #106 | Implementation in next stacked PR | Wave 0 | Vault confinement, target identity, metadata preservation, dry-run patch, limits, typed diagnostics, symlink and `file://` tests implemented |
+| #106 | Implementation in [PR #121](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/121) | Wave 0 | Vault confinement, target identity, metadata preservation, dry-run patch, limits, typed diagnostics, symlink and `file://` tests; pending merge |
 | #107 | Keep | Wave 1 | Typing marker and stability contract remain absent |
 | #108 | Keep blocked by prerequisites | Wave 6 | Begin only after deep parser fix and #104 corpus |
 | #109 | Expand to MKQ-4 | Wave 1 | Bundle, metadata, lifecycle, links and deterministic source CI |

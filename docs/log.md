@@ -21,7 +21,8 @@ superseded_by: null
 
 ## 2026-08-07
 
-- Prepared the fifth stacked tranche for issue #106: fail-closed vault
+- Published [draft PR #121](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/121),
+  stacked on #120, as the fifth tranche for issue #106: fail-closed vault
   containment, pre-read and pre-replace target validation, identity checks,
   permission/owner preservation, mutation-free unified patches, configurable
   limits, typed diagnostics, and confined symlink and `file://` asset reads.

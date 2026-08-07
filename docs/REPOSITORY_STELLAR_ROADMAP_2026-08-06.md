@@ -218,7 +218,9 @@ input to #104 and retain this fix as a prerequisite for #108 until merged.
 
 ### P0.2 — Writer may write outside vault via symlink
 
-**Status:** implementation prepared in the fifth stacked tranche for #106.
+**Status:** implementation published in
+[draft PR #121](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/121),
+the fifth stacked tranche for #106.
 
 Discovery accepts symlinked markdown under `pages/` or `journals/`. `parse_page_file` stores `path.resolve()`, i.e., the real target. `append_child_to_node` reads and rewrites that `source_path` without verifying it is inside `graph.graph_path`.
 
@@ -242,7 +244,7 @@ typed diagnostics, external symlink rejection, and confined `file://` reads.
 
 ### P1.1 — `file://` bypasses asset boundary
 
-**Status:** current read/confinement defect, high confidence.
+**Status:** implementation published in PR #121 as part of #106.
 
 `LogseqPage.resolve_asset_path` returns an absolute path for `file://` URIs before applying `graph_root` containment checks. This contradicts current docs stating asset resolver is vault-confined.
 
@@ -256,7 +258,9 @@ FILE_URI_RESULT /private/etc/passwd
 
 **Minimal slice:** apply a single canonicalization and containment function across all branches, including `file://`, percent-decoding, Windows path forms, and asset fallbacks. Define whether in-vault `file://` is supported or always rejected.
 
-**Recommended tracking:** either a dedicated security issue or explicit expansion of #106 from “write boundary” to “filesystem boundary.”
+**Delivery evidence:** PR #121 applies the same real-path containment rule to
+relative assets, fallback assets, symlinks, and `file://` URIs, with regression
+coverage for internal targets, external targets, escapes, and symlink loops.
 
 ### P1.2 — Stale backlinks after incremental rename
 
