@@ -1068,7 +1068,6 @@ wheels = [
 
 [[package]]
 name = "logseq-matryca-parser"
-version = "1.6.0"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
@@ -1121,7 +1120,7 @@ requires-dist = [
     { name = "typer", specifier = ">=0.12.0" },
     { name = "watchdog", marker = "extra == 'watch'", specifier = ">=4.0.0" },
 ]
-provides-extras = ["viz", "ai", "all", "watch"]
+provides-extras = ["ai", "all", "viz", "watch"]
 
 [package.metadata.requires-dev]
 dev = [

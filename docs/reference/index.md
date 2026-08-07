@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-06
-verified: 2026-08-06
+last_verified: 2026-08-07
+verified: 2026-08-07
 stale_after: 2027-02-02
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -44,6 +44,7 @@ artifacts.
 
 ## Local contracts
 
+- [Python API stability and typing](API_STABILITY.md)
 - [Architecture](../CLEAN_CODE_ARCHITECTURE.md)
 - [AST primer](../logseq_ast_primer.md)
 - [Release process](../RELEASE_PROCESS.md)

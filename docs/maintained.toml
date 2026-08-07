@@ -27,5 +27,6 @@ maintained_documents = [
   "docs/quality/README.md",
   "docs/decisions/index.md",
   "docs/reference/index.md",
+  "docs/reference/API_STABILITY.md",
   "docs/log.md",
 ]
