@@ -8,7 +8,12 @@ from ._version import __version__
 from .agent_press import SessionAliasRegistry
 from .agent_writer import LogseqConfigReader, logseq_agent_write
 from .diagnostics import Diagnostic, DiagnosticCode, DiagnosticSeverity, collect_graph_diagnostics
-from .exceptions import BlockReferenceError, LogseqIndentationError, LogseqParserError
+from .exceptions import (
+    BlockReferenceError,
+    LogseqIndentationError,
+    LogseqParserError,
+    PageTitleCollisionError,
+)
 from .forge import (
     FlatListForgeVisitor,
     ForgeExporter,
@@ -79,6 +84,7 @@ __all__ = [
     "MarkdownForgeVisitor",
     "ObsidianForgeVisitor",
     "PageRegistry",
+    "PageTitleCollisionError",
     "SessionAliasRegistry",
     "SovereignNotePackage",
     "StackMachineParser",

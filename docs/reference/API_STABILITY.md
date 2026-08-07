@@ -42,13 +42,17 @@ minor release unless a security issue makes that unsafe.
 | Parser | `StackMachineParser`, `LogosParser`, `LogseqPage`, `LogseqNode`, `LogosNode`, `ASTVisitor` |
 | Graph | `LogseqGraph` |
 | Diagnostics | `Diagnostic`, `DiagnosticCode`, `DiagnosticSeverity`, `collect_graph_diagnostics` |
-| Errors | `LogseqParserError`, `LogseqIndentationError`, `BlockReferenceError` |
+| Errors | `LogseqParserError`, `LogseqIndentationError`, `BlockReferenceError`, `PageTitleCollisionError` |
 | Markdown | `serialize_logseq_page`, `write_logseq_page`, `format_logseq_page_properties`, `format_logseq_block_property_lines` |
 | Paths | `discover_graph_files`, `derive_page_title_from_source_path`, `page_title_to_filename`, `filename_to_page_title`, `page_title_to_relative_path`, `encode_page_title_segment`, `decode_page_title_segment`, `is_excluded_graph_path` |
 
 The exact package-root export manifest and the signatures of the parser and
 graph entry points are regression-tested. Adding a new stable symbol requires
 updating this table and those tests in the same PR.
+
+`LogseqGraph.load_directory` accepts keyword-only `strict_refs=False` and
+`strict_title_collisions=False`. Both strict modes are opt-in, preserving the
+permissive default.
 
 Diagnostic code compatibility, serialization, and path-safety rules are defined
 in the [structured diagnostics contract](DIAGNOSTICS.md).

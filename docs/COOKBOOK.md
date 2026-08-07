@@ -132,7 +132,10 @@ if broken:
 For stable machine-readable findings, use `collect_graph_diagnostics(graph)` or
 `matryca-parse scan /path/to/graph --diagnostics-json`. The JSON command emits
 only the diagnostic array, uses vault-relative paths, and exits `1` when an
-error finding exists. See the [diagnostics contract](reference/DIAGNOSTICS.md).
+error finding exists. Use `--diagnostics` for the human table. For vaults that
+must reject ambiguous page identities, pass `strict_title_collisions=True` to
+`LogseqGraph.load_directory`. See the
+[diagnostics contract](reference/DIAGNOSTICS.md).
 
 **CLI tip:** run `matryca-parse export` after `load_directory` — KINETIC scans canonical pages internally (since v1.4.0).
 

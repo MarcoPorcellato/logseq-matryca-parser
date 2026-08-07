@@ -25,6 +25,7 @@ class DiagnosticCode(StrEnum):
     """Stable diagnostic codes currently emitted by the public API."""
 
     GRAPH_BROKEN_BLOCK_REFERENCE = "graph.broken_block_reference"
+    GRAPH_PAGE_TITLE_COLLISION = "graph.page_title_collision"
 
 
 @dataclass(frozen=True)
@@ -90,7 +91,7 @@ def _vault_relative_source(graph_path: Path, source_path: str | None) -> str | N
 
 def collect_graph_diagnostics(graph: LogseqGraph) -> list[Diagnostic]:
     """Collect deterministic graph diagnostics without changing graph behavior."""
-    diagnostics: list[Diagnostic] = []
+    diagnostics = list(graph.index_diagnostics)
     for node in graph.get_broken_references():
         page = graph.page_for_node(node)
         source_path = _vault_relative_source(graph.graph_path, node.source_path)

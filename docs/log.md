@@ -21,6 +21,10 @@ superseded_by: null
 
 ## 2026-08-07
 
+- Prepared the fourth stacked tranche for issue #102: stable structured
+  diagnostics for derived-title, frontmatter-title, and alias collisions;
+  documented deterministic winner policy; typed opt-in strict rejection;
+  human and JSON CLI rendering; and no-ghost regression coverage.
 - Published [draft PR #119](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/119),
   stacked on #118, as the third tranche for issue #110: a stable immutable
   diagnostic schema and code enum, deterministic broken-reference collection,

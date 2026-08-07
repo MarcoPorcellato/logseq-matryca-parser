@@ -11,7 +11,11 @@ import typer
 from rich.table import Table
 
 from logseq_matryca_parser import logseq_agent_write
-from logseq_matryca_parser.diagnostics import Diagnostic, collect_graph_diagnostics
+from logseq_matryca_parser.diagnostics import (
+    Diagnostic,
+    DiagnosticCode,
+    collect_graph_diagnostics,
+)
 from logseq_matryca_parser.kinetic import (
     _build_official_logseq_demo_pages,
     _iter_nodes,
@@ -60,6 +64,24 @@ def _build_broken_references_table(diagnostics: list[Diagnostic]) -> Table:
     return table
 
 
+def _build_diagnostics_table(diagnostics: list[Diagnostic]) -> Table:
+    table = Table(title="Graph Diagnostics")
+    table.add_column("Severity", style="bold red")
+    table.add_column("Code", style="cyan", no_wrap=True)
+    table.add_column("Source", style="magenta")
+    table.add_column("Line", justify="right")
+    table.add_column("Message")
+    for diagnostic in diagnostics:
+        table.add_row(
+            diagnostic.severity.value,
+            diagnostic.code,
+            diagnostic.source_path or "<unknown>",
+            str(diagnostic.line or ""),
+            diagnostic.message,
+        )
+    return table
+
+
 def _build_deep_stats_tables(stats: dict[str, Any]) -> tuple[Table, Table, Table]:
     overview_table = Table(title="LENS Deep Statistics")
     overview_table.add_column("Metric", style="cyan")
@@ -100,6 +122,11 @@ def scan(
         "--diagnostics-json",
         help="Print structured diagnostics as JSON and exit 1 when errors are found.",
     ),
+    diagnostics_human: bool = typer.Option(
+        False,
+        "--diagnostics",
+        help="Print structured diagnostics as a human-readable table.",
+    ),
 ) -> None:
     """Scan a graph and print aggregate parsing statistics."""
     resolved = _resolve_graph_path(ctx, graph_path)
@@ -115,7 +142,11 @@ def scan(
         console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
         raise typer.Exit(code=0)
 
-    diagnostics = collect_graph_diagnostics(graph) if broken_refs or diagnostics_json else []
+    diagnostics = (
+        collect_graph_diagnostics(graph)
+        if broken_refs or diagnostics_json or diagnostics_human
+        else []
+    )
 
     if diagnostics_json:
         typer.echo(json.dumps([item.to_dict() for item in diagnostics], indent=2, sort_keys=True))
@@ -123,13 +154,26 @@ def scan(
 
     console.print(_build_stats_table(pages))
 
+    if diagnostics_human:
+        if diagnostics:
+            console.print("")
+            console.print(_build_diagnostics_table(diagnostics))
+        else:
+            console.print("[green]No graph diagnostics found.[/]")
+        raise typer.Exit(code=1 if diagnostics else 0)
+
     if broken_refs:
-        if not diagnostics:
+        broken_diagnostics = [
+            item
+            for item in diagnostics
+            if item.code == DiagnosticCode.GRAPH_BROKEN_BLOCK_REFERENCE
+        ]
+        if not broken_diagnostics:
             console.print("[green]No unresolved block references found.[/]")
             raise typer.Exit(code=0)
 
         console.print("")
-        console.print(_build_broken_references_table(diagnostics))
+        console.print(_build_broken_references_table(broken_diagnostics))
         raise typer.Exit(code=1)
 
 
