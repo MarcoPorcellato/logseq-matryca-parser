@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "logseq-matryca-parser"
-version = "1.6.0"
+dynamic = ["version"]
 description = "The Logos Protocol: Deterministic Logseq AST parsing for Matryca.ai."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -64,6 +64,12 @@ Documentation = "https://github.com/MarcoPorcellato/logseq-matryca-parser/tree/m
 Changelog = "https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/CHANGELOG.md"
 "Bug Tracker" = "https://github.com/MarcoPorcellato/logseq-matryca-parser/issues"
 "Matryca.ai" = "https://matryca.ai"
+
+[tool.hatch.version]
+path = "src/logseq_matryca_parser/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/logseq_matryca_parser"]
 
 [dependency-groups]
 dev = [

@@ -4,7 +4,6 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -53,3 +52,29 @@ jobs:
 
     - name: Verify checkout unchanged
       run: make verify-clean
+
+  package-contract:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v7
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        python-version: "3.12"
+        enable-cache: true
+
+    - name: Build wheel
+      run: uv build --wheel --out-dir dist-contract
+
+    - name: Verify wheel metadata and PEP 561 marker
+      run: uv run python scripts/check_wheel_contract.py dist-contract/*.whl
+
+    - name: Verify downstream typing from the wheel
+      run: |
+        uv venv "${{ runner.temp }}/typing-venv"
+        uv pip install --python "${{ runner.temp }}/typing-venv/bin/python" mypy dist-contract/*.whl
+        cd "${{ runner.temp }}"
+        "${{ runner.temp }}/typing-venv/bin/python" -m mypy --strict "${{ github.workspace }}/tests/typing_samples/public_api.py"
