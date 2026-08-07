@@ -50,3 +50,6 @@ jobs:
 
     - name: Documentation check (non-mutating)
       run: make docs-check
+
+    - name: Verify checkout unchanged
+      run: make verify-clean

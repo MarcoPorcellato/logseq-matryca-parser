@@ -1,8 +1,11 @@
-.PHONY: all lint check test build vendor-name-check docs-check
+.PHONY: all lint lint-fix check test build vendor-name-check docs-check verify-clean
 
 all: lint check vendor-name-check docs-check test
 
 lint:
+	uv run ruff check .
+
+lint-fix:
 	uv run ruff check . --fix
 
 check:
@@ -16,6 +19,13 @@ test:
 
 docs-check:
 	uv run python scripts/check_documentation.py --root . --profile docs/maintained.toml --as-of-date $$(date -u +%F)
+
+verify-clean:
+	@status="$$(git status --porcelain)"; \
+	if [ -n "$$status" ]; then \
+		printf '%s\n' "$$status"; \
+		exit 1; \
+	fi
 
 build:
 	uv run python -m nuitka --standalone --onefile src/logseq_matryca_parser/kinetic.py

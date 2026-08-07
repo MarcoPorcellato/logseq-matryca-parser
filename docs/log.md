@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-06
-verified: 2026-08-06
+last_verified: 2026-08-07
+verified: 2026-08-07
 stale_after: 2027-02-02
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -21,6 +21,12 @@ superseded_by: null
 
 ## 2026-08-07
 
+- Published the issue #101 delivery tranche as
+  [draft PR #116](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/116):
+  verification-only `lint`, explicit opt-in `lint-fix`, a non-mutating `make all`, and a final CI
+  checkout-integrity assertion guarded by focused contract tests. A global
+  Ruff formatter gate was measured but deferred because the existing baseline
+  requires a separate 23-file mechanical-formatting change.
 - Added a source-owned maintained-document profile in
   [`docs/maintained.toml`](maintained.toml) and implemented
   [`scripts/check_documentation.py`](../scripts/check_documentation.py) with deterministic
