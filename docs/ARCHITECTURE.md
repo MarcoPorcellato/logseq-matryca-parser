@@ -375,6 +375,18 @@ This keeps **global indexes consistent** without rebuilding the entire graph —
 
 **`StackMachineParser(..., strict_refs=False)`** (default) resolves same-page `((uuid))` block refs leniently. When **`strict_refs=True`**, unresolved refs raise **`BlockReferenceError`** at parse time — complementary to **`LogseqGraph.get_broken_references()`**, which scans the loaded graph post-hoc. **`LogseqGraph.load_directory(..., strict_refs=True)`** runs **`raise_if_broken_references()`** after indexing to fail fast on cross-page broken `((uuid))` refs.
 
+#### Title-collision policy (`strict_title_collisions`)
+
+Full-directory loading sorts physical files by resolved path before indexing.
+When canonical titles collide, the later path remains the historical winner.
+Alias insertion retains its historical remap policy: the alias owner replaces
+the previous key. Permissive loading exposes every conflict as
+`graph.page_title_collision`, including vault-relative winner and loser paths
+and a `derived_title`, `frontmatter_title`, or `alias` reason. Loser nodes and
+backlinks are not registered. Set
+**`LogseqGraph.load_directory(..., strict_title_collisions=True)`** to raise the
+typed **`PageTitleCollisionError`** instead of accepting the winner.
+
 #### Canonical page iteration (`iter_canonical_pages`, `page_for_node`)
 
 **`graph.pages`** may contain multiple keys (filename title, **`title::`** override, **`alias::`** keys) pointing at the same **`LogseqPage`** instance. Exporters and graph scans must not double-count alias keys. **`iter_canonical_pages()`** yields one page per unique object identity; **`page_for_node(node)`** returns the owning page for a block UUID. **KINETIC**, **SYNAPSE**, and **LENS** use canonical iteration for export and statistics (v1.4.0).

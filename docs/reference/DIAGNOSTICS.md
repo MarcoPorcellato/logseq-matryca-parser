@@ -45,6 +45,12 @@ paths that cannot be proven relative to the selected vault.
 | Code | Severity | Meaning |
 |---|---|---|
 | `graph.broken_block_reference` | `error` | A block contains a `((uuid))` reference absent from the loaded graph |
+| `graph.page_title_collision` | `error` | Two physical pages compete for the same canonical or alias index key |
+
+Title-collision context contains `title`, `winner_path`, `loser_path`, and
+`reason`. The stable reasons are `derived_title`, `frontmatter_title`, and
+`alias`. Paths remain vault-relative or use the literal `<unavailable>` when
+containment cannot be proven.
 
 Codes and field meanings are stable package-root API. New codes may be added in
 minor releases. Removing a code or changing its meaning requires the same
@@ -64,15 +70,29 @@ for diagnostic in collect_graph_diagnostics(graph):
 Collection is observational: it does not mutate graph state or replace
 `get_broken_references()` and `raise_if_broken_references()`.
 
+Permissive graph loading retains the historical winner and exposes collision
+diagnostics through `graph.index_diagnostics`. To reject collisions instead:
+
+```python
+from logseq_matryca_parser import LogseqGraph, PageTitleCollisionError
+
+try:
+    LogseqGraph.load_directory("/path/to/graph", strict_title_collisions=True)
+except PageTitleCollisionError as error:
+    for diagnostic in error.diagnostics:
+        print(diagnostic.context["winner_path"], diagnostic.context["loser_path"])
+```
+
 ## CLI rendering and escalation
 
-- `matryca-parse scan GRAPH --broken-refs` renders the human Rich table.
+- `matryca-parse scan GRAPH --diagnostics` renders all findings in a human Rich
+  table; `--broken-refs` retains the focused legacy table.
 - `matryca-parse scan GRAPH --diagnostics-json` writes only a JSON array to
   standard output, making it safe to pipe into automation.
-- Both diagnostic flags opt into error escalation: exit status is `1` when an
+- The diagnostic flags opt into error escalation: exit status is `1` when an
   error diagnostic is present and `0` otherwise.
 - A plain `scan` remains informational and does not escalate findings.
 
-Future title-collision, parser-recovery, filesystem, and reload diagnostics must
+Future parser-recovery, filesystem, and reload diagnostics must
 reuse this payload and path policy. Each producer requires code/context tests
 and both output forms where it is exposed through the CLI.

@@ -28,6 +28,7 @@ EXPECTED_ROOT_EXPORTS = {
     "MarkdownForgeVisitor",
     "ObsidianForgeVisitor",
     "PageRegistry",
+    "PageTitleCollisionError",
     "SessionAliasRegistry",
     "SovereignNotePackage",
     "StackMachineParser",
@@ -73,6 +74,15 @@ def test_stable_parser_signature() -> None:
 def test_stable_graph_loader_signature() -> None:
     signature = inspect.signature(package.LogseqGraph.load_directory)
 
-    assert tuple(signature.parameters) == ("graph_path", "strict_refs")
+    assert tuple(signature.parameters) == (
+        "graph_path",
+        "strict_refs",
+        "strict_title_collisions",
+    )
     assert signature.parameters["strict_refs"].kind is inspect.Parameter.KEYWORD_ONLY
     assert signature.parameters["strict_refs"].default is False
+    assert (
+        signature.parameters["strict_title_collisions"].kind
+        is inspect.Parameter.KEYWORD_ONLY
+    )
+    assert signature.parameters["strict_title_collisions"].default is False

@@ -277,11 +277,16 @@ Interpretation: before rename there is a backlink; after `Target → Renamed`, t
 
 ### P1.3 — Title/alias collisions can hide a page
 
-**Status:** confirmed and already covered by #102.
+**Status:** implementation published in
+[draft PR #120](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/120),
+stacked on #119, for #102.
 
 Pages are stored in a title-keyed dict, and aliases can remap canonical keys. Behavior is deterministic and the registry avoids many ghost nodes, but visibility loss is still primarily a logging concern.
 
-**Action:** do not open a new initiative. Implement structured diagnostics, both winner paths, stable winner policy, and strict mode as already requested by #102.
+**Delivery evidence:** the fourth stacked tranche preserves the current winner,
+records stable structured diagnostics with both vault-relative paths and a
+reason, adds a typed opt-in strict mode, and covers derived, frontmatter, and
+alias collisions without ghost nodes.
 
 ### P1.4 — Writer, watcher, and readers do not share an atomic snapshot
 
@@ -321,8 +326,8 @@ Pre-flight, PyPI build, and GitHub release do not necessarily consume the same i
 - #110: structured diagnostics; stable payload, broken-reference producer, path
   policy, and JSON CLI are implemented in
   [draft PR #119](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/119),
-  the third stacked tranche, while
-  collision, parser-recovery, filesystem, and reload producers remain;
+  the third stacked tranche; the collision producer is prepared in the fourth
+  tranche, while parser-recovery, filesystem, and reload producers remain;
 - #111: 1k/10k page benchmarks and RSS/p95 budgets;
 - #108: incremental parser phase extraction only after #104 and P0.1 fix.
 

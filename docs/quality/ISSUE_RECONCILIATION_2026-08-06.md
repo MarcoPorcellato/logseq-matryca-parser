@@ -59,7 +59,7 @@ the newly filed parser P0.
 | #96 | Close completed | Shipped | Current symmetric empty replacement is table-tested |
 | #97 | Close as duplicate of #89 | — | Orphan exclusion is a subset of #89 |
 | #101 | Keep, priority | Wave 1 | CI lint remains mutating |
-| #102 | Keep | Wave 2 | Collision diagnostics and strict mode remain absent |
+| #102 | Implementation in [PR #120](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/120) | Wave 2 | Stable collision diagnostics, preserved winner policy, typed strict mode, CLI rendering, and no-ghost tests; pending merge |
 | #103 | Expand | Wave 0/3 | Add rename/backlink cold-load equivalence |
 | #104 | Expand | Wave 0/3 | Add arbitrary-depth parser regression matrix |
 | #105 | Keep | Wave 4 | Immutable build-once release lineage remains absent |
@@ -67,7 +67,7 @@ the newly filed parser P0.
 | #107 | Keep | Wave 1 | Typing marker and stability contract remain absent |
 | #108 | Keep blocked by prerequisites | Wave 6 | Begin only after deep parser fix and #104 corpus |
 | #109 | Expand to MKQ-4 | Wave 1 | Bundle, metadata, lifecycle, links and deterministic source CI |
-| #110 | Foundation in [PR #119](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/119) | Wave 2 | Stable payload, broken-reference code, JSON CLI, and path policy implemented; title-collision, parser-recovery, filesystem, and reload producers remain |
+| #110 | Foundation in [PR #119](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/119) | Wave 2 | Stable payload, broken-reference code, JSON CLI, and path policy implemented; collision producer in PR #120, while parser-recovery, filesystem, and reload producers remain |
 | #111 | Expand | Wave 5 | Include #87 seed and incremental/cold-load correctness budgets |
 | #113 | Implementation in [PR #118](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/118) | Wave 0 | Iterative leaf-to-root rebuild and depth/family regression matrix; pending merge |
 

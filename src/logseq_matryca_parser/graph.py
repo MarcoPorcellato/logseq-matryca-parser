@@ -14,7 +14,13 @@ from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
-from logseq_matryca_parser.exceptions import BlockReferenceError
+from logseq_matryca_parser.diagnostics import (
+    Diagnostic,
+    DiagnosticCode,
+    DiagnosticSeverity,
+    _vault_relative_source,
+)
+from logseq_matryca_parser.exceptions import BlockReferenceError, PageTitleCollisionError
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import StackMachineParser
 from logseq_matryca_parser.logseq_markdown import _normalize_logseq_ref_token
@@ -274,7 +280,44 @@ def _apply_title_override(page: LogseqPage) -> tuple[LogseqPage, str | None]:
     return page.model_copy(update={"title": custom}), page.title
 
 
-def _enrich_pages_index(pages: dict[str, LogseqPage]) -> None:
+def _collision_diagnostic(
+    *,
+    graph_path: Path,
+    title: str,
+    winner: LogseqPage,
+    loser: LogseqPage,
+    reason: str,
+) -> Diagnostic:
+    winner_path = _vault_relative_source(graph_path, winner.source_path)
+    loser_path = _vault_relative_source(graph_path, loser.source_path)
+    return Diagnostic(
+        code=DiagnosticCode.GRAPH_PAGE_TITLE_COLLISION,
+        severity=DiagnosticSeverity.ERROR,
+        source_path=winner_path,
+        message=f"Page title {title!r} maps to more than one source",
+        context={
+            "loser_path": loser_path or "<unavailable>",
+            "reason": reason,
+            "title": title,
+            "winner_path": winner_path or "<unavailable>",
+        },
+    )
+
+
+def _collision_reason(*pages: LogseqPage) -> str:
+    for page in pages:
+        raw_title = page.properties.get("title")
+        if isinstance(raw_title, str) and raw_title.strip() == page.title:
+            return "frontmatter_title"
+    return "derived_title"
+
+
+def _enrich_pages_index(
+    pages: dict[str, LogseqPage],
+    *,
+    graph_path: Path | None = None,
+    diagnostics: list[Diagnostic] | None = None,
+) -> None:
     """Apply ``title::`` overrides and inject alias keys before backlink indexing."""
     snapshot = sorted(pages.items(), key=lambda item: item[1].source_path or "")
     seen_paths: set[str] = set()
@@ -293,6 +336,16 @@ def _enrich_pages_index(pages: dict[str, LogseqPage]) -> None:
         new_key = updated.title
         existing = pages.get(new_key)
         if existing is not None and existing.source_path != updated.source_path:
+            if graph_path is not None and diagnostics is not None:
+                diagnostics.append(
+                    _collision_diagnostic(
+                        graph_path=graph_path,
+                        title=new_key,
+                        winner=existing,
+                        loser=updated,
+                        reason="frontmatter_title",
+                    )
+                )
             logger.debug(
                 "pages index: title override skipped, %r already maps to another page",
                 new_key,
@@ -312,6 +365,16 @@ def _enrich_pages_index(pages: dict[str, LogseqPage]) -> None:
             if alias == page.title:
                 continue
             if alias in pages and pages[alias] is not page:
+                if graph_path is not None and diagnostics is not None:
+                    diagnostics.append(
+                        _collision_diagnostic(
+                            graph_path=graph_path,
+                            title=alias,
+                            winner=page,
+                            loser=pages[alias],
+                            reason="alias",
+                        )
+                    )
                 logger.debug("pages index: alias %r collision, remapping", alias)
             pages[alias] = page
 
@@ -409,6 +472,7 @@ class LogseqGraph(BaseModel):
     _node_registry: dict[str, LogseqNode] = PrivateAttr(default_factory=dict)
     _backlink_registry: dict[str, list[str]] = PrivateAttr(default_factory=dict)
     _lower_title_map: dict[str, str] = PrivateAttr(default_factory=dict)
+    _index_diagnostics: tuple[Diagnostic, ...] = PrivateAttr(default_factory=tuple)
 
     def __init__(
         self,
@@ -418,6 +482,7 @@ class LogseqGraph(BaseModel):
         node_registry: dict[str, LogseqNode] | None = None,
         backlink_registry: dict[str, list[str]] | None = None,
         lower_title_map: dict[str, str] | None = None,
+        diagnostics: list[Diagnostic] | None = None,
     ) -> None:
         super().__init__(graph_path=graph_path, pages=pages)
         self._node_registry = dict(node_registry) if node_registry is not None else {}
@@ -429,17 +494,27 @@ class LogseqGraph(BaseModel):
             if lower_title_map is not None
             else _build_lower_title_map(pages)
         )
+        self._index_diagnostics = tuple(diagnostics or ())
 
     @classmethod
-    def load_directory(cls, graph_path: Path, *, strict_refs: bool = False) -> LogseqGraph:
+    def load_directory(
+        cls,
+        graph_path: Path,
+        *,
+        strict_refs: bool = False,
+        strict_title_collisions: bool = False,
+    ) -> LogseqGraph:
         """Discover markdown under ``pages/`` and ``journals/``, parse concurrently, build indexes.
 
         When ``strict_refs`` is True, raise :class:`BlockReferenceError` if any block reference
         in the vault cannot be resolved against the loaded node registry (cross-page validation).
+        When ``strict_title_collisions`` is True, raise :class:`PageTitleCollisionError` instead
+        of accepting the historical deterministic winner for an ambiguous title or alias.
         """
         resolved = graph_path.expanduser().resolve()
         files = discover_graph_files(resolved)
         pages: dict[str, LogseqPage] = {}
+        diagnostics: list[Diagnostic] = []
         node_registry: dict[str, LogseqNode] = {}
 
         if not files:
@@ -468,9 +543,20 @@ class LogseqGraph(BaseModel):
 
         path_page_pairs.sort(key=lambda item: str(item[0].resolve()))
         for _path, page in path_page_pairs:
+            existing = pages.get(page.title)
+            if existing is not None and existing.source_path != page.source_path:
+                diagnostics.append(
+                    _collision_diagnostic(
+                        graph_path=resolved,
+                        title=page.title,
+                        winner=page,
+                        loser=existing,
+                        reason=_collision_reason(page, existing),
+                    )
+                )
             pages[page.title] = page
 
-        _enrich_pages_index(pages)
+        _enrich_pages_index(pages, graph_path=resolved, diagnostics=diagnostics)
         node_registry = _build_node_registry_from_pages(pages)
         backlink_registry = _build_backlink_registry(pages)
         lower_title_map = _build_lower_title_map(pages)
@@ -486,7 +572,10 @@ class LogseqGraph(BaseModel):
             node_registry=node_registry,
             backlink_registry=backlink_registry,
             lower_title_map=lower_title_map,
+            diagnostics=diagnostics,
         )
+        if strict_title_collisions and diagnostics:
+            raise PageTitleCollisionError(diagnostics)
         if strict_refs:
             graph.raise_if_broken_references()
         return graph
@@ -508,6 +597,11 @@ class LogseqGraph(BaseModel):
     def iter_canonical_pages(self) -> Iterator[LogseqPage]:
         """Yield each physical page once (dedupe ``pages`` alias keys)."""
         yield from iter_canonical_pages_from_dict(self.pages)
+
+    @property
+    def index_diagnostics(self) -> tuple[Diagnostic, ...]:
+        """Return immutable diagnostics produced while building the graph index."""
+        return self._index_diagnostics
 
     def iter_attached_nodes(self) -> Iterator[LogseqNode]:
         """Yield registry nodes that still belong to an indexed page (no collision ghosts)."""
