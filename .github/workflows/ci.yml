@@ -47,3 +47,6 @@ jobs:
 
     - name: Test
       run: make test
+
+    - name: Documentation check (non-mutating)
+      run: make docs-check

@@ -1,0 +1,31 @@
+required_frontmatter_fields = [
+  "type",
+  "title",
+  "description",
+  "status",
+  "classification",
+  "audience",
+  "owner",
+  "authority",
+  "execution_mode",
+  "last_verified",
+  "verified",
+  "stale_after",
+  "okf_profile",
+  "okf_spec_version",
+  "supersedes",
+  "superseded_by",
+]
+
+maintained_documents = [
+  "docs/index.md",
+  "docs/README.md",
+  "docs/DOCUMENTATION_SYSTEM.md",
+  "docs/CLEAN_CODE_ARCHITECTURE.md",
+  "docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md",
+  "docs/quality/ISSUE_RECONCILIATION_2026-08-06.md",
+  "docs/quality/README.md",
+  "docs/decisions/index.md",
+  "docs/reference/index.md",
+  "docs/log.md",
+]
