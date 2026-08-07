@@ -21,6 +21,11 @@ superseded_by: null
 
 ## 2026-08-07
 
+- Published [draft PR #117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117)
+  for issue #107: PEP 561 wheel metadata, a single derived version source,
+  stable/experimental/internal API policy, root export and signature contracts,
+  and a clean downstream Mypy qualification. The CI trigger now also covers
+  pull requests stacked on feature branches.
 - Published the issue #101 delivery tranche as
   [draft PR #116](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/116):
   verification-only `lint`, explicit opt-in `lint-fix`, a non-mutating `make all`, and a final CI

@@ -510,6 +510,13 @@ Classify surfaces as `stable`, `experimental`, `internal`. AI adapters, visualiz
 - watcher/writer concurrency tests with barrier and failure injection;
 - incremental/cold-load equivalence as universal gate.
 
+**Delivery update (2026-08-07):** [draft PR #117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117)
+implements #107 with a single derived version source, wheel-level PEP 561
+verification, a clean downstream Mypy probe, an explicit API stability table,
+and root-export/signature regression tests. It also enables CI for PRs whose
+base is another feature branch so the remaining roadmap can be delivered as an
+independently reviewable stack.
+
 ### Wave 4 — Release confidence
 
 - #105: build once / publish exact bytes;

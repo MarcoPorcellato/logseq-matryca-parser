@@ -29,7 +29,7 @@ introduced incrementally. Do not rewrite historical roadmaps into ADRs.
 | Title and alias collision policy | [Issue #102](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/102) | Proposed |
 | Writer/watcher concurrency | [Issue #103](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/103) | Proposed |
 | Filesystem confinement | [Issue #106](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/106) | Proposed |
-| Public API stability | [`reference/API_STABILITY.md`](../reference/API_STABILITY.md) | Contract recorded; wheel enforcement pending merge under issue #107 |
+| Public API stability | [`reference/API_STABILITY.md`](../reference/API_STABILITY.md) | Contract recorded; wheel enforcement published in [PR #117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117) |
 | Documentation lifecycle and MKQ | [`DOCUMENTATION_SYSTEM.md`](../DOCUMENTATION_SYSTEM.md) | Source contract recorded; MKQ-4 enforcement and private profile activation pending under issue #109 |
 
 Every future ADR must identify owner, status, decision date, supersession links,
