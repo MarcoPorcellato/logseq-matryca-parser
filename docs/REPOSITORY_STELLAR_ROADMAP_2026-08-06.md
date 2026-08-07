@@ -289,9 +289,11 @@ Writer provides `mkstemp` + `os.replace`, which protects against partial file re
 
 ### P1.5 — Mutating lint in CI
 
-**Status:** implementation prepared on 2026-08-07; tracked by #101.
+**Status:** implementation published on 2026-08-07 in
+[draft PR #116](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/116);
+tracked by #101.
 
-The delivery branch separates verification-only `lint` from opt-in `lint-fix`,
+PR #116 separates verification-only `lint` from opt-in `lint-fix`,
 keeps `make all` non-mutating, adds a final CI checkout-integrity assertion,
 and protects the target/workflow contract with focused tests. A repository-wide
 `ruff format --check` gate was evaluated and deliberately not activated because

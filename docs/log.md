@@ -21,8 +21,9 @@ superseded_by: null
 
 ## 2026-08-07
 
-- Prepared the issue #101 delivery tranche: verification-only `lint`, explicit
-  opt-in `lint-fix`, a non-mutating `make all`, and a final CI
+- Published the issue #101 delivery tranche as
+  [draft PR #116](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/116):
+  verification-only `lint`, explicit opt-in `lint-fix`, a non-mutating `make all`, and a final CI
   checkout-integrity assertion guarded by focused contract tests. A global
   Ruff formatter gate was measured but deferred because the existing baseline
   requires a separate 23-file mechanical-formatting change.
