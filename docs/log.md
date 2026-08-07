@@ -21,12 +21,15 @@ superseded_by: null
 
 ## 2026-08-07
 
-- Published [draft PR #122](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/122),
-  stacked on #121, as the final documentation-readiness tranche for the live
-  issue ledger, source-gate evolution, stack evidence, and merge protocol.
-- Reconciled the live 27-issue backlog and the complete draft stack #117-#121;
-  recorded clean ancestry, remote checks, top-of-stack qualification, and the
-  required sequential retarget-and-merge protocol in the stellar roadmap.
+- Prepared [PR #122](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/122)
+  directly against `main` as the final documentation record for the live issue
+  ledger, source-gate evolution, and completed delivery sequence.
+- Squash merged PRs #117-#121 in dependency order after tranche-only rebases,
+  full local qualification, and fresh required GitHub checks. Recorded each
+  resulting default-branch commit in the stellar roadmap.
+- Reconciled the live 23-issue backlog after the sequence. Closed #106 manually
+  with implementation and validation evidence because #121 satisfied its
+  acceptance criteria but GitHub did not apply the PR closing keyword.
 - Synchronized the new delivery evidence to GitHub issues #102, #106, #107,
   #109, #110, and #113; #109 now distinguishes the merged source gate from its
   still-open snippet, private-profile, and projection acceptance criteria.
