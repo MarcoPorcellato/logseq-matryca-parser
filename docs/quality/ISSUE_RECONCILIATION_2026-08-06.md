@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-06
-verified: 2026-08-06
+last_verified: 2026-08-07
+verified: 2026-08-07
 stale_after: 2026-09-05
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -69,7 +69,7 @@ the newly filed parser P0.
 | #109 | Expand to MKQ-4 | Wave 1 | Bundle, metadata, lifecycle, links and deterministic source CI |
 | #110 | Expand | Wave 2 | Add filesystem and reload diagnostic codes |
 | #111 | Expand | Wave 5 | Include #87 seed and incremental/cold-load correctness budgets |
-| #113 | Opened, priority P0 | Wave 0 | Arbitrary-depth immutable node refresh loses deep updates |
+| #113 | Implementation in [PR #118](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/118) | Wave 0 | Iterative leaf-to-root rebuild and depth/family regression matrix; pending merge |
 
 ## GitHub actions applied
 
