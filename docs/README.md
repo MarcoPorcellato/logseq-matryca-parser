@@ -51,6 +51,7 @@ entry points.
 | [`quality/ISSUE_RECONCILIATION_2026-08-06.md`](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Maintainers, contributors | Evidence-backed disposition of every issue open at the audit baseline |
 | [`decisions/index.md`](decisions/index.md) | Maintainers | Canonical decision registry and ADR gaps |
 | [`reference/index.md`](reference/index.md) | Maintainers, integrators | Provenance and Matryca ecosystem relations |
+| [`reference/DIAGNOSTICS.md`](reference/DIAGNOSTICS.md) | Integrators, contributors | Stable diagnostic codes, payload schema, path safety, CLI rendering, and escalation |
 | [`log.md`](log.md) | Maintainers | Maintained documentation chronology |
 | [`rfc/OLLAMA_RAG.md`](rfc/OLLAMA_RAG.md) | Integrators | Draft RFC for local Ollama RAG (issue [#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)) |
 | [`roadmaps/`](roadmaps/) | Historians | Executed architectural contracts (Waves 2–12) |

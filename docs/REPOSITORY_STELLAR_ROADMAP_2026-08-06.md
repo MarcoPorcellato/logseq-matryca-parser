@@ -318,7 +318,11 @@ Pre-flight, PyPI build, and GitHub release do not necessarily consume the same i
 - #104: compatibility corpus and metamorphic properties;
 - #107: `py.typed`, API policy, and version source;
 - #109: documentation lifecycle, link/snippet checks, and generated numbers;
-- #110: structured diagnostics;
+- #110: structured diagnostics; stable payload, broken-reference producer, path
+  policy, and JSON CLI are implemented in
+  [draft PR #119](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/119),
+  the third stacked tranche, while
+  collision, parser-recovery, filesystem, and reload producers remain;
 - #111: 1k/10k page benchmarks and RSS/p95 budgets;
 - #108: incremental parser phase extraction only after #104 and P0.1 fix.
 
