@@ -34,6 +34,7 @@ navigation layers only.
 | [Issue reconciliation](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Current GitHub backlog decisions |
 | [Decision index](decisions/index.md) | Architectural decisions and missing ADRs |
 | [Reference index](reference/index.md) | Provenance and external relations |
+| [Structured diagnostics](reference/DIAGNOSTICS.md) | Stable diagnostic schema, codes, path safety, rendering, and escalation |
 | [Documentation log](log.md) | Chronology of maintained knowledge changes |
 
 ## Quality claim

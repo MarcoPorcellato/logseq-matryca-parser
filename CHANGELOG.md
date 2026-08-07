@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Structured diagnostic foundation** — stable immutable `Diagnostic`,
+  `DiagnosticCode`, and `DiagnosticSeverity` exports; deterministic
+  `collect_graph_diagnostics()` for broken block references; vault-relative
+  path enforcement; and pure JSON CLI output through `scan --diagnostics-json`
+  ([#110](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/110)).
 - **Documentation system guide** — [`docs/DOCUMENTATION_SYSTEM.md`](docs/DOCUMENTATION_SYSTEM.md) explains source authority, maintained versus historical surfaces, metadata, freshness, validation, the Matryca Knowledge projection workflow, and the repository's documentation evolution.
 - **Synapse RAG example** — [`examples/run_synapse_rag.py`](examples/run_synapse_rag.py) demonstrates all four `SynapseAdapter` methods (`to_langchain_documents`, `to_llamaindex_nodes`, `to_context_enriched_chunks`, `_expand_macros_and_embeds`) plus table-driven embed expansion edge cases.
 - **Embed expansion edge-case tests** — `TestEmbedExpansionEdgeCases` in [`tests/test_synapse.py`](tests/test_synapse.py) covers cycles, missing targets, and happy-path for both `{{embed [[Page]]}}` and `{{embed ((uuid))}}` (closes [#71](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/71)).

@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import typer
 from rich.table import Table
 
 from logseq_matryca_parser import logseq_agent_write
+from logseq_matryca_parser.diagnostics import Diagnostic, collect_graph_diagnostics
 from logseq_matryca_parser.kinetic import (
     _build_official_logseq_demo_pages,
     _iter_nodes,
@@ -18,10 +20,7 @@ from logseq_matryca_parser.kinetic import (
     app,
     console,
 )
-from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
-
-if TYPE_CHECKING:
-    from logseq_matryca_parser.graph import LogseqGraph
+from logseq_matryca_parser.logos_core import LogseqPage
 
 
 def _build_stats_table(pages: list[LogseqPage]) -> Table:
@@ -46,24 +45,17 @@ def _build_stats_table(pages: list[LogseqPage]) -> Table:
     return table
 
 
-def _build_broken_references_table(
-    graph: LogseqGraph, broken_nodes: list[LogseqNode]
-) -> Table:
+def _build_broken_references_table(diagnostics: list[Diagnostic]) -> Table:
     table = Table(title="Broken Block References")
     table.add_column("Page", style="cyan")
     table.add_column("Block UUID", style="magenta")
     table.add_column("Missing Block Ref", style="bold red")
 
-    for node in broken_nodes:
-        page = graph.page_for_node(node)
-        page_title = page.title if page is not None else "<unknown>"
-        missing_refs = [
-            ref for ref in node.block_refs if graph.get_node_by_embed_ref(ref) is None
-        ]
+    for diagnostic in diagnostics:
         table.add_row(
-            page_title,
-            node.uuid,
-            ", ".join(f"(({ref}))" for ref in missing_refs),
+            diagnostic.context["page_title"],
+            diagnostic.context["node_uuid"],
+            f"(({diagnostic.context['missing_ref']}))",
         )
     return table
 
@@ -103,6 +95,11 @@ def scan(
         "--broken-refs",
         help="Print unresolved block references and exit 1 when any are found.",
     ),
+    diagnostics_json: bool = typer.Option(
+        False,
+        "--diagnostics-json",
+        help="Print structured diagnostics as JSON and exit 1 when errors are found.",
+    ),
 ) -> None:
     """Scan a graph and print aggregate parsing statistics."""
     resolved = _resolve_graph_path(ctx, graph_path)
@@ -112,19 +109,27 @@ def scan(
     graph = LogseqGraph.load_directory(resolved)
     pages = list(graph.iter_canonical_pages())
     if not pages:
+        if diagnostics_json:
+            typer.echo("[]")
+            raise typer.Exit(code=0)
         console.print("[yellow]No Markdown files found under pages/ or journals/.[/]")
         raise typer.Exit(code=0)
+
+    diagnostics = collect_graph_diagnostics(graph) if broken_refs or diagnostics_json else []
+
+    if diagnostics_json:
+        typer.echo(json.dumps([item.to_dict() for item in diagnostics], indent=2, sort_keys=True))
+        raise typer.Exit(code=1 if diagnostics else 0)
 
     console.print(_build_stats_table(pages))
 
     if broken_refs:
-        broken = graph.get_broken_references()
-        if not broken:
+        if not diagnostics:
             console.print("[green]No unresolved block references found.[/]")
             raise typer.Exit(code=0)
 
         console.print("")
-        console.print(_build_broken_references_table(graph, broken))
+        console.print(_build_broken_references_table(diagnostics))
         raise typer.Exit(code=1)
 
 

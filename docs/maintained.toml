@@ -28,5 +28,6 @@ maintained_documents = [
   "docs/decisions/index.md",
   "docs/reference/index.md",
   "docs/reference/API_STABILITY.md",
+  "docs/reference/DIAGNOSTICS.md",
   "docs/log.md",
 ]

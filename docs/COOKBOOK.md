@@ -129,6 +129,11 @@ if broken:
 
 **CLI tip:** `matryca-parse scan /path/to/graph --broken-refs` prints a Rich table of unresolved refs and exits `1` for CI (since v1.5.0). For programmatic checks, use `graph.get_broken_references()` as above.
 
+For stable machine-readable findings, use `collect_graph_diagnostics(graph)` or
+`matryca-parse scan /path/to/graph --diagnostics-json`. The JSON command emits
+only the diagnostic array, uses vault-relative paths, and exits `1` when an
+error finding exists. See the [diagnostics contract](reference/DIAGNOSTICS.md).
+
 **CLI tip:** run `matryca-parse export` after `load_directory` — KINETIC scans canonical pages internally (since v1.4.0).
 
 ---

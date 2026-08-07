@@ -21,6 +21,11 @@ superseded_by: null
 
 ## 2026-08-07
 
+- Prepared the third stacked tranche for issue #110: a stable immutable
+  diagnostic schema and code enum, deterministic broken-reference collection,
+  vault-relative path enforcement, human and JSON CLI rendering, opt-in
+  escalation, and a canonical compatibility contract. Title-collision and
+  recoverable-parser producers remain subsequent stacked tranches.
 - Published [draft PR #118](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/118),
   stacked on #117, for the confirmed parser P0 #113. The surgical iterative
   rebuild propagates immutable leaf updates to the root at depths through 32

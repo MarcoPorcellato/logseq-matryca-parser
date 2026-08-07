@@ -103,6 +103,46 @@ def test_scan_command_reports_broken_refs(tmp_path: Path) -> None:
     assert "((00000000-0000-0000-0000-00000" in result.output
 
 
+def test_scan_command_reports_machine_readable_diagnostics(tmp_path: Path) -> None:
+    graph_root = tmp_path / "vault"
+    pages_dir = graph_root / "pages"
+    pages_dir.mkdir(parents=True, exist_ok=True)
+    fake_uuid = "00000000-0000-0000-0000-000000000099"
+    (pages_dir / "Broken.md").write_text(
+        f"- Linker references (({fake_uuid}))\n",
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(app, ["scan", str(graph_root), "--diagnostics-json"])
+
+    assert result.exit_code == 1
+    payload = json.loads(result.output)
+    assert payload[0]["code"] == "graph.broken_block_reference"
+    assert payload[0]["severity"] == "error"
+    assert payload[0]["source_path"] == "pages/Broken.md"
+    assert payload[0]["context"]["missing_ref"] == fake_uuid
+    assert str(tmp_path) not in result.output
+
+
+def test_scan_command_empty_diagnostics_json_is_success(tmp_path: Path) -> None:
+    graph_root = _create_graph(tmp_path)
+
+    result = runner.invoke(app, ["scan", str(graph_root), "--diagnostics-json"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == []
+
+
+def test_scan_command_empty_graph_diagnostics_json_is_success(tmp_path: Path) -> None:
+    graph_root = tmp_path / "empty-vault"
+    (graph_root / "pages").mkdir(parents=True)
+
+    result = runner.invoke(app, ["scan", str(graph_root), "--diagnostics-json"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == []
+
+
 def test_export_command_json_writes_output_file(tmp_path: Path) -> None:
     graph_root = _create_graph(tmp_path)
     output_dir = tmp_path / "out-json"

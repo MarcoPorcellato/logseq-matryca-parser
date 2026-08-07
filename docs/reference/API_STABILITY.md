@@ -41,6 +41,7 @@ minor release unless a security issue makes that unsafe.
 | Version | `__version__` |
 | Parser | `StackMachineParser`, `LogosParser`, `LogseqPage`, `LogseqNode`, `LogosNode`, `ASTVisitor` |
 | Graph | `LogseqGraph` |
+| Diagnostics | `Diagnostic`, `DiagnosticCode`, `DiagnosticSeverity`, `collect_graph_diagnostics` |
 | Errors | `LogseqParserError`, `LogseqIndentationError`, `BlockReferenceError` |
 | Markdown | `serialize_logseq_page`, `write_logseq_page`, `format_logseq_page_properties`, `format_logseq_block_property_lines` |
 | Paths | `discover_graph_files`, `derive_page_title_from_source_path`, `page_title_to_filename`, `filename_to_page_title`, `page_title_to_relative_path`, `encode_page_title_segment`, `decode_page_title_segment`, `is_excluded_graph_path` |
@@ -48,6 +49,9 @@ minor release unless a security issue makes that unsafe.
 The exact package-root export manifest and the signatures of the parser and
 graph entry points are regression-tested. Adding a new stable symbol requires
 updating this table and those tests in the same PR.
+
+Diagnostic code compatibility, serialization, and path-safety rules are defined
+in the [structured diagnostics contract](DIAGNOSTICS.md).
 
 ## Experimental package-root surface
 

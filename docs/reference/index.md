@@ -45,6 +45,7 @@ artifacts.
 ## Local contracts
 
 - [Python API stability and typing](API_STABILITY.md)
+- [Structured diagnostics](DIAGNOSTICS.md)
 - [Architecture](../CLEAN_CODE_ARCHITECTURE.md)
 - [AST primer](../logseq_ast_primer.md)
 - [Release process](../RELEASE_PROCESS.md)
