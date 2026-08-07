@@ -21,6 +21,9 @@ superseded_by: null
 
 ## 2026-08-07
 
+- Published [draft PR #122](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/122),
+  stacked on #121, as the final documentation-readiness tranche for the live
+  issue ledger, source-gate evolution, stack evidence, and merge protocol.
 - Reconciled the live 27-issue backlog and the complete draft stack #117-#121;
   recorded clean ancestry, remote checks, top-of-stack qualification, and the
   required sequential retarget-and-merge protocol in the stellar roadmap.

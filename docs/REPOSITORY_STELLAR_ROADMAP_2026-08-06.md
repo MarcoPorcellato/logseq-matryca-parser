@@ -688,6 +688,10 @@ The first five implementation tranches are published as one dependency-ordered
 stack. Live GitHub verification on 2026-08-07 found every PR open, draft,
 mergeable with `CLEAN` status, and free of failed checks.
 
+This readiness record is published separately in
+[draft PR #122](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/122),
+stacked on #121 so review can continue without an intermediate merge.
+
 | PR | Base | Delivers | Remote checks |
 |---:|---|---|---:|
 | [#117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117) | `main` | #107 typed wheel and API stability | 7 passed |

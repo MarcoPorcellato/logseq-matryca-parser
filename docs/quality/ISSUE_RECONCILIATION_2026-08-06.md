@@ -113,3 +113,6 @@ not touch protected parser/graph hubs or weaken these gates.
   closes #101 with a non-mutating quality gate and checkout-integrity check.
 - Draft PRs #117-#121 form a verified implementation stack for #107, #113,
   the #110 diagnostics foundation, #102, and #106 respectively.
+- Draft [PR #122](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/122)
+  publishes the final live-backlog reconciliation and stack merge protocol on
+  top of #121 without claiming additional implementation scope.
