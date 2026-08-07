@@ -21,7 +21,8 @@ superseded_by: null
 
 ## 2026-08-07
 
-- Prepared the fourth stacked tranche for issue #102: stable structured
+- Published [draft PR #120](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/120),
+  stacked on #119, as the fourth tranche for issue #102: stable structured
   diagnostics for derived-title, frontmatter-title, and alias collisions;
   documented deterministic winner policy; typed opt-in strict rejection;
   human and JSON CLI rendering; and no-ghost regression coverage.

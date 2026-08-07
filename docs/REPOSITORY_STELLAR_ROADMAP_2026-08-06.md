@@ -277,7 +277,9 @@ Interpretation: before rename there is a backlink; after `Target → Renamed`, t
 
 ### P1.3 — Title/alias collisions can hide a page
 
-**Status:** implementation prepared in the fourth stacked tranche for #102.
+**Status:** implementation published in
+[draft PR #120](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/120),
+stacked on #119, for #102.
 
 Pages are stored in a title-keyed dict, and aliases can remap canonical keys. Behavior is deterministic and the registry avoids many ghost nodes, but visibility loss is still primarily a logging concern.
 
