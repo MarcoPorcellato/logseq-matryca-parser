@@ -180,9 +180,9 @@ The future design must make these four contracts explicit.
 
 ### P0.1 — Content loss in deeply nested nodes
 
-**Status:** implementation published in
-[draft PR #118](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/118),
-stacked on #117; pending merge.
+**Status:** fixed by merged
+[PR #118](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/118),
+which closed #113.
 
 `StackMachineParser._replace_stack_tail_node` updates the node, parent, and grandparent, but does not propagate the new branch back to the root for depths above the third level. Soft-break text is recorded on local stack state, while the returned AST keeps the previous root.
 
@@ -212,15 +212,15 @@ Protected input:
 
 **Required tests:** depths 1, 2, 3, 4, 8, and 32; soft-break, property, code fence, property-list cases; `line_end`; parent/left pointers; UUID; serialization and re-parse; shallow vs deep nesting equivalence.
 
-**Delivery evidence:** issue #113 now has the required iterative leaf-to-root
-rebuild and depth/family regression matrix in PR #118. Keep the fixture as an
-input to #104 and retain this fix as a prerequisite for #108 until merged.
+**Delivery evidence:** merged PR #118 delivered the required iterative
+leaf-to-root rebuild and depth/family regression matrix and closed #113. Keep
+the fixture as an input to #104 and retain the fix as a prerequisite for #108.
 
 ### P0.2 — Writer may write outside vault via symlink
 
-**Status:** implementation published in
-[draft PR #121](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/121),
-the fifth stacked tranche for #106.
+**Status:** fixed by merged
+[PR #121](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/121);
+#106 was closed after acceptance verification.
 
 Discovery accepts symlinked markdown under `pages/` or `journals/`. `parse_page_file` stores `path.resolve()`, i.e., the real target. `append_child_to_node` reads and rewrites that `source_path` without verifying it is inside `graph.graph_path`.
 
@@ -233,14 +233,15 @@ SYMLINK_OUTSIDE_MUTATED True
 
 **Impact:** an untrusted vault can cause a local integration with repo permissions to modify an external Markdown file.
 
-**Delivery evidence:** the fifth stacked tranche defines and tests fail-closed
+**Delivery evidence:** the merged implementation defines and tests fail-closed
 real-path containment, pre-read and pre-replace validation, target identity,
 mode/owner/group preservation, dry-run unified patches, configurable limits,
 typed diagnostics, external symlink rejection, and confined `file://` reads.
 
 **Required tests:** file symlink, directory symlink, symlink changes between parse and write, traversal path, rename race, dry-run without write, valid internal target.
 
-**Recommended tracking:** update #106 with probe and acceptance criteria; do not duplicate issue unless maintainer decides.
+**Tracking outcome:** #106 contains the probe, expanded acceptance criteria,
+implementation evidence, and verified closure note.
 
 ### P1.1 — `file://` bypasses asset boundary
 
@@ -284,9 +285,9 @@ Interpretation: before rename there is a backlink; after `Target → Renamed`, t
 
 ### P1.3 — Title/alias collisions can hide a page
 
-**Status:** implementation published in
-[draft PR #120](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/120),
-stacked on #119, for #102.
+**Status:** fixed by merged
+[PR #120](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/120),
+which closed #102.
 
 Pages are stored in a title-keyed dict, and aliases can remap canonical keys. Behavior is deterministic and the registry avoids many ghost nodes, but visibility loss is still primarily a logging concern.
 
@@ -305,17 +306,15 @@ Writer provides `mkstemp` + `os.replace`, which protects against partial file re
 
 ### P1.5 — Mutating lint in CI
 
-**Status:** implementation published on 2026-08-07 in
-[draft PR #116](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/116);
-tracked by #101.
+**Status:** fixed by merged
+[PR #116](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/116),
+which closed #101.
 
 PR #116 separates verification-only `lint` from opt-in `lint-fix`,
 keeps `make all` non-mutating, adds a final CI checkout-integrity assertion,
 and protects the target/workflow contract with focused tests. A repository-wide
 `ruff format --check` gate was evaluated and deliberately not activated because
 23 pre-existing files on `main` require a separate mechanical-formatting tranche.
-The finding remains open until the implementation PR is merged and remote CI is
-green.
 
 ### P1.6 — Release artifacts not built once
 
@@ -328,13 +327,13 @@ Pre-flight, PyPI build, and GitHub release do not necessarily consume the same i
 ### P2 — Strategic debt valid but not as urgent as current findings
 
 - #104: compatibility corpus and metamorphic properties;
-- #107: `py.typed`, API policy, and version source;
-- #109: documentation lifecycle, link/snippet checks, and generated numbers;
-- #110: structured diagnostics; stable payload, broken-reference producer, path
-  policy, and JSON CLI are implemented in
-  [draft PR #119](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/119),
-  the third stacked tranche; the collision producer is prepared in the fourth
-  tranche, while parser-recovery, filesystem, and reload producers remain;
+- #107: completed by merged #117 with `py.typed`, API policy, and one derived
+  version source;
+- #109: source-side lifecycle, links, anchors, and freshness are enforced;
+  executable snippets, private profile admission, and projection remain;
+- #110: stable payload, broken-reference producer, path policy, and JSON CLI
+  landed in #119; collision and filesystem producers landed in #120/#121;
+  parser-recovery and reload producers remain;
 - #111: 1k/10k page benchmarks and RSS/p95 budgets;
 - #108: incremental parser phase extraction only after #104 and P0.1 fix.
 
@@ -468,8 +467,9 @@ without shifting source-of-truth authority outside the repository.
 6. Declare entry points in Matryca Knowledge registry via a separate PR.
 7. Project only clean immutable commits; verify Logseq-rendered views do not alter source semantics.
 
-Steps 1-3 are complete at source level. Step 4 is partially covered by manual
-review. Steps 5-7 remain the MKQ-4 completion path tracked by issue #109.
+Steps 1-5 are complete at source level, including the deterministic gate merged
+in PR #115. Steps 6-7 remain the private-profile and projection path tracked by
+issue #109; MKQ-4 is not claimed until those separate checks pass.
 
 ## 9. Product and API strategy
 
@@ -511,9 +511,9 @@ Classify surfaces as `stable`, `experimental`, `internal`. AI adapters, visualiz
 ### Wave 1 — Trust baseline
 
 - #101: non-mutating lint and format;
-- #107: typing metadata and API stability table;
+- #107: completed typing metadata and API stability table;
 - #109: MKQ bundle, separate status/classification, freshness, generated metrics, link/anchor/snippet gates, immutable provenance;
-- update #106 with the two filesystem abuse cases;
+- #106: completed vault boundary, dry-run, limits, and filesystem abuse cases;
 - update #103 with rename/backlink equivalence.
 
 ### Wave 2 — Safe vault semantics
@@ -530,12 +530,11 @@ Classify surfaces as `stable`, `experimental`, `internal`. AI adapters, visualiz
 - watcher/writer concurrency tests with barrier and failure injection;
 - incremental/cold-load equivalence as universal gate.
 
-**Delivery update (2026-08-07):** [draft PR #117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117)
-implements #107 with a single derived version source, wheel-level PEP 561
+**Delivery update (2026-08-07):** merged [PR #117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117)
+closed #107 with a single derived version source, wheel-level PEP 561
 verification, a clean downstream Mypy probe, an explicit API stability table,
-and root-export/signature regression tests. It also enables CI for PRs whose
-base is another feature branch so the remaining roadmap can be delivered as an
-independently reviewable stack.
+and root-export/signature regression tests. It also enables CI for PRs that were
+originally stacked on feature branches.
 
 ### Wave 4 — Release confidence
 
@@ -680,3 +679,48 @@ fix P0 issues
 ```
 
 If executed in this order, Logseq Matryca Parser can become a credible reference implementation: not by feature volume, but by deterministic contracts, local security, reproducible regressions, and quality evidence an integrator can independently verify.
+
+## 16. Delivery-stack execution record — 2026-08-07
+
+The five dependency-ordered implementation tranches were normalized onto the
+latest `main`, reviewed as isolated diffs, qualified locally and remotely, and
+squash merged one at a time. This avoids importing obsolete stacked ancestry
+while preserving each tranche as one auditable default-branch commit.
+
+[PR #122](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/122)
+publishes this documentation-only execution record directly against `main`.
+
+| PR | Delivered outcome | Squash commit | Final remote checks |
+|---:|---|---|---:|
+| [#117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117) | #107 typed wheel and API stability | `9520e7c` | 7 passed |
+| [#118](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/118) | #113 arbitrary-depth parser refresh | `5fa8d24` | 7 passed |
+| [#119](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/119) | #110 structured-diagnostics foundation | `977fcca` | 7 passed |
+| [#120](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/120) | #102 deterministic title collisions | `0b03e30` | 7 passed |
+| [#121](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/121) | #106 vault-bound writer and asset safety | `accfbb5` | 7 passed |
+
+Top-of-stack local qualification passed 521 tests with 91.81% coverage, Ruff,
+Mypy, the maintained-document profile, the vendor-name gate, `diff --check`,
+and the audit-code import-cycle check with zero cycles. Fresh GitHub checks for
+every merged tranche reported seven passes and zero failures.
+
+### Execution controls and outcome
+
+1. Each dependent PR was retargeted to `main` only after its predecessor was
+   confirmed merged.
+2. #118 compared cleanly after retargeting. For #119-#121, only the
+   tranche-specific commits were replayed; every rebase completed without
+   conflict and every resulting file list was reviewed before push.
+3. A force push was allowed only with `--force-with-lease`, followed by fresh
+   GitHub CI and a new mergeability check.
+4. #107, #113, and #102 closed through their implementation PRs. #106 was
+   closed manually after #121 because its acceptance criteria were complete but
+   GitHub did not apply the closing keyword. #110 remains open because #119 is
+   intentionally a foundation rather than its complete producer set.
+5. #122 consolidates the documentation and issue ledger; release or downstream
+   federation still requires final checks on the resulting merged `main`.
+
+The unresolved roadmap is intentionally not folded into this stack: #103 and
+#104 are the next correctness foundations; #105 and #111 remain release and
+measurement work; #108 remains blocked on the corpus and benchmarks. Product
+RFCs and contributor issues retain their existing dispositions in the issue
+reconciliation ledger.

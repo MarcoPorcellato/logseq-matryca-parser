@@ -25,8 +25,10 @@ closure is justified only by current code, tests or an explicit duplicate;
 runtime behavior without a dedicated regression test remains tracked.
 
 The reconciliation was published in [PR #112](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/112).
-After the actions below, the live backlog contains 29 open issues, including
-the newly filed parser P0.
+After the actions below, merged follow-up PRs #114-#121, and the evidence-based
+closure of #106, live verification on 2026-08-07 found 23 open issues. The
+parser P0 and the completed API, collision, and filesystem tranches are no
+longer part of the open backlog.
 
 ## Decisions
 
@@ -46,7 +48,7 @@ the newly filed parser P0.
 | #63 | Close completed | Shipped | Malformed JSON and wrapper tests exist |
 | #64 | Keep | Next | Strict indentation remains opt-in design work; depends on #104/#110 |
 | #66 | Close completed | Shipped | Missing page and block embeds now both fail-safe to empty |
-| #69 | Keep | Now-small | Italian optional-dependency errors remain in `synapse.py` |
+| #69 | Closed by merged [PR #114](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/114) | Shipped | Optional-dependency operator messages are standardized in English |
 | #87 | Keep, high priority | Now | Deterministic pathological parser latency; feeds #111 |
 | #88 | Keep | Next | Direct strategy-module tests are still absent |
 | #89 | Keep as canonical graph API test issue | Next | Dedicated boundary tests remain incomplete |
@@ -58,18 +60,18 @@ the newly filed parser P0.
 | #95 | Keep | Next | Requested table-driven CLI matrix remains incomplete |
 | #96 | Close completed | Shipped | Current symmetric empty replacement is table-tested |
 | #97 | Close as duplicate of #89 | — | Orphan exclusion is a subset of #89 |
-| #101 | Keep, priority | Wave 1 | CI lint remains mutating |
-| #102 | Implementation in [PR #120](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/120) | Wave 2 | Stable collision diagnostics, preserved winner policy, typed strict mode, CLI rendering, and no-ghost tests; pending merge |
+| #101 | Closed by merged [PR #116](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/116) | Shipped | Verification-only lint, opt-in fix target, non-mutating `make all`, and checkout-integrity assertion |
+| #102 | Closed by merged [PR #120](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/120) | Shipped | Stable collision diagnostics, preserved winner policy, typed strict mode, CLI rendering, and no-ghost tests |
 | #103 | Expand | Wave 0/3 | Add rename/backlink cold-load equivalence |
 | #104 | Expand | Wave 0/3 | Add arbitrary-depth parser regression matrix |
 | #105 | Keep | Wave 4 | Immutable build-once release lineage remains absent |
-| #106 | Implementation in [PR #121](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/121) | Wave 0 | Vault confinement, target identity, metadata preservation, dry-run patch, limits, typed diagnostics, symlink and `file://` tests; pending merge |
-| #107 | Keep | Wave 1 | Typing marker and stability contract remain absent |
+| #106 | Closed after merged [PR #121](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/121) | Shipped | Vault confinement, target identity, metadata preservation, dry-run patch, limits, typed diagnostics, symlink and `file://` tests |
+| #107 | Closed by merged [PR #117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117) | Shipped | PEP 561 wheel marker, derived version contract, API tiers, import/signature tests, and downstream Mypy probe |
 | #108 | Keep blocked by prerequisites | Wave 6 | Begin only after deep parser fix and #104 corpus |
-| #109 | Expand to MKQ-4 | Wave 1 | Bundle, metadata, lifecycle, links and deterministic source CI |
-| #110 | Foundation in [PR #119](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/119) | Wave 2 | Stable payload, broken-reference code, JSON CLI, and path policy implemented; collision producer in PR #120, while parser-recovery, filesystem, and reload producers remain |
+| #109 | Source gate merged in [PR #115](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/115); keep open | Wave 1 | Maintained bundle, metadata, lifecycle, links, anchors, freshness, and deterministic source CI are active; private profile/projection and executable snippet coverage remain |
+| #110 | Foundation merged in [PR #119](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/119); keep open | Wave 2 | Stable payload, broken-reference code, JSON CLI, and path policy are active; collision and filesystem producers landed in #120/#121, while parser-recovery and reload producers remain |
 | #111 | Expand | Wave 5 | Include #87 seed and incremental/cold-load correctness budgets |
-| #113 | Implementation in [PR #118](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/118) | Wave 0 | Iterative leaf-to-root rebuild and depth/family regression matrix; pending merge |
+| #113 | Closed by merged [PR #118](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/118) | Shipped | Iterative leaf-to-root rebuild and depth/family regression matrix |
 
 ## GitHub actions applied
 
@@ -87,10 +89,9 @@ the newly filed parser P0.
 ## Operating order
 
 ```text
-deep parser P0 + #106 filesystem boundary
-  -> #103 snapshot correctness + #104 semantic corpus
-  -> #101 + #107 + #109 trust baseline
-  -> #102 + #110 safe diagnostics
+completed: parser P0 + #106 filesystem boundary + #101/#102/#107 foundations
+  -> next: #103 snapshot correctness + #104 semantic corpus
+  -> complete #109 documentation federation + #110 diagnostic producers
   -> #105 release provenance
   -> #111 measured scale
   -> #108 parser phase extraction
@@ -101,10 +102,18 @@ not touch protected parser/graph hubs or weaken these gates.
 
 ## Post-baseline documentation progress
 
-- Draft [PR #114](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/114)
-  standardizes repository documentation and maintainer-facing text in English;
-  it closes #69 when merged.
-- The same documentation adoption phase records the source-side lifecycle,
-  classification, authority, freshness, and federation contract requested by
-  #109. Deterministic source CI, private profile activation, and projection
-  verification remain open before MKQ-4 can be claimed.
+- Merged [PR #114](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/114)
+  standardizes repository documentation and maintainer-facing text in English
+  and closes #69.
+- Merged [PR #115](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/115)
+  activates the deterministic maintained-document source gate. Private profile
+  activation, executable snippet coverage, and projection verification remain
+  open under #109 before MKQ-4 can be claimed.
+- Merged [PR #116](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/116)
+  closes #101 with a non-mutating quality gate and checkout-integrity check.
+- Merged PRs #117-#121 deliver #107, #113, the #110 diagnostics foundation,
+  #102, and #106 respectively. Each tranche was rebased onto the latest
+  `main`, qualified locally and remotely, and squash merged in dependency order.
+- [PR #122](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/122)
+  publishes this final live-backlog reconciliation directly against `main`
+  without claiming additional implementation scope.
