@@ -19,6 +19,26 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-08-07
+
+- Added a source-owned maintained-document profile in
+  [`docs/maintained.toml`](maintained.toml) and implemented
+  [`scripts/check_documentation.py`](../scripts/check_documentation.py) with deterministic
+  reporting, required frontmatter and link/anchor validation, duplicate canonical
+  detection, and non-zero exit on findings.
+- Added [`tests/test_check_documentation.py`](../tests/test_check_documentation.py) for valid-bundle checks, failure families,
+  deterministic ordering, fenced-code exclusion, duplicate heading anchors, and
+  CLI exit codes.
+- Added a dedicated `docs-check` target to `Makefile` and a non-mutating CI step
+  in `.github/workflows/ci.yml`.
+- Replaced two links from the canonical architecture guide to unversioned local
+  editor rules with the versioned maintainer audit-code runbook after clean-checkout
+  CI exposed the hidden local dependency.
+- Activated source-side documentation CI in `make all` and recorded the result in
+  this log.
+- Did not claim MKQ-4 conformance because private `okf_entry_points` and
+  projection activation remain pending.
+
 ## 2026-08-06
 
 - Published the canonical

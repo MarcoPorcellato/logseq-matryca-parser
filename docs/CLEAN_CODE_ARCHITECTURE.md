@@ -317,4 +317,6 @@ make test
 
 Full gate: `make all`.
 
-Cursor agents: load [`.cursor/rules/08-clean-code-architecture.mdc`](../.cursor/rules/08-clean-code-architecture.mdc) when editing `src/`. Bug-hunt SOP: [`.cursor/rules/07-clean-architecture-audit.mdc`](../.cursor/rules/07-clean-architecture-audit.mdc).
+Maintainer agents must follow this canonical architecture contract when editing
+`src/` and use the versioned [local code-audit runbook](internal/LOCAL_CODE_STUDY.md)
+for bug-hunt and impact-analysis workflows.

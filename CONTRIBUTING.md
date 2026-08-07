@@ -154,7 +154,7 @@ git checkout -b feat/add-html-exporter
 
 ### 4. Code Quality & Linting (Mandatory)
 
-CI runs the same commands as your local environment: `uv sync --all-extras`, then `make lint`, `make check`, and `make test`. Before committing, run the full gate:
+CI runs the same commands as your local environment: `uv sync --all-extras`, then `make lint`, `make check`, `make test`, and `make docs-check`. Before committing, run the full gate:
 
 ```bash
 make all
@@ -171,7 +171,7 @@ Or run each step individually:
 
 ```bash
 make lint   # Ruff (with auto-fix)
-make check  # Mypy on src/, tests/, examples/
+make check  # Mypy on src/, tests/, examples/, and the documentation checker
 make test   # Pytest on tests/
 ```
 
@@ -179,7 +179,7 @@ Equivalent `uv run` invocations:
 
 ```bash
 uv run ruff check . --fix
-uv run mypy src/ tests/ examples/
+uv run mypy src/ tests/ examples/ scripts/check_documentation.py
 uv run pytest -v tests/
 ```
 

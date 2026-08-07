@@ -221,9 +221,16 @@ the change in [`log.md`](log.md).
 4. Inspect the staged diff and commit only intended files.
 5. Record checks and Matryca/OKF impact in the pull-request description.
 
-The current `make all` gate validates repository quality and vendor-neutral
-documentation. Full MKQ-4 source enforcement remains tracked separately until
-the shared profile and source-local deterministic checks are integrated.
+The source-owned [`maintained.toml`](maintained.toml) profile is the executable
+inventory for this bundle. `make docs-check` validates its paths, flat scalar
+frontmatter, lifecycle and classification values, verification dates, freshness,
+canonical-type uniqueness, and local links and anchors. Findings are sorted and
+use repository-relative paths; the explicit UTC audit date makes repeated runs
+against the same checkout reproducible. The check never rewrites documentation.
+
+`make all` and CI both execute this source gate. Full MKQ-4 status remains
+pending until the private `okf_entry_points` profile and projection are active
+and passing in the separate registry.
 
 ## 8. Federation workflow
 
@@ -252,7 +259,7 @@ includes the entry points and the resulting projection passes its own checks.
 | Clean Architecture phase | Canonical architecture SSOT and vendor-neutral maintainer policy | Documentation quality was mostly prose-enforced |
 | Stellar audit phase | Evidence-backed roadmap, issue reconciliation, entry points, classification, and freshness | Private source profile still lacked parser entry points |
 | English standardization | Repository documentation and maintainer text moved to one shared language | Governance needed a single explanatory contract |
-| Current federated phase | This guide defines authority, metadata, lifecycle, validation, and projection boundaries | MKQ-4 enforcement and private registry activation remain separate gates |
+| Source-enforcement phase | `docs/maintained.toml` and `make docs-check` enforce the maintained bundle in local and remote CI | Private registry admission and projection remain a separate gate |
 
 The intended end state is not a mass rewrite. It is a small, clearly owned
 maintained bundle surrounded by discoverable active material and preserved
@@ -265,10 +272,10 @@ claim official OKF v0.1 or v0.2 conformance. The Matryca source-manifest version
 Matryca quality-profile version, and official OKF specification version are
 separate concepts and must be reported independently.
 
-The source-side documentation structure currently satisfies the intended
-MKQ-1 and MKQ-2 shape and is designed for MKQ-3 validation. MKQ-4 is reached
-only when deterministic source CI enforcement and the private registry profile
-are both active and passing.
+The source-side documentation structure and deterministic CI gate implement the
+intended MKQ-1 through MKQ-3 controls. MKQ-4 is reached only when the private
+registry profile and projection are also active and passing against an immutable
+merged source commit.
 
 ## 11. Normative references
 
