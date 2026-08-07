@@ -34,6 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Vault-bound writer and asset reads** — headless child writes now reject
+  external/untracked/symlink-swapped targets, verify target identity before
+  replacement, preserve permission and ownership metadata, expose typed safe
+  diagnostics and configurable limits, and support unified-diff dry runs;
+  `file://` and asset symlink reads are confined to the graph
+  ([#106](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/106)).
 - **Deep parser refreshes** — immutable node updates now rebuild the complete
   active branch to the root at arbitrary nesting depth, preserving soft breaks,
   properties, fenced code, queries, list properties, ordering, identity, and

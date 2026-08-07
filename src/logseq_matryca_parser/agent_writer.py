@@ -5,17 +5,139 @@ from __future__ import annotations
 import logging
 import os
 import re
+import stat
 import tempfile
+from contextlib import suppress
+from dataclasses import dataclass
 from datetime import datetime
+from difflib import unified_diff
 from pathlib import Path
-from typing import TYPE_CHECKING, NotRequired, TypedDict
+from typing import TYPE_CHECKING, NoReturn, NotRequired, TypedDict
 
 if TYPE_CHECKING:
     from logseq_matryca_parser.graph import LogseqGraph
 
+from logseq_matryca_parser.diagnostics import Diagnostic, DiagnosticCode, DiagnosticSeverity
+from logseq_matryca_parser.exceptions import VaultWriteError
 from logseq_matryca_parser.logos_core import LogseqNode
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_MAX_SOURCE_BYTES = 8 * 1024 * 1024
+DEFAULT_MAX_CONTENT_BYTES = 1024 * 1024
+DEFAULT_MAX_TARGET_DEPTH = 128
+
+
+@dataclass(frozen=True)
+class WriteProposal:
+    """Immutable preview/result for one vault-contained markdown splice."""
+
+    path: Path
+    unified_diff: str
+    applied: bool
+
+
+def _raise_writer_error(
+    code: DiagnosticCode,
+    message: str,
+    *,
+    graph: LogseqGraph,
+    source_path: Path | None,
+    context: dict[str, str],
+) -> NoReturn:
+    relative_path: str | None = None
+    if source_path is not None:
+        with suppress(OSError, RuntimeError, ValueError):
+            relative_path = source_path.resolve().relative_to(graph.graph_path.resolve()).as_posix()
+    raise VaultWriteError(
+        Diagnostic(
+            code=code,
+            severity=DiagnosticSeverity.ERROR,
+            source_path=relative_path,
+            message=message,
+            context=context,
+        )
+    )
+
+
+def _validate_write_target(
+    graph: LogseqGraph,
+    source_path: Path,
+    *,
+    target_uuid: str,
+) -> tuple[Path, os.stat_result]:
+    try:
+        root = graph.graph_path.resolve(strict=True)
+        resolved = source_path.resolve(strict=True)
+        resolved.relative_to(root)
+    except (OSError, RuntimeError, ValueError):
+        _raise_writer_error(
+            DiagnosticCode.WRITER_VAULT_ESCAPE,
+            "Writer target is outside the selected vault",
+            graph=graph,
+            source_path=source_path,
+            context={"operation": "append_child", "target_uuid": target_uuid},
+        )
+    if not graph.is_tracked_markdown_path(resolved):
+        _raise_writer_error(
+            DiagnosticCode.WRITER_VAULT_ESCAPE,
+            "Writer target is not a tracked vault Markdown file",
+            graph=graph,
+            source_path=resolved,
+            context={"operation": "append_child", "target_uuid": target_uuid},
+        )
+    target_stat = os.stat(resolved, follow_symlinks=False)
+    if not stat.S_ISREG(target_stat.st_mode):
+        _raise_writer_error(
+            DiagnosticCode.WRITER_VAULT_ESCAPE,
+            "Writer target is not a regular file",
+            graph=graph,
+            source_path=resolved,
+            context={"operation": "append_child", "target_uuid": target_uuid},
+        )
+    return resolved, target_stat
+
+
+def _identity(target_stat: os.stat_result) -> tuple[int, int, int, int]:
+    return (
+        target_stat.st_dev,
+        target_stat.st_ino,
+        target_stat.st_size,
+        target_stat.st_mtime_ns,
+    )
+
+
+def _read_validated_target(
+    graph: LogseqGraph,
+    source_path: Path,
+    expected_stat: os.stat_result,
+    *,
+    target_uuid: str,
+) -> tuple[str, os.stat_result]:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(source_path, flags)
+    except OSError:
+        _raise_writer_error(
+            DiagnosticCode.WRITER_TARGET_CHANGED,
+            "Writer target changed before it could be read",
+            graph=graph,
+            source_path=source_path,
+            context={"operation": "append_child", "target_uuid": target_uuid},
+        )
+    with os.fdopen(fd, encoding="utf-8-sig") as handle:
+        opened_stat = os.fstat(handle.fileno())
+        if _identity(opened_stat) != _identity(expected_stat):
+            _raise_writer_error(
+                DiagnosticCode.WRITER_TARGET_CHANGED,
+                "Writer target changed before it could be read",
+                graph=graph,
+                source_path=source_path,
+                context={"operation": "append_child", "target_uuid": target_uuid},
+            )
+        return handle.read(), opened_stat
 
 
 class AgentWriteResult(TypedDict):
@@ -178,8 +300,17 @@ def _deepest_line_end(node: LogseqNode) -> int:
     return cursor.line_end
 
 
-def append_child_to_node(graph: LogseqGraph, target_uuid: str, content: str) -> None:
-    """Insert a child bullet under ``target_uuid`` in the on-disk source markdown file."""
+def append_child_to_node(
+    graph: LogseqGraph,
+    target_uuid: str,
+    content: str,
+    *,
+    dry_run: bool = False,
+    max_source_bytes: int = DEFAULT_MAX_SOURCE_BYTES,
+    max_content_bytes: int = DEFAULT_MAX_CONTENT_BYTES,
+    max_target_depth: int = DEFAULT_MAX_TARGET_DEPTH,
+) -> WriteProposal:
+    """Build or apply a fail-closed, vault-contained child splice."""
     target_node = graph.get_node_by_uuid(target_uuid)
     if target_node is None:
         msg = f"No node registered for uuid={target_uuid}"
@@ -188,14 +319,49 @@ def append_child_to_node(graph: LogseqGraph, target_uuid: str, content: str) -> 
         msg = f"Node uuid={target_uuid} has no source_path"
         raise ValueError(msg)
 
-    source_path = Path(target_node.source_path)
+    source_path, initial_stat = _validate_write_target(
+        graph,
+        Path(target_node.source_path),
+        target_uuid=target_uuid,
+    )
+    if min(max_source_bytes, max_content_bytes, max_target_depth) < 1:
+        raise ValueError("writer limits must be positive")
+    if initial_stat.st_size > max_source_bytes:
+        _raise_writer_error(
+            DiagnosticCode.WRITER_INPUT_LIMIT_EXCEEDED,
+            "Writer source exceeds the configured byte limit",
+            graph=graph,
+            source_path=source_path,
+            context={"limit": str(max_source_bytes), "target_uuid": target_uuid},
+        )
+    if len(content.encode("utf-8")) > max_content_bytes:
+        _raise_writer_error(
+            DiagnosticCode.WRITER_INPUT_LIMIT_EXCEEDED,
+            "Writer content exceeds the configured byte limit",
+            graph=graph,
+            source_path=source_path,
+            context={"limit": str(max_content_bytes), "target_uuid": target_uuid},
+        )
     insert_after_line = _insertion_line_after_node(target_node)
     child_level = target_node.indent_level + 1
+    if child_level > max_target_depth:
+        _raise_writer_error(
+            DiagnosticCode.WRITER_INPUT_LIMIT_EXCEEDED,
+            "Writer target exceeds the configured outline depth",
+            graph=graph,
+            source_path=source_path,
+            context={"limit": str(max_target_depth), "target_uuid": target_uuid},
+        )
     tab_size = graph.tab_size_for_node(target_node)
     indent = " " * (child_level * tab_size)
     new_line = f"{indent}- {content.rstrip()}"
 
-    raw_text = source_path.read_text(encoding="utf-8-sig")
+    raw_text, initial_stat = _read_validated_target(
+        graph,
+        source_path,
+        initial_stat,
+        target_uuid=target_uuid,
+    )
     if raw_text and not raw_text.endswith(("\n", "\r\n")):
         raw_text += "\n"
     lines = raw_text.splitlines(keepends=True)
@@ -209,6 +375,18 @@ def append_child_to_node(graph: LogseqGraph, target_uuid: str, content: str) -> 
 
     lines.insert(insert_index, f"{new_line}\n")
     updated = "".join(lines)
+    relative_path = source_path.relative_to(graph.graph_path.resolve()).as_posix()
+    patch = "".join(
+        unified_diff(
+            raw_text.splitlines(keepends=True),
+            updated.splitlines(keepends=True),
+            fromfile=f"a/{relative_path}",
+            tofile=f"b/{relative_path}",
+        )
+    )
+    proposal = WriteProposal(path=source_path, unified_diff=patch, applied=not dry_run)
+    if dry_run:
+        return proposal
     logger.debug(
         "append_child_to_node target=%s path=%s insert_index=%s indent_level=%s",
         target_uuid,
@@ -225,13 +403,36 @@ def append_child_to_node(graph: LogseqGraph, target_uuid: str, content: str) -> 
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             handle.write(updated)
+            handle.flush()
+            os.fsync(handle.fileno())
+            mode = stat.S_IMODE(initial_stat.st_mode)
+            if hasattr(os, "fchmod"):
+                os.fchmod(handle.fileno(), mode)
+            else:
+                os.chmod(temp_path, mode)
+            if hasattr(os, "fchown"):
+                os.fchown(handle.fileno(), initial_stat.st_uid, initial_stat.st_gid)
+        current_path, current_stat = _validate_write_target(
+            graph,
+            source_path,
+            target_uuid=target_uuid,
+        )
+        if current_path != source_path or _identity(current_stat) != _identity(initial_stat):
+            _raise_writer_error(
+                DiagnosticCode.WRITER_TARGET_CHANGED,
+                "Writer target changed after it was read",
+                graph=graph,
+                source_path=current_path,
+                context={"operation": "append_child", "target_uuid": target_uuid},
+            )
         os.replace(temp_path, source_path)
-    except OSError:
+    except (OSError, VaultWriteError):
         if os.path.exists(temp_path):
             os.unlink(temp_path)
         raise
 
     graph.invalidate_and_reload_page(source_path)
+    return proposal
 
 
 def _demo() -> None:

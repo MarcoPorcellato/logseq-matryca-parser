@@ -218,7 +218,7 @@ input to #104 and retain this fix as a prerequisite for #108 until merged.
 
 ### P0.2 — Writer may write outside vault via symlink
 
-**Status:** current confinement vulnerability, high confidence; directly overlaps #106.
+**Status:** implementation prepared in the fifth stacked tranche for #106.
 
 Discovery accepts symlinked markdown under `pages/` or `journals/`. `parse_page_file` stores `path.resolve()`, i.e., the real target. `append_child_to_node` reads and rewrites that `source_path` without verifying it is inside `graph.graph_path`.
 
@@ -231,7 +231,10 @@ SYMLINK_OUTSIDE_MUTATED True
 
 **Impact:** an untrusted vault can cause a local integration with repo permissions to modify an external Markdown file.
 
-**Minimal slice:** define and document a fail-closed symlink policy for all write paths; verify resolved target immediately before read and immediately before `os.replace`; reject mismatches between root, registered source, and current target.
+**Delivery evidence:** the fifth stacked tranche defines and tests fail-closed
+real-path containment, pre-read and pre-replace validation, target identity,
+mode/owner/group preservation, dry-run unified patches, configurable limits,
+typed diagnostics, external symlink rejection, and confined `file://` reads.
 
 **Required tests:** file symlink, directory symlink, symlink changes between parse and write, traversal path, rename race, dry-run without write, valid internal target.
 

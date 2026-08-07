@@ -46,6 +46,9 @@ paths that cannot be proven relative to the selected vault.
 |---|---|---|
 | `graph.broken_block_reference` | `error` | A block contains a `((uuid))` reference absent from the loaded graph |
 | `graph.page_title_collision` | `error` | Two physical pages compete for the same canonical or alias index key |
+| `writer.vault_escape` | `error` | A graph-bound writer target escapes containment or is not a tracked regular file |
+| `writer.target_changed` | `error` | A validated writer target changes before atomic replacement |
+| `writer.input_limit_exceeded` | `error` | Source, content, or outline depth exceeds a configured limit |
 
 Title-collision context contains `title`, `winner_path`, `loser_path`, and
 `reason`. The stable reasons are `derived_title`, `frontmatter_title`, and
@@ -93,6 +96,8 @@ except PageTitleCollisionError as error:
   error diagnostic is present and `0` otherwise.
 - A plain `scan` remains informational and does not escalate findings.
 
-Future parser-recovery, filesystem, and reload diagnostics must
+Filesystem codes and metadata behavior are defined in the
+[filesystem safety contract](FILESYSTEM_SAFETY.md). Future parser-recovery and
+reload diagnostics must
 reuse this payload and path policy. Each producer requires code/context tests
 and both output forms where it is exposed through the CLI.

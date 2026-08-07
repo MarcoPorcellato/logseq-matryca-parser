@@ -52,6 +52,7 @@ entry points.
 | [`decisions/index.md`](decisions/index.md) | Maintainers | Canonical decision registry and ADR gaps |
 | [`reference/index.md`](reference/index.md) | Maintainers, integrators | Provenance and Matryca ecosystem relations |
 | [`reference/DIAGNOSTICS.md`](reference/DIAGNOSTICS.md) | Integrators, contributors | Stable diagnostic codes, payload schema, path safety, CLI rendering, and escalation |
+| [`reference/FILESYSTEM_SAFETY.md`](reference/FILESYSTEM_SAFETY.md) | Integrators, contributors | Vault containment, atomic replacement, dry-run, metadata, limits, and asset-read policy |
 | [`log.md`](log.md) | Maintainers | Maintained documentation chronology |
 | [`rfc/OLLAMA_RAG.md`](rfc/OLLAMA_RAG.md) | Integrators | Draft RFC for local Ollama RAG (issue [#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)) |
 | [`roadmaps/`](roadmaps/) | Historians | Executed architectural contracts (Waves 2–12) |

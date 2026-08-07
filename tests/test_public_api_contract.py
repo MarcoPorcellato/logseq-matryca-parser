@@ -33,6 +33,8 @@ EXPECTED_ROOT_EXPORTS = {
     "SovereignNotePackage",
     "StackMachineParser",
     "SynapseAdapter",
+    "VaultWriteError",
+    "WriteProposal",
     "clean_node_content",
     "collect_graph_diagnostics",
     "decode_page_title_segment",

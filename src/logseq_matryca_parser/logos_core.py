@@ -105,18 +105,30 @@ class LogseqPage(BaseModel):
     root_nodes: list[LogseqNode] = Field(default_factory=list)
 
     def resolve_asset_path(self, asset_link: str) -> str | None:
-        """Resolve a Logseq asset link to an absolute filesystem path."""
+        """Resolve an existing asset only when its real path remains inside the graph."""
         normalized_link = unquote(asset_link.strip()).replace("\\", "/")
         if not normalized_link:
             return None
+
+        graph_root = self._infer_graph_root()
+
+        def contained(candidate: Path) -> str | None:
+            if graph_root is None:
+                return None
+            try:
+                resolved = candidate.resolve()
+                resolved.relative_to(graph_root.resolve())
+            except (OSError, RuntimeError, ValueError):
+                logger.debug("resolve_asset_path: reject path outside graph root")
+                return None
+            return str(resolved) if resolved.exists() else None
 
         if normalized_link.startswith("file://"):
             filesystem_path = normalized_link.replace("file://", "", 1)
             if os.name == "nt" and filesystem_path.startswith("/"):
                 filesystem_path = filesystem_path[1:]
-            return str(Path(filesystem_path).resolve())
+            return contained(Path(filesystem_path))
 
-        graph_root = self._infer_graph_root()
         if graph_root is not None and (
             normalized_link.startswith("../assets/") or normalized_link.startswith("assets/")
         ):
@@ -124,31 +136,20 @@ class LogseqPage(BaseModel):
             while root_relative.startswith("../"):
                 root_relative = root_relative[3:]
             root_relative_path = Path(root_relative)
-            return str((graph_root / root_relative_path).resolve())
+            return contained(graph_root / root_relative_path)
 
         if self.source_path:
             if normalized_link.startswith("/"):
                 logger.debug("resolve_asset_path: reject absolute path %s", normalized_link)
                 return None
             local_candidate = (Path(self.source_path).parent / normalized_link).resolve()
-            graph_root = self._infer_graph_root()
-            if graph_root is not None:
-                try:
-                    local_candidate.relative_to(graph_root.resolve())
-                except ValueError:
-                    logger.debug(
-                        "resolve_asset_path: path %s escapes graph root %s",
-                        local_candidate,
-                        graph_root,
-                    )
-                    return None
-            if local_candidate.exists():
-                return str(local_candidate)
+            resolved_local = contained(local_candidate)
+            if resolved_local is not None:
+                return resolved_local
 
         if graph_root is not None:
             fallback_asset = (graph_root / "assets" / Path(normalized_link).name).resolve()
-            if fallback_asset.exists():
-                return str(fallback_asset)
+            return contained(fallback_asset)
 
         return None
 

@@ -137,6 +137,20 @@ must reject ambiguous page identities, pass `strict_title_collisions=True` to
 `LogseqGraph.load_directory`. See the
 [diagnostics contract](reference/DIAGNOSTICS.md).
 
+Preview a headless child write without mutation:
+
+```bash
+matryca-parse agent-write /path/to/graph \
+  --target-uuid UUID \
+  --content "candidate child" \
+  --dry-run
+```
+
+The command prints a unified patch and performs no graph reload. Applied writes
+revalidate the real target immediately before atomic replacement and preserve
+permission and ownership metadata. See the
+[filesystem safety contract](reference/FILESYSTEM_SAFETY.md).
+
 **CLI tip:** run `matryca-parse export` after `load_directory` — KINETIC scans canonical pages internally (since v1.4.0).
 
 ---

@@ -29,5 +29,6 @@ maintained_documents = [
   "docs/reference/index.md",
   "docs/reference/API_STABILITY.md",
   "docs/reference/DIAGNOSTICS.md",
+  "docs/reference/FILESYSTEM_SAFETY.md",
   "docs/log.md",
 ]

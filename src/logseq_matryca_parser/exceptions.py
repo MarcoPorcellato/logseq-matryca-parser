@@ -35,5 +35,13 @@ class PageTitleCollisionError(LogseqParserError):
         )
 
 
+class VaultWriteError(Exception):
+    """Typed fail-closed writer error carrying a safe structured diagnostic."""
+
+    def __init__(self, diagnostic: Diagnostic) -> None:
+        self.diagnostic = diagnostic
+        super().__init__(diagnostic.message)
+
+
 class SessionAliasRegistryError(Exception):
     """Raised when the X-Ray alias state file cannot be parsed or validated."""

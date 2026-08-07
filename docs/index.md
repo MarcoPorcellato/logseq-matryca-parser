@@ -35,6 +35,7 @@ navigation layers only.
 | [Decision index](decisions/index.md) | Architectural decisions and missing ADRs |
 | [Reference index](reference/index.md) | Provenance and external relations |
 | [Structured diagnostics](reference/DIAGNOSTICS.md) | Stable diagnostic schema, codes, path safety, rendering, and escalation |
+| [Filesystem safety](reference/FILESYSTEM_SAFETY.md) | Vault containment, atomic write, dry-run, metadata, and asset-read policy |
 | [Documentation log](log.md) | Chronology of maintained knowledge changes |
 
 ## Quality claim
