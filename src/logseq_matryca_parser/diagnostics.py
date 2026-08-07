@@ -26,6 +26,9 @@ class DiagnosticCode(StrEnum):
 
     GRAPH_BROKEN_BLOCK_REFERENCE = "graph.broken_block_reference"
     GRAPH_PAGE_TITLE_COLLISION = "graph.page_title_collision"
+    WRITER_INPUT_LIMIT_EXCEEDED = "writer.input_limit_exceeded"
+    WRITER_TARGET_CHANGED = "writer.target_changed"
+    WRITER_VAULT_ESCAPE = "writer.vault_escape"
 
 
 @dataclass(frozen=True)

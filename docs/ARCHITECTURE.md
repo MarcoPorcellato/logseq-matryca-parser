@@ -365,6 +365,13 @@ Full-directory loads are expensive for always-on agents. **`invalidate_and_reloa
 
 **`append_child_to_node`** (headless splice) invokes **`invalidate_and_reload_page`** after a successful write so agent tooling sees the same graph state as on-disk Markdown.
 
+The writer is vault-bound: it validates real-path containment and target
+identity before reading and immediately before atomic replacement, rejects
+external symlinks, preserves platform-supported mode/owner/group metadata, and supports mutation-free
+unified-diff previews through `dry_run=True`. Configurable source-size,
+content-size, and outline-depth limits support untrusted vault use. The canonical
+policy is the [filesystem safety contract](reference/FILESYSTEM_SAFETY.md).
+
 This keeps **global indexes consistent** without rebuilding the entire graph — including alias keys and custom titles declared in frontmatter.
 
 #### Live filesystem watcher (`start_watching`)

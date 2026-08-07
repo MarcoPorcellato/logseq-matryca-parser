@@ -46,6 +46,7 @@ artifacts.
 
 - [Python API stability and typing](API_STABILITY.md)
 - [Structured diagnostics](DIAGNOSTICS.md)
+- [Vault-bound filesystem safety](FILESYSTEM_SAFETY.md)
 - [Architecture](../CLEAN_CODE_ARCHITECTURE.md)
 - [AST primer](../logseq_ast_primer.md)
 - [Release process](../RELEASE_PROCESS.md)

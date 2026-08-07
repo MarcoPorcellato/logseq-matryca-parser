@@ -6,13 +6,14 @@ import sys
 
 from ._version import __version__
 from .agent_press import SessionAliasRegistry
-from .agent_writer import LogseqConfigReader, logseq_agent_write
+from .agent_writer import LogseqConfigReader, WriteProposal, logseq_agent_write
 from .diagnostics import Diagnostic, DiagnosticCode, DiagnosticSeverity, collect_graph_diagnostics
 from .exceptions import (
     BlockReferenceError,
     LogseqIndentationError,
     LogseqParserError,
     PageTitleCollisionError,
+    VaultWriteError,
 )
 from .forge import (
     FlatListForgeVisitor,
@@ -89,6 +90,8 @@ __all__ = [
     "SovereignNotePackage",
     "StackMachineParser",
     "SynapseAdapter",
+    "VaultWriteError",
+    "WriteProposal",
     "clean_node_content",
     "collect_graph_diagnostics",
     "decode_page_title_segment",

@@ -361,10 +361,34 @@ def agent_write(
         "--state-file",
         help="Alias registry JSON (default: <graph>/.matryca_xray_state.json).",
     ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Print a unified patch without writing or reloading the graph.",
+    ),
+    max_source_bytes: int = typer.Option(
+        8 * 1024 * 1024,
+        "--max-source-bytes",
+        min=1,
+        help="Reject source files larger than this byte limit.",
+    ),
+    max_content_bytes: int = typer.Option(
+        1024 * 1024,
+        "--max-content-bytes",
+        min=1,
+        help="Reject appended content larger than this UTF-8 byte limit.",
+    ),
+    max_target_depth: int = typer.Option(
+        128,
+        "--max-target-depth",
+        min=1,
+        help="Reject writes below this outline depth.",
+    ),
 ) -> None:
     """Append a child block under a parent via headless AST markdown splicing."""
     from logseq_matryca_parser.agent_press import XRAY_STATE_FILENAME, SessionAliasRegistry
     from logseq_matryca_parser.agent_writer import append_child_to_node
+    from logseq_matryca_parser.exceptions import VaultWriteError
     from logseq_matryca_parser.graph import LogseqGraph
 
     resolved = _resolve_graph_path(ctx, graph_path)
@@ -400,10 +424,22 @@ def agent_write(
         print("Parent block UUID could not be resolved.", file=sys.stderr)
         raise typer.Exit(code=1)
     try:
-        append_child_to_node(graph, parent_uuid, content)
-    except ValueError as exc:
+        proposal = append_child_to_node(
+            graph,
+            parent_uuid,
+            content,
+            dry_run=dry_run,
+            max_source_bytes=max_source_bytes,
+            max_content_bytes=max_content_bytes,
+            max_target_depth=max_target_depth,
+        )
+    except (ValueError, VaultWriteError) as exc:
         print(str(exc), file=sys.stderr)
         raise typer.Exit(code=1) from exc
+
+    if dry_run:
+        sys.stdout.write(proposal.unified_diff)
+        return
 
     console.print(
         f"[bold green]Appended child under[/] {parent_uuid}",
