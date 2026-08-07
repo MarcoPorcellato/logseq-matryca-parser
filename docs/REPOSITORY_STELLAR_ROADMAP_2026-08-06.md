@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-06
-verified: 2026-08-06
+last_verified: 2026-08-07
+verified: 2026-08-07
 stale_after: 2026-11-04
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -289,9 +289,15 @@ Writer provides `mkstemp` + `os.replace`, which protects against partial file re
 
 ### P1.5 — Mutating lint in CI
 
-**Status:** confirmed; covered by #101.
+**Status:** implementation prepared on 2026-08-07; tracked by #101.
 
-Separate `lint`/`format-check` from `lint-fix`/`format`, add dirty-tree checks, and keep `make all` as a non-mutating gate.
+The delivery branch separates verification-only `lint` from opt-in `lint-fix`,
+keeps `make all` non-mutating, adds a final CI checkout-integrity assertion,
+and protects the target/workflow contract with focused tests. A repository-wide
+`ruff format --check` gate was evaluated and deliberately not activated because
+23 pre-existing files on `main` require a separate mechanical-formatting tranche.
+The finding remains open until the implementation PR is merged and remote CI is
+green.
 
 ### P1.6 — Release artifacts not built once
 

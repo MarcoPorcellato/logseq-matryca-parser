@@ -592,8 +592,10 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 ### Quality gate (v1.6.0)
 
 Local and CI parity: `uv sync --all-extras` → `make lint` → `make check` →
-`make test` → `make vendor-name-check`. The test gate enforces **≥80%**
-coverage on `src/logseq_matryca_parser`. Exact totals belong to dated audit
-evidence rather than this maintained architecture contract. Dedicated modules
-include `tests/test_layer_boundary.py`, `tests/test_exceptions.py` and
-`tests/test_extract_changelog.py`.
+`make test` → `make vendor-name-check` → `make docs-check`. These targets are
+non-mutating; CI then runs `make verify-clean` as an explicit checkout-integrity
+assertion. Local lint rewrites remain opt-in through `make lint-fix`. The test
+gate enforces **≥80%** coverage on `src/logseq_matryca_parser`. Exact totals
+belong to dated audit evidence rather than this maintained architecture
+contract. Dedicated modules include `tests/test_layer_boundary.py`,
+`tests/test_exceptions.py` and `tests/test_extract_changelog.py`.
