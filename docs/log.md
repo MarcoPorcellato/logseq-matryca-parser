@@ -21,6 +21,14 @@ superseded_by: null
 
 ## 2026-08-07
 
+- Reconciled the live 27-issue backlog and the complete draft stack #117-#121;
+  recorded clean ancestry, remote checks, top-of-stack qualification, and the
+  required sequential retarget-and-merge protocol in the stellar roadmap.
+- Synchronized the new delivery evidence to GitHub issues #102, #106, #107,
+  #109, #110, and #113; #109 now distinguishes the merged source gate from its
+  still-open snippet, private-profile, and projection acceptance criteria.
+- Updated the documentation evolution record to distinguish the source gate
+  merged in #115 from the still-pending private profile and projection work.
 - Published [draft PR #121](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/121),
   stacked on #120, as the fifth tranche for issue #106: fail-closed vault
   containment, pre-read and pre-replace target validation, identity checks,

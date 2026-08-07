@@ -8,8 +8,8 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-06
-verified: 2026-08-06
+last_verified: 2026-08-07
+verified: 2026-08-07
 stale_after: 2027-02-02
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -260,6 +260,11 @@ includes the entry points and the resulting projection passes its own checks.
 | Stellar audit phase | Evidence-backed roadmap, issue reconciliation, entry points, classification, and freshness | Private source profile still lacked parser entry points |
 | English standardization | Repository documentation and maintainer text moved to one shared language | Governance needed a single explanatory contract |
 | Source-enforcement phase | `docs/maintained.toml` and `make docs-check` enforce the maintained bundle in local and remote CI | Private registry admission and projection remain a separate gate |
+
+The source-enforcement phase was merged in
+[PR #115](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/115).
+That merge completes the deterministic source gate; it does not complete the
+private profile and projection work tracked by issue #109.
 
 The intended end state is not a mass rewrite. It is a small, clearly owned
 maintained bundle surrounded by discoverable active material and preserved

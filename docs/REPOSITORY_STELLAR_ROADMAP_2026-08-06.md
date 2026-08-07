@@ -468,8 +468,9 @@ without shifting source-of-truth authority outside the repository.
 6. Declare entry points in Matryca Knowledge registry via a separate PR.
 7. Project only clean immutable commits; verify Logseq-rendered views do not alter source semantics.
 
-Steps 1-3 are complete at source level. Step 4 is partially covered by manual
-review. Steps 5-7 remain the MKQ-4 completion path tracked by issue #109.
+Steps 1-5 are complete at source level, including the deterministic gate merged
+in PR #115. Steps 6-7 remain the private-profile and projection path tracked by
+issue #109; MKQ-4 is not claimed until those separate checks pass.
 
 ## 9. Product and API strategy
 
@@ -680,3 +681,42 @@ fix P0 issues
 ```
 
 If executed in this order, Logseq Matryca Parser can become a credible reference implementation: not by feature volume, but by deterministic contracts, local security, reproducible regressions, and quality evidence an integrator can independently verify.
+
+## 16. Delivery-stack readiness — 2026-08-07
+
+The first five implementation tranches are published as one dependency-ordered
+stack. Live GitHub verification on 2026-08-07 found every PR open, draft,
+mergeable with `CLEAN` status, and free of failed checks.
+
+| PR | Base | Delivers | Remote checks |
+|---:|---|---|---:|
+| [#117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117) | `main` | #107 typed wheel and API stability | 7 passed |
+| [#118](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/118) | `agent/api-stability-contract` | #113 arbitrary-depth parser refresh | 3 passed |
+| [#119](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/119) | `agent/parser-arbitrary-depth-refresh` | #110 structured-diagnostics foundation | 3 passed |
+| [#120](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/120) | `agent/structured-diagnostics-foundation` | #102 deterministic title collisions | 3 passed |
+| [#121](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/121) | `agent/graph-title-collision-contract` | #106 vault-bound writer and asset safety | 3 passed |
+
+Top-of-stack local qualification passed 521 tests with 91.81% coverage, Ruff,
+Mypy, the maintained-document profile, the vendor-name gate, `diff --check`,
+and the audit-code import-cycle check with zero cycles. The checkout retained
+the unrelated local `.serena/` directory untracked and excluded from every
+commit.
+
+### Merge protocol
+
+1. Review and merge #117 into `main`.
+2. Retarget #118 to `main`, verify that its diff contains only its parser
+   tranche and that required checks pass, then merge it.
+3. Repeat the retarget, diff review, and CI check for #119, #120, and #121 in
+   numerical order.
+4. Close an implementation issue only through the PR that satisfies its
+   acceptance criteria; keep partial umbrella issues such as #110 open for
+   remaining producers.
+5. Run `make all`, `make vendor-name-check`, and `check(cycles)` on the final
+   merged `main` before release or downstream federation.
+
+The unresolved roadmap is intentionally not folded into this stack: #103 and
+#104 are the next correctness foundations; #105 and #111 remain release and
+measurement work; #108 remains blocked on the corpus and benchmarks. Product
+RFCs and contributor issues retain their existing dispositions in the issue
+reconciliation ledger.
