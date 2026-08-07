@@ -21,7 +21,8 @@ superseded_by: null
 
 ## 2026-08-07
 
-- Prepared the third stacked tranche for issue #110: a stable immutable
+- Published [draft PR #119](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/119),
+  stacked on #118, as the third tranche for issue #110: a stable immutable
   diagnostic schema and code enum, deterministic broken-reference collection,
   vault-relative path enforcement, human and JSON CLI rendering, opt-in
   escalation, and a canonical compatibility contract. Title-collision and
