@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.7.0** — structured diagnostics, deterministic collision handling, deep parser correctness, typed APIs, vault-bound writes, governed documentation, and verified immutable release artifacts. See the [CHANGELOG](CHANGELOG.md) and [release process](docs/RELEASE_PROCESS.md).
+**v1.7.1** — runnable offline SYNAPSE RAG integration, stricter release-note contracts, and security-refresh constraints for optional AI/development dependencies. See the [CHANGELOG](CHANGELOG.md) and [release process](docs/RELEASE_PROCESS.md).
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -103,6 +103,21 @@ graph TD
 
 ### 🔱 The Solution
 Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as the **File System Driver** for your LLM. It preserves the true topology of your thoughts, ensuring AI understands spatial hierarchy, time, and block-lineage—including **structured task state** and **first-class temporal attributes** you can query in downstream graph databases and GraphRAG engines without re-parsing raw Markdown.
+
+---
+
+## ⚡ Release highlights (v1.7.1)
+
+Patch release — completes the promised SYNAPSE example and closes the security
+alerts found during v1.7.0 post-release verification. **No intentional breaking
+changes** to package APIs or CLI behavior.
+
+| Area | Change |
+| :--- | :--- |
+| **SYNAPSE RAG** | New offline [`examples/run_synapse_rag.py`](examples/run_synapse_rag.py) exercises LangChain, LlamaIndex, context enrichment, and resolved page-embed expansion. |
+| **Release integrity** | Release notes now fail validation when a repository-local link is missing or escapes the source tree. |
+| **Dependency security** | Optional AI/development resolution constrains `aiohttp>=3.14.3` and `setuptools>=83.0.0`; base runtime dependencies are unchanged. |
+| **Test suite** | **532** pytest cases with **91.90%** coverage. |
 
 ---
 
@@ -371,7 +386,7 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from PyPI (latest: v1.7.0)
+# Install from PyPI (latest: v1.7.1)
 uv pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates

@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-08-08
+
+Patch release correcting the v1.7.0 SYNAPSE example promise, hardening release
+notes validation, and refreshing vulnerable optional-development dependencies.
+**No intentional breaking changes** to package APIs or CLI behavior.
+
+### Added
+
+- **Runnable SYNAPSE RAG example** —
+  [`examples/run_synapse_rag.py`](examples/run_synapse_rag.py) exercises the
+  LangChain, LlamaIndex, and context-enriched conversion paths against an
+  offline temporary Logseq graph, including verified expansion of a resolved
+  page embed ([#90](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/90)).
+
+### Changed
+
+- **Release contract** — release-note validation now rejects missing or
+  repository-escaping local Markdown links, preventing a tag from promising an
+  artifact that is not present in its source tree.
+- **Release documentation** — the v1.7.0 record and public release notes carry
+  a dated erratum for the omitted SYNAPSE example while preserving the
+  immutable v1.7.0 tag, artifacts, attestations, and checksums.
+
+### Security
+
+- **Optional AI/development lock** — constrained `aiohttp>=3.14.3` and
+  `setuptools>=83.0.0`, resolving the four Dependabot advisories open against
+  the v1.7.0 lock. Neither dependency is part of the base package runtime.
+
 ## [1.7.0] - 2026-08-08
 
 Minor release — structured diagnostics, deterministic title-collision handling,

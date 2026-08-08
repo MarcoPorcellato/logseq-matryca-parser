@@ -21,6 +21,11 @@ superseded_by: null
 
 ## 2026-08-08
 
+- Prepared the v1.7.1 patch candidate to deliver the previously omitted
+  `examples/run_synapse_rag.py`, validate its three public SYNAPSE conversion
+  paths and resolved page embed, and constrain the optional AI/development lock
+  to `aiohttp>=3.14.3` and `setuptools>=83.0.0`. Publication and issue closure
+  remain contingent on merged CI, tag workflow, and public artifact checks.
 - Merged [PR #123](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/123)
   and published the SemVer-minor v1.7.0 release from
   `main@af45c1b3e75dfc32f42cfede5083f90aec8b96ce`.

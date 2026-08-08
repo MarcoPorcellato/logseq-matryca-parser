@@ -53,7 +53,7 @@ collision, filesystem, and release-lineage tranches are no longer open.
 | #87 | Keep, high priority | Now | Deterministic pathological parser latency; feeds #111 |
 | #88 | Keep | Next | Direct strategy-module tests are still absent |
 | #89 | Keep as canonical graph API test issue | Next | Dedicated boundary tests remain incomplete |
-| #90 | Keep | Next | `examples/run_synapse_rag.py` is absent |
+| #90 | Close only after verified v1.7.1 publication | Release gate | The patch candidate adds the offline example, all three SYNAPSE exports, resolved page-embed proof, Cookbook link, and regression test |
 | #91 | Keep | Next | Direct `kinetic_export` tests are absent |
 | #92 | Keep, narrow to regression protection | Next | Runtime resolves canonical aliases; dedicated alias test is absent |
 | #93 | Keep, narrow to LENS recipe | Next | Broken-ref tip exists; complete visualization recipe is absent |
@@ -127,6 +127,10 @@ not touch protected parser/graph hubs or weaken these gates.
   `examples/run_synapse_rag.py` is still absent. The initial v1.7.0 release
   notes listed it incorrectly; the changelog and GitHub Release receive a
   transparent documentation-only erratum without changing artifacts.
+- Prepared the v1.7.1 patch candidate to satisfy every #90 acceptance
+  criterion and constrain the two vulnerable optional AI/development
+  dependencies. #90 remains open until the merged tag, GitHub Release, and
+  PyPI package have been verified publicly.
 
 ## Post-baseline issue — 2026-08-08
 
