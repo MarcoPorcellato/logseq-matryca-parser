@@ -37,6 +37,14 @@ matryca-parse export /path/to/graph output --format langchain
 
 Requires optional `[ai]` extra (`uv sync --extra ai`).
 
+For a complete offline example that exercises the LangChain, LlamaIndex, and
+context-enriched exports—including a resolved Logseq page embed—run
+[`examples/run_synapse_rag.py`](../examples/run_synapse_rag.py):
+
+```bash
+uv run python examples/run_synapse_rag.py
+```
+
 ---
 
 ## Recipe 2 — Load vault + fluent graph query

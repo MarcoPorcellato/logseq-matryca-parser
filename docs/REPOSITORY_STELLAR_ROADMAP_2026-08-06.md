@@ -773,3 +773,26 @@ dated changelog and GitHub Release erratum only: tag, distributions,
 attestations, and digests remain unchanged. The only workflow annotations were
 upstream Node.js 20 deprecation warnings; #124 tracks migration when official
 Node.js 24 artifact-action manifests become available.
+
+## 18. v1.7.1 corrective release candidate — 2026-08-08
+
+Post-release verification of v1.7.0 found one promised repository example was
+absent and four Dependabot alerts affected optional AI/development lock entries.
+The v1.7.1 candidate addresses those findings without changing the base runtime
+dependency set or stable package APIs:
+
+1. `examples/run_synapse_rag.py` runs offline against a temporary Logseq graph,
+   exercises all three public SYNAPSE conversion paths, and proves resolved
+   page-embed expansion; a regression test and Cookbook link protect it.
+2. The release-note contract rejects missing and repository-escaping local
+   links, carrying forward the post-v1.7.0 correction gate.
+3. The lock constrains `aiohttp>=3.14.3` and `setuptools>=83.0.0`; local base and
+   optional-AI dependency audits report no known vulnerabilities (the pinned
+   NLTK VCS requirement is reported as not version-auditable).
+4. The isolated candidate environment passes Ruff, Mypy, maintained-document
+   validation, the terminology gate, 532 tests, 91.90% coverage, the release
+   and wheel contracts, Twine checks, and zero import cycles.
+
+This section records a qualified candidate, not a completed publication. Final
+tag, workflow, checksums, provenance, installation, and issue-closure evidence
+must replace that status only after public verification.
