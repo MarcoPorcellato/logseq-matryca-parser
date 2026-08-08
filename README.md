@@ -12,8 +12,6 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.7.1** — runnable offline SYNAPSE RAG integration, stricter release-note contracts, and security-refresh constraints for optional AI/development dependencies. See the [CHANGELOG](CHANGELOG.md) and [release process](docs/RELEASE_PROCESS.md).
-
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
 <p align="center">
@@ -22,9 +20,32 @@
 
 [👉 **TRY THE LIVE INTERACTIVE DEMO**](https://MarcoPorcellato.github.io/logseq-matryca-parser/)
 
-[📘 **ARCHITECTURE**](docs/ARCHITECTURE.md) · [Clean Architecture SSOT](docs/CLEAN_CODE_ARCHITECTURE.md) · [AST Primer](docs/logseq_ast_primer.md) · [Cookbook](docs/COOKBOOK.md) · [Good first issues](docs/GOOD_FIRST_ISSUES.md) · [Knowledge bundle](docs/index.md) · [Docs index](docs/README.md) · [Documentation system](docs/DOCUMENTATION_SYSTEM.md) · [CodeQL](docs/CODEQL.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASE_PROCESS.md)
+[Quickstart](#quickstart) · [Documentation](docs/README.md) · [Cookbook](docs/COOKBOOK.md) · [Release highlights](RELEASE_HIGHLIGHTS.md) · [AI / LLM index](llms.txt)
 
 </div>
+
+---
+
+## Quickstart
+
+Install the package and scan a Logseq graph:
+
+```bash
+uv pip install logseq-matryca-parser
+matryca-parse scan /path/to/logseq/graph
+```
+
+The scan reports pages, blocks, references, and graph diagnostics without
+changing the vault. Continue with the [CLI and Python examples](#usage), or use
+the [Cookbook](docs/COOKBOOK.md) for RAG, graph-query, watcher, and agent recipes.
+
+### Choose your workflow
+
+- **Parse and query:** load one page or a complete vault as a typed AST and graph.
+- **Build RAG context:** export LangChain documents, LlamaIndex nodes, or enriched chunks.
+- **Move knowledge:** generate JSON, clean Markdown, or an Obsidian vault.
+- **Visualize:** render an interactive graph with LENS.
+- **Use an AI agent:** start from [`AGENTS.md`](AGENTS.md) or the concise [`llms.txt`](llms.txt) index.
 
 ---
 
@@ -106,263 +127,18 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 
 ---
 
-## ⚡ Release highlights (v1.7.1)
+## 🏗️ Core capabilities
 
-Patch release — completes the promised SYNAPSE example and closes the security
-alerts found during v1.7.0 post-release verification. **No intentional breaking
-changes** to package APIs or CLI behavior.
-
-| Area | Change |
+| Outcome | What Matryca provides |
 | :--- | :--- |
-| **SYNAPSE RAG** | New offline [`examples/run_synapse_rag.py`](examples/run_synapse_rag.py) exercises LangChain, LlamaIndex, context enrichment, and resolved page-embed expansion. |
-| **Release integrity** | Release notes now fail validation when a repository-local link is missing or escapes the source tree. |
-| **Dependency security** | Optional AI/development resolution constrains `aiohttp>=3.14.3` and `setuptools>=83.0.0`; base runtime dependencies are unchanged. |
-| **Test suite** | **532** pytest cases with **91.90%** coverage. |
-
----
-
-## ⚡ Release highlights (v1.7.0)
-
-Minor release — repository-wide correctness, safety, API, documentation, and release-engineering hardening. **No intentional breaking changes** to default CLI behavior or stable package exports.
-
-| Area | Change |
-| :--- | :--- |
-| **Correctness** | Arbitrary-depth immutable parser refreshes preserve ordering, identity, properties, soft breaks, fences, and round trips. |
-| **Diagnostics and graph** | Stable structured findings, JSON output, deterministic title-collision diagnostics, and opt-in strict rejection. |
-| **Writer security** | Vault containment, symlink and target-identity checks, metadata preservation, dry-run patches, and bounded writes. |
-| **Public package** | PEP 561 `py.typed`, documented API stability tiers, root exports, signature tests, and wheel/downstream Mypy contracts. |
-| **Documentation** | English maintained-document profile, authority and lifecycle metadata, deterministic link/freshness validation, and Matryca Knowledge federation guidance. |
-| **Release integrity** | One checksummed wheel/sdist build is reused for attested PyPI publication and GitHub Release assets. |
-| **Test suite** | **528** pytest cases with **91.81%** coverage. |
-
----
-
-## ⚡ Release highlights (v1.5.0)
-
-Minor release — CLI vault hygiene for broken block references. **No intentional breaking changes** to default `scan` behavior (`--broken-refs` is opt-in).
-
-| Area | Change |
-| :--- | :--- |
-| **KINETIC `scan`** | New `--broken-refs` flag prints unresolved `((uuid))` refs in a Rich table and exits `1` for CI pipelines ([#77](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/77)). |
-| **Test suite** | **451** pytest cases (**+1** vs v1.4.2). |
-
----
-
-## ⚡ Release highlights (v1.4.2)
-
-Patch release — agent-write and SYNAPSE correctness fixes. **No intentional breaking changes** to public APIs.
-
-| Area | Change |
-| :--- | :--- |
-| **agent-write** | Headless splice normalizes files missing a final newline; corrupt `.matryca_xray_state.json` yields a controlled CLI exit ([#72](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/72), [#60](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/60)). |
-| **SYNAPSE RAG** | Cyclic `{{embed [[Page]]}}` chains truncate at the re-entrant edge without duplicating parent literal text ([#65](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/65)). |
-| **Test suite** | **450** pytest cases (**+72** vs v1.4.1): wave 2 community coverage ([#58](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/58)) plus regression tests for the three fixes. |
-
----
-
-## ⚡ Release highlights (v1.4.1)
-
-Patch release — contributor test coverage and onboarding refresh. **No intentional changes** to parser, graph, or CLI runtime behavior.
-
-| Area | Change |
-| :--- | :--- |
-| **Test suite** | **378** pytest cases (**+107** vs v1.4.0): `normalize_logseq_timestamp`, `clean_node_content`, `logseq_paths` fallbacks, exception hierarchy, `extract_changelog` script, KINETIC `--help`, `agent-read --query`, direct `ObsidianForgeVisitor` tests ([#42](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/42)). |
-| **New test modules** | `tests/test_exceptions.py`, `tests/test_extract_changelog.py`. |
-| **Contributor index** | [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) wave 2 ([#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)); wave-1 items marked complete. |
-
----
-
-## ⚡ Release highlights (v1.4.0)
-
-Minor release — graph integrity, export hygiene, and parser hardening from the local static-analysis bug hunt (waves 1–8). No intentional breaking changes to default parse behavior.
-
-| Area | Change |
-| :--- | :--- |
-| **Graph index** | **`iter_canonical_pages()`** and **`page_for_node()`** deduplicate alias keys; **`load_directory`** rebuilds **`_node_registry`** from indexed pages only (no ghost nodes after title collision). |
-| **Case-insensitive queries** | **`search_content`**, **`GraphQuery.has_tag`**, and **`get_nodes_by_tag`** match tags case-insensitively (optional `#` prefix). |
-| **Live watcher** | **`LogseqGraphWatcher`** handles **`on_deleted`** and **`on_moved`**; **`invalidate_and_reload_page`** purges registries when a page file was deleted. |
-| **Agent writes** | **`append_child_to_node`** calls **`invalidate_and_reload_page`** so the in-memory graph matches disk after headless splice. |
-| **SYNAPSE** | Page/block embed expansion uses **`get_page`** (case-insensitive) and fail-safe empty replacement (no infinite loops on unresolved embeds). |
-| **Serialization** | Per-page **`tab_size`** at parse time; **`serialize_logseq_page`** and **`append_child_to_node`** preserve four-space vault indentation. |
-| **Paths & assets** | **`resolve_relative_page_link`** supports **`../`** / **`./`**; **`resolve_asset_path`** rejects absolute paths and links that escape the graph root. |
-| **Strict refs** | **`LogseqGraph.load_directory(strict_refs=True)`** validates cross-page block refs via **`raise_if_broken_references()`**. |
-| **Docs & community** | [`docs/COOKBOOK.md`](docs/COOKBOOK.md), [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md), [`docs/BUG_HUNT_REPORT.md`](docs/BUG_HUNT_REPORT.md) (audit complete). |
-
----
-
-## ⚡ Release highlights (v1.3.1)
-
-Patch release — aligns example and skill install docs with the project's **`uv`** workflow. No parser or public API changes.
-
-| Area | Change |
-| :--- | :--- |
-| **Examples** | `examples/run_demo.py` error hint uses **`uv sync --all-extras`**. |
-| **Claude skill** | **`claude-skill-logseq-read/SKILL.md`** recommends **`uv pip install`**. |
-
----
-
-## ⚡ Release highlights (v1.3.0)
-
-Minor release — architectural quick wins, runtime robustness, and expanded public API. No breaking changes to default parser behavior.
-
-| Area | Change |
-| :--- | :--- |
-| **Public API** | Root **`logseq_matryca_parser`** exports **`SynapseAdapter`**, **`SessionAliasRegistry`**, **`GraphVisualizer`**, **`discover_graph_files`**, and core LOGOS symbols via explicit **`__all__`**. |
-| **Graph model** | **`LogseqGraph`** uses **`validate_assignment=True`** instead of frozen/`object.__setattr__` for incremental reloads. |
-| **Live watcher** | **`start_watching()`** debounces filesystem events (~500ms) and ignores editor temp/swap files (`.swp`, `~`, `.tmp`, `.DS_Store`). |
-| **Strict refs** | **`StackMachineParser(strict_refs=True)`** raises **`BlockReferenceError`** for unresolved same-page `((uuid))` refs (default off). |
-| **SYNAPSE** | **`SynapseMetadata`** / **`build_synapse_metadata`** for vector-store-safe fields; **LlamaIndex** adds **`SOURCE`**, **`NEXT`**, **`PREVIOUS`** relationships. |
-| **KINETIC CLI** | Global **`--verbose`** / **`--graph`** via **`@app.callback()`**; optional-dependency hints recommend **`uv sync --extra ai\|viz`**. |
-| **LENS** | Lazy-imports NetworkX/PyVis so core installs stay lightweight. |
-| **Security** | Transitive **`aiohttp`** / **`nltk`** constraints for optional **`[ai]`** extras. |
-
----
-
-## ⚡ Release highlights (v1.2.2)
-
-Patch release — fixes a failing CodeQL GitHub Actions workflow; **no parser or public API changes**.
-
-| Area | Change |
-| :--- | :--- |
-| **CodeQL** | Removed duplicate `.github/workflows/codeql.yml`; scanning continues via GitHub **default setup** (Node 24 runners). |
-| **Docs** | New [`docs/CODEQL.md`](docs/CODEQL.md) explains default vs advanced setup and troubleshooting. |
-
----
-
-## ⚡ Release highlights (v1.2.1)
-
-Infrastructure and contributor experience — no parser API breaks.
-
-| Area | Capability |
-| :--- | :--- |
-| **Python matrix** | CI and PyPI pre-flight test **3.12** and **3.13**; PyPI classifier for 3.13. |
-| **Quality gates** | `make all` parity in GitHub Actions (`uv sync --all-extras` → lint, mypy, pytest with **≥80%** coverage). |
-| **Security** | GitHub CodeQL default setup (SAST), `pip-audit` on production deps, expanded `SECURITY.md`, PyPI publish blocked until pre-flight passes. |
-| **Community** | `CODE_OF_CONDUCT.md`, `CODEOWNERS`, issue-template config, CONTRIBUTING with `uv` workflow. |
-| **Docs** | Root `ROADMAP_*.md` consolidated under [`docs/roadmaps/`](docs/roadmaps/). |
-
-Contributor setup: [`CONTRIBUTING.md`](CONTRIBUTING.md) · [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) · Security: [`SECURITY.md`](SECURITY.md) · CodeQL: [`docs/CODEQL.md`](docs/CODEQL.md)
-
----
-
-## ⚡ Recent superpowers (v1.2.0)
-
-### Graph parity, assets, and parser hardening
-
-| Area | Capability |
-| :--- | :--- |
-| **Asset extraction** | `LogseqNode.assets` collects markdown images, `{{pdf}}` macros, and local `[label](path)` attachments; `LogseqPage.resolve_asset_path` maps to absolute paths (`%20` decode, graph-root relative). |
-| **YAML frontmatter** | `---` blocks at file start populate `LogseqPage.properties` like native `key::` lines; **`title:`** in YAML sets `page.title` at parse; **`serialize_logseq_page`** preserves `---` fences on round-trip when the source file used YAML. |
-| **`page-tags::`** | Block and page `page-tags::` inject implicit graph tokens like `tags::`; list-shaped values feed `refs`. |
-| **Case-insensitive routing** | `LogseqGraph.get_page` and `resolve_relative_page_link` resolve titles via a lowercase index (Datomic parity). |
-| **Extended shielding** | HTML comments, `{{query}}` / `{{advancedquery}}`, and escaped `\#` / `\[\[` do not emit false graph tokens (embed macros still harvest nested wikilinks). |
-| **Property & temporal fixes** | Comma-split ignores commas inside `[[wikilinks]]`; properties after code fences; quoted value stripping; `SCHEDULED`/`DEADLINE` ranges, repeaters, and Org warning periods; legacy `___` / `%2F` / Dendron filenames; UTF-8 BOM via `utf-8-sig`. |
-
-### Round-trip serialization (v1.2.0)
-
-| Area | Capability |
-| :--- | :--- |
-| **Soft-break bodies** | Multiline block continuations serialize without double-indenting alignment spaces. |
-| **List-shaped block props** | `tags::` / `page-tags::` with indented `-` bullets round-trip as Logseq lists (not Python repr). |
-| **`:LOGBOOK:` drawers** | Org drawers re-emit as `:LOGBOOK:` / `:END:` blocks, not bogus `logbook::` property lines. |
-| **Derived temporal keys** | Parsed `scheduled::`, `repeater::`, and related derived fields are omitted from serialized `key::` output. |
-| **Stable block UUIDs** | Parse → `serialize_logseq_page` → parse preserves block `id::` / UUIDs on the same outline. |
-
-```python
-from logseq_matryca_parser.graph import LogseqGraph
-from logseq_matryca_parser.logos_parser import LogosParser
-
-graph = LogseqGraph.load_directory("/path/to/logseq/graph")
-
-# Case-insensitive page lookup
-page = graph.get_page("my page")  # same object as graph.pages["My Page"]
-
-# Assets on a parsed block (Vision / document pipelines)
-single = LogosParser().parse_page_file("pages/Notes.md")
-block = single.root_nodes[0]
-if block.assets:
-    abs_path = single.resolve_asset_path(block.assets[0])
-```
-
-Deep dive: [Architecture §3.1 — LOGOS](docs/ARCHITECTURE.md#31-logos--deterministic-stack-machine-parsing) · [§3.6 — LogseqGraph](docs/ARCHITECTURE.md#36-logseqgraph--namespace-scoping-o1-invalidation-live-watch) · [AST primer](docs/logseq_ast_primer.md).
-
-### Still included from v1.1.1
-
-| Area | Capability |
-| :--- | :--- |
-| **Graph index** | `title::` / `TITLE::` overrides filename titles; `alias::` / `aliases::` inject extra `graph.pages` keys. |
-| **Backlinks** | `[[Dev]]` resolves against alias keys (`get_backlinks("Dev")`). |
-| **Incremental reload** | `invalidate_and_reload_page` re-applies title/alias enrichment after watcher edits. |
-| **Parser shields** | LaTeX, `#+BEGIN_QUERY`, fenced code, drawers; `{{embed [[Page]]}}` harvests nested wikilinks. |
-| **Property contiguity** | `key::` contiguous under bullets; soft-break closes the window (fence exception in v1.2.0). |
-| **Tasks & bullets** | GFM checkboxes, extended Org markers, ordered-list bullets, aliased `((uuid))` clean text. |
-
-### Obsidian-native export
-Compile an entire Logseq graph into an **Obsidian vault layout**: YAML frontmatter from page properties, list body preserved, Logseq `((uuid))` links rewritten to **`[[Page#^anchor]]`**, and trailing **`^block-id`** on referenced blocks. Namespace titles become nested folders (e.g. `Projects/AI/Demo.md`).
-
-```bash
-matryca-parse export /path/to/logseq/graph /path/to/obsidian/vault --format obsidian
-```
-
-> **Note:** Wikilinks currently use the **Logseq page title** (e.g. `[[Target#^…]]`). Vault files may live under namespace folders (`Projects/AI/Demo.md`). Obsidian usually resolves unique titles; aligning link text to folder paths is a possible future refinement.
-
-### Live incremental watcher
-`LogseqGraph` supports **surgical file invalidation** (optional dependency: `uv sync --extra watch`). `start_watching()` runs a recursive **watchdog** observer with **~500ms debounce** and ignores editor temp/swap files: on `created` / `modified` / `deleted` / `moved` under `pages/` or `journals/`, only the affected file is re-parsed (or purged when deleted); stale synthetic UUIDs are removed from `_node_registry` and scrubbed from `_backlink_registry`—no full-graph cold reload.
-
-### Fluent topological queries
-Filter the global node registry with a **chainable** API (tags, task state, ancestry under a parent UUID):
-
-```python
-from logseq_matryca_parser.graph import LogseqGraph
-
-graph = LogseqGraph.load_directory("/path/to/logseq/graph")
-hits = (
-    graph.query()
-    .has_tag("idea")
-    .under_parent("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
-    .is_task_state("TODO")
-    .execute()
-)
-```
-
-### Agent-Native X-Ray Mode (Token Optimization)
-For autonomous LLM agents, passing raw Markdown into the context window wastes thousands of tokens on **36-character UUIDs**, hidden `id::` properties, drawers, and collapsed directives that carry no immediate semantic signal. **X-Ray mode** compresses the parsed AST into **ultra-dense, zero-fluff plain text**: each block becomes `{indent}[{alias}] {clean_text}`, with heavy Logseq UUIDs replaced by **sequential integer aliases** (`[0]`, `[1]`, …) held in a session registry. On typical outlines this can reduce context consumption by **up to ~35×** compared to dumping full block payloads.
-
-```bash
-matryca-parse agent-read /path/to/graph --tag idea
-matryca-parse agent-read /path/to/graph --query "quantum"
-```
-
-The agent reads cheap topology now; the registry resolves aliases back to sovereign UUIDs when you wire targeted writes.
-
-### Headless Write Engine & AST Linter (Wave 12)
-The parser is **no longer read-only**. Wave 12 adds a **headless Markdown splicer** ([`agent_writer.py`](src/logseq_matryca_parser/agent_writer.py)): `append_child_to_node` uses AST line numbers and indentation (`(indent_level + 1) × tab_size`) to insert a new bullet **atomically** into the sovereign `.md` file—via `tempfile` + `os.replace`—without Logseq’s fragile HTTP API. Beyond surgical node splicing, the engine now supports **full bidirectional page generation** via [`serialize_logseq_page`](src/logseq_matryca_parser/logseq_markdown.py) and [`write_logseq_page`](src/logseq_matryca_parser/logseq_markdown.py)—rebuilding entire Logseq-compliant `.md` pages from an in-memory AST. Pair **`agent-read`** with **`agent-write`**: X-Ray persists its alias map to **`.matryca_xray_state.json`** at the graph root so stateless CLI invocations can **read, then write** in sequence.
-
-```bash
-matryca-parse agent-read /path/to/graph --tag idea
-matryca-parse agent-write /path/to/graph --alias 0 --content "Follow-up from the agent"
-```
-
-For graph hygiene, **`LogseqGraph.get_broken_references()`** flags nodes whose `((uuid))` block refs point at missing registry targets—structural linting, not regex guessing. From the CLI: `matryca-parse scan /path/to/graph --broken-refs` (exit `1` when broken refs exist).
-
----
-
-## 🏗️ Core Capabilities
-
-| Feature | Description |
-| :--- | :--- |
-| **LOGOS Engine** | Deterministic AST parsing. YAML + native frontmatter ingest, **format-preserving** `serialize_logseq_page` (YAML vs `key::` by source), list-shaped block property layout, **assets**, property contiguity (incl. post-fence), comma-safe wikilink splits, temporal ranges/repeaters, legacy filename decode, BOM-safe reads, and **shielded** code/math/query/HTML/escape regions. |
-| **Multimodal assets** | **`LogseqNode.assets`** + **`LogseqPage.resolve_asset_path`** for PDFs and images relative to the graph root (Vision / document RAG). |
-| **LogseqGraph** | In-memory vault: `pages` index (with **title/alias enrichment** and **case-insensitive lookup**), **`iter_canonical_pages()`** / **`page_for_node()`**, backlinks, effective properties, namespace resolution, fluent `GraphQuery`, optional **watchdog** invalidation (create/modify/delete/move). |
-| **Advanced Task Extraction** | Task **state** (TODO / DOING / DELEGATED / IN-PROGRESS / …), **priority** markers `[#A]`–`[#C]` promoted to `task_priority`, and **SCHEDULED** / **DEADLINE** Logseq timestamps normalized to **UTC Unix epoch seconds** on `scheduled_at` / `deadline_at` for temporal graph and retrieval pipelines. |
-| **SYNAPSE Adapter** | Native exports for **LangChain** and **LlamaIndex** with automated lineage metadata; **context-enriched** chunks with breadcrumbs, embed expansion, and inherited properties. |
-| **FORGE** | JSON, clean Markdown, and **Obsidian** vault serialization (`ObsidianForgeVisitor`, `ForgeExporter.to_obsidian_markdown`). |
-| **LENS Visualizer** | 60FPS interactive graph rendering (10k+ nodes) with Glassmorphism HUD. |
-| **Agent-Native Printing Press** | [`agent_press.py`](src/logseq_matryca_parser/agent_press.py): **`SessionAliasRegistry`** maps session aliases ↔ block UUIDs; **`to_xray_markdown`** emits token-minimal outline text for autonomous agents (`matryca-parse agent-read`). |
-| **Native Markdown Serialization** | [`logseq_markdown.py`](src/logseq_matryca_parser/logseq_markdown.py) + [`logseq_paths.py`](src/logseq_matryca_parser/logseq_paths.py): rebuild and write Logseq-compliant markdown from an AST—page header preserves **YAML `---` or native `key::`** by source format, block properties at **parent whitespace + 2 spaces** (including bullet-list `tags::`), `:LOGBOOK:` drawers, and namespace titles via **`___`** pathing rules. |
-| **Headless Write Engine** | [`agent_writer.py`](src/logseq_matryca_parser/agent_writer.py): **`append_child_to_node`** splices child bullets into on-disk Markdown from AST topology; **`serialize_logseq_page`** / **`write_logseq_page`** emit full pages; **`matryca-parse agent-write`** resolves aliases via **`.matryca_xray_state.json`**. |
-| **AST Linters** | **`LogseqGraph.get_broken_references()`** returns originating nodes when `block_refs` target UUIDs absent from the global registry; **`matryca-parse scan --broken-refs`** exposes the same check from KINETIC (v1.5.0). |
-| **Sovereign AI** | 100% Local. Zero telemetry. Private by design. |
+| **Parse faithfully — LOGOS** | Deterministic AST parsing for outlines, YAML and native properties, tasks, temporal markers, references, assets, code/math/query shields, stable UUIDs, line ranges, and format-preserving round trips. |
+| **Understand the vault — Graph** | Canonical pages, aliases, backlinks, inherited properties, case-insensitive lookup, namespace resolution, fluent queries, broken-reference diagnostics, and optional per-file live reloads. |
+| **Export and integrate — SYNAPSE, FORGE, LENS** | Lineage-aware LangChain and LlamaIndex exports, context-enriched chunks, JSON and Markdown serialization, Obsidian vault generation, and interactive graph visualization. |
+| **Automate safely — KINETIC and agent tools** | CLI parse, scan, export, and visualization; token-efficient X-Ray reads; append-only logging; bounded AST writes; vault containment, dry-run patches, and atomic replacement. |
+
+The base parser is local-first and has zero telemetry. Optional AI, watcher, and
+visualization dependencies remain lazy. See the [architecture](docs/ARCHITECTURE.md)
+and [API stability reference](docs/reference/API_STABILITY.md) for exact boundaries.
 
 ### Data model — `LogseqNode` task fields
 
@@ -383,12 +159,9 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 
 ---
 
-## 🛠️ Quickstart
+## Usage
 
 ```bash
-# Install from PyPI (latest: v1.7.1)
-uv pip install logseq-matryca-parser
-
 # Optional: filesystem watcher for live incremental graph updates
 uv pip install 'logseq-matryca-parser[watch]'
 
@@ -490,6 +263,25 @@ We welcome issues, pull requests, and constructive feedback.
 | **Documentation system** | [docs/DOCUMENTATION_SYSTEM.md](docs/DOCUMENTATION_SYSTEM.md) — authority, lifecycle, metadata, and federation |
 | **Code of Conduct** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — community standards |
 | **Security** | [SECURITY.md](SECURITY.md) — report vulnerabilities privately |
+
+## 📦 Release history
+
+Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
+[changelog](CHANGELOG.md), or the signed artifacts on
+[GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
+
+- **v1.7.1** — Added the runnable offline SYNAPSE RAG example and tightened release-note and optional-dependency security checks.
+- **v1.7.0** — Hardened parser correctness, graph diagnostics, writer safety, API stability, documentation governance, and release provenance.
+- **v1.5.0** — Added opt-in CLI detection of unresolved block references for vault and CI hygiene.
+- **v1.4.2** — Fixed agent-write newline handling, controlled corrupt-state failures, and cyclic SYNAPSE page embeds.
+- **v1.4.1** — Expanded contributor tests and refreshed the good-first-issue onboarding path.
+- **v1.4.0** — Strengthened graph integrity, live reloads, serialization, path safety, strict references, and parser edge cases.
+- **v1.3.1** — Aligned examples and skill installation instructions with the repository's `uv` workflow.
+- **v1.3.0** — Expanded the stable API and improved graph reloads, strict references, SYNAPSE metadata, CLI behavior, and optional imports.
+- **v1.2.2** — Restored CodeQL workflow reliability and documented its supported configuration.
+- **v1.2.1** — Added the Python 3.12/3.13 CI matrix, security gates, release pre-flight, and contributor infrastructure.
+- **v1.2.0** — Added graph parity, assets, round-trip serialization, Obsidian export, live watching, agent X-Ray mode, and headless writes.
+- **v1.1.1** — Established title and alias indexing, backlinks, incremental reload, parser shields, property parsing, and broader task markers.
 
 ---
 Architected by **Marco Porcellato** | Powered by **Matryca.ai**

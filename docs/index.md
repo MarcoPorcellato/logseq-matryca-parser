@@ -28,9 +28,12 @@ navigation layers only.
 | Resource | Role |
 |---|---|
 | [Documentation portal](README.md) | Human navigation by audience |
+| [AI agent guide](../AGENTS.md) | Product map, execution contract, safety boundaries, and repository gates |
+| [LLM discovery index](../llms.txt) | Concise standard-format project and capability map for inference-time discovery |
 | [Documentation system](DOCUMENTATION_SYSTEM.md) | Canonical governance, lifecycle, metadata, and federation guide |
 | [Architecture](CLEAN_CODE_ARCHITECTURE.md) | Canonical architecture and public graph API |
 | [Repository roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Current evidence-backed improvement plan |
+| [README readability report](README_READABILITY_REPORT_2026-08-08.md) | Measured human and AI readability assessment and phased proposal |
 | [Issue reconciliation](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Current GitHub backlog decisions |
 | [Decision index](decisions/index.md) | Architectural decisions and missing ADRs |
 | [Reference index](reference/index.md) | Provenance and external relations |
