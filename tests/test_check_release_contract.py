@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from scripts.check_release_contract import validate_release
 
 
@@ -28,6 +30,49 @@ def test_valid_release_contract() -> None:
     assert failures == []
     assert notes is not None
     assert "Verified release artifact lineage" in notes
+
+
+def test_repository_relative_release_links_must_exist(tmp_path: Path) -> None:
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "present.md").write_text("# Present\n", encoding="utf-8")
+    changelog = _changelog().replace(
+        "- Verified release artifact lineage.",
+        "\n".join(
+            (
+                "- [Present](docs/present.md#present)",
+                "- [Missing](examples/missing.py)",
+                "- [External](https://example.com/release)",
+            )
+        ),
+    )
+
+    failures, _ = validate_release(
+        tag="v1.7.0",
+        source="1.7.0",
+        runtime="1.7.0",
+        changelog_text=changelog,
+        repository_root=tmp_path,
+    )
+
+    assert failures == ["release notes link target does not exist: 'examples/missing.py'"]
+
+
+def test_repository_relative_release_links_cannot_escape(tmp_path: Path) -> None:
+    changelog = _changelog().replace(
+        "- Verified release artifact lineage.",
+        "- [Outside](../outside.md)",
+    )
+
+    failures, _ = validate_release(
+        tag="v1.7.0",
+        source="1.7.0",
+        runtime="1.7.0",
+        changelog_text=changelog,
+        repository_root=tmp_path,
+    )
+
+    assert failures == ["release notes link escapes repository: '../outside.md'"]
 
 
 def test_tag_source_and_runtime_mismatches_are_reported() -> None:

@@ -39,6 +39,8 @@ version; use `vX.Y.Z` for the git tag).
 - [ ] Leave an empty `## [Unreleased]` section at the top
 - [ ] Set `__version__ = "X.Y.Z"` in `src/logseq_matryca_parser/_version.py`; Hatchling derives package metadata from this single source
 - [ ] Update `README.md`, `SECURITY.md`, and contributor-facing current-version references
+- [ ] Verify every file, command, issue disposition, and shipped capability
+      named in the versioned changelog against the exact release commit
 - [ ] Run `make all` (Ruff, Mypy, documentation checks, and Pytest)
 - [ ] Run `python -m scripts.check_release_contract --tag vX.Y.Z`
 - [ ] Build wheel and sdist once locally, run `python scripts/check_wheel_contract.py path/to/wheel.whl`, `twine check`, and record SHA-256 digests
@@ -52,8 +54,10 @@ python scripts/extract_changelog.py vX.Y.Z | less
 python -m scripts.check_release_contract --tag vX.Y.Z
 ```
 
-The first command shows exactly the section that will appear on GitHub. The
-second rejects a malformed tag, a tag/source/runtime mismatch, non-empty
+The first command shows exactly the section that will appear on GitHub. Review
+every file link and shipped claim against the exact commit that will receive
+the tag; a non-empty section can still contain a factual mistake. The second
+command rejects a malformed tag, a tag/source/runtime mismatch, non-empty
 `[Unreleased]`, a missing versioned section, or release notes without bullets.
 
 ### 3. Commit, tag, push
@@ -95,6 +99,23 @@ Do not rebuild or replace a published version. Inspect the failed job first:
 
 PyPI cannot be re-published for the same version; use a patch bump if the wheel upload failed.
 
+#### Post-publication documentation correction
+
+If the distributions are correct but the curated notes contain a factual
+documentation error:
+
+1. Do not move the tag, rebuild the distributions, or replace PyPI files.
+2. Verify the actual tagged tree and published package before deciding the
+   correction scope.
+3. Correct `CHANGELOG.md` on `main` with a dated erratum that states whether
+   artifact bytes, attestations, and digests are unchanged.
+4. Update the GitHub Release notes to the corrected versioned changelog text.
+5. Keep any undelivered issue open and record the correction in
+   [`docs/log.md`](log.md).
+
+Use a new patch release instead when runtime behavior or package contents — not
+only explanatory text — are wrong.
+
 ---
 
 ## Troubleshooting
@@ -103,7 +124,8 @@ PyPI cannot be re-published for the same version; use a patch bump if the wheel 
 |---------|-----|
 | Tag on GitHub but no **Release** page | Confirm whether PyPI succeeded; recover only from the checksummed artifact of that exact workflow run. |
 | PyPI version already exists | Bump patch version; never re-use a published version. |
-| Notes look wrong | Re-run locally: `python scripts/extract_changelog.py vX.Y.Z` and compare to `CHANGELOG.md`. |
+| Notes look wrong before publication | Re-run locally: `python scripts/extract_changelog.py vX.Y.Z`, compare to `CHANGELOG.md`, and verify every named file and capability against the tag candidate. |
+| Notes are factually wrong after publication | Preserve the tag and artifacts; follow the documentation-correction procedure above and keep undelivered issues open. |
 | CI fails on tests | Run `make all` locally before tagging. |
 | Tag/version mismatch | Run `python -m scripts.check_release_contract --tag vX.Y.Z`; align `_version.py`, runtime metadata, and changelog before creating a new tag. |
 | Hash verification fails | Stop. Do not publish or attach the bundle; create a clean patch release after diagnosis. |

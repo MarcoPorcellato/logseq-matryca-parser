@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-07
-verified: 2026-08-07
-stale_after: 2026-09-05
+last_verified: 2026-08-08
+verified: 2026-08-08
+stale_after: 2026-09-07
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: docs/quality/ISSUE_TRIAGE_2026-07.md
@@ -25,10 +25,11 @@ closure is justified only by current code, tests or an explicit duplicate;
 runtime behavior without a dedicated regression test remains tracked.
 
 The reconciliation was published in [PR #112](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/112).
-After the actions below, merged follow-up PRs #114-#121, and the evidence-based
-closure of #106, live verification on 2026-08-07 found 23 open issues. The
-parser P0 and the completed API, collision, and filesystem tranches are no
-longer part of the open backlog.
+After the actions below, merged follow-up PRs #114-#123, and the evidence-based
+closure of #105 and #106, live verification on 2026-08-08 found 23 open issues:
+#105 left the backlog after the verified v1.7.0 publication, while new upstream
+runtime follow-up #124 entered it. The parser P0 and the completed API,
+collision, filesystem, and release-lineage tranches are no longer open.
 
 ## Decisions
 
@@ -64,7 +65,7 @@ longer part of the open backlog.
 | #102 | Closed by merged [PR #120](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/120) | Shipped | Stable collision diagnostics, preserved winner policy, typed strict mode, CLI rendering, and no-ghost tests |
 | #103 | Expand | Wave 0/3 | Add rename/backlink cold-load equivalence |
 | #104 | Expand | Wave 0/3 | Add arbitrary-depth parser regression matrix |
-| #105 | Keep | Wave 4 | Immutable build-once release lineage remains absent |
+| #105 | Closed after [PR #123](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/123) and v1.7.0 verification | Shipped | One checksummed bundle reached PyPI through OIDC and the GitHub Release byte-for-byte; public provenance, hashes, install, runtime, metadata, and CLI were verified |
 | #106 | Closed after merged [PR #121](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/121) | Shipped | Vault confinement, target identity, metadata preservation, dry-run patch, limits, typed diagnostics, symlink and `file://` tests |
 | #107 | Closed by merged [PR #117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117) | Shipped | PEP 561 wheel marker, derived version contract, API tiers, import/signature tests, and downstream Mypy probe |
 | #108 | Keep blocked by prerequisites | Wave 6 | Begin only after deep parser fix and #104 corpus |
@@ -92,7 +93,7 @@ longer part of the open backlog.
 completed: parser P0 + #106 filesystem boundary + #101/#102/#107 foundations
   -> next: #103 snapshot correctness + #104 semantic corpus
   -> complete #109 documentation federation + #110 diagnostic producers
-  -> #105 release provenance
+  -> completed: #105 release provenance in v1.7.0
   -> #111 measured scale
   -> #108 parser phase extraction
 ```
@@ -117,3 +118,20 @@ not touch protected parser/graph hubs or weaken these gates.
 - [PR #122](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/122)
   publishes this final live-backlog reconciliation directly against `main`
   without claiming additional implementation scope.
+- Merged [PR #123](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/123)
+  and published v1.7.0 from `main@af45c1b3`. The ordered release run built one
+  wheel/sdist bundle, re-verified its SHA-256 manifest before PyPI and GitHub,
+  published OIDC attestations, and passed an independent install/runtime/CLI
+  check. #105 is closed.
+- Kept #90 open after live tree verification found that
+  `examples/run_synapse_rag.py` is still absent. The initial v1.7.0 release
+  notes listed it incorrectly; the changelog and GitHub Release receive a
+  transparent documentation-only erratum without changing artifacts.
+
+## Post-baseline issue — 2026-08-08
+
+- [#124](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/124)
+  tracks the Node.js 20 deprecation annotations emitted by the successful
+  v1.7.0 run. Official `upload-artifact` v7.0.1 and `download-artifact` v8.0.1
+  still declare `node20`, so the repository must wait for official Node.js 24
+  manifests and then repin reviewed full SHAs without changing release lineage.

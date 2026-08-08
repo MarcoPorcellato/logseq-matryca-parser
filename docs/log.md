@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-07
-verified: 2026-08-07
-stale_after: 2027-02-02
+last_verified: 2026-08-08
+verified: 2026-08-08
+stale_after: 2027-02-04
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -18,6 +18,30 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-08-08
+
+- Merged [PR #123](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/123)
+  and published the SemVer-minor v1.7.0 release from
+  `main@af45c1b3e75dfc32f42cfede5083f90aec8b96ce`.
+- Verified the complete ordered release run: Python 3.12/3.13 pre-flight,
+  dependency audit, non-mutating quality gate, one wheel/sdist build, wheel and
+  Twine contracts, SHA-256 manifest, PyPI trusted publication with OIDC
+  attestations, and GitHub Release creation from the same bundle.
+- Reconciled GitHub, PyPI, and local verification. Wheel SHA-256 is
+  `6624b59742206ad9c4cf68dd00686f0995861ebc304f9241d05b5a3d047cf354`;
+  sdist SHA-256 is
+  `57e44dd90cbc7aa43b7fb47462fdddfe4d8759a45fd6c268250cfa1356a36f62`.
+  PyPI provenance exists for both files; direct installation, runtime metadata,
+  package import, and CLI help report v1.7.0 successfully.
+- Closed #105 with public evidence and opened
+  [#124](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/124)
+  for the upstream Node.js 20 artifact-action annotations. Current official
+  releases still declare `node20`, so no unreviewed workaround was introduced.
+- Corrected a factual release-note error: `examples/run_synapse_rag.py` is not
+  present in v1.7.0, so #90 remains open. Added a dated changelog erratum and a
+  post-publication correction procedure; tag, artifacts, attestations, and
+  digests remain unchanged.
 
 ## 2026-08-07
 
