@@ -23,6 +23,7 @@ maintained_documents = [
   "docs/DOCUMENTATION_SYSTEM.md",
   "docs/CLEAN_CODE_ARCHITECTURE.md",
   "docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md",
+  "docs/README_READABILITY_REPORT_2026-08-08.md",
   "docs/quality/ISSUE_RECONCILIATION_2026-08-06.md",
   "docs/quality/README.md",
   "docs/decisions/index.md",

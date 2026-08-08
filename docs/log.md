@@ -21,6 +21,29 @@ superseded_by: null
 
 ## 2026-08-08
 
+- Moved 241 lines of detailed release history from the root README into
+  [`RELEASE_HIGHLIGHTS.md`](../RELEASE_HIGHLIGHTS.md), retained a one-line
+  summary per documented release at the README bottom, and added a prominent
+  direct link. The root README falls from 495 to 287 lines and its Quickstart
+  moves from line 382 to line 29. The hero navigation is reduced to five
+  primary routes and capabilities are grouped by user outcome.
+- Added the maintained
+  [README human and AI readability report](README_READABILITY_REPORT_2026-08-08.md)
+  with official GitHub guidance, mature-project benchmarks, measured findings,
+  a proposed human-first outline, plain-language rules, acceptance criteria,
+  and approval-separated follow-up phases.
+- Expanded [`AGENTS.md`](../AGENTS.md) from audit-only rules into a concise
+  product map, task entry guide, source-of-truth statement, execution contract,
+  and parser, graph, filesystem, optional-dependency, and validation guardrails.
+- Added a proposal-format [`llms.txt`](../llms.txt) with a concise project
+  summary, essential documentation and runnable entry points, and an explicit
+  `Optional` history section. Added thin
+  [GitHub Copilot instructions](../.github/copilot-instructions.md) that route to
+  `AGENTS.md`, `docs/index.md`, and `llms.txt` instead of duplicating their
+  detailed content. An exhaustive `llms-full.txt` was intentionally omitted to
+  avoid stale duplicated documentation and excessive context. A deterministic
+  contract test validates the `llms.txt` structure and every linked repository
+  target.
 - Merged [PR #126](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/126)
   and published the corrective
   [v1.7.1 release](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.7.1)

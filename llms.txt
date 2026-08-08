@@ -1,0 +1,50 @@
+# Logseq Matryca Parser
+
+> A deterministic Python parser, typed AST, in-memory graph, RAG adapter, exporter, visualizer, and bounded agent-access layer for sovereign Logseq Markdown vaults.
+
+Logseq Markdown files are the source of truth. The parser preserves outliner
+hierarchy, block UUIDs, page aliases, backlinks, properties, tasks, timestamps,
+and assets instead of flattening a vault into unrelated text chunks. Derived
+views include graph queries, LangChain documents, LlamaIndex nodes,
+context-enriched chunks, JSON and Obsidian exports, interactive visualization,
+and token-efficient agent reads and writes.
+
+Use documented package-root imports for stable APIs. Treat filesystem writes,
+symlinks, asset paths, graph identity, and parse/serialize round trips as safety
+boundaries. Read AGENTS.md before changing the repository.
+
+## Start here
+
+- [Human overview](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/README.md): Product purpose, capabilities, installation, CLI, Python API, and support routes.
+- [AI agent instructions](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/AGENTS.md): Product map, source-of-truth model, repository contract, safety rules, and validation gates.
+- [Machine knowledge index](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/index.md): Canonical maintained documentation entry point.
+- [Cookbook](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/COOKBOOK.md): Runnable integration recipes for RAG, graph queries, watching, agents, and testing.
+
+## Core capabilities
+
+- [Architecture](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/ARCHITECTURE.md): LOGOS parsing, LogseqGraph, SYNAPSE, FORGE, KINETIC, LENS, agents, and data flow.
+- [Clean architecture](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/CLEAN_CODE_ARCHITECTURE.md): Canonical module boundaries, stable graph APIs, and dependency rules.
+- [AST primer](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/logseq_ast_primer.md): Logseq Markdown topology, indentation, properties, references, tasks, and temporal semantics.
+- [API stability](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/API_STABILITY.md): Stable, provisional, and internal API tiers plus typing guarantees.
+- [Structured diagnostics](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/DIAGNOSTICS.md): Diagnostic payloads, codes, rendering, path safety, and escalation.
+- [Filesystem safety](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/FILESYSTEM_SAFETY.md): Vault containment, symlink policy, atomic replacement, dry runs, metadata, and limits.
+
+## Runnable entry points
+
+- [Offline SYNAPSE RAG example](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/examples/run_synapse_rag.py): LangChain, LlamaIndex, enriched chunks, and page-embed expansion without a user vault.
+- [Demo example](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/examples/run_demo.py): Small end-to-end parser demonstration.
+- [CLI implementation](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/src/logseq_matryca_parser/kinetic.py): Parse, scan, export, visualize, agent-read, agent-write, append, and demo commands.
+- [Public package API](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/src/logseq_matryca_parser/__init__.py): Supported package-root exports.
+
+## Build, test, and contribute
+
+- [Contributing](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/CONTRIBUTING.md): Environment setup, quality gates, tests, and pull-request workflow.
+- [Security policy](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/SECURITY.md): Supported versions and private vulnerability reporting.
+- [Release process](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/RELEASE_PROCESS.md): SemVer, immutable build, provenance, PyPI, and GitHub publication procedure.
+
+## Optional
+
+- [Release highlights](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/RELEASE_HIGHLIGHTS.md): Reader-focused history of shipped capability milestones.
+- [Changelog](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/CHANGELOG.md): Exhaustive versioned changes.
+- [Repository improvement roadmap](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md): Dated audit evidence and sequenced improvement record.
+- [Issue reconciliation](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/quality/ISSUE_RECONCILIATION_2026-08-06.md): Dated backlog decisions and shipped evidence.

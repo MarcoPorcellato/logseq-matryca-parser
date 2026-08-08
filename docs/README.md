@@ -48,6 +48,7 @@ entry points.
 | [`CODEQL.md`](CODEQL.md) | Maintainers | CodeQL default setup notes |
 | [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) | Maintainers, contributors | Local static analysis bug audit (Clean Architecture lens, runtime evidence) |
 | [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Maintainers, contributors | Evidence-backed repository audit, confirmed defects, issue map, and sequenced improvement roadmap |
+| [`README_READABILITY_REPORT_2026-08-08.md`](README_READABILITY_REPORT_2026-08-08.md) | Maintainers | Measured human and AI README assessment with a phased simplification proposal |
 | [`quality/ISSUE_RECONCILIATION_2026-08-06.md`](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Maintainers, contributors | Evidence-backed disposition of every issue open at the audit baseline |
 | [`decisions/index.md`](decisions/index.md) | Maintainers | Canonical decision registry and ADR gaps |
 | [`reference/index.md`](reference/index.md) | Maintainers, integrators | Provenance and Matryca ecosystem relations |
@@ -69,6 +70,10 @@ entry points.
 ## Root-level docs
 
 - [`../README.md`](../README.md) — project overview and quickstart
+- [`../RELEASE_HIGHLIGHTS.md`](../RELEASE_HIGHLIGHTS.md) — reader-focused release history
+- [`../AGENTS.md`](../AGENTS.md) — product map, execution contract, and safety rules for AI agents
+- [`../llms.txt`](../llms.txt) — concise standard-format LLM discovery and capability index
+- [`../.github/copilot-instructions.md`](../.github/copilot-instructions.md) — thin GitHub-specific adapter to the canonical agent guidance
 - [`../CONTRIBUTING.md`](../CONTRIBUTING.md) — setup, `make all`, PR workflow, **Your first PR**
 - [`../CHANGELOG.md`](../CHANGELOG.md) — shipped releases and Unreleased changes
 - [`../CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) — community standards
