@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-07
-verified: 2026-08-07
-stale_after: 2026-11-04
+last_verified: 2026-08-08
+verified: 2026-08-08
+stale_after: 2026-11-06
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 source_commit: 8e90b44
@@ -318,11 +318,18 @@ and protects the target/workflow contract with focused tests. A repository-wide
 
 ### P1.6 — Release artifacts not built once
 
-**Status:** confirmed; covered by #105.
+**Status:** resolved by #105, PR #123, and v1.7.0 on 2026-08-08.
 
-Pre-flight, PyPI build, and GitHub release do not necessarily consume the same immutable wheel/sdist. Workflows use movable tags and the `nltk` VCS override is tag-based instead of commit-based.
+At the audit baseline, pre-flight, PyPI build, and GitHub release did not prove
+that they consumed the same immutable wheel/sdist, and workflow dependencies
+used movable tags. The v1.7.0 release graph now builds once, records and
+re-verifies SHA-256, publishes the exact files through PyPI OIDC, and creates
+the GitHub Release only after PyPI succeeds. Every external action is pinned to
+a reviewed full commit SHA.
 
-**Action:** build once, checksum, publish attested artifacts, release exact bytes, and align tags, versions, and changelog entries.
+**Evidence:** PR #123, release run 31237286005, public PyPI/GitHub hashes and
+provenance, and the execution record in section 17. #124 tracks the upstream
+Node.js runtime annotation without weakening this resolved lineage.
 
 ### P2 — Strategic debt valid but not as urgent as current findings
 
@@ -538,7 +545,8 @@ originally stacked on feature branches.
 
 ### Wave 4 — Release confidence
 
-- #105: build once / publish exact bytes;
+- #105: completed in v1.7.0 — build once / publish exact bytes;
+- #124: wait for official Node.js 24 artifact-action manifests, then repin;
 - pin actions by SHA;
 - pin VCS dependency commits;
 - install typed wheel in clean environment, verify `RECORD` and checksum;
@@ -656,7 +664,8 @@ FILE_URI_RESULT /private/etc/passwd
 ## 14. Limits and non-authoritative claims
 
 - No benchmark was run against a real or 10k-page vault.
-- No public release was qualified and no clean wheel installation was verified.
+- At the 2026-08-06 baseline, no public release was qualified and no clean wheel
+  installation was verified. Section 17 records the v1.7.0 resolution.
 - The follow-up phase opened PR #112, created issue #113, updated impacted issues, and closed only completed/duplicate entries in the reconciliation log. Milestones, branch protection, and remote workflows were not changed.
 - The study does not prove complete compatibility with all Logseq versions.
 - The symlink probe demonstrates macOS/POSIX behavior; the policy must include Windows matrix coverage.
@@ -720,7 +729,47 @@ every merged tranche reported seven passes and zero failures.
    federation still requires final checks on the resulting merged `main`.
 
 The unresolved roadmap is intentionally not folded into this stack: #103 and
-#104 are the next correctness foundations; #105 and #111 remain release and
-measurement work; #108 remains blocked on the corpus and benchmarks. Product
-RFCs and contributor issues retain their existing dispositions in the issue
-reconciliation ledger.
+#104 are the next correctness foundations; #111 remains measurement work; #108
+remains blocked on the corpus and benchmarks. #105 is completed by the release
+record below. Product RFCs and contributor issues retain their existing
+dispositions in the issue reconciliation ledger.
+
+## 17. v1.7.0 release execution record — 2026-08-08
+
+[PR #123](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/123)
+prepared the SemVer-minor release and squash merged as `af45c1b3`. Fourteen PR
+checks passed; fresh `main` CI and CodeQL also passed on that exact commit.
+Tag `v1.7.0` points to `af45c1b3e75dfc32f42cfede5083f90aec8b96ce`.
+
+The ordered [Release run](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/31237286005)
+completed every job:
+
+1. Python 3.12 and 3.13 pre-flight ran dependency audit, `make all`, and clean
+   checkout verification.
+2. One build job validated tag/source/runtime/changelog, built wheel and sdist,
+   ran wheel and Twine checks, recorded SHA-256, and uploaded one immutable
+   bundle.
+3. PyPI downloaded and verified that bundle, then published it through trusted
+   publishing with OIDC attestations.
+4. The GitHub Release ran only after PyPI succeeded, re-verified the same
+   manifest, and attached the same wheel, sdist, and `SHA256SUMS`.
+
+Public verification matched all three digest surfaces:
+
+| Distribution | SHA-256 |
+|---|---|
+| `logseq_matryca_parser-1.7.0-py3-none-any.whl` | `6624b59742206ad9c4cf68dd00686f0995861ebc304f9241d05b5a3d047cf354` |
+| `logseq_matryca_parser-1.7.0.tar.gz` | `57e44dd90cbc7aa43b7fb47462fdddfe4d8759a45fd6c268250cfa1356a36f62` |
+
+PyPI exposes provenance for both files. A direct PyPI install reported metadata
+version `1.7.0`; reinstalling the byte-identical published wheel into the
+qualified dependency environment produced runtime version `1.7.0`, imported
+from `site-packages`, and rendered `matryca-parse --help` successfully. #105 is
+closed with this evidence.
+
+The initial release notes incorrectly listed `examples/run_synapse_rag.py`,
+which is absent from the tag; #90 therefore remains open. The correction is a
+dated changelog and GitHub Release erratum only: tag, distributions,
+attestations, and digests remain unchanged. The only workflow annotations were
+upstream Node.js 20 deprecation warnings; #124 tracks migration when official
+Node.js 24 artifact-action manifests become available.

@@ -40,12 +40,41 @@ def runtime_version() -> str:
     return result.stdout.strip()
 
 
+def missing_repository_links(release_notes: str, repository_root: Path) -> list[str]:
+    """Return deterministic failures for missing or escaping local Markdown links."""
+    resolved_root = repository_root.resolve()
+    failures: set[str] = set()
+    destinations = re.findall(r"(?<!!)\[[^]]+\]\(([^)\s]+)", release_notes)
+
+    for raw_target in destinations:
+        target = raw_target.strip("<>")
+        if (
+            not target
+            or target.startswith(("#", "/"))
+            or re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", target)
+        ):
+            continue
+
+        path_text = target.split("#", 1)[0].split("?", 1)[0]
+        if not path_text:
+            continue
+
+        candidate = (resolved_root / path_text).resolve()
+        if candidate != resolved_root and resolved_root not in candidate.parents:
+            failures.add(f"release notes link escapes repository: {target!r}")
+        elif not candidate.exists():
+            failures.add(f"release notes link target does not exist: {path_text!r}")
+
+    return sorted(failures)
+
+
 def validate_release(
     *,
     tag: str,
     source: str,
     runtime: str,
     changelog_text: str,
+    repository_root: Path | None = None,
 ) -> tuple[list[str], str | None]:
     """Return deterministic release-contract failures and release notes."""
     failures: list[str] = []
@@ -69,6 +98,8 @@ def validate_release(
         body = "\n".join(notes.splitlines()[1:]).strip()
         if not body or not any(line.lstrip().startswith("- ") for line in body.splitlines()):
             failures.append(f"changelog section [{tag_version}] has no release-note bullets")
+        if repository_root is not None:
+            failures.extend(missing_repository_links(notes, repository_root))
 
     try:
         unreleased = extract_changelog_section(
@@ -110,6 +141,7 @@ def main(argv: list[str] | None = None) -> int:
         source=source,
         runtime=runtime,
         changelog_text=changelog_text,
+        repository_root=ROOT,
     )
     for failure in failures:
         print(f"release-contract: {failure}")
