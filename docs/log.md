@@ -21,11 +21,26 @@ superseded_by: null
 
 ## 2026-08-08
 
-- Prepared the v1.7.1 patch candidate to deliver the previously omitted
-  `examples/run_synapse_rag.py`, validate its three public SYNAPSE conversion
-  paths and resolved page embed, and constrain the optional AI/development lock
-  to `aiohttp>=3.14.3` and `setuptools>=83.0.0`. Publication and issue closure
-  remain contingent on merged CI, tag workflow, and public artifact checks.
+- Merged [PR #126](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/126)
+  and published the corrective
+  [v1.7.1 release](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.7.1)
+  from `main@b68b964ae5270bea8489f4b80fdc3a6a47759296`. The release delivers
+  the previously omitted `examples/run_synapse_rag.py`, validates its three
+  public SYNAPSE conversion paths and resolved page embed, and constrains the
+  optional AI/development lock to `aiohttp>=3.14.3` and `setuptools>=83.0.0`.
+- Verified the complete
+  [v1.7.1 release run](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/31240367822),
+  PyPI OIDC provenance for both distributions, and matching SHA-256 values
+  across GitHub assets, `SHA256SUMS`, GitHub digest metadata, and PyPI. The
+  wheel is `6c5f1d96857c27a99ac852d3a7766521ff89641f67cf27de22c160b6cb810901`;
+  the sdist is
+  `ba45f10b620a801308722a825da000a3519e3955e8e81ab36d05550a84858ec0`.
+- Installed the exact public wheel in clean base and AI-qualified environments.
+  Runtime and package metadata reported v1.7.1, the CLI help passed, and the
+  published example completed all three SYNAPSE exports. Dependabot reports no
+  open alerts after the `aiohttp` and `setuptools` lock corrections, and
+  [#90](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/90)
+  is closed with public evidence.
 - Merged [PR #123](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/123)
   and published the SemVer-minor v1.7.0 release from
   `main@af45c1b3e75dfc32f42cfede5083f90aec8b96ce`.
@@ -44,9 +59,9 @@ superseded_by: null
   for the upstream Node.js 20 artifact-action annotations. Current official
   releases still declare `node20`, so no unreviewed workaround was introduced.
 - Corrected a factual release-note error: `examples/run_synapse_rag.py` is not
-  present in v1.7.0, so #90 remains open. Added a dated changelog erratum and a
-  post-publication correction procedure; tag, artifacts, attestations, and
-  digests remain unchanged.
+  present in v1.7.0, so #90 remained open pending the corrective release. Added
+  a dated changelog erratum and a post-publication correction procedure; the
+  v1.7.0 tag, artifacts, attestations, and digests remain unchanged.
 
 ## 2026-08-07
 

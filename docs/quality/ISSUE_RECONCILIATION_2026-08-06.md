@@ -25,11 +25,12 @@ closure is justified only by current code, tests or an explicit duplicate;
 runtime behavior without a dedicated regression test remains tracked.
 
 The reconciliation was published in [PR #112](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/112).
-After the actions below, merged follow-up PRs #114-#123, and the evidence-based
-closure of #105 and #106, live verification on 2026-08-08 found 23 open issues:
-#105 left the backlog after the verified v1.7.0 publication, while new upstream
-runtime follow-up #124 entered it. The parser P0 and the completed API,
-collision, filesystem, and release-lineage tranches are no longer open.
+After the actions below, merged follow-up PRs #114-#126, and evidence-based
+closure of #90, #105, and #106, live verification on 2026-08-08 found 22 open
+issues. #105 left the backlog after the verified v1.7.0 publication, #90 left
+after the verified corrective v1.7.1 publication, and new upstream runtime
+follow-up #124 entered it. The parser P0 and the completed API, collision,
+filesystem, release-lineage, and SYNAPSE-example tranches are no longer open.
 
 ## Decisions
 
@@ -53,7 +54,7 @@ collision, filesystem, and release-lineage tranches are no longer open.
 | #87 | Keep, high priority | Now | Deterministic pathological parser latency; feeds #111 |
 | #88 | Keep | Next | Direct strategy-module tests are still absent |
 | #89 | Keep as canonical graph API test issue | Next | Dedicated boundary tests remain incomplete |
-| #90 | Close only after verified v1.7.1 publication | Release gate | The patch candidate adds the offline example, all three SYNAPSE exports, resolved page-embed proof, Cookbook link, and regression test |
+| #90 | Closed after [PR #126](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/126) and v1.7.1 verification | Shipped | The public release includes the offline example, all three SYNAPSE exports, resolved page-embed proof, Cookbook link, and regression test |
 | #91 | Keep | Next | Direct `kinetic_export` tests are absent |
 | #92 | Keep, narrow to regression protection | Next | Runtime resolves canonical aliases; dedicated alias test is absent |
 | #93 | Keep, narrow to LENS recipe | Next | Broken-ref tip exists; complete visualization recipe is absent |
@@ -127,10 +128,12 @@ not touch protected parser/graph hubs or weaken these gates.
   `examples/run_synapse_rag.py` is still absent. The initial v1.7.0 release
   notes listed it incorrectly; the changelog and GitHub Release receive a
   transparent documentation-only erratum without changing artifacts.
-- Prepared the v1.7.1 patch candidate to satisfy every #90 acceptance
-  criterion and constrain the two vulnerable optional AI/development
-  dependencies. #90 remains open until the merged tag, GitHub Release, and
-  PyPI package have been verified publicly.
+- Merged [PR #126](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/126)
+  and published v1.7.1 from `main@b68b964a`. The public GitHub and PyPI
+  distributions match the release manifest and platform digest metadata;
+  provenance exists for both files, clean installation reports v1.7.1, the CLI
+  and SYNAPSE example pass, and Dependabot reports no open alerts. #90 is closed
+  with this evidence.
 
 ## Post-baseline issue — 2026-08-08
 
