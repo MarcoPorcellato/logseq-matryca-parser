@@ -9,7 +9,7 @@ lint-fix:
 	uv run ruff check . --fix
 
 check:
-	uv run mypy src/ tests/ examples/ scripts/check_documentation.py scripts/check_wheel_contract.py
+	uv run mypy src/ tests/ examples/ scripts/check_documentation.py scripts/check_release_contract.py scripts/check_wheel_contract.py
 
 vendor-name-check:
 	bash scripts/check_vendor_free_docs.sh

@@ -1,13 +1,16 @@
-name: Publish to PyPI
+name: Release
 
 on:
   push:
     tags:
       - "v*"
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   pre-flight:
@@ -16,46 +19,135 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.12", "3.13" ]
+        python-version: ["3.12", "3.13"]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
+      - name: Checkout exact tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
 
-      - name: Sync dependencies
-        run: uv sync --all-extras
+      - name: Sync locked dependencies
+        run: uv sync --locked --all-extras
 
-      - name: Run quality gate
+      - name: Audit production dependencies
+        run: |
+          uv export --no-dev --no-emit-workspace --no-hashes -o "${{ runner.temp }}/requirements-audit.txt"
+          uv run pip-audit -r "${{ runner.temp }}/requirements-audit.txt"
+
+      - name: Run full quality gate
         run: make all
 
-  publish:
-    name: Publish
+      - name: Verify checkout unchanged
+        run: make verify-clean
+
+  build:
+    name: Build immutable release bundle
     needs: pre-flight
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Sync locked dependencies
+        run: uv sync --locked --all-extras
+
+      - name: Verify tag, source, runtime, and release notes
+        run: |
+          uv run python scripts/check_release_contract.py \
+            --tag "${GITHUB_REF_NAME}" \
+            --notes-out release-bundle/RELEASE_NOTES.md
+
+      - name: Build wheel and source distribution once
+        run: uv build --out-dir release-bundle/dist
+
+      - name: Verify wheel and package metadata
+        run: |
+          wheel_count=0
+          for wheel in release-bundle/dist/*.whl; do
+            uv run python scripts/check_wheel_contract.py "$wheel"
+            wheel_count=$((wheel_count + 1))
+          done
+          test "$wheel_count" -eq 1
+          uvx --from twine==6.2.0 twine check release-bundle/dist/*
+
+      - name: Record and verify distribution digests
+        working-directory: release-bundle
+        run: |
+          sha256sum dist/* > SHA256SUMS
+          sha256sum --check SHA256SUMS
+
+      - name: Upload immutable release bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-bundle-${{ github.ref_name }}
+          path: release-bundle/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+  publish:
+    name: Publish exact distributions to PyPI
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: pypi
       url: https://pypi.org/p/logseq-matryca-parser
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Download immutable release bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          python-version: "3.12"
+          name: release-bundle-${{ github.ref_name }}
+          path: release-bundle
 
-      - name: Install build
-        run: |
-          python -m pip install --upgrade pip
-          pip install build
+      - name: Verify distribution digests
+        working-directory: release-bundle
+        run: sha256sum --check SHA256SUMS
 
-      - name: Build sdist and wheel
-        run: python -m build
+      - name: Publish package distributions with OIDC attestations
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
+        with:
+          packages-dir: release-bundle/dist/
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+  github-release:
+    name: Publish GitHub Release from exact distributions
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download immutable release bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-bundle-${{ github.ref_name }}
+          path: release-bundle
+
+      - name: Verify distribution digests
+        working-directory: release-bundle
+        run: sha256sum --check SHA256SUMS
+
+      - name: Create GitHub Release with verified artifacts
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body_path: release-bundle/RELEASE_NOTES.md
+          files: |
+            release-bundle/dist/*
+            release-bundle/SHA256SUMS
+          generate_release_notes: false
+          make_latest: true
