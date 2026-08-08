@@ -768,17 +768,17 @@ from `site-packages`, and rendered `matryca-parse --help` successfully. #105 is
 closed with this evidence.
 
 The initial release notes incorrectly listed `examples/run_synapse_rag.py`,
-which is absent from the tag; #90 therefore remains open. The correction is a
-dated changelog and GitHub Release erratum only: tag, distributions,
-attestations, and digests remain unchanged. The only workflow annotations were
-upstream Node.js 20 deprecation warnings; #124 tracks migration when official
-Node.js 24 artifact-action manifests become available.
+which is absent from the tag; #90 therefore remained open pending a corrective
+release. The v1.7.0 correction is a dated changelog and GitHub Release erratum
+only: tag, distributions, attestations, and digests remain unchanged. The only
+workflow annotations were upstream Node.js 20 deprecation warnings; #124 tracks
+migration when official Node.js 24 artifact-action manifests become available.
 
-## 18. v1.7.1 corrective release candidate — 2026-08-08
+## 18. v1.7.1 corrective release execution — 2026-08-08
 
 Post-release verification of v1.7.0 found one promised repository example was
 absent and four Dependabot alerts affected optional AI/development lock entries.
-The v1.7.1 candidate addresses those findings without changing the base runtime
+The v1.7.1 release addresses those findings without changing the base runtime
 dependency set or stable package APIs:
 
 1. `examples/run_synapse_rag.py` runs offline against a temporary Logseq graph,
@@ -789,10 +789,27 @@ dependency set or stable package APIs:
 3. The lock constrains `aiohttp>=3.14.3` and `setuptools>=83.0.0`; local base and
    optional-AI dependency audits report no known vulnerabilities (the pinned
    NLTK VCS requirement is reported as not version-auditable).
-4. The isolated candidate environment passes Ruff, Mypy, maintained-document
+4. The isolated release environment passes Ruff, Mypy, maintained-document
    validation, the terminology gate, 532 tests, 91.90% coverage, the release
    and wheel contracts, Twine checks, and zero import cycles.
 
-This section records a qualified candidate, not a completed publication. Final
-tag, workflow, checksums, provenance, installation, and issue-closure evidence
-must replace that status only after public verification.
+[PR #126](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/126)
+was squash merged as `main@b68b964ae5270bea8489f4b80fdc3a6a47759296`. Tag
+`v1.7.1` resolves to that exact commit, and the ordered
+[release workflow](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/31240367822)
+completed every pre-flight, immutable-build, PyPI, and GitHub Release job.
+
+Public verification matched all distribution digest surfaces:
+
+| Distribution | SHA-256 |
+|---|---|
+| `logseq_matryca_parser-1.7.1-py3-none-any.whl` | `6c5f1d96857c27a99ac852d3a7766521ff89641f67cf27de22c160b6cb810901` |
+| `logseq_matryca_parser-1.7.1.tar.gz` | `ba45f10b620a801308722a825da000a3519e3955e8e81ab36d05550a84858ec0` |
+
+PyPI exposes OIDC provenance for both files. The exact public wheel imports
+from `site-packages` with runtime and package metadata at v1.7.1; the CLI help
+passes in a clean base environment, while an AI-qualified environment completes
+the published SYNAPSE example and its three export paths. Dependabot reports no
+open alerts after the two lock corrections. #90 is closed with this evidence;
+the only release annotation remains the upstream Node.js 20 action warning
+tracked by #124.
