@@ -12,7 +12,7 @@
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-22c55e.svg?style=flat-square)](#)
 ![Origin: Matryca.ai](https://img.shields.io/badge/Origin-Matryca.ai-gold?style=for-the-badge)
 
-**v1.6.0** — Clean Architecture slices (`kinetic_export`, `synapse_embed`, layer CI), public `iter_attached_nodes()` / `is_tracked_markdown_path()`. See [CHANGELOG](CHANGELOG.md); current quality evidence lives in the [repository roadmap](docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md).
+**v1.7.0** — structured diagnostics, deterministic collision handling, deep parser correctness, typed APIs, vault-bound writes, governed documentation, and verified immutable release artifacts. See the [CHANGELOG](CHANGELOG.md) and [release process](docs/RELEASE_PROCESS.md).
 
 > *Turning a forest of local plain-text files into a unified semantic powerhouse.*
 
@@ -106,17 +106,19 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 
 ---
 
-## ⚡ Release highlights (v1.6.0)
+## ⚡ Release highlights (v1.7.0)
 
-Minor release — Clean Architecture v1 structural slices and documentation SSOT. **No intentional breaking changes** to default CLI behavior or stable package exports.
+Minor release — repository-wide correctness, safety, API, documentation, and release-engineering hardening. **No intentional breaking changes** to default CLI behavior or stable package exports.
 
 | Area | Change |
 | :--- | :--- |
-| **KINETIC (SRP)** | `kinetic_export.py` (format handlers) + `kinetic_commands.py` (subcommands); `kinetic.py` is a ~230-line app factory ([#80](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/80), [#82](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/82)). |
-| **SYNAPSE (OCP)** | `synapse_embed.py` — `BlockEmbedExpander` / `PageEmbedExpander` strategy ([#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70)). |
-| **Graph (ISP/DIP)** | Public `iter_attached_nodes()` and `is_tracked_markdown_path()` ([#81](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/81), [#68](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/68)). |
-| **Quality gates** | `tests/test_layer_boundary.py` + `make vendor-name-check`; SSOT [`docs/CLEAN_CODE_ARCHITECTURE.md`](docs/CLEAN_CODE_ARCHITECTURE.md). |
-| **Test suite** | **456** pytest cases (**+5** vs v1.5.0). |
+| **Correctness** | Arbitrary-depth immutable parser refreshes preserve ordering, identity, properties, soft breaks, fences, and round trips. |
+| **Diagnostics and graph** | Stable structured findings, JSON output, deterministic title-collision diagnostics, and opt-in strict rejection. |
+| **Writer security** | Vault containment, symlink and target-identity checks, metadata preservation, dry-run patches, and bounded writes. |
+| **Public package** | PEP 561 `py.typed`, documented API stability tiers, root exports, signature tests, and wheel/downstream Mypy contracts. |
+| **Documentation** | English maintained-document profile, authority and lifecycle metadata, deterministic link/freshness validation, and Matryca Knowledge federation guidance. |
+| **Release integrity** | One checksummed wheel/sdist build is reused for attested PyPI publication and GitHub Release assets. |
+| **Test suite** | **528** pytest cases with **91.81%** coverage. |
 
 ---
 
@@ -369,7 +371,7 @@ Marker syntax (`[#A]`, `SCHEDULED: <...>`, `DEADLINE: <...>`) is stripped from `
 ## 🛠️ Quickstart
 
 ```bash
-# Install from PyPI (latest: v1.6.0)
+# Install from PyPI (latest: v1.7.0)
 uv pip install logseq-matryca-parser
 
 # Optional: filesystem watcher for live incremental graph updates

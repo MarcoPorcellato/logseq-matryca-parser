@@ -608,7 +608,7 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 | [`index.md`](index.md) | Canonical maintained knowledge-bundle entry point |
 | [`design-docs/README.md`](design-docs/README.md) | Warning before using historical DDD blueprints |
 
-### Quality gate (v1.6.0)
+### Quality gate (v1.7.0)
 
 Local and CI parity: `uv sync --all-extras` → `make lint` → `make check` →
 `make test` → `make vendor-name-check` → `make docs-check`. These targets are

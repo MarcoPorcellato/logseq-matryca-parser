@@ -22,10 +22,10 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v7
+      uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
       with:
         python-version: ${{ matrix.python-version }}
         enable-cache: true
@@ -58,19 +58,22 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v7
+      uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
       with:
         python-version: "3.12"
         enable-cache: true
 
-    - name: Build wheel
-      run: uv build --wheel --out-dir dist-contract
+    - name: Build wheel and source distribution
+      run: uv build --out-dir dist-contract
 
     - name: Verify wheel metadata and PEP 561 marker
       run: uv run python scripts/check_wheel_contract.py dist-contract/*.whl
+
+    - name: Verify distribution metadata
+      run: uvx --from twine==6.2.0 twine check dist-contract/*
 
     - name: Verify downstream typing from the wheel
       run: |

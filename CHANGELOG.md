@@ -7,7 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-08-08
+
+Minor release — structured diagnostics, deterministic title-collision handling,
+arbitrary-depth parser refreshes, typed public APIs, vault-bound writer safety,
+and a governed English documentation system. **No intentional breaking changes**
+to stable package exports or default CLI behavior.
+
 ### Added
+
+- **Verified immutable release pipeline** — tag, source, runtime, and changelog
+  contracts now fail closed before packaging; Python 3.12/3.13 pre-flight runs
+  the full quality and dependency-audit gates; wheel and sdist are built once,
+  checked with Twine, checksummed, published to PyPI with OIDC attestations, and
+  attached byte-for-byte to the GitHub Release
+  ([#105](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/105)).
 
 - **Structured diagnostic foundation** — stable immutable `Diagnostic`,
   `DiagnosticCode`, and `DiagnosticSeverity` exports; deterministic
@@ -27,6 +41,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Immutable workflow dependencies** — all release and CI actions are pinned to
+  reviewed commit SHAs with readable release comments; the former independent
+  GitHub and PyPI tag workflows are consolidated into one ordered release graph.
+
 - **Federated documentation profile** — aligned the maintained bundle with Matryca Knowledge `origin/main` at `7a3ebd8`, separating OKF lifecycle from Matryca classification and recording authority, freshness, provenance, and the still-pending private registry activation.
 - **Ghost Tooling** — removed remaining vendor indexer blocks from `AGENTS.md` / `CLAUDE.md`; maintainer guidance now uses **audit code** terminology only.
 - **Repository language** — translated the historical audit reports, design references, Logseq Read skill, maintainer configuration comments, parser warning, demo labels, and optional SYNAPSE dependency errors into English; contributor guidance now makes English the repository default ([#69](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/69)).
@@ -45,6 +63,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   properties, fenced code, queries, list properties, ordering, identity, and
   parent/left relationships ([#113](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/113)).
 - **LENS topology** — unresolved wikilinks no longer create phantom page nodes when visualization uses a loaded `LogseqGraph`; valid page aliases and tags remain visible ([#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)).
+
+### Security
+
+- **Artifact lineage** — PyPI publication must succeed before the GitHub Release
+  is created, and every consumer re-verifies the SHA-256 manifest for the exact
+  distributions produced by the single build job.
 
 ## [1.6.0] - 2026-07-02
 
