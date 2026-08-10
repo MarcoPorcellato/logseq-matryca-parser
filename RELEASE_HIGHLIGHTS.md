@@ -34,6 +34,17 @@ CLI behavior or stable package exports.
 | **Release integrity** | One checksummed wheel/sdist build is reused for attested PyPI publication and GitHub Release assets. |
 | **Test suite** | **528** pytest cases with **91.81%** coverage. |
 
+## v1.6.0
+
+Minor release — Clean Architecture v1 structural slices, new public graph APIs, layer-boundary CI, and documentation SSOT. **No intentional breaking changes** to existing `matryca-parse` CLI behavior or stable package exports.
+
+| Area | Change |
+| :--- | :--- |
+| **Clean Architecture** | Clean Architecture SSOT, extracted KINETIC subcommands, and strategy pattern for embed expansion. |
+| **Public APIs** | Public graph iterator `LogseqGraph.iter_attached_nodes()` and DIP path check `LogseqGraph.is_tracked_markdown_path()`. |
+| **Quality & CI** | Layer-boundary CI tests and `make vendor-name-check` documentation gate. |
+| **Test suite** | **456** pytest cases. |
+
 ## v1.5.0
 
 Minor release — CLI vault hygiene for broken block references. **No intentional
