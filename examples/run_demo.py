@@ -25,6 +25,13 @@ EXAMPLE_FILE = ROOT_DIR / "examples" / "demo_logseq_journal.md"
 
 
 def run_demo() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        if stream and hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(encoding="utf-8")
+            except Exception:
+                pass
+
     console = Console()
     console.print(Panel("[bold gold1]🔱 Logos Protocol - Live Extraction Demo[/]", expand=False))
     console.print(f"[cyan]Reading file:[/] {EXAMPLE_FILE.name}...")
