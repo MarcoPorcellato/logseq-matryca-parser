@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import runpy
 from pathlib import Path
-from typing import Any
+
+import pytest
 
 
 def test_run_demo_example_exercises_logos_parser_and_forge(
-    monkeypatch: Any,
-    capsys: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     """The example runs offline and prints the FORGE clean Markdown output."""
     script = Path(__file__).parents[1] / "examples" / "run_demo.py"
