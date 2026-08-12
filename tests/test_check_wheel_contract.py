@@ -15,7 +15,7 @@ def _wheel(
     include_marker: bool = True,
     record_marker: bool = True,
 ) -> Path:
-    metadata = f"Metadata-Version: 2.4\nName: logseq-matryca-parser\nVersion: {version}\n"
+    metadata = f"Metadata-Version: 2.5\nName: logseq-matryca-parser\nVersion: {version}\n"
     record = io.StringIO()
     writer = csv.writer(record, lineterminator="\n")
     if record_marker:
