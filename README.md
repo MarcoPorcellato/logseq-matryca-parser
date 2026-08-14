@@ -272,6 +272,7 @@ Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
 
 - **v1.7.1** — Added the runnable offline SYNAPSE RAG example and tightened release-note and optional-dependency security checks.
 - **v1.7.0** — Hardened parser correctness, graph diagnostics, writer safety, API stability, documentation governance, and release provenance.
+- **v1.6.0** — Clean Architecture v1 structural slices, new public graph APIs, layer-boundary CI, and documentation SSOT.
 - **v1.5.0** — Added opt-in CLI detection of unresolved block references for vault and CI hygiene.
 - **v1.4.2** — Fixed agent-write newline handling, controlled corrupt-state failures, and cyclic SYNAPSE page embeds.
 - **v1.4.1** — Expanded contributor tests and refreshed the good-first-issue onboarding path.
