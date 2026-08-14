@@ -153,6 +153,43 @@ def test_discover_graph_files_skips_backup_and_recycle_dirs(tmp_path: Path) -> N
     assert discovered[0].name == "Real.md"
 
 
+def test_discover_graph_files_returns_deterministic_relative_order(tmp_path: Path) -> None:
+    graph_root = tmp_path / "vault"
+    included = [
+        Path("journals/2026_02_02.md"),
+        Path("pages/zeta.md"),
+        Path("pages/nested/second.md"),
+        Path("journals/nested/2026_02_01.md"),
+        Path("pages/alpha.md"),
+        Path("pages/nested/first.md"),
+    ]
+    excluded = [
+        Path("pages/logseq/bak/backup.md"),
+        Path("pages/.recycle/deleted.md"),
+        Path("journals/.git/ignored.md"),
+    ]
+    for relative_path in [*included, *excluded]:
+        path = graph_root / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("- note\n", encoding="utf-8")
+
+    repeated_results = [
+        [path.relative_to(graph_root) for path in discover_graph_files(graph_root)]
+        for _ in range(3)
+    ]
+
+    expected = [
+        Path("pages/alpha.md"),
+        Path("pages/nested/first.md"),
+        Path("pages/nested/second.md"),
+        Path("pages/zeta.md"),
+        Path("journals/2026_02_02.md"),
+        Path("journals/nested/2026_02_01.md"),
+    ]
+    assert repeated_results == [expected, expected, expected]
+    assert not any(path in result for result in repeated_results for path in excluded)
+
+
 # ── edge-case coverage per issue #22 ─────────────────────────────────────
 
 
