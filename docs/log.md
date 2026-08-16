@@ -26,11 +26,12 @@ superseded_by: null
   fixed size-scaled synthetic families. It treats platform-labelled elapsed
   time and process high-water memory as non-gating observations only, preserves
   #87 and #111 ownership boundaries, and does not add a runtime hook or API.
-- Locally qualified M4 code commit `5e1b1e9`: the fixed matrix and one-case
+- Locally qualified M4 code commit `2a5ec36`: the fixed matrix and one-case
   replay both passed in fresh bounded subprocesses; `make all` passed with 598
   tests and 92.16% coverage; documentation, terminology, diff, and source-cycle
-  checks passed. This is local evidence only; the exact final review and every
-  publication gate remain separate.
+  checks passed. The optional RSS probe now degrades safely on platforms without
+  the Unix-only `resource` module. This is local evidence only; the exact final
+  review and every publication gate remain separate.
 - Started the M3 parser-assurance laboratory from `main@5b0a73e` after
   [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161)
   merged M1. M3 is explicitly test-only: deterministic original generators,
