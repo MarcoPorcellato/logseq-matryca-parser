@@ -21,6 +21,13 @@ superseded_by: null
 
 ## 2026-08-16
 
+- Reconciled an independent `NEEDS_CORRECTION` review of local M1-A commit
+  `8806205`. The canonical parser-assurance plan now defines the M1-B corrective
+  contract for reference-property semantics, content-wikilink preservation, LF
+  fixture bytes, strict diagnostics and integer fields, quality-gate coverage,
+  two-commit evidence sequencing, and separate publication approval. Updated
+  the persistent goal and added a restart handoff; no corrective implementation,
+  push, PR, or merge is claimed.
 - Implemented the local #104-A parser compatibility-corpus foundation: one
   private, test-owned projector with exact-parse and semantic-roundtrip
   profiles; six original Apache-2.0 Markdown fixtures; strict source hashes,

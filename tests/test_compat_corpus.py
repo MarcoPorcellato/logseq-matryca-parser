@@ -23,6 +23,8 @@ from tests.parser_assurance.corpus import (
 )
 from tests.parser_assurance.projection import IdentityPolicy, project_page
 
+ROOT = Path(__file__).resolve().parents[1]
+
 
 def _parse_entry(entry: dict[str, Any]) -> tuple[str, LogseqPage]:
     source_path = CORPUS_ROOT / entry["source"]["path"]
@@ -85,6 +87,44 @@ def test_manifest_rejects_unknown_schema_versions() -> None:
     manifest["fixtures"][0]["fixture_schema_version"] = 2
     with pytest.raises(ValueError, match="unsupported fixture or snapshot schema version"):
         validate_manifest(manifest)
+
+
+@pytest.mark.parametrize(
+    ("path", "error"),
+    [
+        (("corpus_schema_version",), "unsupported corpus or snapshot schema version"),
+        (("snapshot_schema_version",), "unsupported corpus or snapshot schema version"),
+        (("fixtures", 0, "fixture_schema_version"), "unsupported fixture or snapshot schema version"),
+        (("fixtures", 0, "snapshot_schema_version"), "unsupported fixture or snapshot schema version"),
+        (("fixtures", 0, "parse", "tab_size"), "tab_size must be a positive integer"),
+    ],
+)
+def test_manifest_rejects_boolean_integer_fields(
+    path: tuple[str | int, ...],
+    error: str,
+) -> None:
+    manifest = _manifest_copy()
+    target: Any = manifest
+    for segment in path[:-1]:
+        target = target[segment]
+    target[path[-1]] = True
+
+    with pytest.raises(ValueError, match=error):
+        validate_manifest(manifest)
+
+
+def test_manifest_rejects_unverified_valid_fixture_diagnostics() -> None:
+    manifest = _manifest_copy()
+    manifest["fixtures"][0]["expectation"]["expected_diagnostics"] = ["unexpected"]
+
+    with pytest.raises(ValueError, match="require no expected diagnostics"):
+        validate_manifest(manifest)
+
+
+def test_compatibility_fixture_bytes_are_forced_to_lf() -> None:
+    attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+
+    assert "tests/fixtures/compat/** text eol=lf" in attributes
 
 
 def test_manifest_rejects_source_hash_drift() -> None:
@@ -169,6 +209,103 @@ def test_snapshot_cli_fails_closed_and_writes_only_when_requested(
     assert "updated 1 compatibility snapshot(s)" in capsys.readouterr().out
 
     assert update_compat_snapshots.main([]) == 0
+
+
+@pytest.mark.parametrize("property_key", ("tags", "page-tags", "alias", "aliases"))
+def test_semantic_projection_canonicalizes_reference_property_sequences(property_key: str) -> None:
+    page = StackMachineParser().parse(
+        f"{property_key}:: [[Project Authored]], [[Fixture]]\n",
+        page_title="Reference properties",
+    )
+
+    projected = project_page(
+        page,
+        profile="semantic_roundtrip_v1",
+        identity_policy={
+            "synthetic_uuid": "stable",
+            "source_uuid": "absent",
+            "relations": "direct_ids",
+        },
+    )
+
+    assert projected["page"]["properties"][property_key] == ["Project Authored", "Fixture"]
+
+
+def test_semantic_projection_preserves_commas_inside_wikilink_references() -> None:
+    page = StackMachineParser().parse(
+        "tags:: [[New York, NY]], Tech\n",
+        page_title="Reference commas",
+    )
+
+    projected = project_page(
+        page,
+        profile="semantic_roundtrip_v1",
+        identity_policy={
+            "synthetic_uuid": "stable",
+            "source_uuid": "absent",
+            "relations": "direct_ids",
+        },
+    )
+
+    assert projected["page"]["properties"]["tags"] == ["New York, NY", "Tech"]
+
+
+def test_semantic_projection_preserves_content_wikilink_matching_property_tag() -> None:
+    page = StackMachineParser().parse("- [[Foo]]\n  tags:: Foo\n", page_title="Content link")
+    node = page.root_nodes[0]
+
+    projected = project_page(
+        page,
+        profile="semantic_roundtrip_v1",
+        identity_policy={
+            "synthetic_uuid": "stable",
+            "source_uuid": "absent",
+            "relations": "direct_ids",
+        },
+    )
+
+    assert node.wikilinks == ["Foo"]
+    assert projected["page"]["root_nodes"][0]["wikilinks"] == ["Foo"]
+
+
+def test_semantic_projection_count_subtracts_duplicate_property_wikilinks() -> None:
+    page = StackMachineParser().parse(
+        "- [[Foo]] [[Foo]]\n  tags:: [[Foo]]\n",
+        page_title="Duplicate links",
+    )
+    node = page.root_nodes[0]
+
+    projected = project_page(
+        page,
+        profile="semantic_roundtrip_v1",
+        identity_policy={
+            "synthetic_uuid": "stable",
+            "source_uuid": "absent",
+            "relations": "direct_ids",
+        },
+    )
+
+    assert node.wikilinks == ["Foo", "Foo", "Foo"]
+    assert projected["page"]["root_nodes"][0]["wikilinks"] == ["Foo", "Foo"]
+
+
+def test_semantic_projection_preserves_content_wikilink_order() -> None:
+    page = StackMachineParser().parse(
+        "- [[First]] [[Second]]\n  tags:: [[First]]\n",
+        page_title="Ordered links",
+    )
+
+    projected = project_page(
+        page,
+        profile="semantic_roundtrip_v1",
+        identity_policy={
+            "synthetic_uuid": "stable",
+            "source_uuid": "absent",
+            "relations": "direct_ids",
+        },
+    )
+
+    assert projected["page"]["root_nodes"][0]["wikilinks"] == ["First", "Second"]
 
 
 @pytest.mark.parametrize("entry", load_corpus_entries(), ids=lambda entry: entry["id"])

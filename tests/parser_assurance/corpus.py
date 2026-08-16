@@ -10,6 +10,11 @@ from typing import Any
 CORPUS_ROOT = Path(__file__).parents[1] / "fixtures" / "compat" / "v1"
 
 
+def _is_exact_int(value: object) -> bool:
+    """Reject Boolean values, which Python otherwise accepts as integers."""
+    return type(value) is int
+
+
 def _keys(
     value: dict[str, Any],
     *,
@@ -72,7 +77,12 @@ def _validate_entry(entry: object, *, root: Path) -> dict[str, Any]:
     fixture_id = entry["id"]
     if not isinstance(fixture_id, str) or not fixture_id:
         raise ValueError("fixture id must be a non-empty string")
-    if entry["fixture_schema_version"] != 1 or entry["snapshot_schema_version"] != 1:
+    if (
+        not _is_exact_int(entry["fixture_schema_version"])
+        or entry["fixture_schema_version"] != 1
+        or not _is_exact_int(entry["snapshot_schema_version"])
+        or entry["snapshot_schema_version"] != 1
+    ):
         raise ValueError(f"{fixture_id}: unsupported fixture or snapshot schema version")
 
     source = entry["source"]
@@ -92,7 +102,7 @@ def _validate_entry(entry: object, *, root: Path) -> dict[str, Any]:
     _keys(parse, required={"entrypoint", "tab_size"}, optional={"page_title"})
     if parse["entrypoint"] not in {"text", "file"}:
         raise ValueError(f"{fixture_id}: unsupported parse entrypoint")
-    if not isinstance(parse["tab_size"], int) or parse["tab_size"] < 1:
+    if not _is_exact_int(parse["tab_size"]) or parse["tab_size"] < 1:
         raise ValueError(f"{fixture_id}: tab_size must be a positive integer")
     if parse["entrypoint"] == "text" and not isinstance(parse.get("page_title"), str):
         raise ValueError(f"{fixture_id}: text entrypoint requires page_title")
@@ -131,6 +141,8 @@ def _validate_entry(entry: object, *, root: Path) -> dict[str, Any]:
     diagnostics = expectation["expected_diagnostics"]
     if not isinstance(diagnostics, list) or not all(isinstance(item, str) for item in diagnostics):
         raise ValueError(f"{fixture_id}: expected_diagnostics must be strings")
+    if diagnostics:
+        raise ValueError(f"{fixture_id}: M1-B valid fixtures require no expected diagnostics")
     identity = expectation["identity_policy"]
     if not isinstance(identity, dict):
         raise ValueError(f"{fixture_id}: identity_policy must be an object")
@@ -156,7 +168,12 @@ def validate_manifest(manifest: object, *, root: Path = CORPUS_ROOT) -> tuple[di
         manifest,
         required={"corpus_schema_version", "snapshot_schema_version", "license", "fixtures"},
     )
-    if manifest["corpus_schema_version"] != 1 or manifest["snapshot_schema_version"] != 1:
+    if (
+        not _is_exact_int(manifest["corpus_schema_version"])
+        or manifest["corpus_schema_version"] != 1
+        or not _is_exact_int(manifest["snapshot_schema_version"])
+        or manifest["snapshot_schema_version"] != 1
+    ):
         raise ValueError("unsupported corpus or snapshot schema version")
     if manifest["license"] != "Apache-2.0":
         raise ValueError("corpus license must be Apache-2.0")

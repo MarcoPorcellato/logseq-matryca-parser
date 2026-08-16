@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from collections.abc import Mapping
 from typing import Any, Literal, TypedDict, cast
 
@@ -52,37 +53,110 @@ def _normalize_ref_token(value: object) -> object:
     return token.lstrip("#")
 
 
+def _split_reference_segments(value: str) -> list[str]:
+    """Split comma-separated property references without splitting ``[[...]]``."""
+    segments: list[str] = []
+    start = 0
+    reference_depth = 0
+    index = 0
+    while index < len(value):
+        if value.startswith("[[", index):
+            reference_depth += 1
+            index += 2
+            continue
+        if reference_depth and value.startswith("]]", index):
+            reference_depth -= 1
+            index += 2
+            continue
+        if value[index] == "," and not reference_depth:
+            segments.append(value[start:index])
+            start = index + 1
+        index += 1
+    segments.append(value[start:])
+    return [segment for segment in segments if segment.strip()]
+
+
+def _reference_property_fragments(value: object) -> list[object]:
+    """Return deterministic raw segments from a reference-shaped value."""
+    if isinstance(value, (set, frozenset)):
+        values: list[object] = sorted(
+            value,
+            key=lambda item: json.dumps(_canonical_value(item), sort_keys=True),
+        )
+    elif isinstance(value, (list, tuple)):
+        values = list(value)
+    else:
+        values = [value]
+
+    fragments: list[object] = []
+    for item in values:
+        fragments.extend(_split_reference_segments(item) if isinstance(item, str) else [item])
+    return fragments
+
+
+def _reference_property_sequence(value: object) -> list[object]:
+    """Return a deterministic canonical sequence for a reference-shaped value."""
+    return [_normalize_ref_token(fragment) for fragment in _reference_property_fragments(value)]
+
+
+def _explicit_wikilinks(value: str) -> list[str]:
+    """Independently collect unescaped ``[[target]]`` references from one fragment."""
+    tokens: list[str] = []
+    index = 0
+    while index < len(value):
+        if value.startswith("[[", index) and (index == 0 or value[index - 1] != "\\"):
+            end = value.find("]]", index + 2)
+            if end >= 0:
+                target = value[index + 2 : end].split("#", 1)[0]
+                if target:
+                    tokens.append(target)
+                index = end + 2
+                continue
+        index += 1
+    return tokens
+
+
+def _property_wikilink_occurrences(properties: Mapping[str, Any]) -> Counter[str]:
+    """Count graph wikilinks attributable to properties without parser helper reuse."""
+    occurrences: Counter[str] = Counter()
+    for key, value in properties.items():
+        if key in _REF_PROPERTY_KEYS:
+            for fragment in _reference_property_fragments(value):
+                if not isinstance(fragment, str):
+                    continue
+                token = _normalize_ref_token(fragment)
+                if key in {"alias", "aliases"} and isinstance(token, str) and token:
+                    occurrences[token] += 1
+                occurrences.update(_explicit_wikilinks(fragment))
+            continue
+        fragments = [value] if isinstance(value, str) else value if isinstance(value, list) else []
+        for fragment in fragments:
+            if isinstance(fragment, str):
+                occurrences.update(_explicit_wikilinks(fragment))
+    return occurrences
+
+
 def _semantic_properties(properties: Mapping[str, Any]) -> dict[str, Any]:
     projected: dict[str, Any] = {}
     for key in sorted(properties):
         value = properties[key]
         if key not in _REF_PROPERTY_KEYS:
             projected[key] = _canonical_value(value)
-        elif isinstance(value, (set, frozenset)):
-            normalized = [_normalize_ref_token(item) for item in value]
-            projected[key] = sorted(
-                normalized,
-                key=lambda item: json.dumps(item, sort_keys=True),
-            )
-        elif isinstance(value, (list, tuple)):
-            projected[key] = [_normalize_ref_token(item) for item in value]
         else:
-            projected[key] = _normalize_ref_token(value)
+            projected[key] = _reference_property_sequence(value)
     return projected
 
 
-def _declared_tag_tokens(properties: Mapping[str, Any]) -> set[str]:
-    """Return only tag tokens introduced by tag properties."""
-    tokens: set[str] = set()
-    semantic = _semantic_properties(properties)
-    for key in ("tags", "page-tags"):
-        value = semantic.get(key)
-        values = value if isinstance(value, list) else [value]
-        for item in values:
-            if not isinstance(item, str):
-                continue
-            tokens.update(part.strip() for part in item.split(",") if part.strip())
-    return tokens
+def _content_wikilinks(node: LogseqNode) -> list[str]:
+    """Remove only counted property-origin links, preserving equal content links."""
+    property_occurrences = _property_wikilink_occurrences(node.properties)
+    content_reversed: list[str] = []
+    for token in reversed(node.wikilinks):
+        if property_occurrences[token]:
+            property_occurrences[token] -= 1
+        else:
+            content_reversed.append(token)
+    return list(reversed(content_reversed))
 
 
 def _exact_node(node: LogseqNode) -> dict[str, Any]:
@@ -136,7 +210,6 @@ def _semantic_node(
     identity_policy: IdentityPolicy,
     outline_index: Mapping[str, list[int]],
 ) -> dict[str, Any]:
-    property_tag_tokens = _declared_tag_tokens(node.properties)
     projected: dict[str, Any] = {
         "source_uuid": node.source_uuid,
         "synthetic_id": node.synthetic_id,
@@ -145,7 +218,7 @@ def _semantic_node(
         "indent_level": node.indent_level,
         "properties": _semantic_properties(node.properties),
         "properties_order": list(node.properties_order),
-        "wikilinks": [token for token in node.wikilinks if token not in property_tag_tokens],
+        "wikilinks": _content_wikilinks(node),
         "tags": list(node.tags),
         "assets": list(node.assets),
         "block_refs": list(node.block_refs),

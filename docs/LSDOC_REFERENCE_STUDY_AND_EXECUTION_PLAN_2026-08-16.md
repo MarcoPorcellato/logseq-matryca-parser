@@ -60,7 +60,8 @@ Markdown source-of-truth model.
 | Parent roadmap | current repository-wide quality SSOT | [stellar roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) |
 | M0 publication | merged as [PR #159](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/159) | source head `a6056413`, squash merge `30946446`, terminal validation recorded in the PR |
 | Existing delivery anchors | #87, #103, #104, #108, #111 are open; #106 and #113 are closed | live GitHub issue reads on 2026-08-16 |
-| Current milestone | M1-A local freeze and exact-head qualification | branch `agent/parser-assurance-m1`; push, PR, and hosted exact-head checks remain unproven |
+| Local implementation checkpoint | `8806205c35b104ed65d00a273acc9eeca572ae38` | clean local commit on `agent/parser-assurance-m1`; exact-head tests passed, but independent oracle review rejected publication |
+| Current milestone | M1-B corrective assurance hardening prepared; goal paused | [restart handoff](internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md); no push or PR |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
@@ -118,6 +119,39 @@ The review established these M1-A decisions:
    sources. Existing focused tests remain authoritative; corpus tests reuse
    their behaviors and replace the private deep-refresh semantic tuple rather
    than creating a third semantic definition.
+
+### 2.2 M1-B corrective review reconciliation
+
+An independent patch review of local commit `8806205c35b104ed65d00a273acc9eeca572ae38`
+on 2026-08-16 found the architecture acceptable but the assurance oracle not
+yet safe to publish. Primary-agent runtime probes reproduced both P1 findings:
+the semantic projector removed a real content wikilink for `[[Foo]]` combined
+with `tags:: Foo`, and it projected `[[Project Authored]], [[Fixture]]` as one
+malformed token. Manifest probes also proved that non-empty unverified
+diagnostic codes and Boolean values in integer fields were accepted.
+
+M1-B is a corrective sub-milestone of M1, not a new product feature. It must:
+
+1. represent `tags`, `page-tags`, `alias`, and `aliases` as ordered canonical
+   token sequences, splitting commas only outside `[[...]]` references;
+2. derive property-origin wikilink occurrences independently and subtract only
+   their multiplicity from aggregate node wikilinks, preserving content links
+   with the same value;
+3. preserve raw-byte fixture SHA-256 claims while forcing LF checkout bytes for
+   `tests/fixtures/compat/**` through `.gitattributes`;
+4. reject every non-empty `expected_diagnostics` list while M1 accepts only
+   valid fixtures and has no diagnostic comparison runner;
+5. reject Boolean schema versions and Boolean `tab_size` values with exact
+   integer-type checks;
+6. include `scripts/update_compat_snapshots.py` in the maintained mypy command
+   and protect that inclusion with a quality-gate contract test; and
+7. preserve commit `8806205` as historical evidence, deliver corrections in a
+   new local commit, qualify that exact implementation SHA, then use a separate
+   documentation-evidence commit to record it before any push.
+
+The P1/P2 labels describe assurance-contract risk, not parser runtime behavior:
+M1-B remains test, fixture, tooling, Git policy, and documentation work. It must
+not change `src/`, package exports, runtime dependencies, or close #104.
 
 ## 3. Status vocabulary
 
@@ -354,9 +388,16 @@ converted into a pass or silently added to an allowlist.
 **Exit evidence**
 
 - Original Apache-2.0 fixtures only; source hashes and manifest provenance
-  validated; discovery order cannot change canonical snapshots.
+  validated; `.gitattributes` proves LF checkout bytes for the corpus; discovery
+  order cannot change canonical snapshots.
 - Exact-parse, semantic-roundtrip, identity, hierarchy, depth, and bounded
   file-entrypoint tests remain in the fast CI budget.
+- Regression tests prove comma-aware canonical reference-property sequences,
+  preservation of content wikilinks that coincide with property tags, and
+  count-based removal of property-origin wikilink occurrences.
+- The valid-only manifest rejects non-empty diagnostics, Boolean schema
+  versions, and Boolean tab sizes; the quality-gate contract proves the snapshot
+  generator remains in the mypy command.
 - The root export manifest is unchanged, no runtime/package dependency is added,
   `make all` and `make vendor-name-check` pass, and `src/` has zero import cycles.
 
@@ -570,6 +611,12 @@ converted into a pass or silently added to an allowlist.
 7. Every delegated conclusion is rechecked against source or deterministic
    validation before acceptance.
 
+For M1-B, a low-cost worker may own one bounded mechanical file group after the
+contract in section 2.2 is fixed: projector regression-test scaffolding;
+manifest negative-test scaffolding; or documentation chronology. The primary
+agent retains reference-token semantics, path/EOL security, exact-head
+qualification, Git-history decisions, and publication judgment.
+
 ## 14. Validation and publication gates
 
 For this documentation milestone:
@@ -591,6 +638,24 @@ Implementation milestones additionally require:
 - separate approval for merge, release, external service deployment, or license
   change.
 
+M1-B additionally requires these exact local commands on the corrective
+implementation commit:
+
+```bash
+rtk uv run python scripts/update_compat_snapshots.py
+rtk uv run pytest -q tests/test_compat_corpus.py tests/test_parser_deep_refresh.py tests/test_quality_gate_contract.py
+rtk uv run ruff check scripts/update_compat_snapshots.py tests/parser_assurance tests/test_compat_corpus.py tests/test_parser_deep_refresh.py tests/test_quality_gate_contract.py
+rtk make all
+rtk make vendor-name-check
+rtk git diff --check origin/main...HEAD
+```
+
+The checkout must be clean and the audit-code cycle check must report zero
+cycles. The exact implementation SHA then receives a frozen primary and
+low-cost independent review. A later documentation-evidence commit must pass at
+least `make all`, `make vendor-name-check`, documentation validation, diff
+check, and hosted required checks on its own exact head.
+
 ## 15. Interruption and recovery
 
 At every handoff record the source base, branch, exact HEAD, worktree path,
@@ -606,6 +671,9 @@ Milestone reports use:
 - residual risks;
 - next dependency.
 
+The current resumable checkpoint is
+[`internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md`](internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md).
+
 ## 16. Persistent goal
 
 The short execution pointer is versioned separately at
@@ -616,9 +684,16 @@ It must not replace the requirements in this plan.
 
 - [x] M0 is merged and publicly available through PR #159.
 - [x] #104-A is implemented and locally qualified on the working tree with an
-  original, provenance-safe projection and corpus foundation.
-- [ ] #104-A is committed, exact-head qualified, reviewed, merged, and covered
-  by terminal hosted validation.
+  initial original, provenance-safe projection and corpus foundation; the
+  resulting commit is retained as rejected pre-correction evidence.
+- [ ] M1-B preserves authentic content wikilinks and canonicalizes all four
+  reference-property families with comma-aware, count-based semantics.
+- [ ] M1-B enforces LF corpus bytes, empty valid-fixture diagnostics, exact
+  integer manifest fields, and snapshot-generator mypy coverage.
+- [ ] The corrective implementation commit is clean, exact-head qualified, and
+  independently reviewed without unresolved P0/P1/P2 findings.
+- [ ] A separate evidence commit records the implementation SHA and is covered
+  by terminal hosted validation before #104-A is merged.
 - [ ] The remaining expanded #104 acceptance criteria are proved through the
   dependency-owned #103 and M3 evidence before #104 is closed.
 - [ ] The external-oracle decision is recorded, including a valid negative
@@ -652,3 +727,5 @@ Completion is unproven until every applicable item has authoritative evidence.
 | 2026-08-16 | M1-A implementation | local, uncommitted | Added one private two-profile projector, a strict versioned manifest, six original Apache-2.0 fixtures and exact snapshots, bounded file-entrypoint assertions, and reuse from the deep-refresh regression suite. No `src/`, root export, or runtime dependency changed; final qualification and publication remain separate gates. |
 | 2026-08-16 | M1-A implementation review | reconciled | A bounded Spark review found no P0/P1. Its valid non-atomic snapshot-write P2 was corrected; manifest-negative and snapshot-CLI contracts were added. Its `source_uuid` P2 was rejected after primary verification because the projection deliberately exposes source identity and the dedicated test applies each `preserve`/`absent` policy without masking drift. |
 | 2026-08-16 | M1-A working-tree qualification | provisional | `rtk uv run python scripts/update_compat_snapshots.py` passed in non-mutating freshness mode; `rtk make all` passed with 553 tests and 92.07% coverage; Ruff, mypy, documentation, vendor-name, and diff checks passed; audit code reported zero `src/` import cycles. `rtk uv run python scripts/update_compat_snapshots.py --write` is the only explicit regeneration mode, and stale snapshots make the default command exit nonzero. This is not E1/E2 because the qualified bytes were not yet committed. |
+| 2026-08-16 | M1-A local commit `8806205` | exact-head tests passed; publication rejected | Clean local commit recorded 556 passing tests, 92.07% coverage, snapshot freshness, `make all`, vendor-name, diff, and zero-cycle checks. A later independent full-patch review found two oracle P1s: malformed multi-reference normalization and deletion of authentic content wikilinks. The commit must not be pushed as M1-A evidence. |
+| 2026-08-16 | M1-B corrective review | verified and prepared | Primary runtime probes reproduced both P1s and proved acceptance of non-empty unverified diagnostics and Boolean integer fields. Source review confirmed raw-byte hashes without LF checkout policy and omission of the snapshot generator from the maintained mypy command. Two bounded Spark inventories were advisory; the primary retained semantic and security decisions. The goal remains paused and no implementation, push, or PR is claimed. |
