@@ -21,15 +21,30 @@ superseded_by: null
 
 ## 2026-08-16
 
+- Recorded the second frozen Sol review on
+  `5007dc357e05775c6221c8aa84f9a11edc695e0d` as `NEEDS_CORRECTION`: mixed
+  backtick runs still caused an authentic content wikilink to be removed, and
+  the supplied full-patch receipt had been computed from filtered rather than
+  raw Git diff bytes.
+- Implemented non-amending corrective commit `7870b84` only in
+  `tests/parser_assurance/projection.py` and `tests/test_compat_corpus.py`.
+  Exact backtick-run matching, closed fence/query boundaries, math closing, and
+  unclosed-comment parity now match parser-observable behavior. The exact Sol
+  reproducer, three post-region visible-link tests, and a 14-family direct
+  differential probe pass. Exact-head snapshot freshness and `make all` passed
+  with 584 tests and 92.16% coverage; Ruff, mypy, documentation, vendor-name,
+  diff, and zero-cycle checks also passed. No runtime, package, dependency,
+  push, PR, merge, or release change occurred.
 - Recorded the first frozen Sol review on `6fcf4b274a3a04ef4c9783cf83149d6ef4aeeabb` as `NEEDS_CORRECTION`.
 - Implemented non-amending corrective commit `9e8708eef9cfa63fd9f392f5b5a9e7df564072e7` in
   `CHANGELOG.md`, `tests/parser_assurance/projection.py`, and
   `tests/test_compat_corpus.py`. Exact-head validation on a clean worktree passed
   snapshot freshness, `7` focused regressions, `make all` with `579` tests and
   coverage gate, Ruff, mypy, documentation validation, vendor-name check, diff
-  check, and zero-cycle check. The implementation made property-link accounting
-  honor inline code, HTML comments, math, backtick/tilde fences, query macros,
-  and query regions; it also normalized `#[[Foo]]` as `Foo`. Spark supplied the
+  check, and zero-cycle check. The implementation covered the first review's
+  simple inline-code, HTML-comment, math, fence, query-macro, and query-region
+  cases; it also normalized `#[[Foo]]` as `Foo`. A later review found unequal
+  backtick parity incomplete. Spark supplied the
   bounded regression scaffolding, which the primary extended and adjudicated;
   no Luna fallback was needed. Historical `8806205`, `996c5a5`, and `6fcf4b2`
   remain rejected or superseded receipts, not current publication evidence. No runtime

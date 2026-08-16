@@ -61,7 +61,7 @@ Markdown source-of-truth model.
 | M0 publication | merged as [PR #159](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/159) | source head `a6056413`, squash merge `30946446`, terminal validation recorded in the PR |
 | Existing delivery anchors | #87, #103, #104, #108, #111 are open; #106 and #113 are closed | live GitHub issue reads on 2026-08-16 |
 | Local implementation checkpoint | `8806205c35b104ed65d00a273acc9eeca572ae38` | clean local commit on `agent/parser-assurance-m1`; exact-head tests passed, but independent oracle review rejected publication |
-| Current milestone | M1-B documentation evidence recorded locally; final frozen Sol review pending | first frozen Sol review on `6fcf4b274a3a04ef4c9783cf83149d6ef4aeeabb` returned `NEEDS_CORRECTION`; non-amending corrective implementation `9e8708eef9cfa63fd9f392f5b5a9e7df564072e7` passed exact-head local qualification; no push or PR |
+| Current milestone | M1-B second corrective implementation locally qualified; refreshed documentation evidence and final frozen Sol review pending | second frozen Sol review on `5007dc357e05775c6221c8aa84f9a11edc695e0d` returned `NEEDS_CORRECTION`; non-amending corrective implementation `7870b84` passed exact-head local qualification with 584 tests; no push or PR |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
@@ -137,6 +137,15 @@ the semantic projector removed a real content wikilink for `[[Foo]]` combined
 with `tags:: Foo`, and it projected `[[Project Authored]], [[Fixture]]` as one
 malformed token. Manifest probes also proved that non-empty unverified
 diagnostic codes and Boolean values in integer fields were accepted.
+
+A second frozen full-patch Sol review at `5007dc357e05775c6221c8aa84f9a11edc695e0d`
+found that unequal backtick runs still made the independent oracle disagree
+with parser shielding and remove an authentic visible link. It also exposed an
+invalid review receipt: the patch hash had been computed after token-filtered
+output instead of from raw `git --no-pager diff --no-ext-diff --binary
+--full-index` bytes. Corrective implementation `7870b84` added exact delimiter
+parity, closed fence/query-region boundaries, and a differential probe matrix;
+future review receipts use only raw Git output.
 
 M1-B is a corrective sub-milestone of M1, not a new product feature. It must:
 
@@ -703,7 +712,7 @@ It must not replace the requirements in this plan.
 - [x] The corrective implementation commit is clean, exact-head qualified, and
   has a frozen full diff prepared for a final GPT-5.6 Sol review; unresolved
   historical P1/P2 findings remain tied to historical checkpoints.
-- [x] A separate documentation-evidence commit records implementation `9e8708e`;
+- [x] A refreshed documentation-evidence commit records implementation `7870b84`;
   hosted validation and merge remain deferred until explicit user authorization.
 - [ ] The remaining expanded #104 acceptance criteria are proved through the
   dependency-owned #103 and M3 evidence before #104 is closed.
@@ -742,4 +751,6 @@ Completion is unproven until every applicable item has authoritative evidence.
 | 2026-08-16 | M1-B corrective review | verified and prepared | Primary runtime probes reproduced both P1s and proved acceptance of non-empty unverified diagnostics and Boolean integer fields. Source review confirmed raw-byte hashes without LF checkout policy and omission of the snapshot generator from the maintained mypy command. Two bounded Spark inventories were advisory; the primary retained semantic and security decisions. The goal remains paused and no implementation, push, or PR is claimed. |
 | 2026-08-16 | M1-B first corrective implementation `996c5a5` and evidence head `6fcf4b2` | locally qualified, then superseded | The implementation added comma-aware canonical references, count-based property-link subtraction, LF fixture policy, strict manifest guards, and snapshot-generator mypy coverage without changing `src/`. Exact-head local qualification passed at `996c5a5` with 572 tests; the separate evidence commit produced frozen review head `6fcf4b2`. These checks remain valid historical receipts, but the later Sol review found additional oracle defects, so neither checkpoint is publication-ready evidence. |
 | 2026-08-16 | M1-B first frozen Sol review `6fcf4b2` | verified and unresolved | Review requested `NEEDS_CORRECTION`. Reproduced P1 (property-link shielding ignored inline-code/HTML-comment and related regions) allowing authentic content-wikilink removal, and P2 (`#[[Foo]]` projected as `[[Foo]]`). Historic checkpoint retained as rejected/superseded evidence. |
-| 2026-08-16 | M1-B corrective implementation `9e8708e` | locally qualified (non-amending) | Corrected commit changed only `CHANGELOG.md`, `tests/parser_assurance/projection.py`, and `tests/test_compat_corpus.py`; preserved `8806205` and `996c5a5` as historical rejected/superseded evidence. Exact-head qualification passed with 7 focused Sol regressions, snapshot freshness, `make all` (`579` tests and coverage gate), Ruff, mypy, documentation validation, vendor-name check, diff check, and zero-cycle check. |
+| 2026-08-16 | M1-B corrective implementation `9e8708e` | locally qualified, then superseded | Corrected the first frozen review's simple shield cases and `#[[Foo]]` normalization. Exact-head qualification passed with 579 tests, but the next full-patch Sol review found incomplete parity for unequal backtick runs; this receipt is therefore historical, not publication-ready. |
+| 2026-08-16 | M1-B second frozen Sol review `5007dc3` | verified and unresolved | Review returned `NEEDS_CORRECTION`: valid mixed-backtick input still removed an authentic content wikilink, simple tests did not cover unequal delimiter runs, and the supplied patch hash/line receipt was invalid because it came from filtered rather than raw Git diff bytes. |
+| 2026-08-16 | M1-B second corrective implementation `7870b84` | locally qualified (non-amending) | Added parser-equivalent exact backtick-run matching, bounded fence/query-region closing, precise inline-math closing, unclosed-comment parity, the exact Sol reproducer, and post-region visible-link regressions. A 14-family direct differential probe found no parser/oracle wikilink mismatch. Exact-head snapshot freshness and `make all` passed with 584 tests and 92.16% coverage; Ruff, mypy, documentation, vendor-name, diff, and zero-cycle checks passed. No `src/`, package, API, dependency, push, PR, merge, or release change occurred. |

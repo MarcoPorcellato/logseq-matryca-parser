@@ -35,16 +35,20 @@ pre-correction evidence. Corrective implementation
 its evidence head `6fcf4b274a3a04ef4c9783cf83149d6ef4aeeabb` was rejected by
 the first frozen Sol review and is now superseded. These historical checkpoints
 must not be presented or pushed independently as publication-ready evidence.
-Corrective implementation `9e8708eef9cfa63fd9f392f5b5a9e7df564072e7` is non-amending,
-changed only `CHANGELOG.md`, `tests/parser_assurance/projection.py`, and
-`tests/test_compat_corpus.py`, and passed exact-head local qualification on a
-clean worktree.
+Corrective implementation `9e8708eef9cfa63fd9f392f5b5a9e7df564072e7` passed local
+qualification but was superseded after frozen review head
+`5007dc357e05775c6221c8aa84f9a11edc695e0d` returned `NEEDS_CORRECTION` for
+unequal-backtick shielding parity. Non-amending corrective implementation
+`7870b84` changed only `tests/parser_assurance/projection.py` and
+`tests/test_compat_corpus.py` and passed exact-head local qualification with
+584 tests and 92.16% coverage on a clean worktree.
 Before any push, re-verify the live anchor, review the frozen full diff with GPT-5.6
 Sol again, and follow the
 [post-correction handoff](../internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md).
-The separate documentation-evidence commit containing this pointer must receive
-exact-head qualification. Then freeze the full diff, rerun a final GPT-5.6 Sol
-review, and stop before push.
+The refreshed documentation-evidence commit containing this pointer must
+receive exact-head qualification. Then freeze the raw full diff, record its
+unfiltered SHA-256 and line count, rerun a final GPT-5.6 Sol review, and stop
+before push.
 
 Preserve the Apache-2.0 boundary: do not copy or adapt lsdoc code, tests,
 corpora, schemas, module structure, control flow, or documentation. Keep lsdoc

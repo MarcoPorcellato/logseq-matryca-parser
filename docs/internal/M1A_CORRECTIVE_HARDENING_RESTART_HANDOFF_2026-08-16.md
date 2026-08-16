@@ -6,7 +6,7 @@
 - Isolated worktree: none; the dedicated delivery branch is checked out in the
   primary repository directory.
 - Branch: `agent/parser-assurance-m1`
-- Corrective implementation: `9e8708eef9cfa63fd9f392f5b5a9e7df564072e7` (non-amending, files-only corrective pass)
+- Corrective implementation: `7870b84` (non-amending, test-oracle-only corrective pass)
 - Base and local `origin/main`: `e2a3f9a8d190fd115028d0ad344c31fded0357d9`
 - Remote branch: none; the delivery branch has not been pushed.
 - Pull request: none.
@@ -43,7 +43,7 @@
   equivalent HTML-comment, math, fence, query-macro, or query-region forms)
   could remove an authentic visible `[[Foo]]`; `#[[Foo]]` also projected as
   `[[Foo]]` instead of `Foo`.
-- Corrective implementation `9e8708e` repaired all reproduced defects without
+- Corrective implementation `9e8708e` repaired the first review's reproduced defects without
   modifying `src/`: the test oracle canonicalizes comma-separated references,
   subtracts property-origin wikilinks from the tail by multiplicity (including math,
   backtick/tilde fences, query macro, and query-region contexts), forces LF corpus
@@ -53,6 +53,18 @@
   and coverage gate, Ruff, mypy, documentation validation, vendor-name check, diff
   check, and zero-cycle audit. No source, package, dependency, API, or runtime
   behavior changed.
+- Separate documentation evidence commit `5007dc3` froze the next full-patch
+  review surface. Sol returned `NEEDS_CORRECTION`: unequal backtick runs still
+  made property-link accounting delete authentic visible content, and the
+  supplied patch hash/line receipt had been computed from token-filtered output
+  instead of raw Git diff bytes.
+- Corrective implementation `7870b84` repaired the reproduced mismatch with
+  exact delimiter-run matching and bounded closing logic for fences, query
+  regions, math, and comments. It added the exact mixed-backtick reproducer,
+  closed-region visible-link tests, and a 14-family direct differential probe.
+  Exact-head validation passed snapshot freshness, `make all` with 584 tests
+  and 92.16% coverage, Ruff, mypy, documentation, vendor-name, diff, and
+  zero-cycle checks. No runtime or package surface changed.
 
 ## Frozen scope and remaining gates
 
@@ -75,15 +87,18 @@
 | 3 | Primary quality gate | `Makefile`, `tests/test_quality_gate_contract.py` | Complete: snapshot generator appears in mypy and has a dry-run contract test. |
 | 4 | Spark scaffolding, primary integration | `tests/test_compat_corpus.py`, `tests/parser_assurance/projection.py` | Complete: Spark added bounded regressions for the first Sol findings; the primary extended the shielding matrix, implemented the correction, and retained all adjudication authority. |
 | 5 | Primary integration | `CHANGELOG.md`, `docs/log.md`, canonical plan, persistent goal | Complete in implementation/evidence commits; claims preserve historical failures and superseded receipts without presenting them as current qualification. |
-| 6 | Primary Git/evidence | local commits and exact-head receipts | Implementation exact-head qualification complete; this evidence commit then needs its own exact-head qualification and frozen Sol review. |
+| 6 | Primary second correction | `tests/parser_assurance/projection.py`, `tests/test_compat_corpus.py` | Complete: exact unequal-backtick and closed-region parity at `7870b84`; a failed Spark attempt was interrupted and its malformed scaffolding was removed before primary integration. |
+| 7 | Primary Git/evidence | local commits and exact-head receipts | Second corrective implementation exact-head qualification complete; this refreshed evidence commit then needs its own exact-head qualification and frozen Sol review. |
 
 No package or runtime source file belongs to these work packages.
 
 ## Active or stopped work
 
 - Workers: prior Spark inventories remain advisory.
-- M1-B sequence fact: Spark added the bounded regression-test scaffolding and the
-  primary integrated it. No Luna fallback was needed.
+- M1-B sequence fact: Spark added the first bounded regression-test scaffolding,
+  which the primary integrated. A second Spark attempt received shell-damaged
+  backtick input and was interrupted; none of its malformed test scaffolding
+  remains. No Luna fallback was needed.
 - Processes: none expected; verify before resuming.
 - Resource admission: not checked; no local-model or LM Studio work is allowed.
 
@@ -100,8 +115,10 @@ No package or runtime source file belongs to these work packages.
 
 1. Run `rtk git status --short --branch`, `rtk git rev-parse HEAD origin/main`,
    and qualify the separate evidence commit on its exact head.
-2. Freeze `git diff --binary origin/main...HEAD` and ask GPT-5.6 Sol to review
-   the whole patch against the M1-B contract, including documentation claims.
+2. Freeze raw `git --no-pager diff --no-ext-diff --binary --full-index
+   origin/main...HEAD` bytes, hash and count those exact bytes without an output
+   filter, and ask GPT-5.6 Sol to review the whole patch against the M1-B
+   contract, including documentation claims.
 3. Adjudicate every review finding with source and deterministic probes. If any
    correction is necessary, create a new local correction and repeat exact-head
    qualification; do not amend historical commits.
