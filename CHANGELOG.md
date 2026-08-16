@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Parser compatibility corpus foundation (#104-A)** — added six original,
+  offline Apache-2.0 fixtures with source hashes and strict provenance, schema,
+  parser-configuration, behavior, diagnostics, and identity-policy metadata;
+  one private projector now drives exact-parse snapshots and semantic
+  parse/serialize/parse checks without changing the stable package API. The
+  expanded parent issue #104 remains open for graph reload, generated malformed
+  input, and broader filesystem-assurance work.
 - **Parser assurance reference study** — added a license-safe comparative
   analysis of `martinkoutecky/lsdoc@c79cb059` and a dependency-ordered plan for
   a project-owned semantic corpus, optional external-oracle decision, original

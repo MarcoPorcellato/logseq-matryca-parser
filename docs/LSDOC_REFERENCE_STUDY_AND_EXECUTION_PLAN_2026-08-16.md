@@ -16,7 +16,7 @@ okf_spec_version: null
 supersedes: null
 superseded_by: null
 parent_plan: docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md
-source_commit: 8ecb6e37c1ebc01a2e79eb999599eb3ecb7babc6
+source_commit: e2a3f9a8d190fd115028d0ad344c31fded0357d9
 reference_commit: c79cb059da5b4360ebde2e5fd953fa1f43ddabc3
 ---
 
@@ -53,16 +53,71 @@ Markdown source-of-truth model.
 | Item | Verified state | Evidence |
 |---|---|---|
 | Source repository | `MarcoPorcellato/logseq-matryca-parser` | `origin/main` fetched 2026-08-16 |
-| Source base | `8ecb6e37c1ebc01a2e79eb999599eb3ecb7babc6` | clean isolated worktree and [GitHub commit](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/8ecb6e37c1ebc01a2e79eb999599eb3ecb7babc6) |
+| Source base | `e2a3f9a8d190fd115028d0ad344c31fded0357d9` | clean `agent/parser-assurance-m1` checkout matching `origin/main` on 2026-08-16 and [GitHub commit](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/e2a3f9a8d190fd115028d0ad344c31fded0357d9) |
 | Source license | Apache License 2.0 | [`LICENSE`](../LICENSE) |
 | Reference repository | `martinkoutecky/lsdoc` release `v0.5.5` | [reference commit `c79cb059`](https://github.com/martinkoutecky/lsdoc/commit/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3) |
 | Reference license | `AGPL-3.0-only` | [`Cargo.toml`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/Cargo.toml) and [`LICENSE`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/LICENSE) |
 | Parent roadmap | current repository-wide quality SSOT | [stellar roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) |
-| Existing delivery anchors | #87, #103, #104, #108, #111 are open | live GitHub issue reads on 2026-08-16 |
-| Current milestone | M0 plan publication in delivery | branch `agent/lsdoc-reference-study`; pull request pending |
+| M0 publication | merged as [PR #159](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/159) | source head `a6056413`, squash merge `30946446`, terminal validation recorded in the PR |
+| Existing delivery anchors | #87, #103, #104, #108, #111 are open; #106 and #113 are closed | live GitHub issue reads on 2026-08-16 |
+| Current milestone | M1-A local freeze and exact-head qualification | branch `agent/parser-assurance-m1`; push, PR, and hosted exact-head checks remain unproven |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
+
+### 2.1 M1 independent-review reconciliation
+
+An independent review on 2026-08-16 found the M1 direction sound but the
+initial review package incomplete. The review was treated as advisory input and
+rechecked against the source tree, [#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104),
+its audit-reconciliation comment, and the parent roadmap before acceptance.
+
+The live #104 comment expands the issue to include the depth matrix from closed
+#113, incremental-versus-cold-load snapshots owned by open #103, and filesystem
+abuse cases linked to closed #106. M1 therefore delivers **#104-A**, the
+project-owned projection and compatibility-corpus foundation. It does not claim
+to close #104. The remaining generated-malformed, graph snapshot, and broader
+filesystem-assurance work stays dependency-ordered under M3, #103, and the
+existing security contracts.
+
+The review established these M1-A decisions:
+
+1. Use one private, test-owned projector with two versioned profiles; do not add
+   a root-package export or a new public API.
+2. `exact_parse_v1` captures deterministic `StackMachineParser.parse()` output.
+   It includes page title, namespace, configured tab size, declared timestamps,
+   page properties/order/references, and every node's content, clean text,
+   properties/order, references, task data, UUID/source UUID/synthetic marker,
+   hierarchy, parent/left relations, path, outline path, indentation, line
+   ranges, declared timestamps, and ordered children. It excludes filesystem
+   context. The manifest stores the source SHA-256, while the test directly
+   proves `page.raw_content == source` instead of duplicating source text in
+   JSON.
+3. `semantic_roundtrip_v1` compares parse -> serialize -> parse semantics. It
+   includes title, namespace, normalized properties and their declared order,
+   outline order, meaningful content/clean text, references, tasks, declared
+   timestamps, source UUIDs, and structural parent/left locators. It excludes
+   raw source text, absolute paths, graph root, filesystem-derived timestamps,
+   byte formatting, and universal line-number equality. Direct synthetic UUID
+   equality is enforced only when the fixture identity policy requires it.
+4. Identity policy is an object, not an ambiguous label: `synthetic_uuid` is
+   `stable` or `recomputed`; `source_uuid` is `preserve` or `absent`; and
+   `relations` is `direct_ids` or `outline_paths`. All fixtures separately prove
+   UUID uniqueness, same-input determinism, and valid ordered parent/left links.
+5. File-entrypoint behavior uses bounded assertions rather than a third snapshot
+   profile. Paths are compared through normalized or relative relationships,
+   never frozen host-specific absolute values.
+6. The manifest records top-level corpus and snapshot schema versions. Every
+   entry also records `fixture_schema_version`, `snapshot_schema_version`,
+   fixture ID, source path and SHA-256, provenance, license, parse
+   entrypoint/configuration, enabled profiles, expected outcome, protected
+   behaviors, identity policy, expected diagnostic codes, and notes.
+7. The review surface for M1-A includes the parent roadmap, clean architecture,
+   public exports and API-contract test, path helpers and tests, package/quality
+   gates, and repository license/notice in addition to parser and serializer
+   sources. Existing focused tests remain authoritative; corpus tests reuse
+   their behaviors and replace the private deep-refresh semantic tuple rather
+   than creating a third semantic definition.
 
 ## 3. Status vocabulary
 
@@ -271,35 +326,51 @@ converted into a pass or silently added to an allowlist.
 
 - No future implementation is authorized merely by publishing this plan.
 
-### M1 — Project-owned semantic projection and corpus manifest
+### M1 — #104-A project-owned semantic projection and corpus foundation
 
 **Outcome**
 
-- Expand [#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104)
-  with a versioned projection defined from current consumers and invariants.
-- Each fixture records an ID, original source/provenance, license, input class,
-  protected invariant, expected diagnostics, and semantic snapshot version.
-- Projection covers hierarchy, content, properties, UUID/source UUID behavior,
-  ordering, parent/left relations, line ranges, task data, references, and
-  serialization-reparse equivalence where applicable.
+- Deliver the first explicit tranche of
+  [#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104)
+  without closing the expanded parent issue.
+- Add one private projector producing `exact_parse_v1` and
+  `semantic_roundtrip_v1` under the field and identity contracts in section 2.1.
+- Add an original, offline, versioned corpus whose manifest records corpus,
+  fixture, and snapshot schema versions, source SHA-256/provenance/license,
+  parse configuration, protected behaviors, identity policy, expected outcome,
+  and expected diagnostic codes.
+- Preserve the closed #113 depth matrix and minimized regression as protected
+  corpus behavior while retaining focused unit tests as the narrow defect
+  owners.
+- Add bounded file-entrypoint assertions without freezing absolute host paths or
+  duplicating the symlink and `file://` security suites owned by #106.
 
 **Dependencies**
 
-- M0 merged; current API and semantic contracts re-verified.
+- M0 merged through PR #159; current API, architecture, path, package, license,
+  quality-gate, and semantic contracts re-verified.
+- #103 remains the owner of complete incremental/cold-load snapshot equivalence.
 
 **Exit evidence**
 
-- Original fixtures only; deterministic manifest validation; corpus tests in
-  the fast CI budget; `make all`; zero import cycles.
+- Original Apache-2.0 fixtures only; source hashes and manifest provenance
+  validated; discovery order cannot change canonical snapshots.
+- Exact-parse, semantic-roundtrip, identity, hierarchy, depth, and bounded
+  file-entrypoint tests remain in the fast CI budget.
+- The root export manifest is unchanged, no runtime/package dependency is added,
+  `make all` and `make vendor-name-check` pass, and `src/` has zero import cycles.
 
 **Impact**
 
-- Makes semantic drift reviewable without freezing incidental Pydantic or JSON
-  formatting details.
+- Makes semantic drift reviewable without freezing incidental Pydantic, JSON,
+  filesystem, or host-path details and without promoting a test oracle to the
+  stable public API.
 
 **Residual risk**
 
 - Project-owned invariants can share the same blind spots as the implementation.
+- M1-A alone does not satisfy #104's generated malformed-input,
+  incremental/cold-load, or complete filesystem-abuse acceptance criteria.
 
 ### M2 — External oracle feasibility and license gate
 
@@ -343,6 +414,8 @@ converted into a pass or silently added to an allowlist.
   large lines, and incremental/cold-load equivalence.
 - Every generated run has bounded size, deterministic replay information, and
   subprocess timeout protection.
+- Complete the remaining expanded #104 acceptance criteria without duplicating
+  the focused #103 snapshot owner or the established #106 security contracts.
 
 **Dependencies**
 
@@ -541,8 +614,13 @@ It must not replace the requirements in this plan.
 
 ## 17. Completion checklist
 
-- [ ] M0 is merged and publicly available.
-- [ ] #104 has an original, provenance-safe semantic projection and corpus.
+- [x] M0 is merged and publicly available through PR #159.
+- [x] #104-A is implemented and locally qualified on the working tree with an
+  original, provenance-safe projection and corpus foundation.
+- [ ] #104-A is committed, exact-head qualified, reviewed, merged, and covered
+  by terminal hosted validation.
+- [ ] The remaining expanded #104 acceptance criteria are proved through the
+  dependency-owned #103 and M3 evidence before #104 is closed.
 - [ ] The external-oracle decision is recorded, including a valid negative
   decision if license or process boundaries are unacceptable.
 - [ ] Adversarial and property-based tests have deterministic replay and bounded
@@ -562,3 +640,15 @@ It must not replace the requirements in this plan.
   claimed.
 
 Completion is unproven until every applicable item has authoritative evidence.
+
+## 18. Execution ledger
+
+| Date | Anchor | Result | Evidence and residual boundary |
+|---|---|---|---|
+| 2026-08-16 | M0 / PR #159 | merged | Source head `a6056413`, squash merge `30946446`; PR records 535 passing tests, 91.95% coverage, documentation/package/vendor gates, and zero cycles. No parser behavior changed. |
+| 2026-08-16 | M1 activation | verified | Clean `agent/parser-assurance-m1` at `e2a3f9a`, matching `origin/main`; no tracked M1 changes at activation. |
+| 2026-08-16 | Independent M1 review | reconciled | Accepted the larger review surface, two-profile/single-projector model, explicit identity policy, and manifest expansion after source and live-issue verification. M1 is #104-A; #104 remains open. |
+| 2026-08-16 | Low-cost inventories | advisory | Two Spark read-only inventories located reusable tests and model fields. Their proposals are not authority; only source-verified evidence is admitted to implementation. |
+| 2026-08-16 | M1-A implementation | local, uncommitted | Added one private two-profile projector, a strict versioned manifest, six original Apache-2.0 fixtures and exact snapshots, bounded file-entrypoint assertions, and reuse from the deep-refresh regression suite. No `src/`, root export, or runtime dependency changed; final qualification and publication remain separate gates. |
+| 2026-08-16 | M1-A implementation review | reconciled | A bounded Spark review found no P0/P1. Its valid non-atomic snapshot-write P2 was corrected; manifest-negative and snapshot-CLI contracts were added. Its `source_uuid` P2 was rejected after primary verification because the projection deliberately exposes source identity and the dedicated test applies each `preserve`/`absent` policy without masking drift. |
+| 2026-08-16 | M1-A working-tree qualification | provisional | `rtk uv run python scripts/update_compat_snapshots.py` passed in non-mutating freshness mode; `rtk make all` passed with 553 tests and 92.07% coverage; Ruff, mypy, documentation, vendor-name, and diff checks passed; audit code reported zero `src/` import cycles. `rtk uv run python scripts/update_compat_snapshots.py --write` is the only explicit regeneration mode, and stale snapshots make the default command exit nonzero. This is not E1/E2 because the qualified bytes were not yet committed. |

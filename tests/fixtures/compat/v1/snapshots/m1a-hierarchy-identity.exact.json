@@ -1,0 +1,230 @@
+{
+  "page": {
+    "created_at": null,
+    "namespace_chain": [],
+    "properties": {
+      "title": "Project tree baseline"
+    },
+    "properties_order": [
+      "title"
+    ],
+    "refs": [],
+    "root_nodes": [
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [
+          {
+            "assets": [],
+            "block_refs": [],
+            "children": [],
+            "clean_text": "Alpha child",
+            "content": "Alpha child",
+            "created_at": null,
+            "deadline_at": null,
+            "indent_level": 1,
+            "left_id": null,
+            "line_end": 5,
+            "line_start": 5,
+            "outline_path": [
+              1,
+              1
+            ],
+            "parent_id": "3bcccb17-9d4e-5e8d-938c-b3583d1c1fa5",
+            "path": [
+              "3bcccb17-9d4e-5e8d-938c-b3583d1c1fa5",
+              "4a581c12-cbaa-5712-9c77-baa1499bbcce"
+            ],
+            "properties": {},
+            "properties_order": [],
+            "refs": [],
+            "repeater": null,
+            "scheduled_at": null,
+            "source_uuid": null,
+            "synthetic_id": true,
+            "tags": [],
+            "task_priority": null,
+            "task_status": null,
+            "updated_at": null,
+            "uuid": "4a581c12-cbaa-5712-9c77-baa1499bbcce",
+            "wikilinks": []
+          },
+          {
+            "assets": [],
+            "block_refs": [],
+            "children": [],
+            "clean_text": "Alpha support",
+            "content": "Alpha support",
+            "created_at": null,
+            "deadline_at": null,
+            "indent_level": 1,
+            "left_id": "4a581c12-cbaa-5712-9c77-baa1499bbcce",
+            "line_end": 6,
+            "line_start": 6,
+            "outline_path": [
+              1,
+              2
+            ],
+            "parent_id": "3bcccb17-9d4e-5e8d-938c-b3583d1c1fa5",
+            "path": [
+              "3bcccb17-9d4e-5e8d-938c-b3583d1c1fa5",
+              "eeeee800-77e6-567d-8dbc-29917a1b2f12"
+            ],
+            "properties": {},
+            "properties_order": [],
+            "refs": [],
+            "repeater": null,
+            "scheduled_at": null,
+            "source_uuid": null,
+            "synthetic_id": true,
+            "tags": [],
+            "task_priority": null,
+            "task_status": null,
+            "updated_at": null,
+            "uuid": "eeeee800-77e6-567d-8dbc-29917a1b2f12",
+            "wikilinks": []
+          }
+        ],
+        "clean_text": "Alpha",
+        "content": "Alpha",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": null,
+        "line_end": 4,
+        "line_start": 3,
+        "outline_path": [
+          1
+        ],
+        "parent_id": null,
+        "path": [
+          "3bcccb17-9d4e-5e8d-938c-b3583d1c1fa5"
+        ],
+        "properties": {
+          "id": "91e6b8c4-4bb4-4f9f-a4df-3e9c2f1d4c44"
+        },
+        "properties_order": [
+          "id"
+        ],
+        "refs": [],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": "91e6b8c4-4bb4-4f9f-a4df-3e9c2f1d4c44",
+        "synthetic_id": false,
+        "tags": [],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "3bcccb17-9d4e-5e8d-938c-b3583d1c1fa5",
+        "wikilinks": []
+      },
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [
+          {
+            "assets": [],
+            "block_refs": [],
+            "children": [],
+            "clean_text": "Beta branch",
+            "content": "Beta branch",
+            "created_at": null,
+            "deadline_at": null,
+            "indent_level": 1,
+            "left_id": null,
+            "line_end": 8,
+            "line_start": 8,
+            "outline_path": [
+              2,
+              1
+            ],
+            "parent_id": "8054902a-f794-5499-82cb-b9bc0290c80d",
+            "path": [
+              "8054902a-f794-5499-82cb-b9bc0290c80d",
+              "43d5bcb3-fbd1-5bad-9c73-75cb9f5e55a2"
+            ],
+            "properties": {},
+            "properties_order": [],
+            "refs": [],
+            "repeater": null,
+            "scheduled_at": null,
+            "source_uuid": null,
+            "synthetic_id": true,
+            "tags": [],
+            "task_priority": null,
+            "task_status": null,
+            "updated_at": null,
+            "uuid": "43d5bcb3-fbd1-5bad-9c73-75cb9f5e55a2",
+            "wikilinks": []
+          }
+        ],
+        "clean_text": "Beta",
+        "content": "Beta",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": "3bcccb17-9d4e-5e8d-938c-b3583d1c1fa5",
+        "line_end": 7,
+        "line_start": 7,
+        "outline_path": [
+          2
+        ],
+        "parent_id": null,
+        "path": [
+          "8054902a-f794-5499-82cb-b9bc0290c80d"
+        ],
+        "properties": {},
+        "properties_order": [],
+        "refs": [],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "8054902a-f794-5499-82cb-b9bc0290c80d",
+        "wikilinks": []
+      },
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [],
+        "clean_text": "Gamma",
+        "content": "Gamma",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": "8054902a-f794-5499-82cb-b9bc0290c80d",
+        "line_end": 9,
+        "line_start": 9,
+        "outline_path": [
+          3
+        ],
+        "parent_id": null,
+        "path": [
+          "84401ff8-0da2-5e91-995e-039b46220008"
+        ],
+        "properties": {},
+        "properties_order": [],
+        "refs": [],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "84401ff8-0da2-5e91-995e-039b46220008",
+        "wikilinks": []
+      }
+    ],
+    "tab_size": 2,
+    "title": "Project tree baseline",
+    "updated_at": null
+  },
+  "profile": "exact_parse_v1",
+  "snapshot_schema_version": 1
+}

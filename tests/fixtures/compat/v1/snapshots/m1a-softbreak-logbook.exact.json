@@ -1,0 +1,187 @@
+{
+  "page": {
+    "created_at": null,
+    "namespace_chain": [],
+    "properties": {
+      "tags": "fixture, compat",
+      "title": "Soft break and property log"
+    },
+    "properties_order": [
+      "title",
+      "tags"
+    ],
+    "refs": [
+      "Fixture",
+      "Compatibility",
+      "A",
+      "fixture",
+      "compat"
+    ],
+    "root_nodes": [
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [],
+        "clean_text": "A soft break starts here\nand remains in the same logical block.",
+        "content": "A soft break starts here\n  and remains in the same logical block.",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": null,
+        "line_end": 7,
+        "line_start": 6,
+        "outline_path": [
+          1
+        ],
+        "parent_id": null,
+        "path": [
+          "ed703cf5-be7a-54c9-9586-dfa99199c985"
+        ],
+        "properties": {},
+        "properties_order": [],
+        "refs": [],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "ed703cf5-be7a-54c9-9586-dfa99199c985",
+        "wikilinks": []
+      },
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [
+          {
+            "assets": [],
+            "block_refs": [],
+            "children": [],
+            "clean_text": "Child after the list property",
+            "content": "Child after the list property",
+            "created_at": null,
+            "deadline_at": null,
+            "indent_level": 1,
+            "left_id": null,
+            "line_end": 12,
+            "line_start": 12,
+            "outline_path": [
+              2,
+              1
+            ],
+            "parent_id": "349e13cc-8dc4-566e-8388-6dfa809c8ec9",
+            "path": [
+              "349e13cc-8dc4-566e-8388-6dfa809c8ec9",
+              "648f6bf8-14f8-53d5-a906-e9c5ed4fe57f"
+            ],
+            "properties": {},
+            "properties_order": [],
+            "refs": [],
+            "repeater": null,
+            "scheduled_at": null,
+            "source_uuid": null,
+            "synthetic_id": true,
+            "tags": [],
+            "task_priority": null,
+            "task_status": null,
+            "updated_at": null,
+            "uuid": "648f6bf8-14f8-53d5-a906-e9c5ed4fe57f",
+            "wikilinks": []
+          }
+        ],
+        "clean_text": "List property block",
+        "content": "List property block",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": "ed703cf5-be7a-54c9-9586-dfa99199c985",
+        "line_end": 12,
+        "line_start": 8,
+        "outline_path": [
+          2
+        ],
+        "parent_id": null,
+        "path": [
+          "349e13cc-8dc4-566e-8388-6dfa809c8ec9"
+        ],
+        "properties": {
+          "tags": [
+            "[[Fixture]]",
+            "[[Compatibility]]"
+          ]
+        },
+        "properties_order": [
+          "tags"
+        ],
+        "refs": [
+          "Fixture",
+          "Compatibility"
+        ],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [
+          "Fixture",
+          "Compatibility"
+        ],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "349e13cc-8dc4-566e-8388-6dfa809c8ec9",
+        "wikilinks": [
+          "Fixture",
+          "Compatibility"
+        ]
+      },
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [],
+        "clean_text": "Logged task",
+        "content": "DONE [#A] Logged task",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": "349e13cc-8dc4-566e-8388-6dfa809c8ec9",
+        "line_end": 15,
+        "line_start": 13,
+        "outline_path": [
+          3
+        ],
+        "parent_id": null,
+        "path": [
+          "8e505f1a-4ea6-5e77-a233-874cf374a215"
+        ],
+        "properties": {
+          "logbook": [
+            "CLOCK: [2026-08-15 Sat 09:00]--[2026-08-15 Sat 09:15]"
+          ]
+        },
+        "properties_order": [],
+        "refs": [
+          "A"
+        ],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [
+          "A"
+        ],
+        "task_priority": "A",
+        "task_status": "DONE",
+        "updated_at": null,
+        "uuid": "8e505f1a-4ea6-5e77-a233-874cf374a215",
+        "wikilinks": []
+      }
+    ],
+    "tab_size": 2,
+    "title": "Soft break and property log",
+    "updated_at": null
+  },
+  "profile": "exact_parse_v1",
+  "snapshot_schema_version": 1
+}

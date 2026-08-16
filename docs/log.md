@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-08
-verified: 2026-08-08
-stale_after: 2027-02-04
+last_verified: 2026-08-16
+verified: 2026-08-16
+stale_after: 2027-02-12
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -21,6 +21,13 @@ superseded_by: null
 
 ## 2026-08-16
 
+- Implemented the local #104-A parser compatibility-corpus foundation: one
+  private, test-owned projector with exact-parse and semantic-roundtrip
+  profiles; six original Apache-2.0 Markdown fixtures; strict source hashes,
+  provenance, schema, parser configuration, protected behavior, diagnostics,
+  and identity-policy metadata; bounded file-entrypoint assertions; and shared
+  projection logic in the deep-refresh regression suite. This tranche does not
+  close #104 and does not change runtime code or the public package API.
 - Added the maintained
   [lsdoc reference study and parser assurance plan](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md)
   as a subordinate extension of the stellar roadmap. It maps independently

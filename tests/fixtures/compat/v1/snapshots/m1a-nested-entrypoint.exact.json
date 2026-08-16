@@ -1,0 +1,85 @@
+{
+  "page": {
+    "created_at": null,
+    "namespace_chain": [],
+    "properties": {},
+    "properties_order": [],
+    "refs": [],
+    "root_nodes": [
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [
+          {
+            "assets": [],
+            "block_refs": [],
+            "children": [],
+            "clean_text": "Nested child",
+            "content": "Nested child",
+            "created_at": null,
+            "deadline_at": null,
+            "indent_level": 1,
+            "left_id": null,
+            "line_end": 2,
+            "line_start": 2,
+            "outline_path": [
+              1,
+              1
+            ],
+            "parent_id": "69686838-b432-5f13-92fd-358566957a9e",
+            "path": [
+              "69686838-b432-5f13-92fd-358566957a9e",
+              "a3f59f7f-481f-5d5b-8605-7fbe711d1cc5"
+            ],
+            "properties": {},
+            "properties_order": [],
+            "refs": [],
+            "repeater": null,
+            "scheduled_at": null,
+            "source_uuid": null,
+            "synthetic_id": true,
+            "tags": [],
+            "task_priority": null,
+            "task_status": null,
+            "updated_at": null,
+            "uuid": "a3f59f7f-481f-5d5b-8605-7fbe711d1cc5",
+            "wikilinks": []
+          }
+        ],
+        "clean_text": "File entrypoint root",
+        "content": "File entrypoint root",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": null,
+        "line_end": 1,
+        "line_start": 1,
+        "outline_path": [
+          1
+        ],
+        "parent_id": null,
+        "path": [
+          "69686838-b432-5f13-92fd-358566957a9e"
+        ],
+        "properties": {},
+        "properties_order": [],
+        "refs": [],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "69686838-b432-5f13-92fd-358566957a9e",
+        "wikilinks": []
+      }
+    ],
+    "tab_size": 2,
+    "title": "nested-title-entrypoint",
+    "updated_at": null
+  },
+  "profile": "exact_parse_v1",
+  "snapshot_schema_version": 1
+}

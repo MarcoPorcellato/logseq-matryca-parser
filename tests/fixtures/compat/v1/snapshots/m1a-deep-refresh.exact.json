@@ -1,0 +1,205 @@
+{
+  "page": {
+    "created_at": null,
+    "namespace_chain": [],
+    "properties": {},
+    "properties_order": [],
+    "refs": [],
+    "root_nodes": [
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [
+          {
+            "assets": [],
+            "block_refs": [],
+            "children": [
+              {
+                "assets": [],
+                "block_refs": [],
+                "children": [
+                  {
+                    "assets": [],
+                    "block_refs": [],
+                    "children": [
+                      {
+                        "assets": [],
+                        "block_refs": [],
+                        "children": [],
+                        "clean_text": "e\ncontinuation-e",
+                        "content": "e\n          continuation-e",
+                        "created_at": null,
+                        "deadline_at": null,
+                        "indent_level": 4,
+                        "left_id": null,
+                        "line_end": 6,
+                        "line_start": 5,
+                        "outline_path": [
+                          1,
+                          1,
+                          1,
+                          1,
+                          1
+                        ],
+                        "parent_id": "b832c742-827f-57aa-bb8e-9f0b954e3612",
+                        "path": [
+                          "19916508-7843-5a59-a454-9daadf803cf5",
+                          "415b380e-7e92-57cf-bc6d-2c8b91273ef5",
+                          "6debb3d5-48cd-5bde-9b2d-371c86c1e33e",
+                          "b832c742-827f-57aa-bb8e-9f0b954e3612",
+                          "2fc11381-6d72-552e-83e6-fe6906a1ea14"
+                        ],
+                        "properties": {},
+                        "properties_order": [],
+                        "refs": [],
+                        "repeater": null,
+                        "scheduled_at": null,
+                        "source_uuid": null,
+                        "synthetic_id": true,
+                        "tags": [],
+                        "task_priority": null,
+                        "task_status": null,
+                        "updated_at": null,
+                        "uuid": "2fc11381-6d72-552e-83e6-fe6906a1ea14",
+                        "wikilinks": []
+                      }
+                    ],
+                    "clean_text": "d",
+                    "content": "d",
+                    "created_at": null,
+                    "deadline_at": null,
+                    "indent_level": 3,
+                    "left_id": null,
+                    "line_end": 4,
+                    "line_start": 4,
+                    "outline_path": [
+                      1,
+                      1,
+                      1,
+                      1
+                    ],
+                    "parent_id": "6debb3d5-48cd-5bde-9b2d-371c86c1e33e",
+                    "path": [
+                      "19916508-7843-5a59-a454-9daadf803cf5",
+                      "415b380e-7e92-57cf-bc6d-2c8b91273ef5",
+                      "6debb3d5-48cd-5bde-9b2d-371c86c1e33e",
+                      "b832c742-827f-57aa-bb8e-9f0b954e3612"
+                    ],
+                    "properties": {},
+                    "properties_order": [],
+                    "refs": [],
+                    "repeater": null,
+                    "scheduled_at": null,
+                    "source_uuid": null,
+                    "synthetic_id": true,
+                    "tags": [],
+                    "task_priority": null,
+                    "task_status": null,
+                    "updated_at": null,
+                    "uuid": "b832c742-827f-57aa-bb8e-9f0b954e3612",
+                    "wikilinks": []
+                  }
+                ],
+                "clean_text": "c",
+                "content": "c",
+                "created_at": null,
+                "deadline_at": null,
+                "indent_level": 2,
+                "left_id": null,
+                "line_end": 3,
+                "line_start": 3,
+                "outline_path": [
+                  1,
+                  1,
+                  1
+                ],
+                "parent_id": "415b380e-7e92-57cf-bc6d-2c8b91273ef5",
+                "path": [
+                  "19916508-7843-5a59-a454-9daadf803cf5",
+                  "415b380e-7e92-57cf-bc6d-2c8b91273ef5",
+                  "6debb3d5-48cd-5bde-9b2d-371c86c1e33e"
+                ],
+                "properties": {},
+                "properties_order": [],
+                "refs": [],
+                "repeater": null,
+                "scheduled_at": null,
+                "source_uuid": null,
+                "synthetic_id": true,
+                "tags": [],
+                "task_priority": null,
+                "task_status": null,
+                "updated_at": null,
+                "uuid": "6debb3d5-48cd-5bde-9b2d-371c86c1e33e",
+                "wikilinks": []
+              }
+            ],
+            "clean_text": "b",
+            "content": "b",
+            "created_at": null,
+            "deadline_at": null,
+            "indent_level": 1,
+            "left_id": null,
+            "line_end": 2,
+            "line_start": 2,
+            "outline_path": [
+              1,
+              1
+            ],
+            "parent_id": "19916508-7843-5a59-a454-9daadf803cf5",
+            "path": [
+              "19916508-7843-5a59-a454-9daadf803cf5",
+              "415b380e-7e92-57cf-bc6d-2c8b91273ef5"
+            ],
+            "properties": {},
+            "properties_order": [],
+            "refs": [],
+            "repeater": null,
+            "scheduled_at": null,
+            "source_uuid": null,
+            "synthetic_id": true,
+            "tags": [],
+            "task_priority": null,
+            "task_status": null,
+            "updated_at": null,
+            "uuid": "415b380e-7e92-57cf-bc6d-2c8b91273ef5",
+            "wikilinks": []
+          }
+        ],
+        "clean_text": "a",
+        "content": "a",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": null,
+        "line_end": 1,
+        "line_start": 1,
+        "outline_path": [
+          1
+        ],
+        "parent_id": null,
+        "path": [
+          "19916508-7843-5a59-a454-9daadf803cf5"
+        ],
+        "properties": {},
+        "properties_order": [],
+        "refs": [],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "19916508-7843-5a59-a454-9daadf803cf5",
+        "wikilinks": []
+      }
+    ],
+    "tab_size": 2,
+    "title": "Deep refresh minimized regression",
+    "updated_at": null
+  },
+  "profile": "exact_parse_v1",
+  "snapshot_schema_version": 1
+}
