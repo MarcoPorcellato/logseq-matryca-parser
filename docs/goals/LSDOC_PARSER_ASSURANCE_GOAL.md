@@ -25,13 +25,14 @@ This goal is an execution pointer subordinate to the repository stellar roadmap
 and has no independent scope authority.
 
 M1 was merged through [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161).
-M3 is locally qualified at `3edbefb` but remains unpublished. The active next
-step is M4 only: a Python-native, test-only deterministic parser work model on
-an isolated branch based on that exact M3 commit. It must use original fixed-
-seed, size-scaled inputs; count only declared Python-owned operations; reject
-unexplained superlinear work; prove structural and semantic contracts; classify
-parent-enforced timeouts; and emit source-free receipts with platform-labelled,
-non-gating timing and memory observations.
+M3 is locally qualified at `3edbefb` but remains unpublished. M4 code is
+locally qualified at `5e1b1e9` on an isolated branch based on that exact M3
+commit. Its Python-native, test-only deterministic work model uses original
+fixed-seed, size-scaled inputs; counts only declared Python-owned operations;
+rejects unexplained superlinear work; proves structural and semantic contracts;
+classifies parent-enforced timeouts; and emits source-free receipts with
+platform-labelled, non-gating timing and memory observations. The final exact
+full-patch review remains required before any publication.
 
 M4 must not change parser runtime behavior, public APIs, package metadata,
 dependencies, or the valid-fixture manifest. It must not claim #103
