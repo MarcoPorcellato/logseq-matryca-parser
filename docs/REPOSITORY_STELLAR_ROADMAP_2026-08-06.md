@@ -813,3 +813,18 @@ the published SYNAPSE example and its three export paths. Dependabot reports no
 open alerts after the two lock corrections. #90 is closed with this evidence;
 the only release annotation remains the upstream Node.js 20 action warning
 tracked by #124.
+
+## 19. Parser assurance extension — 2026-08-16
+
+The
+[lsdoc reference study and execution plan](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md)
+extends the unresolved #104 → #111 → #108 path after a source-level comparison
+with `martinkoutecky/lsdoc@c79cb059`. It adds an explicit AGPL clean-room
+boundary, a project-owned semantic projection, an optional external-oracle
+decision gate, original adversarial generators, deterministic parser-work
+evidence, a privacy-safe local graph-check proposal, and a source-location RFC.
+
+This extension does not re-verify or rewrite the historical audit sections
+above. It does not authorize a Rust rewrite, an lsdoc dependency, copied tests
+or corpus material, full renderer/Org parity, or implementation before the
+listed evidence and approval gates.

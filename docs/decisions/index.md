@@ -30,6 +30,7 @@ introduced incrementally. Do not rewrite historical roadmaps into ADRs.
 | Writer/watcher concurrency | [Issue #103](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/103) | Proposed |
 | Filesystem confinement | [Issue #106](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/106) | Proposed |
 | Public API stability | [`reference/API_STABILITY.md`](../reference/API_STABILITY.md) | Contract recorded; wheel enforcement published in [PR #117](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/117) |
+| Parser assurance and external oracle boundary | [`LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md`](../LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | Execution boundary recorded; external-oracle ADR pending M2 |
 | Documentation lifecycle and MKQ | [`DOCUMENTATION_SYSTEM.md`](../DOCUMENTATION_SYSTEM.md) | Source contract recorded; MKQ-4 enforcement and private profile activation pending under issue #109 |
 
 Every future ADR must identify owner, status, decision date, supersession links,

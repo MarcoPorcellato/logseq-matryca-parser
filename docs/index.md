@@ -33,6 +33,7 @@ navigation layers only.
 | [Documentation system](DOCUMENTATION_SYSTEM.md) | Canonical governance, lifecycle, metadata, and federation guide |
 | [Architecture](CLEAN_CODE_ARCHITECTURE.md) | Canonical architecture and public graph API |
 | [Repository roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Current evidence-backed improvement plan |
+| [Parser assurance extension](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | License-safe comparative study and dependency-ordered semantic and complexity plan |
 | [README readability report](README_READABILITY_REPORT_2026-08-08.md) | Measured human and AI readability assessment and phased proposal |
 | [Issue reconciliation](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Current GitHub backlog decisions |
 | [Decision index](decisions/index.md) | Architectural decisions and missing ADRs |

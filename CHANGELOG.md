@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Parser assurance reference study** — added a license-safe comparative
+  analysis of `martinkoutecky/lsdoc@c79cb059` and a dependency-ordered plan for
+  a project-owned semantic corpus, optional external-oracle decision, original
+  adversarial generators, deterministic complexity evidence, privacy-safe local
+  graph checks, and a source-location RFC. No AGPL source, tests, corpora,
+  schemas, or documentation were copied or adapted.
+
 ## [1.7.1] - 2026-08-08
 
 Patch release correcting the v1.7.0 SYNAPSE example promise, hardening release
