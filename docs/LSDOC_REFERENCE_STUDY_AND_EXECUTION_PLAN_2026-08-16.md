@@ -579,8 +579,9 @@ converted into a pass or silently added to an allowlist.
 
 **Outcome**
 
-- Optional local command evaluates project-owned invariants and, only if M2 is
-  accepted, differential overlap against the external oracle.
+- Optional local command evaluates project-owned invariants and, only if a
+  superseding ADR explicitly approves adoption, differential overlap against an
+  external oracle.
 - Default behavior uploads nothing, excludes graph content from reports, bounds
   files/bytes/time, stores only safe aggregates, and requires explicit opt-in to
   retain minimized snippets.
