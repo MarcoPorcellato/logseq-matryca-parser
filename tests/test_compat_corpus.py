@@ -268,6 +268,57 @@ def test_semantic_projection_preserves_content_wikilink_matching_property_tag() 
     assert projected["page"]["root_nodes"][0]["wikilinks"] == ["Foo"]
 
 
+@pytest.mark.parametrize(
+    ("property_line",),
+    [
+        ("note:: `[[Foo]]`",),
+        ("note:: ~~~[[Foo]]~~~",),
+        ("note:: <!-- [[Foo]] -->",),
+        ("note:: $\\text{[[Foo]]}$",),
+        ("note:: {{query [[Foo]]}}",),
+        ("note:: #+BEGIN_QUERY [[Foo]]",),
+    ],
+)
+def test_semantic_projection_preserves_shielded_property_references(property_line: str) -> None:
+    page = StackMachineParser().parse(
+        f"- [[Foo]]\n  {property_line}\n",
+        page_title="Shielded property references",
+    )
+    node = page.root_nodes[0]
+
+    projected = project_page(
+        page,
+        profile="semantic_roundtrip_v1",
+        identity_policy={
+            "synthetic_uuid": "stable",
+            "source_uuid": "absent",
+            "relations": "direct_ids",
+        },
+    )
+
+    assert node.wikilinks == ["Foo"]
+    assert projected["page"]["root_nodes"][0]["wikilinks"] == ["Foo"]
+
+
+def test_semantic_projection_canonicalizes_hash_tags_to_target() -> None:
+    page = StackMachineParser().parse(
+        "tags:: #[[Foo]]\n",
+        page_title="Hashed tag property",
+    )
+
+    projected = project_page(
+        page,
+        profile="semantic_roundtrip_v1",
+        identity_policy={
+            "synthetic_uuid": "stable",
+            "source_uuid": "absent",
+            "relations": "direct_ids",
+        },
+    )
+
+    assert projected["page"]["properties"]["tags"] == ["Foo"]
+
+
 def test_semantic_projection_count_subtracts_duplicate_property_wikilinks() -> None:
     page = StackMachineParser().parse(
         "- [[Foo]] [[Foo]]\n  tags:: [[Foo]]\n",

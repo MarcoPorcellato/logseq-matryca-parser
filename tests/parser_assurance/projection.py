@@ -47,10 +47,10 @@ def _page_timestamp(page: LogseqPage, keys: frozenset[str], value: int | None) -
 def _normalize_ref_token(value: object) -> object:
     if not isinstance(value, str):
         return _canonical_value(value)
-    token = value.strip()
+    token = value.strip().lstrip("#")
     if token.startswith("[[") and token.endswith("]]"):
         token = token[2:-2]
-    return token.lstrip("#")
+    return token.strip()
 
 
 def _split_reference_segments(value: str) -> list[str]:
@@ -99,11 +99,59 @@ def _reference_property_sequence(value: object) -> list[object]:
     return [_normalize_ref_token(fragment) for fragment in _reference_property_fragments(value)]
 
 
+def _literal_span_end(value: str, index: int) -> int | None:
+    """Return the end of a parser-shielded literal starting at ``index``."""
+    if index == 0 or value[index - 1] == "\n":
+        line_end = value.find("\n", index)
+        line_end = len(value) if line_end < 0 else line_end
+        stripped_line = value[index:line_end].strip()
+        if stripped_line.upper().startswith("#+BEGIN_QUERY"):
+            return len(value)
+        if stripped_line:
+            fence_char = stripped_line[0]
+            fence_length = len(stripped_line) - len(stripped_line.lstrip(fence_char))
+            if fence_char in {"`", "~"} and fence_length >= 3:
+                return len(value)
+
+    if value.startswith("<!--", index):
+        close = value.find("-->", index + 4)
+        return len(value) if close < 0 else close + 3
+
+    if value.startswith("{{", index):
+        close = value.find("}}", index + 2)
+        if close >= 0:
+            macro = value[index + 2 : close].lstrip().lower()
+            if macro.startswith("query ") or macro.startswith("advancedquery "):
+                return close + 2
+
+    if value.startswith("$$", index):
+        close = value.find("$$", index + 2)
+        return len(value) if close < 0 else close + 2
+
+    if value[index] == "$":
+        close = value.find("$", index + 1)
+        return len(value) if close < 0 else close + 1
+
+    if value[index] == "`":
+        delimiter_end = index
+        while delimiter_end < len(value) and value[delimiter_end] == "`":
+            delimiter_end += 1
+        delimiter = value[index:delimiter_end]
+        close = value.find(delimiter, delimiter_end)
+        return len(value) if close < 0 else close + len(delimiter)
+
+    return None
+
+
 def _explicit_wikilinks(value: str) -> list[str]:
-    """Independently collect unescaped ``[[target]]`` references from one fragment."""
+    """Independently collect visible ``[[target]]`` references from one fragment."""
     tokens: list[str] = []
     index = 0
     while index < len(value):
+        literal_end = _literal_span_end(value, index)
+        if literal_end is not None:
+            index = literal_end
+            continue
         if value.startswith("[[", index) and (index == 0 or value[index - 1] != "\\"):
             end = value.find("]]", index + 2)
             if end >= 0:

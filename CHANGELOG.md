@@ -26,12 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Compatibility-corpus assurance oracle** — canonical reference-property
-  sequences now preserve commas inside page references; property-origin
-  wikilinks are removed by occurrence while equal content links and their order
-  remain visible. Valid fixtures reject undeclared diagnostics and Boolean
-  schema/configuration fields; corpus bytes are forced to LF, and the snapshot
-  generator is covered by the maintained mypy gate. This changes tests and
-  tooling only, not package runtime behavior.
+  sequences now preserve commas inside page references and normalize complex
+  `#[[tag]]` values; property-origin wikilinks are removed by occurrence while
+  equal content links and their order remain visible, including when matching
+  text appears inside parser-shielded code, comments, math, fences, or queries.
+  Valid fixtures reject undeclared diagnostics and Boolean schema/configuration
+  fields; corpus bytes are forced to LF, and the snapshot generator is covered
+  by the maintained mypy gate. This changes tests and tooling only, not package
+  runtime behavior.
 
 ## [1.7.1] - 2026-08-08
 
