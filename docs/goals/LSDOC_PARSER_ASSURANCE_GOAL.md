@@ -42,6 +42,14 @@ release qualification. A new regression fixture is allowed only after a
 minimized original input has been reviewed for provenance, privacy, and
 licensing.
 
+M2 is complete through the accepted negative
+[ADR-001](../decisions/ADR-001-external-oracle-boundary.md): no external
+`mldoc` executable may be installed, invoked, pinned, packaged, or integrated
+under the current boundary. The ADR is a conservative engineering decision, not
+legal advice. M3 and M4 remain project-owned evidence. Any future M5 work may
+use only project-owned invariants unless a superseding ADR meets every listed
+reconsideration condition, including a maintainer-approved process boundary.
+
 Before any push or pull request, re-verify the live base, freeze the raw full
 diff, qualify its exact head, obtain an independent GPT-5.6 Sol full-patch
 review, adjudicate every finding, and stop before publication unless separately

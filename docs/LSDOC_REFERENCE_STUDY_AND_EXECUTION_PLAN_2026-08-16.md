@@ -62,7 +62,7 @@ Markdown source-of-truth model.
 | Existing delivery anchors | #87, #103, #104, #108, #111 are open; #106 and #113 are closed | live GitHub issue reads on 2026-08-16 |
 | Local implementation checkpoint | `8806205c35b104ed65d00a273acc9eeca572ae38` | clean local commit on `agent/parser-assurance-m1`; exact-head tests passed, but independent oracle review rejected publication |
 | M1 delivery | merged | [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161) merged the project-owned compatibility-corpus foundation; it remains only the first #104 tranche |
-| Current milestone | M4 local qualification | code commit `65275cd` above qualified local M3; deterministic, test-only work-growth evidence only; no publication claim |
+| Current milestone | M2 decision recorded; M4 locally qualified | [ADR-001](decisions/ADR-001-external-oracle-boundary.md) records a negative external-oracle decision. M4 code commit `65275cd` and evidence head `19ac996` remain locally qualified test-only work; no publication claim |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
@@ -442,6 +442,15 @@ converted into a pass or silently added to an allowlist.
   project's intentionally different AST and graph responsibilities are typed.
 - Oracle errors, version drift, and unknown mappings fail closed.
 
+**Recorded decision**
+
+- [ADR-001](decisions/ADR-001-external-oracle-boundary.md) completes M2 with a
+  negative decision. Under the current Apache-2.0 project boundary, no external
+  `mldoc` executable is adopted, installed, invoked, pinned, or integrated.
+  This is a conservative engineering decision, not legal advice. M3 and M4
+  remain project-owned evidence; an M5 implementation may use only
+  project-owned invariants unless a future ADR supersedes this decision.
+
 **Dependencies**
 
 - M1 projection stable; dependency-license inventory; maintainer approval of the
@@ -450,10 +459,11 @@ converted into a pass or silently added to an allowlist.
 
 **Exit evidence**
 
-- Accepted ADR, exact oracle version/hash, documented installation boundary,
-  no package/runtime dependency, original comparison adapter and fixtures, and
-  a reproducible local proof. If rejected, the negative decision is the valid
-  milestone result and M3 continues without an external oracle.
+- If adoption is proposed, an accepted ADR, exact oracle version/hash,
+  documented installation boundary, no package/runtime dependency, original
+  comparison adapter and fixtures, and a reproducible local proof are required.
+  The accepted negative decision in ADR-001 is the current valid milestone
+  result; M3 continues without an external oracle.
 
 **Impact**
 
@@ -759,8 +769,9 @@ It must not replace the requirements in this plan.
   hosted validation and merge remain deferred until explicit user authorization.
 - [ ] The remaining expanded #104 acceptance criteria are proved through the
   dependency-owned #103 and M3 evidence before #104 is closed.
-- [ ] The external-oracle decision is recorded, including a valid negative
-  decision if license or process boundaries are unacceptable.
+- [x] The external-oracle decision is recorded in
+  [ADR-001](decisions/ADR-001-external-oracle-boundary.md): no external oracle
+  is adopted under the current boundary.
 - [x] Adversarial and property-based tests have deterministic replay and bounded
   execution through local exact-head M3 commit `3edbefb`; publication remains a
   separate explicit gate.

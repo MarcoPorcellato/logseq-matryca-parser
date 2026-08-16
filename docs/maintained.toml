@@ -29,6 +29,7 @@ maintained_documents = [
   "docs/quality/ISSUE_RECONCILIATION_2026-08-06.md",
   "docs/quality/README.md",
   "docs/decisions/index.md",
+  "docs/decisions/ADR-001-external-oracle-boundary.md",
   "docs/reference/index.md",
   "docs/reference/API_STABILITY.md",
   "docs/reference/DIAGNOSTICS.md",
