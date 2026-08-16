@@ -5,13 +5,12 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
-from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, cast
 
 import pytest
 
-from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
+from logseq_matryca_parser.logos_core import LogseqPage
 from logseq_matryca_parser.logos_parser import StackMachineParser
 from logseq_matryca_parser.logseq_markdown import serialize_logseq_page
 from scripts import update_compat_snapshots
@@ -21,6 +20,7 @@ from tests.parser_assurance.corpus import (
     load_exact_snapshot,
     validate_manifest,
 )
+from tests.parser_assurance.invariants import assert_tree_invariants, walk_nodes
 from tests.parser_assurance.projection import IdentityPolicy, _explicit_wikilinks, project_page
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,29 +34,6 @@ def _parse_entry(entry: dict[str, Any]) -> tuple[str, LogseqPage]:
     if parse["entrypoint"] == "file":
         return source, parser.parse_page_file(source_path)
     return source, parser.parse(source, page_title=parse["page_title"])
-
-
-def _walk(nodes: list[LogseqNode]) -> Iterator[LogseqNode]:
-    for node in nodes:
-        yield node
-        yield from _walk(node.children)
-
-
-def _assert_tree_invariants(page: LogseqPage) -> None:
-    nodes = list(_walk(page.root_nodes))
-    assert len({node.uuid for node in nodes}) == len(nodes)
-
-    def visit(siblings: list[LogseqNode], parent: LogseqNode | None) -> None:
-        for index, node in enumerate(siblings):
-            assert node.parent_id == (parent.uuid if parent is not None else None)
-            assert node.left_id == (siblings[index - 1].uuid if index else None)
-            expected_path = [node.uuid] if parent is None else [*parent.path, node.uuid]
-            assert node.path == expected_path
-            expected_outline = [index + 1] if parent is None else [*parent.outline_path, index + 1]
-            assert node.outline_path == expected_outline
-            visit(node.children, node)
-
-    visit(page.root_nodes, None)
 
 
 def _identity_policy(entry: dict[str, Any]) -> IdentityPolicy:
@@ -403,7 +380,7 @@ def test_exact_parse_snapshot_and_same_input_determinism(entry: dict[str, Any]) 
     _, repeated = _parse_entry(entry)
 
     assert page.raw_content == source
-    _assert_tree_invariants(page)
+    assert_tree_invariants(page)
     projected = project_page(page, profile="exact_parse_v1")
     assert projected == load_exact_snapshot(entry)
     assert project_page(repeated, profile="exact_parse_v1") == projected
@@ -420,8 +397,8 @@ def test_semantic_roundtrip_profile(entry: dict[str, Any]) -> None:
         page_title=page.title,
     )
 
-    _assert_tree_invariants(reparsed)
-    _assert_tree_invariants(repeated_reparse)
+    assert_tree_invariants(reparsed)
+    assert_tree_invariants(repeated_reparse)
     assert project_page(repeated_reparse, profile="exact_parse_v1") == project_page(
         reparsed,
         profile="exact_parse_v1",
@@ -435,8 +412,8 @@ def test_semantic_roundtrip_profile(entry: dict[str, Any]) -> None:
         profile="semantic_roundtrip_v1",
         identity_policy=policy,
     )
-    original_source_uuids = [node.source_uuid for node in _walk(page.root_nodes)]
-    reparsed_source_uuids = [node.source_uuid for node in _walk(reparsed.root_nodes)]
+    original_source_uuids = [node.source_uuid for node in walk_nodes(page.root_nodes)]
+    reparsed_source_uuids = [node.source_uuid for node in walk_nodes(reparsed.root_nodes)]
     if policy["source_uuid"] == "preserve":
         assert any(value is not None for value in original_source_uuids)
         assert reparsed_source_uuids == original_source_uuids

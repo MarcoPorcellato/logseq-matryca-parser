@@ -24,31 +24,27 @@ Complete the license-safe parser assurance program defined in
 This goal is an execution pointer subordinate to the repository stellar roadmap
 and has no independent scope authority.
 
-First verify the live source revision, issue state, documentation policy, and
-delivery state. Continue through the dependency-ordered milestones until every
-applicable completion item has authoritative current evidence. Do not redo work
-already proved in the plan.
+M1 was merged through [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161).
+The active next step is M3 only: an original, test-only adversarial and
+property-based semantic laboratory based on the live `main` source revision.
+It must generate bounded original inputs for depth, fences, delimiters,
+properties, references, Unicode/newline variants, and large lines; run each
+case in a fresh subprocess with a parent timeout; support deterministic replay
+and classification-preserving minimization; verify structure and valid-case
+semantic round trips; keep a fixed CI subset and a separately scheduled broad
+profile; and emit source-free receipts.
 
-The initial checkpoint `8806205c35b104ed65d00a273acc9eeca572ae38` is rejected
-pre-correction evidence. Corrective implementation
-`996c5a52b08f2670ecd80fb3f1515b65ae567465` passed local exact-head checks, but
-its evidence head `6fcf4b274a3a04ef4c9783cf83149d6ef4aeeabb` was rejected by
-the first frozen Sol review and is now superseded. These historical checkpoints
-must not be presented or pushed independently as publication-ready evidence.
-Corrective implementation `9e8708eef9cfa63fd9f392f5b5a9e7df564072e7` passed local
-qualification but was superseded after frozen review head
-`5007dc357e05775c6221c8aa84f9a11edc695e0d` returned `NEEDS_CORRECTION` for
-unequal-backtick shielding parity. Non-amending corrective implementation
-`7870b84` changed only `tests/parser_assurance/projection.py` and
-`tests/test_compat_corpus.py` and passed exact-head local qualification with
-584 tests and 92.16% coverage on a clean worktree.
-Before any push, re-verify the live anchor, review the frozen full diff with GPT-5.6
-Sol again, and follow the
-[post-correction handoff](../internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md).
-The refreshed documentation-evidence commit containing this pointer must
-receive exact-head qualification. Then freeze the raw full diff, record its
-unfiltered SHA-256 and line count, rerun a final GPT-5.6 Sol review, and stop
-before push.
+M3 must not change parser runtime behavior, public APIs, package metadata,
+dependencies, or the valid-fixture manifest. It must not claim #103
+incremental/cold-load snapshot equivalence, #111/#87 performance evidence, an
+external-oracle result, or release qualification. A new regression fixture is
+allowed only after a minimized original input has been reviewed for provenance,
+privacy, and licensing.
+
+Before any push or pull request, re-verify the live base, freeze the raw full
+diff, qualify its exact head, obtain an independent GPT-5.6 Sol full-patch
+review, adjudicate every finding, and stop before publication unless separately
+authorized.
 
 Preserve the Apache-2.0 boundary: do not copy or adapt lsdoc code, tests,
 corpora, schemas, module structure, control flow, or documentation. Keep lsdoc
