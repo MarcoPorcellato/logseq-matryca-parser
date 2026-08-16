@@ -16,7 +16,7 @@ import subprocess
 import sys
 import time
 from collections.abc import Sequence
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from typing import Any, Final, Literal
 
 try:  # pragma: no cover - exercised on platforms without the Unix-only module.
@@ -92,6 +92,20 @@ class WorkVector:
     reference_collection_node_visits: int = 0
     immutable_ancestor_rebuild_steps: int = 0
 
+    def linear_operation_counts(self) -> dict[str, int]:
+        """Return each independently gated operation in the linear work vector."""
+        return {
+            "input_lines": self.input_lines,
+            "indent_resolutions": self.indent_resolutions,
+            "node_builds": self.node_builds,
+            "node_initializations": self.node_initializations,
+            "node_attachments": self.node_attachments,
+            "node_refreshes": self.node_refreshes,
+            "replacement_events": self.replacement_events,
+            "normalization_node_visits": self.normalization_node_visits,
+            "reference_collection_node_visits": self.reference_collection_node_visits,
+        }
+
     @property
     def linear_work(self) -> int:
         """Return work expected to remain linear for every declared family."""
@@ -123,6 +137,8 @@ class WorkReceipt:
     growth_policy: GrowthPolicy
     source_sha256: str
     source_bytes: int
+    bounded: bool
+    timeout_seconds: float | None
     classification: Classification
     exception_type: str | None
     work: WorkVector | None
@@ -302,12 +318,18 @@ def _resident_observation() -> tuple[int | None, str | None]:
     return observation, unit
 
 
-def _replay_command(case: WorkCase) -> str:
+def _replay_command(
+    case: WorkCase,
+    *,
+    bounded: bool,
+    timeout_seconds: float | None,
+) -> str:
     """Return a source-free command that selects exactly one fixed case."""
-    return (
-        "uv run python -m tests.parser_assurance.work_growth --profile fixed --bounded "
-        f"--case-id {case.case_id} --timeout-seconds {DEFAULT_TIMEOUT_SECONDS:g}"
-    )
+    command = f"uv run python -m tests.parser_assurance.work_growth --profile fixed --case-id {case.case_id}"
+    if bounded:
+        assert timeout_seconds is not None
+        command += f" --bounded --timeout-seconds {timeout_seconds:g}"
+    return command
 
 
 def evaluate_case(case: WorkCase) -> WorkReceipt:
@@ -353,6 +375,8 @@ def evaluate_case(case: WorkCase) -> WorkReceipt:
         growth_policy=case.growth_policy,
         source_sha256=case.source_sha256,
         source_bytes=case.source_bytes,
+        bounded=False,
+        timeout_seconds=None,
         classification=classification,
         exception_type=exception_type,
         work=parser.work if classification in {"parsed", "semantic_roundtrip_failure"} else None,
@@ -364,7 +388,7 @@ def evaluate_case(case: WorkCase) -> WorkReceipt:
         platform_system=platform.system(),
         platform_machine=platform.machine(),
         python_version=platform.python_version(),
-        replay_command=_replay_command(case),
+        replay_command=_replay_command(case, bounded=False, timeout_seconds=None),
     )
 
 
@@ -430,6 +454,10 @@ def _receipt_from_payload(payload: object) -> WorkReceipt:
         growth_policy=policy,
         source_sha256=str(payload["source_sha256"]),
         source_bytes=int(payload["source_bytes"]),
+        bounded=bool(payload["bounded"]),
+        timeout_seconds=(
+            float(payload["timeout_seconds"]) if payload["timeout_seconds"] is not None else None
+        ),
         classification=classification,
         exception_type=payload["exception_type"] if isinstance(payload["exception_type"], str) else None,
         work=work,
@@ -451,7 +479,13 @@ def _receipt_from_payload(payload: object) -> WorkReceipt:
     )
 
 
-def _timeout_receipt(case: WorkCase, classification: Classification, exception_type: str | None) -> WorkReceipt:
+def _timeout_receipt(
+    case: WorkCase,
+    classification: Classification,
+    exception_type: str | None,
+    *,
+    timeout_seconds: float,
+) -> WorkReceipt:
     return WorkReceipt(
         work_model_schema_version=WORK_MODEL_SCHEMA_VERSION,
         work_generator_version=WORK_GENERATOR_VERSION,
@@ -462,6 +496,8 @@ def _timeout_receipt(case: WorkCase, classification: Classification, exception_t
         growth_policy=case.growth_policy,
         source_sha256=case.source_sha256,
         source_bytes=case.source_bytes,
+        bounded=True,
+        timeout_seconds=timeout_seconds,
         classification=classification,
         exception_type=exception_type,
         work=None,
@@ -473,7 +509,7 @@ def _timeout_receipt(case: WorkCase, classification: Classification, exception_t
         platform_system=platform.system(),
         platform_machine=platform.machine(),
         python_version=platform.python_version(),
-        replay_command=_replay_command(case),
+        replay_command=_replay_command(case, bounded=True, timeout_seconds=timeout_seconds),
     )
 
 
@@ -489,13 +525,28 @@ def run_bounded_case(case: WorkCase, *, timeout_seconds: float = DEFAULT_TIMEOUT
             timeout=timeout_seconds,
         )
     except subprocess.TimeoutExpired:
-        return _timeout_receipt(case, "timeout", None)
+        return _timeout_receipt(case, "timeout", None, timeout_seconds=timeout_seconds)
     if completed.returncode != 0:
-        return _timeout_receipt(case, "runner_failure", f"exit-{completed.returncode}")
+        return _timeout_receipt(
+            case,
+            "runner_failure",
+            f"exit-{completed.returncode}",
+            timeout_seconds=timeout_seconds,
+        )
     try:
-        return _receipt_from_payload(json.loads(completed.stdout))
+        return replace(
+            _receipt_from_payload(json.loads(completed.stdout)),
+            bounded=True,
+            timeout_seconds=timeout_seconds,
+            replay_command=_replay_command(case, bounded=True, timeout_seconds=timeout_seconds),
+        )
     except (KeyError, TypeError, ValueError, json.JSONDecodeError):
-        return _timeout_receipt(case, "runner_failure", "InvalidWorkerReceipt")
+        return _timeout_receipt(
+            case,
+            "runner_failure",
+            "InvalidWorkerReceipt",
+            timeout_seconds=timeout_seconds,
+        )
 
 
 def run_profile(
@@ -539,10 +590,14 @@ def assert_growth_contract(receipts: Sequence[WorkReceipt]) -> None:
             raise AssertionError(f"{family}: work-growth matrix has unexpected sizes")
         for previous, current in zip(ordered[:-1], ordered[1:], strict=True):
             assert previous.work is not None and current.work is not None
-            if current.work.linear_work * LINEAR_RATIO_DENOMINATOR > (
-                previous.work.linear_work * LINEAR_RATIO_NUMERATOR
-            ):
-                raise AssertionError(f"{family}: linear work exceeded the documented 2.5x envelope")
+            for operation, previous_count in previous.work.linear_operation_counts().items():
+                current_count = current.work.linear_operation_counts()[operation]
+                if current_count * LINEAR_RATIO_DENOMINATOR > (
+                    previous_count * LINEAR_RATIO_NUMERATOR
+                ):
+                    raise AssertionError(
+                        f"{family}: {operation} work exceeded the documented 2.5x envelope"
+                    )
         if family == "deep-chain":
             for receipt in ordered:
                 assert receipt.work is not None

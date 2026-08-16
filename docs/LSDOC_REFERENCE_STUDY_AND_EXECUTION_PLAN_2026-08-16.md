@@ -531,13 +531,15 @@ converted into a pass or silently added to an allowlist.
   refresh, replacement, normalization, and reference-collection operations,
   but it must not expose a parser runtime hook or public API.
 - Use the fixed project-authored matrix `8`, `16`, `32`, and `64` for flat
-  blocks, deep chains, fenced continuations, and properties. The non-exception
-  vector must remain within a `2.5x` ratio as a size doubles. The deep-chain
+  blocks, deep chains, fenced continuations, and properties. Every
+  non-exception operation in the vector must remain within a `2.5x` ratio as a
+  size doubles. The deep-chain
   family is the sole named structural exception: immutable ancestor rebuilding
   is asserted against its exact `n * (n - 1) / 2` model while its remaining
   vector stays within the linear envelope.
 - Emit source-free receipts with schema and generator versions, case identity,
-  exact replay command, size, source hash and byte count, operation vector,
+  exact replay command with bounded mode and timeout when applicable, size,
+  source hash and byte count, operation vector,
   classification, semantic and structural gates, and Python/platform labels.
   Elapsed time and process high-water memory may appear only as platform-
   labelled, non-gating observations; they are not comparable budgets or

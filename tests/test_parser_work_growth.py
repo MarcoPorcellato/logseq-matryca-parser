@@ -50,7 +50,7 @@ def test_deep_chain_declares_and_proves_the_immutable_ancestor_exception() -> No
         assert receipt.work.immutable_ancestor_rebuild_steps == receipt.size * (receipt.size - 1) // 2
 
 
-def test_growth_contract_rejects_unexplained_superlinear_linear_work() -> None:
+def test_growth_contract_rejects_superlinear_operation_growth_hidden_by_other_counters() -> None:
     receipts = list(work_growth.run_profile("fixed"))
     target_index = next(
         index
@@ -61,10 +61,10 @@ def test_growth_contract_rejects_unexplained_superlinear_linear_work() -> None:
     assert target.work is not None
     receipts[target_index] = replace(
         target,
-        work=replace(target.work, input_lines=target.work.input_lines * 10),
+        work=replace(target.work, node_builds=target.work.node_builds + 20),
     )
 
-    with pytest.raises(AssertionError, match="linear work exceeded"):
+    with pytest.raises(AssertionError, match="node_builds work exceeded"):
         work_growth.assert_growth_contract(receipts)
 
 
@@ -77,6 +77,8 @@ def test_receipts_are_source_free_and_label_observations() -> None:
     assert payload["source_bytes"] > 0
     assert receipt.work_model_schema_version == work_growth.WORK_MODEL_SCHEMA_VERSION
     assert receipt.work_generator_version == work_growth.WORK_GENERATOR_VERSION
+    assert receipt.bounded is False
+    assert receipt.timeout_seconds is None
     assert receipt.case_id in receipt.replay_command
     if receipt.resident_high_water is None:
         assert receipt.resident_high_water_unit is None
@@ -98,8 +100,19 @@ def test_bounded_runner_executes_a_real_case_without_exposing_source() -> None:
 
     assert receipt.classification == "parsed"
     assert receipt.work is not None
+    assert receipt.bounded is True
+    assert receipt.timeout_seconds == work_growth.DEFAULT_TIMEOUT_SECONDS
     assert receipt.source_sha256 == case.source_sha256
     assert receipt.source_bytes == case.source_bytes
+
+
+def test_bounded_receipt_replays_the_actual_timeout_configuration() -> None:
+    case = work_growth.cases_for_profile("fixed")[0]
+    receipt = work_growth.run_bounded_case(case, timeout_seconds=0.25)
+
+    assert receipt.bounded is True
+    assert receipt.timeout_seconds == 0.25
+    assert receipt.replay_command.endswith("--bounded --timeout-seconds 0.25")
 
 
 def test_bounded_runner_classifies_timeout_without_accepting_partial_work(
@@ -114,6 +127,8 @@ def test_bounded_runner_classifies_timeout_without_accepting_partial_work(
     receipt = work_growth.run_bounded_case(case, timeout_seconds=0.01)
 
     assert receipt.classification == "timeout"
+    assert receipt.bounded is True
+    assert receipt.timeout_seconds == 0.01
     assert receipt.work is None
     assert receipt.structural_invariants_checked is False
     assert receipt.semantic_roundtrip_checked is False
