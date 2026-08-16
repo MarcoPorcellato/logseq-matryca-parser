@@ -25,21 +25,21 @@ This goal is an execution pointer subordinate to the repository stellar roadmap
 and has no independent scope authority.
 
 M1 was merged through [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161).
-The active next step is M3 only: an original, test-only adversarial and
-property-based semantic laboratory based on the live `main` source revision.
-It must generate bounded original inputs for depth, fences, delimiters,
-properties, references, Unicode/newline variants, and large lines; run each
-case in a fresh subprocess with a parent timeout; support deterministic replay
-and classification-preserving minimization; verify structure and valid-case
-semantic round trips; keep a fixed CI subset and a separately scheduled broad
-profile; and emit source-free receipts.
+M3 is locally qualified at `3edbefb` but remains unpublished. The active next
+step is M4 only: a Python-native, test-only deterministic parser work model on
+an isolated branch based on that exact M3 commit. It must use original fixed-
+seed, size-scaled inputs; count only declared Python-owned operations; reject
+unexplained superlinear work; prove structural and semantic contracts; classify
+parent-enforced timeouts; and emit source-free receipts with platform-labelled,
+non-gating timing and memory observations.
 
-M3 must not change parser runtime behavior, public APIs, package metadata,
+M4 must not change parser runtime behavior, public APIs, package metadata,
 dependencies, or the valid-fixture manifest. It must not claim #103
-incremental/cold-load snapshot equivalence, #111/#87 performance evidence, an
-external-oracle result, or release qualification. A new regression fixture is
-allowed only after a minimized original input has been reviewed for provenance,
-privacy, and licensing.
+incremental/cold-load snapshot equivalence, #87 pathological-latency ownership,
+#111 wall-time/p95/RSS/vault-scale ownership, an external-oracle result, or
+release qualification. A new regression fixture is allowed only after a
+minimized original input has been reviewed for provenance, privacy, and
+licensing.
 
 Before any push or pull request, re-verify the live base, freeze the raw full
 diff, qualify its exact head, obtain an independent GPT-5.6 Sol full-patch
