@@ -84,6 +84,14 @@ def test_receipts_are_source_free_and_label_observations() -> None:
         assert receipt.resident_high_water_unit in {"bytes", "KiB"}
 
 
+def test_resident_observation_is_optional_when_the_platform_lacks_resource(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(work_growth, "resource", None)
+
+    assert work_growth._resident_observation() == (None, None)
+
+
 def test_bounded_runner_executes_a_real_case_without_exposing_source() -> None:
     case = work_growth.cases_for_profile("fixed")[0]
     receipt = work_growth.run_bounded_case(case)

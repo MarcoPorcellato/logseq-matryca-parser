@@ -12,13 +12,17 @@ import argparse
 import hashlib
 import json
 import platform
-import resource
 import subprocess
 import sys
 import time
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from typing import Any, Final, Literal
+
+try:  # pragma: no cover - exercised on platforms without the Unix-only module.
+    import resource
+except ImportError:  # Windows has no resource module; RSS is diagnostic only.
+    resource = None  # type: ignore[assignment]
 
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import StackMachineParser
@@ -288,6 +292,8 @@ class InstrumentedStackMachineParser(StackMachineParser):
 
 def _resident_observation() -> tuple[int | None, str | None]:
     """Return a labelled process high-water observation without normalization claims."""
+    if resource is None:
+        return None, None
     try:
         observation = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     except (AttributeError, OSError):
