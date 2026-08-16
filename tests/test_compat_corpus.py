@@ -21,7 +21,7 @@ from tests.parser_assurance.corpus import (
     load_exact_snapshot,
     validate_manifest,
 )
-from tests.parser_assurance.projection import IdentityPolicy, project_page
+from tests.parser_assurance.projection import IdentityPolicy, _explicit_wikilinks, project_page
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -298,6 +298,44 @@ def test_semantic_projection_preserves_shielded_property_references(property_lin
 
     assert node.wikilinks == ["Foo"]
     assert projected["page"]["root_nodes"][0]["wikilinks"] == ["Foo"]
+
+
+def test_semantic_projection_reconciles_mixed_backtick_runs_reference_counters() -> None:
+    page = StackMachineParser().parse(
+        "- [[V]]\n  note:: `a `` [[X]] ` [[V]]\n",
+        page_title="Backtick mix",
+    )
+    node = page.root_nodes[0]
+
+    projected = project_page(
+        page,
+        profile="semantic_roundtrip_v1",
+        identity_policy={
+            "synthetic_uuid": "stable",
+            "source_uuid": "absent",
+            "relations": "direct_ids",
+        },
+    )
+
+    assert node.properties["note"] == "`a `` [[X]] ` [[V]]"
+    assert node.wikilinks == ["V", "X"]
+    assert projected["page"]["root_nodes"][0]["wikilinks"] == ["V"]
+
+
+@pytest.mark.parametrize(
+    ("property_value",),
+    [
+        ("```python\n[[Hidden]]\n```\n[[Visible]]",),
+        ("~~~python\n[[Hidden]]\n~~~\n[[Visible]]",),
+        ("#+BEGIN_QUERY\n[[Hidden]]\n#+END_QUERY\n[[Visible]]",),
+    ],
+)
+def test_property_oracle_preserves_visible_links_after_closed_regions(property_value: str) -> None:
+    assert _explicit_wikilinks(property_value) == ["Visible"]
+
+
+def test_property_oracle_matches_parser_for_unclosed_html_comment() -> None:
+    assert _explicit_wikilinks("<!-- [[Visible]]") == ["Visible"]
 
 
 def test_semantic_projection_canonicalizes_hash_tags_to_target() -> None:

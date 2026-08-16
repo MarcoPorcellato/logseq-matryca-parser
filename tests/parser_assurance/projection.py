@@ -99,29 +99,89 @@ def _reference_property_sequence(value: object) -> list[object]:
     return [_normalize_ref_token(fragment) for fragment in _reference_property_fragments(value)]
 
 
+def _line_region_end(value: str, marker: str, index: int) -> int:
+    """Return the end of the line containing ``marker`` or the input end."""
+    marker_index = value.find(marker, index)
+    if marker_index < 0:
+        return len(value)
+    line_end = value.find("\n", marker_index)
+    return len(value) if line_end < 0 else line_end + 1
+
+
+def _fence_region_end(value: str, index: int, fence_char: str, fence_length: int) -> int:
+    """Return the end of a line-oriented fenced region."""
+    opening_line_end = value.find("\n", index)
+    if opening_line_end < 0:
+        return len(value)
+    line_start = opening_line_end + 1
+    while line_start < len(value):
+        line_end = value.find("\n", line_start)
+        line_end = len(value) if line_end < 0 else line_end
+        stripped = value[line_start:line_end].strip()
+        run_length = len(stripped) - len(stripped.lstrip(fence_char))
+        if run_length >= fence_length and not stripped[run_length:].strip():
+            return len(value) if line_end == len(value) else line_end + 1
+        line_start = line_end + 1
+    return len(value)
+
+
+def _exact_backtick_close(value: str, body_start: int, delimiter_length: int) -> int:
+    """Find the parser-equivalent exact backtick run, including overlapping suffixes."""
+    cursor = body_start
+    while cursor < len(value):
+        if value[cursor] == "`":
+            run_end = cursor
+            while run_end < len(value) and value[run_end] == "`":
+                run_end += 1
+            if run_end - cursor == delimiter_length:
+                return run_end
+        cursor += 1
+    return len(value)
+
+
+def _inline_math_close(value: str, body_start: int) -> int:
+    """Find a single-dollar close while skipping double-dollar runs."""
+    cursor = body_start
+    while cursor < len(value):
+        if value[cursor] == "$":
+            if cursor + 1 < len(value) and value[cursor + 1] == "$":
+                cursor += 2
+                continue
+            return cursor + 1
+        cursor += 1
+    return len(value)
+
+
 def _literal_span_end(value: str, index: int) -> int | None:
     """Return the end of a parser-shielded literal starting at ``index``."""
     if index == 0 or value[index - 1] == "\n":
         line_end = value.find("\n", index)
         line_end = len(value) if line_end < 0 else line_end
         stripped_line = value[index:line_end].strip()
-        if stripped_line.upper().startswith("#+BEGIN_QUERY"):
-            return len(value)
+        if stripped_line == "#+BEGIN_QUERY" or stripped_line.startswith("#+BEGIN_QUERY "):
+            return _line_region_end(value, "#+END_QUERY", index)
         if stripped_line:
             fence_char = stripped_line[0]
             fence_length = len(stripped_line) - len(stripped_line.lstrip(fence_char))
             if fence_char in {"`", "~"} and fence_length >= 3:
-                return len(value)
+                return _fence_region_end(value, index, fence_char, fence_length)
 
     if value.startswith("<!--", index):
         close = value.find("-->", index + 4)
-        return len(value) if close < 0 else close + 3
+        return None if close < 0 else close + 3
 
     if value.startswith("{{", index):
-        close = value.find("}}", index + 2)
+        line_end = value.find("\n", index)
+        line_end = len(value) if line_end < 0 else line_end
+        close = value.find("}}", index + 2, line_end)
         if close >= 0:
             macro = value[index + 2 : close].lstrip().lower()
-            if macro.startswith("query ") or macro.startswith("advancedquery "):
+            if any(
+                macro.startswith(keyword)
+                and len(macro) > len(keyword)
+                and macro[len(keyword)].isspace()
+                for keyword in ("query", "advancedquery")
+            ):
                 return close + 2
 
     if value.startswith("$$", index):
@@ -129,16 +189,13 @@ def _literal_span_end(value: str, index: int) -> int | None:
         return len(value) if close < 0 else close + 2
 
     if value[index] == "$":
-        close = value.find("$", index + 1)
-        return len(value) if close < 0 else close + 1
+        return _inline_math_close(value, index + 1)
 
     if value[index] == "`":
         delimiter_end = index
         while delimiter_end < len(value) and value[delimiter_end] == "`":
             delimiter_end += 1
-        delimiter = value[index:delimiter_end]
-        close = value.find(delimiter, delimiter_end)
-        return len(value) if close < 0 else close + len(delimiter)
+        return _exact_backtick_close(value, delimiter_end, delimiter_end - index)
 
     return None
 
