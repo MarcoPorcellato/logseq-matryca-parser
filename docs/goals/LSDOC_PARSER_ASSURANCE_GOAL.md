@@ -26,7 +26,7 @@ and has no independent scope authority.
 
 M1 was merged through [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161).
 M3 is locally qualified at `3edbefb` but remains unpublished. M4 code is
-locally qualified at `2a5ec36` on an isolated branch based on that exact M3
+locally qualified at `65275cd` on an isolated branch based on that exact M3
 commit. Its Python-native, test-only deterministic work model uses original
 fixed-seed, size-scaled inputs; counts only declared Python-owned operations;
 rejects unexplained superlinear work; proves structural and semantic contracts;
