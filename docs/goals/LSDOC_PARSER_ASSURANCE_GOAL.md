@@ -29,12 +29,22 @@ delivery state. Continue through the dependency-ordered milestones until every
 applicable completion item has authoritative current evidence. Do not redo work
 already proved in the plan.
 
-The rejected historical checkpoint is `8806205c35b104ed65d00a273acc9eeca572ae38`,
-based on `e2a3f9a8d190fd115028d0ad344c31fded0357d9`; it must not be pushed.
-Corrective implementation `996c5a52b08f2670ecd80fb3f1515b65ae567465` passed its
-local exact-head validation without changing `src/`. Before any push, re-verify
-the live anchor, review the frozen final diff with GPT-5.6 Sol, and follow the
+The initial checkpoint `8806205c35b104ed65d00a273acc9eeca572ae38` is rejected
+pre-correction evidence. Corrective implementation
+`996c5a52b08f2670ecd80fb3f1515b65ae567465` passed local exact-head checks, but
+its evidence head `6fcf4b274a3a04ef4c9783cf83149d6ef4aeeabb` was rejected by
+the first frozen Sol review and is now superseded. These historical checkpoints
+must not be presented or pushed independently as publication-ready evidence.
+Corrective implementation `9e8708eef9cfa63fd9f392f5b5a9e7df564072e7` is non-amending,
+changed only `CHANGELOG.md`, `tests/parser_assurance/projection.py`, and
+`tests/test_compat_corpus.py`, and passed exact-head local qualification on a
+clean worktree.
+Before any push, re-verify the live anchor, review the frozen full diff with GPT-5.6
+Sol again, and follow the
 [post-correction handoff](../internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md).
+The separate documentation-evidence commit containing this pointer must receive
+exact-head qualification. Then freeze the full diff, rerun a final GPT-5.6 Sol
+review, and stop before push.
 
 Preserve the Apache-2.0 boundary: do not copy or adapt lsdoc code, tests,
 corpora, schemas, module structure, control flow, or documentation. Keep lsdoc

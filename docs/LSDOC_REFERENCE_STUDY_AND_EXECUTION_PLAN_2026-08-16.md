@@ -61,7 +61,7 @@ Markdown source-of-truth model.
 | M0 publication | merged as [PR #159](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/159) | source head `a6056413`, squash merge `30946446`, terminal validation recorded in the PR |
 | Existing delivery anchors | #87, #103, #104, #108, #111 are open; #106 and #113 are closed | live GitHub issue reads on 2026-08-16 |
 | Local implementation checkpoint | `8806205c35b104ed65d00a273acc9eeca572ae38` | clean local commit on `agent/parser-assurance-m1`; exact-head tests passed, but independent oracle review rejected publication |
-| Current milestone | M1-B evidence recorded locally; frozen Sol review pending | implementation `996c5a52b08f2670ecd80fb3f1515b65ae567465`; no push or PR |
+| Current milestone | M1-B documentation evidence recorded locally; final frozen Sol review pending | first frozen Sol review on `6fcf4b274a3a04ef4c9783cf83149d6ef4aeeabb` returned `NEEDS_CORRECTION`; non-amending corrective implementation `9e8708eef9cfa63fd9f392f5b5a9e7df564072e7` passed exact-head local qualification; no push or PR |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
@@ -124,7 +124,15 @@ The review established these M1-A decisions:
 
 An independent patch review of local commit `8806205c35b104ed65d00a273acc9eeca572ae38`
 on 2026-08-16 found the architecture acceptable but the assurance oracle not
-yet safe to publish. Primary-agent runtime probes reproduced both P1 findings:
+yet safe to publish. A first frozen review of implementation head
+`6fcf4b274a3a04ef4c9783cf83149d6ef4aeeabb` returned `NEEDS_CORRECTION`.
+That review found two additional oracle defects: property-link extraction did
+not honor parser shielding, so a literal such as ``note:: `[[Foo]]` `` could
+cause an authentic visible `[[Foo]]` to be removed from projected content; and
+the hash-page tag `#[[Foo]]` normalized to `[[Foo]]` instead of `Foo`.
+
+The earlier primary-agent runtime probes against `8806205` reproduced both
+initial P1 findings:
 the semantic projector removed a real content wikilink for `[[Foo]]` combined
 with `tags:: Foo`, and it projected `[[Project Authored]], [[Fixture]]` as one
 malformed token. Manifest probes also proved that non-empty unverified
@@ -654,7 +662,9 @@ The checkout must be clean and the audit-code cycle check must report zero
 cycles. The exact implementation SHA then receives a frozen primary and
 low-cost independent review. A later documentation-evidence commit must pass at
 least `make all`, `make vendor-name-check`, documentation validation, diff
-check, and hosted required checks on its own exact head.
+check, and the next GPT-5.6 Sol review on its own exact head. Hosted required
+checks remain mandatory after an explicitly authorized push and PR; none are
+claimed locally.
 
 ## 15. Interruption and recovery
 
@@ -690,11 +700,11 @@ It must not replace the requirements in this plan.
   reference-property families with comma-aware, count-based semantics.
 - [x] M1-B enforces LF corpus bytes, empty valid-fixture diagnostics, exact
   integer manifest fields, and snapshot-generator mypy coverage.
-- [ ] The corrective implementation commit is clean, exact-head qualified, and
-  has a frozen final diff ready for independent Sol review without unresolved
-  P0/P1/P2 findings.
-- [x] A separate local evidence commit records implementation `996c5a5`; hosted
-  validation remains deferred until an explicitly authorized push and PR.
+- [x] The corrective implementation commit is clean, exact-head qualified, and
+  has a frozen full diff prepared for a final GPT-5.6 Sol review; unresolved
+  historical P1/P2 findings remain tied to historical checkpoints.
+- [x] A separate documentation-evidence commit records implementation `9e8708e`;
+  hosted validation and merge remain deferred until explicit user authorization.
 - [ ] The remaining expanded #104 acceptance criteria are proved through the
   dependency-owned #103 and M3 evidence before #104 is closed.
 - [ ] The external-oracle decision is recorded, including a valid negative
@@ -730,4 +740,6 @@ Completion is unproven until every applicable item has authoritative evidence.
 | 2026-08-16 | M1-A working-tree qualification | provisional | `rtk uv run python scripts/update_compat_snapshots.py` passed in non-mutating freshness mode; `rtk make all` passed with 553 tests and 92.07% coverage; Ruff, mypy, documentation, vendor-name, and diff checks passed; audit code reported zero `src/` import cycles. `rtk uv run python scripts/update_compat_snapshots.py --write` is the only explicit regeneration mode, and stale snapshots make the default command exit nonzero. This is not E1/E2 because the qualified bytes were not yet committed. |
 | 2026-08-16 | M1-A local commit `8806205` | exact-head tests passed; publication rejected | Clean local commit recorded 556 passing tests, 92.07% coverage, snapshot freshness, `make all`, vendor-name, diff, and zero-cycle checks. A later independent full-patch review found two oracle P1s: malformed multi-reference normalization and deletion of authentic content wikilinks. The commit must not be pushed as M1-A evidence. |
 | 2026-08-16 | M1-B corrective review | verified and prepared | Primary runtime probes reproduced both P1s and proved acceptance of non-empty unverified diagnostics and Boolean integer fields. Source review confirmed raw-byte hashes without LF checkout policy and omission of the snapshot generator from the maintained mypy command. Two bounded Spark inventories were advisory; the primary retained semantic and security decisions. The goal remains paused and no implementation, push, or PR is claimed. |
-| 2026-08-16 | M1-B corrective implementation `996c5a5` | locally qualified | Added comma-aware canonical reference-property sequences; reverse count-subtraction of property-origin wikilinks to preserve content-link order; LF fixture-byte policy; exact integer and empty-diagnostics manifest guards; and snapshot-generator mypy coverage. Focused tests, Ruff, and mypy passed; exact-head snapshot freshness, `make all` (572 tests and coverage gate), vendor-name check, documentation check, diff check, and zero-cycle audit passed. No `src/`, package, dependency, push, PR, merge, or release change occurred. Spark and Luna worker starts were blocked before execution by the local permission initializer, so no delegated output was accepted. |
+| 2026-08-16 | M1-B first corrective implementation `996c5a5` and evidence head `6fcf4b2` | locally qualified, then superseded | The implementation added comma-aware canonical references, count-based property-link subtraction, LF fixture policy, strict manifest guards, and snapshot-generator mypy coverage without changing `src/`. Exact-head local qualification passed at `996c5a5` with 572 tests; the separate evidence commit produced frozen review head `6fcf4b2`. These checks remain valid historical receipts, but the later Sol review found additional oracle defects, so neither checkpoint is publication-ready evidence. |
+| 2026-08-16 | M1-B first frozen Sol review `6fcf4b2` | verified and unresolved | Review requested `NEEDS_CORRECTION`. Reproduced P1 (property-link shielding ignored inline-code/HTML-comment and related regions) allowing authentic content-wikilink removal, and P2 (`#[[Foo]]` projected as `[[Foo]]`). Historic checkpoint retained as rejected/superseded evidence. |
+| 2026-08-16 | M1-B corrective implementation `9e8708e` | locally qualified (non-amending) | Corrected commit changed only `CHANGELOG.md`, `tests/parser_assurance/projection.py`, and `tests/test_compat_corpus.py`; preserved `8806205` and `996c5a5` as historical rejected/superseded evidence. Exact-head qualification passed with 7 focused Sol regressions, snapshot freshness, `make all` (`579` tests and coverage gate), Ruff, mypy, documentation validation, vendor-name check, diff check, and zero-cycle check. |

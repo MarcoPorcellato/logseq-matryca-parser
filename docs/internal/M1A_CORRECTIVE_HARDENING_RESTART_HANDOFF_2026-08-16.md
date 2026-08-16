@@ -6,7 +6,7 @@
 - Isolated worktree: none; the dedicated delivery branch is checked out in the
   primary repository directory.
 - Branch: `agent/parser-assurance-m1`
-- Corrective implementation: `996c5a52b08f2670ecd80fb3f1515b65ae567465`
+- Corrective implementation: `9e8708eef9cfa63fd9f392f5b5a9e7df564072e7` (non-amending, files-only corrective pass)
 - Base and local `origin/main`: `e2a3f9a8d190fd115028d0ad344c31fded0357d9`
 - Remote branch: none; the delivery branch has not been pushed.
 - Pull request: none.
@@ -36,13 +36,23 @@
 - Source inspection confirmed raw-byte fixture hashing without an LF checkout
   policy and omission of `scripts/update_compat_snapshots.py` from the Makefile
   mypy command.
-- Corrective implementation `996c5a5` repaired all reproduced defects without
+- Corrective implementation `996c5a5` passed its exact-head local checks, and
+  separate evidence commit `6fcf4b2` froze the first Sol review surface.
+- That Sol review returned `NEEDS_CORRECTION`: property-link extraction ignored
+  parser shielding, so a property literal such as ``note:: `[[Foo]]` `` (and
+  equivalent HTML-comment, math, fence, query-macro, or query-region forms)
+  could remove an authentic visible `[[Foo]]`; `#[[Foo]]` also projected as
+  `[[Foo]]` instead of `Foo`.
+- Corrective implementation `9e8708e` repaired all reproduced defects without
   modifying `src/`: the test oracle canonicalizes comma-separated references,
-  subtracts property-origin wikilinks from the tail by multiplicity, forces LF
-  corpus bytes, rejects non-empty valid-fixture diagnostics and Boolean integer
-  values, and type-checks the snapshot generator. Exact-head validation passed:
-  focused tests, snapshot freshness, `make all` with 572 tests and its coverage
-  gate, vendor-name and documentation checks, diff check, and zero import cycles.
+  subtracts property-origin wikilinks from the tail by multiplicity (including math,
+  backtick/tilde fences, query macro, and query-region contexts), forces LF corpus
+  bytes, rejects non-empty valid-fixture diagnostics and Boolean integer values,
+  and type-checks the snapshot generator. Exact-head validation passed on a clean
+  worktree: seven focused regressions, snapshot freshness, `make all` with 579 tests
+  and coverage gate, Ruff, mypy, documentation validation, vendor-name check, diff
+  check, and zero-cycle audit. No source, package, dependency, API, or runtime
+  behavior changed.
 
 ## Frozen scope and remaining gates
 
@@ -50,7 +60,9 @@
   HEAD with GPT-5.6 Sol. Recheck every finding against source and deterministic
   evidence; do not treat a review request as an approval.
 - Refresh remote `origin/main`, rules, and GitHub state only after the user
-  authorizes publication. Do not push `8806205` or any successor implicitly.
+  authorizes publication. Do not publish `8806205`, `996c5a5`, or `6fcf4b2`
+  independently as qualified checkpoints; only the final reviewed branch may
+  be pushed, and only with explicit authorization.
 - Obtain terminal hosted checks and the user’s separate approval before opening
   a PR, merging, or releasing.
 
@@ -60,17 +72,18 @@
 |---|---|---|---|
 | 1 | Primary semantics | `tests/parser_assurance/projection.py`, `tests/test_compat_corpus.py` | Complete: comma-aware canonical sequences and reverse count-subtraction preserve authentic content links and order. |
 | 2 | Primary security | `.gitattributes`, `tests/parser_assurance/corpus.py`, `tests/test_compat_corpus.py` | Complete: raw-byte LF policy, empty valid diagnostics, and exact integer guards. |
-| 3 | Primary after unavailable worker start | `Makefile`, `tests/test_quality_gate_contract.py` | Complete: snapshot generator appears in mypy and has a dry-run contract test. Spark and Luna did not start because the local permission initializer timed out. |
-| 4 | Primary integration | `CHANGELOG.md`, `docs/log.md`, canonical plan, persistent goal | Complete in implementation/evidence commits; claims preserve `8806205` as rejected historical evidence. |
-| 5 | Primary Git/evidence | local commits and exact-head receipts | Implementation exact-head qualification complete; this evidence commit then needs its own exact-head qualification and frozen Sol review. |
+| 3 | Primary quality gate | `Makefile`, `tests/test_quality_gate_contract.py` | Complete: snapshot generator appears in mypy and has a dry-run contract test. |
+| 4 | Spark scaffolding, primary integration | `tests/test_compat_corpus.py`, `tests/parser_assurance/projection.py` | Complete: Spark added bounded regressions for the first Sol findings; the primary extended the shielding matrix, implemented the correction, and retained all adjudication authority. |
+| 5 | Primary integration | `CHANGELOG.md`, `docs/log.md`, canonical plan, persistent goal | Complete in implementation/evidence commits; claims preserve historical failures and superseded receipts without presenting them as current qualification. |
+| 6 | Primary Git/evidence | local commits and exact-head receipts | Implementation exact-head qualification complete; this evidence commit then needs its own exact-head qualification and frozen Sol review. |
 
 No package or runtime source file belongs to these work packages.
 
 ## Active or stopped work
 
-- Workers: prior Spark inventories remain advisory. The M1-B Spark and Luna
-  worker starts were blocked before execution by the local permission
-  initializer; no unreviewed worker output was accepted.
+- Workers: prior Spark inventories remain advisory.
+- M1-B sequence fact: Spark added the bounded regression-test scaffolding and the
+  primary integrated it. No Luna fallback was needed.
 - Processes: none expected; verify before resuming.
 - Resource admission: not checked; no local-model or LM Studio work is allowed.
 
@@ -97,7 +110,8 @@ No package or runtime source file belongs to these work packages.
 
 ## Boundaries that must survive the restart
 
-- Do not push or open a PR for `8806205`.
+- Do not publish historical checkpoints `8806205`, `996c5a5`, or `6fcf4b2`
+  independently as qualified evidence.
 - Do not modify `src/`, root package exports, package metadata, dependencies, or
   runtime behavior for M1-B.
 - Do not copy or adapt AGPL code, tests, corpus, schemas, or documentation.

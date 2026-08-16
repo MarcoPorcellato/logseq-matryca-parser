@@ -21,16 +21,19 @@ superseded_by: null
 
 ## 2026-08-16
 
-- Implemented and locally qualified M1-B corrective assurance hardening in
-  `996c5a5`: the private test oracle now canonicalizes all four reference
-  property families without splitting commas inside page references, removes
-  property-origin wikilinks by occurrence while preserving content-link order,
-  enforces LF corpus bytes and stricter valid-fixture manifest fields, and
-  includes the snapshot generator in the maintained mypy contract. Exact-head
-  local validation passed snapshot freshness, focused tests, the full 572-test
-  `make all` suite and coverage gate, vendor-name/documentation/diff checks,
-  and zero import cycles. No runtime code, package surface, dependency, push,
-  PR, merge, or release changed; the frozen diff awaits independent Sol review.
+- Recorded the first frozen Sol review on `6fcf4b274a3a04ef4c9783cf83149d6ef4aeeabb` as `NEEDS_CORRECTION`.
+- Implemented non-amending corrective commit `9e8708eef9cfa63fd9f392f5b5a9e7df564072e7` in
+  `CHANGELOG.md`, `tests/parser_assurance/projection.py`, and
+  `tests/test_compat_corpus.py`. Exact-head validation on a clean worktree passed
+  snapshot freshness, `7` focused regressions, `make all` with `579` tests and
+  coverage gate, Ruff, mypy, documentation validation, vendor-name check, diff
+  check, and zero-cycle check. The implementation made property-link accounting
+  honor inline code, HTML comments, math, backtick/tilde fences, query macros,
+  and query regions; it also normalized `#[[Foo]]` as `Foo`. Spark supplied the
+  bounded regression scaffolding, which the primary extended and adjudicated;
+  no Luna fallback was needed. Historical `8806205`, `996c5a5`, and `6fcf4b2`
+  remain rejected or superseded receipts, not current publication evidence. No runtime
+  behavior, package, dependency, push, PR, merge, or release claim was made.
 - Reconciled an independent `NEEDS_CORRECTION` review of local M1-A commit
   `8806205`. The canonical parser-assurance plan now defines the M1-B corrective
   contract for reference-property semantics, content-wikilink preservation, LF
