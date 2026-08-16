@@ -42,6 +42,12 @@ but does not yet declare its maintained entry points. The source bundle and the
 private registry/projection change therefore remain independently reviewed
 artifacts.
 
+## Comparative prior art
+
+| Repository | Reviewed revision | Relationship and boundary |
+|---|---|---|
+| [`martinkoutecky/lsdoc`](https://github.com/martinkoutecky/lsdoc) | [`c79cb059`](https://github.com/martinkoutecky/lsdoc/commit/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3), AGPL-3.0-only | Public comparative prior art for parser assurance. This repository does not include or adapt lsdoc code, tests, corpora, schemas, module structure, or documentation. See the [study and execution plan](../LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md). |
+
 ## Local contracts
 
 - [Python API stability and typing](API_STABILITY.md)
@@ -52,4 +58,5 @@ artifacts.
 - [Release process](../RELEASE_PROCESS.md)
 - [Security policy](../../SECURITY.md)
 - [Current roadmap](../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md)
+- [Parser assurance extension](../LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md)
 - [Documentation system](../DOCUMENTATION_SYSTEM.md)

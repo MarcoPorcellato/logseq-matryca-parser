@@ -48,6 +48,7 @@ entry points.
 | [`CODEQL.md`](CODEQL.md) | Maintainers | CodeQL default setup notes |
 | [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) | Maintainers, contributors | Local static analysis bug audit (Clean Architecture lens, runtime evidence) |
 | [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Maintainers, contributors | Evidence-backed repository audit, confirmed defects, issue map, and sequenced improvement roadmap |
+| [`LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md`](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | Maintainers, parser contributors | License-safe comparative study and execution plan for semantic, complexity, and source-location assurance |
 | [`README_READABILITY_REPORT_2026-08-08.md`](README_READABILITY_REPORT_2026-08-08.md) | Maintainers | Measured human and AI README assessment with a phased simplification proposal |
 | [`quality/ISSUE_RECONCILIATION_2026-08-06.md`](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Maintainers, contributors | Evidence-backed disposition of every issue open at the audit baseline |
 | [`decisions/index.md`](decisions/index.md) | Maintainers | Canonical decision registry and ADR gaps |

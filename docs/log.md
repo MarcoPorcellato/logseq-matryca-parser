@@ -19,6 +19,22 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-08-16
+
+- Added the maintained
+  [lsdoc reference study and parser assurance plan](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md)
+  as a subordinate extension of the stellar roadmap. It maps independently
+  transferable verification principles to issues #87, #103, #104, #108, and
+  #111 while rejecting a Rust rewrite, source/test/corpus/schema copying, and
+  unmeasured parity claims.
+- Recorded `martinkoutecky/lsdoc@c79cb059` as public comparative prior art with
+  its AGPL-3.0-only boundary. Public disclosure is intentionally limited to the
+  maintained study and provenance index; the root README remains focused on
+  this project's own capabilities.
+- Added a concise persistent goal for durable execution and preserved separate
+  approval gates for an external oracle, implementation, merge, release, and
+  any license-affecting integration.
+
 ## 2026-08-08
 
 - Moved 241 lines of detailed release history from the root README into
