@@ -1,4 +1,4 @@
-# M1-A corrective hardening restart handoff — 2026-08-16
+# M1-B post-correction pre-push handoff — 2026-08-16
 
 ## Safe resume point
 
@@ -6,14 +6,15 @@
 - Isolated worktree: none; the dedicated delivery branch is checked out in the
   primary repository directory.
 - Branch: `agent/parser-assurance-m1`
-- HEAD: `8806205c35b104ed65d00a273acc9eeca572ae38`
+- Corrective implementation: `996c5a52b08f2670ecd80fb3f1515b65ae567465`
 - Base and local `origin/main`: `e2a3f9a8d190fd115028d0ad344c31fded0357d9`
 - Remote branch: none; the delivery branch has not been pushed.
 - Pull request: none.
-- Working tree after preparation: modified canonical plan, persistent goal, and
-  documentation log; this handoff is untracked. Re-verify the exact status
-  before editing.
-- Persistent goal state: paused; only the user may resume it.
+- Evidence commit: this handoff, the canonical plan, persistent goal, and
+  documentation log record the local result separately from the implementation.
+  Re-verify its exact SHA after committing before any review or publication.
+- Persistent goal state: active through frozen Sol review; push, PR, merge, and
+  release still require separate user authorization.
 
 ## Completed and terminally verified
 
@@ -35,35 +36,41 @@
 - Source inspection confirmed raw-byte fixture hashing without an LF checkout
   policy and omission of `scripts/update_compat_snapshots.py` from the Makefile
   mypy command.
+- Corrective implementation `996c5a5` repaired all reproduced defects without
+  modifying `src/`: the test oracle canonicalizes comma-separated references,
+  subtracts property-origin wikilinks from the tail by multiplicity, forces LF
+  corpus bytes, rejects non-empty valid-fixture diagnostics and Boolean integer
+  values, and type-checks the snapshot generator. Exact-head validation passed:
+  focused tests, snapshot freshness, `make all` with 572 tests and its coverage
+  gate, vendor-name and documentation checks, diff check, and zero import cycles.
 
-## Saved but not yet qualified
+## Frozen scope and remaining gates
 
-- `docs/LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md` — M1-B contract,
-  gates, checklist, and ledger update.
-- `docs/goals/LSDOC_PARSER_ASSURANCE_GOAL.md` — exact rejected anchor and resume
-  pointer.
-- `docs/log.md` — documentation chronology for this correction checkpoint.
-- `docs/internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md` — this
-  preparation checkpoint.
+- Review the frozen diff from `origin/main` through the exact evidence-commit
+  HEAD with GPT-5.6 Sol. Recheck every finding against source and deterministic
+  evidence; do not treat a review request as an approval.
+- Refresh remote `origin/main`, rules, and GitHub state only after the user
+  authorizes publication. Do not push `8806205` or any successor implicitly.
+- Obtain terminal hosted checks and the user’s separate approval before opening
+  a PR, merging, or releasing.
 
-Do not treat these uncommitted documentation changes as passed validation.
-
-## Corrective work packages
+## Completed corrective work packages
 
 | Order | Owner | Files | Required result |
 |---|---|---|---|
-| 1 | Primary semantics; Spark may scaffold tests | `tests/parser_assurance/projection.py`, `tests/test_compat_corpus.py` | Comma-aware canonical sequences for `tags`, `page-tags`, `alias`, and `aliases`; property-origin wikilinks removed by count; authentic matching content links preserved. |
-| 2 | Primary security; Spark may scaffold negative tests | `.gitattributes`, `tests/parser_assurance/corpus.py`, `tests/test_compat_corpus.py` | Raw-byte SHA remains truthful under forced LF; valid-only diagnostics must be empty; schema versions and tab size reject Boolean values. |
-| 3 | Spark mechanical edit; primary integration review | `Makefile`, `tests/test_quality_gate_contract.py` | Snapshot generator is explicitly included in mypy and protected by a contract test. |
-| 4 | Primary integration | `CHANGELOG.md`, `docs/log.md`, canonical plan, persistent goal | Claims match the corrected implementation and preserve `8806205` as rejected historical evidence. |
-| 5 | Primary Git/evidence | local commits and exact-head receipts | New corrective implementation commit, exact-head qualification and frozen review, then a separate evidence-only documentation commit. |
+| 1 | Primary semantics | `tests/parser_assurance/projection.py`, `tests/test_compat_corpus.py` | Complete: comma-aware canonical sequences and reverse count-subtraction preserve authentic content links and order. |
+| 2 | Primary security | `.gitattributes`, `tests/parser_assurance/corpus.py`, `tests/test_compat_corpus.py` | Complete: raw-byte LF policy, empty valid diagnostics, and exact integer guards. |
+| 3 | Primary after unavailable worker start | `Makefile`, `tests/test_quality_gate_contract.py` | Complete: snapshot generator appears in mypy and has a dry-run contract test. Spark and Luna did not start because the local permission initializer timed out. |
+| 4 | Primary integration | `CHANGELOG.md`, `docs/log.md`, canonical plan, persistent goal | Complete in implementation/evidence commits; claims preserve `8806205` as rejected historical evidence. |
+| 5 | Primary Git/evidence | local commits and exact-head receipts | Implementation exact-head qualification complete; this evidence commit then needs its own exact-head qualification and frozen Sol review. |
 
 No package or runtime source file belongs to these work packages.
 
 ## Active or stopped work
 
-- Workers: two Spark read-only inventories completed; no worker has write
-  ownership and their outputs are advisory only.
+- Workers: prior Spark inventories remain advisory. The M1-B Spark and Luna
+  worker starts were blocked before execution by the local permission
+  initializer; no unreviewed worker output was accepted.
 - Processes: none expected; verify before resuming.
 - Resource admission: not checked; no local-model or LM Studio work is allowed.
 
@@ -76,31 +83,17 @@ No package or runtime source file belongs to these work packages.
 - Human gate: resume of the paused goal; commit, push, PR, merge, and release
   remain separate gates.
 
-## Exact resume sequence
+## Exact pre-push sequence
 
 1. Run `rtk git status --short --branch`, `rtk git rev-parse HEAD origin/main`,
-   and verify the three prepared documentation files against this handoff.
-2. Re-read `AGENTS.md`, the canonical plan, the persistent goal, and this
-   handoff. Confirm that the goal has been resumed by the user.
-3. Implement work package 1 and first add regressions for:
-   `[[Foo]]` plus `tags:: Foo`; duplicate content/property occurrences;
-   `[[Project Authored]], [[Fixture]]`; and a comma inside `[[New York, NY]]`.
-4. Implement work package 2 with `tests/fixtures/compat/** text eol=lf`, strict
-   empty diagnostics, exact integer types, and negative tests.
-5. Implement work package 3 and prove its Makefile dry-run contract.
-6. Run the focused tests and targeted Ruff/mypy commands from the canonical
-   plan. Regenerate exact snapshots only if the exact profile changed; semantic
-   fixes alone must not rewrite them.
-7. Run `rtk make all`, `rtk make vendor-name-check`, the exact diff check, and
-   the zero-cycle audit. Review every change against #104-A scope.
-8. Create a new corrective implementation commit; do not amend or delete
-   `8806205`. Re-run every required gate on the clean exact commit.
-9. Delegate one frozen read-only review to Spark, then adjudicate every finding
-   against source and deterministic probes.
-10. Update the canonical ledger with the implementation SHA and evidence in a
-    separate documentation-only commit. Qualify that exact head locally.
-11. Stop before push. Refresh live `origin/main`, rules, and GitHub state only
-    when the user separately authorizes publication.
+   and qualify the separate evidence commit on its exact head.
+2. Freeze `git diff --binary origin/main...HEAD` and ask GPT-5.6 Sol to review
+   the whole patch against the M1-B contract, including documentation claims.
+3. Adjudicate every review finding with source and deterministic probes. If any
+   correction is necessary, create a new local correction and repeat exact-head
+   qualification; do not amend historical commits.
+4. Stop before push. Refresh live `origin/main`, rules, and GitHub state only
+   when the user separately authorizes publication.
 
 ## Boundaries that must survive the restart
 

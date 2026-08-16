@@ -21,6 +21,16 @@ superseded_by: null
 
 ## 2026-08-16
 
+- Implemented and locally qualified M1-B corrective assurance hardening in
+  `996c5a5`: the private test oracle now canonicalizes all four reference
+  property families without splitting commas inside page references, removes
+  property-origin wikilinks by occurrence while preserving content-link order,
+  enforces LF corpus bytes and stricter valid-fixture manifest fields, and
+  includes the snapshot generator in the maintained mypy contract. Exact-head
+  local validation passed snapshot freshness, focused tests, the full 572-test
+  `make all` suite and coverage gate, vendor-name/documentation/diff checks,
+  and zero import cycles. No runtime code, package surface, dependency, push,
+  PR, merge, or release changed; the frozen diff awaits independent Sol review.
 - Reconciled an independent `NEEDS_CORRECTION` review of local M1-A commit
   `8806205`. The canonical parser-assurance plan now defines the M1-B corrective
   contract for reference-property semantics, content-wikilink preservation, LF

@@ -29,12 +29,12 @@ delivery state. Continue through the dependency-ordered milestones until every
 applicable completion item has authoritative current evidence. Do not redo work
 already proved in the plan.
 
-The last verified local checkpoint is branch `agent/parser-assurance-m1` at
-`8806205c35b104ed65d00a273acc9eeca572ae38`, based on `e2a3f9a8d190fd115028d0ad344c31fded0357d9`.
-That commit passed local exact-head gates but failed independent oracle review
-and must not be pushed. When the paused goal is resumed, re-verify this anchor
-and execute M1-B from the
-[restart handoff](../internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md).
+The rejected historical checkpoint is `8806205c35b104ed65d00a273acc9eeca572ae38`,
+based on `e2a3f9a8d190fd115028d0ad344c31fded0357d9`; it must not be pushed.
+Corrective implementation `996c5a52b08f2670ecd80fb3f1515b65ae567465` passed its
+local exact-head validation without changing `src/`. Before any push, re-verify
+the live anchor, review the frozen final diff with GPT-5.6 Sol, and follow the
+[post-correction handoff](../internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md).
 
 Preserve the Apache-2.0 boundary: do not copy or adapt lsdoc code, tests,
 corpora, schemas, module structure, control flow, or documentation. Keep lsdoc
