@@ -32,6 +32,13 @@ def test_all_uses_only_non_mutating_ruff_targets() -> None:
     assert "uv run ruff check . --fix" not in commands
 
 
+def test_check_type_checks_compatibility_snapshot_generator() -> None:
+    commands = _dry_run("check")
+
+    mypy_command = next(command for command in commands if command.startswith("uv run mypy "))
+    assert "scripts/update_compat_snapshots.py" in mypy_command
+
+
 def test_ci_finishes_with_clean_checkout_assertion() -> None:
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
 

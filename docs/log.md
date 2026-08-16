@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-08
-verified: 2026-08-08
-stale_after: 2027-02-04
+last_verified: 2026-08-16
+verified: 2026-08-16
+stale_after: 2027-02-12
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -21,6 +21,48 @@ superseded_by: null
 
 ## 2026-08-16
 
+- Recorded the second frozen Sol review on
+  `5007dc357e05775c6221c8aa84f9a11edc695e0d` as `NEEDS_CORRECTION`: mixed
+  backtick runs still caused an authentic content wikilink to be removed, and
+  the supplied full-patch receipt had been computed from filtered rather than
+  raw Git diff bytes.
+- Implemented non-amending corrective commit `7870b84` only in
+  `tests/parser_assurance/projection.py` and `tests/test_compat_corpus.py`.
+  Exact backtick-run matching, closed fence/query boundaries, math closing, and
+  unclosed-comment parity now match parser-observable behavior. The exact Sol
+  reproducer, three post-region visible-link tests, and a 14-family direct
+  differential probe pass. Exact-head snapshot freshness and `make all` passed
+  with 584 tests and 92.16% coverage; Ruff, mypy, documentation, vendor-name,
+  diff, and zero-cycle checks also passed. No runtime, package, dependency,
+  push, PR, merge, or release change occurred.
+- Recorded the first frozen Sol review on `6fcf4b274a3a04ef4c9783cf83149d6ef4aeeabb` as `NEEDS_CORRECTION`.
+- Implemented non-amending corrective commit `9e8708eef9cfa63fd9f392f5b5a9e7df564072e7` in
+  `CHANGELOG.md`, `tests/parser_assurance/projection.py`, and
+  `tests/test_compat_corpus.py`. Exact-head validation on a clean worktree passed
+  snapshot freshness, `7` focused regressions, `make all` with `579` tests and
+  coverage gate, Ruff, mypy, documentation validation, vendor-name check, diff
+  check, and zero-cycle check. The implementation covered the first review's
+  simple inline-code, HTML-comment, math, fence, query-macro, and query-region
+  cases; it also normalized `#[[Foo]]` as `Foo`. A later review found unequal
+  backtick parity incomplete. Spark supplied the
+  bounded regression scaffolding, which the primary extended and adjudicated;
+  no Luna fallback was needed. Historical `8806205`, `996c5a5`, and `6fcf4b2`
+  remain rejected or superseded receipts, not current publication evidence. No runtime
+  behavior, package, dependency, push, PR, merge, or release claim was made.
+- Reconciled an independent `NEEDS_CORRECTION` review of local M1-A commit
+  `8806205`. The canonical parser-assurance plan now defines the M1-B corrective
+  contract for reference-property semantics, content-wikilink preservation, LF
+  fixture bytes, strict diagnostics and integer fields, quality-gate coverage,
+  two-commit evidence sequencing, and separate publication approval. Updated
+  the persistent goal and added a restart handoff; no corrective implementation,
+  push, PR, or merge is claimed.
+- Implemented the local #104-A parser compatibility-corpus foundation: one
+  private, test-owned projector with exact-parse and semantic-roundtrip
+  profiles; six original Apache-2.0 Markdown fixtures; strict source hashes,
+  provenance, schema, parser configuration, protected behavior, diagnostics,
+  and identity-policy metadata; bounded file-entrypoint assertions; and shared
+  projection logic in the deep-refresh regression suite. This tranche does not
+  close #104 and does not change runtime code or the public package API.
 - Added the maintained
   [lsdoc reference study and parser assurance plan](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md)
   as a subordinate extension of the stellar roadmap. It maps independently

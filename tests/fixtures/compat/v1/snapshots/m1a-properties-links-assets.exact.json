@@ -1,0 +1,251 @@
+{
+  "page": {
+    "created_at": null,
+    "namespace_chain": [],
+    "properties": {
+      "alias": "Parser Fixture",
+      "tags": "[[Project Authored]], [[Fixture]]",
+      "title": "Properties, references, and assets"
+    },
+    "properties_order": [
+      "title",
+      "tags",
+      "alias"
+    ],
+    "refs": [
+      "Nested Entry",
+      "properties",
+      "Project Authored",
+      "Fixture",
+      "Parser Fixture"
+    ],
+    "root_nodes": [
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [
+          {
+            "assets": [],
+            "block_refs": [],
+            "children": [],
+            "clean_text": "Linked child",
+            "content": "Linked child",
+            "created_at": null,
+            "deadline_at": null,
+            "indent_level": 1,
+            "left_id": null,
+            "line_end": 9,
+            "line_start": 9,
+            "outline_path": [
+              1,
+              1
+            ],
+            "parent_id": "0e865189-dfa7-57c2-b314-c4f0bf5d5654",
+            "path": [
+              "0e865189-dfa7-57c2-b314-c4f0bf5d5654",
+              "436f9dc2-4026-5b6e-9856-a88074578aca"
+            ],
+            "properties": {},
+            "properties_order": [],
+            "refs": [],
+            "repeater": null,
+            "scheduled_at": null,
+            "source_uuid": null,
+            "synthetic_id": true,
+            "tags": [],
+            "task_priority": null,
+            "task_status": null,
+            "updated_at": null,
+            "uuid": "436f9dc2-4026-5b6e-9856-a88074578aca",
+            "wikilinks": []
+          }
+        ],
+        "clean_text": "Property block",
+        "content": "Property block",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": null,
+        "line_end": 8,
+        "line_start": 5,
+        "outline_path": [
+          1
+        ],
+        "parent_id": null,
+        "path": [
+          "0e865189-dfa7-57c2-b314-c4f0bf5d5654"
+        ],
+        "properties": {
+          "id": "7f7f66e8-2f66-4bf4-9b8f-1a1cb7e3af71",
+          "owner": "Matryca team",
+          "status": "active"
+        },
+        "properties_order": [
+          "id",
+          "status",
+          "owner"
+        ],
+        "refs": [],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": "7f7f66e8-2f66-4bf4-9b8f-1a1cb7e3af71",
+        "synthetic_id": false,
+        "tags": [],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "0e865189-dfa7-57c2-b314-c4f0bf5d5654",
+        "wikilinks": []
+      },
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [],
+        "clean_text": "Cross reference to [[Nested Entry]]",
+        "content": "Cross reference to [[Nested Entry]]",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": "0e865189-dfa7-57c2-b314-c4f0bf5d5654",
+        "line_end": 10,
+        "line_start": 10,
+        "outline_path": [
+          2
+        ],
+        "parent_id": null,
+        "path": [
+          "8f4cf6b3-3d53-5e3f-a2d7-a0ed8f66ba9a"
+        ],
+        "properties": {},
+        "properties_order": [],
+        "refs": [
+          "Nested Entry"
+        ],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "8f4cf6b3-3d53-5e3f-a2d7-a0ed8f66ba9a",
+        "wikilinks": [
+          "Nested Entry"
+        ]
+      },
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [],
+        "clean_text": "Mention page tag #properties",
+        "content": "Mention page tag #properties",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": "8f4cf6b3-3d53-5e3f-a2d7-a0ed8f66ba9a",
+        "line_end": 11,
+        "line_start": 11,
+        "outline_path": [
+          3
+        ],
+        "parent_id": null,
+        "path": [
+          "691f2fc1-2015-5fff-8d4e-7884b1364c75"
+        ],
+        "properties": {},
+        "properties_order": [],
+        "refs": [
+          "properties"
+        ],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [
+          "properties"
+        ],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "691f2fc1-2015-5fff-8d4e-7884b1364c75",
+        "wikilinks": []
+      },
+      {
+        "assets": [
+          "../assets/matrix.png"
+        ],
+        "block_refs": [],
+        "children": [],
+        "clean_text": "Insert an asset reference: ![matrix](../assets/matrix.png)",
+        "content": "Insert an asset reference: ![matrix](../assets/matrix.png)",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": "691f2fc1-2015-5fff-8d4e-7884b1364c75",
+        "line_end": 12,
+        "line_start": 12,
+        "outline_path": [
+          4
+        ],
+        "parent_id": null,
+        "path": [
+          "c548a358-0e34-5151-94e9-a6801c73cb8d"
+        ],
+        "properties": {},
+        "properties_order": [],
+        "refs": [],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "c548a358-0e34-5151-94e9-a6801c73cb8d",
+        "wikilinks": []
+      },
+      {
+        "assets": [],
+        "block_refs": [
+          "7f7f66e8-2f66-4bf4-9b8f-1a1cb7e3af71"
+        ],
+        "children": [],
+        "clean_text": "Link to the first block",
+        "content": "Link to the first block ((7f7f66e8-2f66-4bf4-9b8f-1a1cb7e3af71))",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": "c548a358-0e34-5151-94e9-a6801c73cb8d",
+        "line_end": 13,
+        "line_start": 13,
+        "outline_path": [
+          5
+        ],
+        "parent_id": null,
+        "path": [
+          "002949a8-e18d-57ac-a171-e7ae64d72bad"
+        ],
+        "properties": {},
+        "properties_order": [],
+        "refs": [],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [],
+        "task_priority": null,
+        "task_status": null,
+        "updated_at": null,
+        "uuid": "002949a8-e18d-57ac-a171-e7ae64d72bad",
+        "wikilinks": []
+      }
+    ],
+    "tab_size": 2,
+    "title": "Properties, references, and assets",
+    "updated_at": null
+  },
+  "profile": "exact_parse_v1",
+  "snapshot_schema_version": 1
+}

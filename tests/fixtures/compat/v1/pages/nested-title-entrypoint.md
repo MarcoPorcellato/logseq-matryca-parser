@@ -1,0 +1,2 @@
+- File entrypoint root
+  - Nested child

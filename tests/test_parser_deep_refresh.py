@@ -9,6 +9,13 @@ import pytest
 from logseq_matryca_parser.logos_core import LogseqNode
 from logseq_matryca_parser.logos_parser import StackMachineParser
 from logseq_matryca_parser.logseq_markdown import serialize_logseq_page
+from tests.parser_assurance.projection import IdentityPolicy, project_page
+
+_DEEP_IDENTITY_POLICY = IdentityPolicy(
+    synthetic_uuid="stable",
+    source_uuid="absent",
+    relations="direct_ids",
+)
 
 
 def _nested_source(depth: int, tail: list[tuple[int, str]]) -> str:
@@ -29,22 +36,6 @@ def _walk(node: LogseqNode) -> Iterator[LogseqNode]:
     yield node
     for child in node.children:
         yield from _walk(child)
-
-
-def _semantic_snapshot(node: LogseqNode) -> tuple[object, ...]:
-    return (
-        node.uuid,
-        node.content,
-        node.clean_text,
-        node.properties,
-        node.properties_order,
-        node.wikilinks,
-        node.tags,
-        node.block_refs,
-        node.parent_id,
-        node.left_id,
-        tuple(_semantic_snapshot(child) for child in node.children),
-    )
 
 
 @pytest.mark.parametrize("depth", [1, 2, 3, 4, 8, 32])
@@ -130,6 +121,13 @@ def test_deep_refresh_families_survive_roundtrip(
         assert [node.uuid for node in _branch(reparsed.root_nodes[0])] == [
             node.uuid for node in _branch(page.root_nodes[0])
         ]
-    else:
-        assert _semantic_snapshot(reparsed.root_nodes[0]) == _semantic_snapshot(page.root_nodes[0])
+    assert project_page(
+        reparsed,
+        profile="semantic_roundtrip_v1",
+        identity_policy=_DEEP_IDENTITY_POLICY,
+    ) == project_page(
+        page,
+        profile="semantic_roundtrip_v1",
+        identity_policy=_DEEP_IDENTITY_POLICY,
+    )
     assert len(list(_walk(reparsed.root_nodes[0]))) == 8

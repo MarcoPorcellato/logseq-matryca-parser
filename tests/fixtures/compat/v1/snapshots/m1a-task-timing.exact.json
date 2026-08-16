@@ -1,0 +1,156 @@
+{
+  "page": {
+    "created_at": null,
+    "namespace_chain": [],
+    "properties": {
+      "title": "Task and schedule corpus"
+    },
+    "properties_order": [
+      "title"
+    ],
+    "refs": [
+      "A",
+      "B",
+      "C"
+    ],
+    "root_nodes": [
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [],
+        "clean_text": "Draft regression list",
+        "content": "TODO [#A] Draft regression list SCHEDULED: <2026-08-20 Thu 09:00 ++1w> DEADLINE: <2026-08-22 Sat>",
+        "created_at": null,
+        "deadline_at": 1787356800,
+        "indent_level": 0,
+        "left_id": null,
+        "line_end": 4,
+        "line_start": 3,
+        "outline_path": [
+          1
+        ],
+        "parent_id": null,
+        "path": [
+          "a1ba83a1-8e81-5739-8353-e2ebe7070da9"
+        ],
+        "properties": {
+          "deadline": "<2026-08-22 Sat>",
+          "deadline_iso": "2026-08-22T00:00:00",
+          "deadline_journal_day": 20260822,
+          "id": "6f4f2ed1-bf8a-447a-b4aa-0a4b4ffbe5f4",
+          "repeater": "++1w",
+          "scheduled": "<2026-08-20 Thu 09:00 ++1w>",
+          "scheduled_iso": "2026-08-20T09:00:00",
+          "scheduled_journal_day": 20260820
+        },
+        "properties_order": [
+          "id"
+        ],
+        "refs": [
+          "A"
+        ],
+        "repeater": "++1w",
+        "scheduled_at": 1787216400,
+        "source_uuid": "6f4f2ed1-bf8a-447a-b4aa-0a4b4ffbe5f4",
+        "synthetic_id": false,
+        "tags": [
+          "A"
+        ],
+        "task_priority": "A",
+        "task_status": "TODO",
+        "updated_at": null,
+        "uuid": "a1ba83a1-8e81-5739-8353-e2ebe7070da9",
+        "wikilinks": []
+      },
+      {
+        "assets": [],
+        "block_refs": [],
+        "children": [
+          {
+            "assets": [],
+            "block_refs": [],
+            "children": [],
+            "clean_text": "Confirm semantic profile",
+            "content": "TODO [#C] Confirm semantic profile SCHEDULED: <2026-08-21 Fri> DEADLINE: <2026-08-24 Mon>",
+            "created_at": null,
+            "deadline_at": 1787529600,
+            "indent_level": 1,
+            "left_id": null,
+            "line_end": 6,
+            "line_start": 6,
+            "outline_path": [
+              2,
+              1
+            ],
+            "parent_id": "9208d1cf-31eb-5ff6-8031-a8164e905227",
+            "path": [
+              "9208d1cf-31eb-5ff6-8031-a8164e905227",
+              "cbc37dfb-da44-5bc7-a69d-8467814fe3bd"
+            ],
+            "properties": {
+              "deadline": "<2026-08-24 Mon>",
+              "deadline_iso": "2026-08-24T00:00:00",
+              "deadline_journal_day": 20260824,
+              "scheduled": "<2026-08-21 Fri>",
+              "scheduled_iso": "2026-08-21T00:00:00",
+              "scheduled_journal_day": 20260821
+            },
+            "properties_order": [],
+            "refs": [
+              "C"
+            ],
+            "repeater": null,
+            "scheduled_at": 1787270400,
+            "source_uuid": null,
+            "synthetic_id": true,
+            "tags": [
+              "C"
+            ],
+            "task_priority": "C",
+            "task_status": "TODO",
+            "updated_at": null,
+            "uuid": "cbc37dfb-da44-5bc7-a69d-8467814fe3bd",
+            "wikilinks": []
+          }
+        ],
+        "clean_text": "Validate fixture hashes",
+        "content": "DOING [#B] Validate fixture hashes",
+        "created_at": null,
+        "deadline_at": null,
+        "indent_level": 0,
+        "left_id": "a1ba83a1-8e81-5739-8353-e2ebe7070da9",
+        "line_end": 5,
+        "line_start": 5,
+        "outline_path": [
+          2
+        ],
+        "parent_id": null,
+        "path": [
+          "9208d1cf-31eb-5ff6-8031-a8164e905227"
+        ],
+        "properties": {},
+        "properties_order": [],
+        "refs": [
+          "B"
+        ],
+        "repeater": null,
+        "scheduled_at": null,
+        "source_uuid": null,
+        "synthetic_id": true,
+        "tags": [
+          "B"
+        ],
+        "task_priority": "B",
+        "task_status": "DOING",
+        "updated_at": null,
+        "uuid": "9208d1cf-31eb-5ff6-8031-a8164e905227",
+        "wikilinks": []
+      }
+    ],
+    "tab_size": 2,
+    "title": "Task and schedule corpus",
+    "updated_at": null
+  },
+  "profile": "exact_parse_v1",
+  "snapshot_schema_version": 1
+}

@@ -16,7 +16,7 @@ okf_spec_version: null
 supersedes: null
 superseded_by: null
 parent_plan: docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md
-source_commit: 8ecb6e37c1ebc01a2e79eb999599eb3ecb7babc6
+source_commit: e2a3f9a8d190fd115028d0ad344c31fded0357d9
 reference_commit: c79cb059da5b4360ebde2e5fd953fa1f43ddabc3
 ---
 
@@ -53,16 +53,122 @@ Markdown source-of-truth model.
 | Item | Verified state | Evidence |
 |---|---|---|
 | Source repository | `MarcoPorcellato/logseq-matryca-parser` | `origin/main` fetched 2026-08-16 |
-| Source base | `8ecb6e37c1ebc01a2e79eb999599eb3ecb7babc6` | clean isolated worktree and [GitHub commit](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/8ecb6e37c1ebc01a2e79eb999599eb3ecb7babc6) |
+| Source base | `e2a3f9a8d190fd115028d0ad344c31fded0357d9` | clean `agent/parser-assurance-m1` checkout matching `origin/main` on 2026-08-16 and [GitHub commit](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/e2a3f9a8d190fd115028d0ad344c31fded0357d9) |
 | Source license | Apache License 2.0 | [`LICENSE`](../LICENSE) |
 | Reference repository | `martinkoutecky/lsdoc` release `v0.5.5` | [reference commit `c79cb059`](https://github.com/martinkoutecky/lsdoc/commit/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3) |
 | Reference license | `AGPL-3.0-only` | [`Cargo.toml`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/Cargo.toml) and [`LICENSE`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/LICENSE) |
 | Parent roadmap | current repository-wide quality SSOT | [stellar roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) |
-| Existing delivery anchors | #87, #103, #104, #108, #111 are open | live GitHub issue reads on 2026-08-16 |
-| Current milestone | M0 plan publication in delivery | branch `agent/lsdoc-reference-study`; pull request pending |
+| M0 publication | merged as [PR #159](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/159) | source head `a6056413`, squash merge `30946446`, terminal validation recorded in the PR |
+| Existing delivery anchors | #87, #103, #104, #108, #111 are open; #106 and #113 are closed | live GitHub issue reads on 2026-08-16 |
+| Local implementation checkpoint | `8806205c35b104ed65d00a273acc9eeca572ae38` | clean local commit on `agent/parser-assurance-m1`; exact-head tests passed, but independent oracle review rejected publication |
+| Current milestone | M1-B second corrective implementation locally qualified; refreshed documentation evidence and final frozen Sol review pending | second frozen Sol review on `5007dc357e05775c6221c8aa84f9a11edc695e0d` returned `NEEDS_CORRECTION`; non-amending corrective implementation `7870b84` passed exact-head local qualification with 584 tests; no push or PR |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
+
+### 2.1 M1 independent-review reconciliation
+
+An independent review on 2026-08-16 found the M1 direction sound but the
+initial review package incomplete. The review was treated as advisory input and
+rechecked against the source tree, [#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104),
+its audit-reconciliation comment, and the parent roadmap before acceptance.
+
+The live #104 comment expands the issue to include the depth matrix from closed
+#113, incremental-versus-cold-load snapshots owned by open #103, and filesystem
+abuse cases linked to closed #106. M1 therefore delivers **#104-A**, the
+project-owned projection and compatibility-corpus foundation. It does not claim
+to close #104. The remaining generated-malformed, graph snapshot, and broader
+filesystem-assurance work stays dependency-ordered under M3, #103, and the
+existing security contracts.
+
+The review established these M1-A decisions:
+
+1. Use one private, test-owned projector with two versioned profiles; do not add
+   a root-package export or a new public API.
+2. `exact_parse_v1` captures deterministic `StackMachineParser.parse()` output.
+   It includes page title, namespace, configured tab size, declared timestamps,
+   page properties/order/references, and every node's content, clean text,
+   properties/order, references, task data, UUID/source UUID/synthetic marker,
+   hierarchy, parent/left relations, path, outline path, indentation, line
+   ranges, declared timestamps, and ordered children. It excludes filesystem
+   context. The manifest stores the source SHA-256, while the test directly
+   proves `page.raw_content == source` instead of duplicating source text in
+   JSON.
+3. `semantic_roundtrip_v1` compares parse -> serialize -> parse semantics. It
+   includes title, namespace, normalized properties and their declared order,
+   outline order, meaningful content/clean text, references, tasks, declared
+   timestamps, source UUIDs, and structural parent/left locators. It excludes
+   raw source text, absolute paths, graph root, filesystem-derived timestamps,
+   byte formatting, and universal line-number equality. Direct synthetic UUID
+   equality is enforced only when the fixture identity policy requires it.
+4. Identity policy is an object, not an ambiguous label: `synthetic_uuid` is
+   `stable` or `recomputed`; `source_uuid` is `preserve` or `absent`; and
+   `relations` is `direct_ids` or `outline_paths`. All fixtures separately prove
+   UUID uniqueness, same-input determinism, and valid ordered parent/left links.
+5. File-entrypoint behavior uses bounded assertions rather than a third snapshot
+   profile. Paths are compared through normalized or relative relationships,
+   never frozen host-specific absolute values.
+6. The manifest records top-level corpus and snapshot schema versions. Every
+   entry also records `fixture_schema_version`, `snapshot_schema_version`,
+   fixture ID, source path and SHA-256, provenance, license, parse
+   entrypoint/configuration, enabled profiles, expected outcome, protected
+   behaviors, identity policy, expected diagnostic codes, and notes.
+7. The review surface for M1-A includes the parent roadmap, clean architecture,
+   public exports and API-contract test, path helpers and tests, package/quality
+   gates, and repository license/notice in addition to parser and serializer
+   sources. Existing focused tests remain authoritative; corpus tests reuse
+   their behaviors and replace the private deep-refresh semantic tuple rather
+   than creating a third semantic definition.
+
+### 2.2 M1-B corrective review reconciliation
+
+An independent patch review of local commit `8806205c35b104ed65d00a273acc9eeca572ae38`
+on 2026-08-16 found the architecture acceptable but the assurance oracle not
+yet safe to publish. A first frozen review of implementation head
+`6fcf4b274a3a04ef4c9783cf83149d6ef4aeeabb` returned `NEEDS_CORRECTION`.
+That review found two additional oracle defects: property-link extraction did
+not honor parser shielding, so a literal such as ``note:: `[[Foo]]` `` could
+cause an authentic visible `[[Foo]]` to be removed from projected content; and
+the hash-page tag `#[[Foo]]` normalized to `[[Foo]]` instead of `Foo`.
+
+The earlier primary-agent runtime probes against `8806205` reproduced both
+initial P1 findings:
+the semantic projector removed a real content wikilink for `[[Foo]]` combined
+with `tags:: Foo`, and it projected `[[Project Authored]], [[Fixture]]` as one
+malformed token. Manifest probes also proved that non-empty unverified
+diagnostic codes and Boolean values in integer fields were accepted.
+
+A second frozen full-patch Sol review at `5007dc357e05775c6221c8aa84f9a11edc695e0d`
+found that unequal backtick runs still made the independent oracle disagree
+with parser shielding and remove an authentic visible link. It also exposed an
+invalid review receipt: the patch hash had been computed after token-filtered
+output instead of from raw `git --no-pager diff --no-ext-diff --binary
+--full-index` bytes. Corrective implementation `7870b84` added exact delimiter
+parity, closed fence/query-region boundaries, and a differential probe matrix;
+future review receipts use only raw Git output.
+
+M1-B is a corrective sub-milestone of M1, not a new product feature. It must:
+
+1. represent `tags`, `page-tags`, `alias`, and `aliases` as ordered canonical
+   token sequences, splitting commas only outside `[[...]]` references;
+2. derive property-origin wikilink occurrences independently and subtract only
+   their multiplicity from aggregate node wikilinks, preserving content links
+   with the same value;
+3. preserve raw-byte fixture SHA-256 claims while forcing LF checkout bytes for
+   `tests/fixtures/compat/**` through `.gitattributes`;
+4. reject every non-empty `expected_diagnostics` list while M1 accepts only
+   valid fixtures and has no diagnostic comparison runner;
+5. reject Boolean schema versions and Boolean `tab_size` values with exact
+   integer-type checks;
+6. include `scripts/update_compat_snapshots.py` in the maintained mypy command
+   and protect that inclusion with a quality-gate contract test; and
+7. preserve commit `8806205` as historical evidence, deliver corrections in a
+   new local commit, qualify that exact implementation SHA, then use a separate
+   documentation-evidence commit to record it before any push.
+
+The P1/P2 labels describe assurance-contract risk, not parser runtime behavior:
+M1-B remains test, fixture, tooling, Git policy, and documentation work. It must
+not change `src/`, package exports, runtime dependencies, or close #104.
 
 ## 3. Status vocabulary
 
@@ -271,35 +377,58 @@ converted into a pass or silently added to an allowlist.
 
 - No future implementation is authorized merely by publishing this plan.
 
-### M1 — Project-owned semantic projection and corpus manifest
+### M1 — #104-A project-owned semantic projection and corpus foundation
 
 **Outcome**
 
-- Expand [#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104)
-  with a versioned projection defined from current consumers and invariants.
-- Each fixture records an ID, original source/provenance, license, input class,
-  protected invariant, expected diagnostics, and semantic snapshot version.
-- Projection covers hierarchy, content, properties, UUID/source UUID behavior,
-  ordering, parent/left relations, line ranges, task data, references, and
-  serialization-reparse equivalence where applicable.
+- Deliver the first explicit tranche of
+  [#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104)
+  without closing the expanded parent issue.
+- Add one private projector producing `exact_parse_v1` and
+  `semantic_roundtrip_v1` under the field and identity contracts in section 2.1.
+- Add an original, offline, versioned corpus whose manifest records corpus,
+  fixture, and snapshot schema versions, source SHA-256/provenance/license,
+  parse configuration, protected behaviors, identity policy, expected outcome,
+  and expected diagnostic codes.
+- Preserve the closed #113 depth matrix and minimized regression as protected
+  corpus behavior while retaining focused unit tests as the narrow defect
+  owners.
+- Add bounded file-entrypoint assertions without freezing absolute host paths or
+  duplicating the symlink and `file://` security suites owned by #106.
 
 **Dependencies**
 
-- M0 merged; current API and semantic contracts re-verified.
+- M0 merged through PR #159; current API, architecture, path, package, license,
+  quality-gate, and semantic contracts re-verified.
+- #103 remains the owner of complete incremental/cold-load snapshot equivalence.
 
 **Exit evidence**
 
-- Original fixtures only; deterministic manifest validation; corpus tests in
-  the fast CI budget; `make all`; zero import cycles.
+- Original Apache-2.0 fixtures only; source hashes and manifest provenance
+  validated; `.gitattributes` proves LF checkout bytes for the corpus; discovery
+  order cannot change canonical snapshots.
+- Exact-parse, semantic-roundtrip, identity, hierarchy, depth, and bounded
+  file-entrypoint tests remain in the fast CI budget.
+- Regression tests prove comma-aware canonical reference-property sequences,
+  preservation of content wikilinks that coincide with property tags, and
+  count-based removal of property-origin wikilink occurrences.
+- The valid-only manifest rejects non-empty diagnostics, Boolean schema
+  versions, and Boolean tab sizes; the quality-gate contract proves the snapshot
+  generator remains in the mypy command.
+- The root export manifest is unchanged, no runtime/package dependency is added,
+  `make all` and `make vendor-name-check` pass, and `src/` has zero import cycles.
 
 **Impact**
 
-- Makes semantic drift reviewable without freezing incidental Pydantic or JSON
-  formatting details.
+- Makes semantic drift reviewable without freezing incidental Pydantic, JSON,
+  filesystem, or host-path details and without promoting a test oracle to the
+  stable public API.
 
 **Residual risk**
 
 - Project-owned invariants can share the same blind spots as the implementation.
+- M1-A alone does not satisfy #104's generated malformed-input,
+  incremental/cold-load, or complete filesystem-abuse acceptance criteria.
 
 ### M2 — External oracle feasibility and license gate
 
@@ -343,6 +472,8 @@ converted into a pass or silently added to an allowlist.
   large lines, and incremental/cold-load equivalence.
 - Every generated run has bounded size, deterministic replay information, and
   subprocess timeout protection.
+- Complete the remaining expanded #104 acceptance criteria without duplicating
+  the focused #103 snapshot owner or the established #106 security contracts.
 
 **Dependencies**
 
@@ -497,6 +628,12 @@ converted into a pass or silently added to an allowlist.
 7. Every delegated conclusion is rechecked against source or deterministic
    validation before acceptance.
 
+For M1-B, a low-cost worker may own one bounded mechanical file group after the
+contract in section 2.2 is fixed: projector regression-test scaffolding;
+manifest negative-test scaffolding; or documentation chronology. The primary
+agent retains reference-token semantics, path/EOL security, exact-head
+qualification, Git-history decisions, and publication judgment.
+
 ## 14. Validation and publication gates
 
 For this documentation milestone:
@@ -518,6 +655,26 @@ Implementation milestones additionally require:
 - separate approval for merge, release, external service deployment, or license
   change.
 
+M1-B additionally requires these exact local commands on the corrective
+implementation commit:
+
+```bash
+rtk uv run python scripts/update_compat_snapshots.py
+rtk uv run pytest -q tests/test_compat_corpus.py tests/test_parser_deep_refresh.py tests/test_quality_gate_contract.py
+rtk uv run ruff check scripts/update_compat_snapshots.py tests/parser_assurance tests/test_compat_corpus.py tests/test_parser_deep_refresh.py tests/test_quality_gate_contract.py
+rtk make all
+rtk make vendor-name-check
+rtk git diff --check origin/main...HEAD
+```
+
+The checkout must be clean and the audit-code cycle check must report zero
+cycles. The exact implementation SHA then receives a frozen primary and
+low-cost independent review. A later documentation-evidence commit must pass at
+least `make all`, `make vendor-name-check`, documentation validation, diff
+check, and the next GPT-5.6 Sol review on its own exact head. Hosted required
+checks remain mandatory after an explicitly authorized push and PR; none are
+claimed locally.
+
 ## 15. Interruption and recovery
 
 At every handoff record the source base, branch, exact HEAD, worktree path,
@@ -533,6 +690,9 @@ Milestone reports use:
 - residual risks;
 - next dependency.
 
+The current resumable checkpoint is
+[`internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md`](internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md).
+
 ## 16. Persistent goal
 
 The short execution pointer is versioned separately at
@@ -541,8 +701,21 @@ It must not replace the requirements in this plan.
 
 ## 17. Completion checklist
 
-- [ ] M0 is merged and publicly available.
-- [ ] #104 has an original, provenance-safe semantic projection and corpus.
+- [x] M0 is merged and publicly available through PR #159.
+- [x] #104-A is implemented and locally qualified on the working tree with an
+  initial original, provenance-safe projection and corpus foundation; the
+  resulting commit is retained as rejected pre-correction evidence.
+- [x] M1-B preserves authentic content wikilinks and canonicalizes all four
+  reference-property families with comma-aware, count-based semantics.
+- [x] M1-B enforces LF corpus bytes, empty valid-fixture diagnostics, exact
+  integer manifest fields, and snapshot-generator mypy coverage.
+- [x] The corrective implementation commit is clean, exact-head qualified, and
+  has a frozen full diff prepared for a final GPT-5.6 Sol review; unresolved
+  historical P1/P2 findings remain tied to historical checkpoints.
+- [x] A refreshed documentation-evidence commit records implementation `7870b84`;
+  hosted validation and merge remain deferred until explicit user authorization.
+- [ ] The remaining expanded #104 acceptance criteria are proved through the
+  dependency-owned #103 and M3 evidence before #104 is closed.
 - [ ] The external-oracle decision is recorded, including a valid negative
   decision if license or process boundaries are unacceptable.
 - [ ] Adversarial and property-based tests have deterministic replay and bounded
@@ -562,3 +735,22 @@ It must not replace the requirements in this plan.
   claimed.
 
 Completion is unproven until every applicable item has authoritative evidence.
+
+## 18. Execution ledger
+
+| Date | Anchor | Result | Evidence and residual boundary |
+|---|---|---|---|
+| 2026-08-16 | M0 / PR #159 | merged | Source head `a6056413`, squash merge `30946446`; PR records 535 passing tests, 91.95% coverage, documentation/package/vendor gates, and zero cycles. No parser behavior changed. |
+| 2026-08-16 | M1 activation | verified | Clean `agent/parser-assurance-m1` at `e2a3f9a`, matching `origin/main`; no tracked M1 changes at activation. |
+| 2026-08-16 | Independent M1 review | reconciled | Accepted the larger review surface, two-profile/single-projector model, explicit identity policy, and manifest expansion after source and live-issue verification. M1 is #104-A; #104 remains open. |
+| 2026-08-16 | Low-cost inventories | advisory | Two Spark read-only inventories located reusable tests and model fields. Their proposals are not authority; only source-verified evidence is admitted to implementation. |
+| 2026-08-16 | M1-A implementation | local, uncommitted | Added one private two-profile projector, a strict versioned manifest, six original Apache-2.0 fixtures and exact snapshots, bounded file-entrypoint assertions, and reuse from the deep-refresh regression suite. No `src/`, root export, or runtime dependency changed; final qualification and publication remain separate gates. |
+| 2026-08-16 | M1-A implementation review | reconciled | A bounded Spark review found no P0/P1. Its valid non-atomic snapshot-write P2 was corrected; manifest-negative and snapshot-CLI contracts were added. Its `source_uuid` P2 was rejected after primary verification because the projection deliberately exposes source identity and the dedicated test applies each `preserve`/`absent` policy without masking drift. |
+| 2026-08-16 | M1-A working-tree qualification | provisional | `rtk uv run python scripts/update_compat_snapshots.py` passed in non-mutating freshness mode; `rtk make all` passed with 553 tests and 92.07% coverage; Ruff, mypy, documentation, vendor-name, and diff checks passed; audit code reported zero `src/` import cycles. `rtk uv run python scripts/update_compat_snapshots.py --write` is the only explicit regeneration mode, and stale snapshots make the default command exit nonzero. This is not E1/E2 because the qualified bytes were not yet committed. |
+| 2026-08-16 | M1-A local commit `8806205` | exact-head tests passed; publication rejected | Clean local commit recorded 556 passing tests, 92.07% coverage, snapshot freshness, `make all`, vendor-name, diff, and zero-cycle checks. A later independent full-patch review found two oracle P1s: malformed multi-reference normalization and deletion of authentic content wikilinks. The commit must not be pushed as M1-A evidence. |
+| 2026-08-16 | M1-B corrective review | verified and prepared | Primary runtime probes reproduced both P1s and proved acceptance of non-empty unverified diagnostics and Boolean integer fields. Source review confirmed raw-byte hashes without LF checkout policy and omission of the snapshot generator from the maintained mypy command. Two bounded Spark inventories were advisory; the primary retained semantic and security decisions. The goal remains paused and no implementation, push, or PR is claimed. |
+| 2026-08-16 | M1-B first corrective implementation `996c5a5` and evidence head `6fcf4b2` | locally qualified, then superseded | The implementation added comma-aware canonical references, count-based property-link subtraction, LF fixture policy, strict manifest guards, and snapshot-generator mypy coverage without changing `src/`. Exact-head local qualification passed at `996c5a5` with 572 tests; the separate evidence commit produced frozen review head `6fcf4b2`. These checks remain valid historical receipts, but the later Sol review found additional oracle defects, so neither checkpoint is publication-ready evidence. |
+| 2026-08-16 | M1-B first frozen Sol review `6fcf4b2` | verified and unresolved | Review requested `NEEDS_CORRECTION`. Reproduced P1 (property-link shielding ignored inline-code/HTML-comment and related regions) allowing authentic content-wikilink removal, and P2 (`#[[Foo]]` projected as `[[Foo]]`). Historic checkpoint retained as rejected/superseded evidence. |
+| 2026-08-16 | M1-B corrective implementation `9e8708e` | locally qualified, then superseded | Corrected the first frozen review's simple shield cases and `#[[Foo]]` normalization. Exact-head qualification passed with 579 tests, but the next full-patch Sol review found incomplete parity for unequal backtick runs; this receipt is therefore historical, not publication-ready. |
+| 2026-08-16 | M1-B second frozen Sol review `5007dc3` | verified and unresolved | Review returned `NEEDS_CORRECTION`: valid mixed-backtick input still removed an authentic content wikilink, simple tests did not cover unequal delimiter runs, and the supplied patch hash/line receipt was invalid because it came from filtered rather than raw Git diff bytes. |
+| 2026-08-16 | M1-B second corrective implementation `7870b84` | locally qualified (non-amending) | Added parser-equivalent exact backtick-run matching, bounded fence/query-region closing, precise inline-math closing, unclosed-comment parity, the exact Sol reproducer, and post-region visible-link regressions. A 14-family direct differential probe found no parser/oracle wikilink mismatch. Exact-head snapshot freshness and `make all` passed with 584 tests and 92.16% coverage; Ruff, mypy, documentation, vendor-name, diff, and zero-cycle checks passed. No `src/`, package, API, dependency, push, PR, merge, or release change occurred. |

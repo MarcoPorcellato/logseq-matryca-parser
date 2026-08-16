@@ -1,0 +1,216 @@
+{
+  "corpus_schema_version": 1,
+  "snapshot_schema_version": 1,
+  "license": "Apache-2.0",
+  "fixtures": [
+    {
+      "id": "m1a-hierarchy-identity",
+      "fixture_schema_version": 1,
+      "snapshot_schema_version": 1,
+      "source": {
+        "path": "hierarchy-identity.md",
+        "sha256": "015ae41fa6d2089529494f1ae1b8501bc3ef833c44e440f5648dfff0454b61c6",
+        "provenance": "project-authored",
+        "license": "Apache-2.0"
+      },
+      "parse": {
+        "entrypoint": "text",
+        "page_title": "Project tree baseline",
+        "tab_size": 2
+      },
+      "profiles": {
+        "exact_parse": "snapshots/m1a-hierarchy-identity.exact.json",
+        "semantic_roundtrip": true
+      },
+      "expectation": {
+        "outcome": "valid",
+        "protected_behaviors": [
+          "sibling_order",
+          "parent_left_pointers"
+        ],
+        "identity_policy": {
+          "synthetic_uuid": "stable",
+          "source_uuid": "preserve",
+          "relations": "direct_ids"
+        },
+        "expected_diagnostics": []
+      },
+      "notes": "Covers hierarchy shape and sibling ordering with page identity."
+    },
+    {
+      "id": "m1a-properties-links-assets",
+      "fixture_schema_version": 1,
+      "snapshot_schema_version": 1,
+      "source": {
+        "path": "properties-and-links.md",
+        "sha256": "6e0051a27fdac9ee8749718817de3714ff45c182cc1cb93a9b6dc65f6b7dcfaf",
+        "provenance": "project-authored",
+        "license": "Apache-2.0"
+      },
+      "parse": {
+        "entrypoint": "text",
+        "page_title": "Properties, references, and assets",
+        "tab_size": 2
+      },
+      "profiles": {
+        "exact_parse": "snapshots/m1a-properties-links-assets.exact.json",
+        "semantic_roundtrip": true
+      },
+      "expectation": {
+        "outcome": "valid",
+        "protected_behaviors": [
+          "property_preservation",
+          "wikilink_and_block_ref_resolution",
+          "tag_capture",
+          "asset_path_capture"
+        ],
+        "identity_policy": {
+          "synthetic_uuid": "recomputed",
+          "source_uuid": "preserve",
+          "relations": "outline_paths"
+        },
+        "expected_diagnostics": []
+      },
+      "notes": "Covers page properties, block properties, tags, wikilinks, block references, and assets."
+    },
+    {
+      "id": "m1a-task-timing",
+      "fixture_schema_version": 1,
+      "snapshot_schema_version": 1,
+      "source": {
+        "path": "tasks-priority-time.md",
+        "sha256": "570f1b7e9516f190252823632ae035333e311d8ca9ec6ce1374f7d6dad7a53a3",
+        "provenance": "project-authored",
+        "license": "Apache-2.0"
+      },
+      "parse": {
+        "entrypoint": "text",
+        "page_title": "Task and schedule corpus",
+        "tab_size": 2
+      },
+      "profiles": {
+        "exact_parse": "snapshots/m1a-task-timing.exact.json",
+        "semantic_roundtrip": true
+      },
+      "expectation": {
+        "outcome": "valid",
+        "protected_behaviors": [
+          "task_markers",
+          "priority_capture",
+          "scheduled_deadline_repeater_fields"
+        ],
+        "identity_policy": {
+          "synthetic_uuid": "stable",
+          "source_uuid": "preserve",
+          "relations": "direct_ids"
+        },
+        "expected_diagnostics": []
+      },
+      "notes": "Covers task, priority, scheduled, deadline, and repeater metadata."
+    },
+    {
+      "id": "m1a-softbreak-logbook",
+      "fixture_schema_version": 1,
+      "snapshot_schema_version": 1,
+      "source": {
+        "path": "soft-breaks-properties-logbook.md",
+        "sha256": "48ca06121608f9a9313417f512e2b14ff20ba953ca50626413213b33d9008d5e",
+        "provenance": "project-authored",
+        "license": "Apache-2.0"
+      },
+      "parse": {
+        "entrypoint": "text",
+        "page_title": "Soft break and property log",
+        "tab_size": 2
+      },
+      "profiles": {
+        "exact_parse": "snapshots/m1a-softbreak-logbook.exact.json",
+        "semantic_roundtrip": true
+      },
+      "expectation": {
+        "outcome": "valid",
+        "protected_behaviors": [
+          "soft_breaks",
+          "list_properties",
+          "logbook_capture",
+          "yaml_frontmatter"
+        ],
+        "identity_policy": {
+          "synthetic_uuid": "recomputed",
+          "source_uuid": "absent",
+          "relations": "outline_paths"
+        },
+        "expected_diagnostics": []
+      },
+      "notes": "Covers soft breaks, list-scoped properties, logbook block, and YAML frontmatter."
+    },
+    {
+      "id": "m1a-deep-refresh",
+      "fixture_schema_version": 1,
+      "snapshot_schema_version": 1,
+      "source": {
+        "path": "deep-refresh-regression.md",
+        "sha256": "256d25ba33a666175c73da1da2471cc671825d3109adf006feb356788d689060",
+        "provenance": "project-authored",
+        "license": "Apache-2.0"
+      },
+      "parse": {
+        "entrypoint": "text",
+        "page_title": "Deep refresh minimized regression",
+        "tab_size": 2
+      },
+      "profiles": {
+        "exact_parse": "snapshots/m1a-deep-refresh.exact.json",
+        "semantic_roundtrip": true
+      },
+      "expectation": {
+        "outcome": "valid",
+        "protected_behaviors": [
+          "deep_refresh_stability",
+          "outline_rebuild",
+          "sibling_order"
+        ],
+        "identity_policy": {
+          "synthetic_uuid": "stable",
+          "source_uuid": "absent",
+          "relations": "direct_ids"
+        },
+        "expected_diagnostics": []
+      },
+      "notes": "Minimized regression fixture for deep-refresh stack behavior."
+    },
+    {
+      "id": "m1a-nested-entrypoint",
+      "fixture_schema_version": 1,
+      "snapshot_schema_version": 1,
+      "source": {
+        "path": "pages/nested-title-entrypoint.md",
+        "sha256": "f3077e211b61c1641e0fb2480a26756c0e311b2919c4de18fc100f6a8e0b5c0e",
+        "provenance": "project-authored",
+        "license": "Apache-2.0"
+      },
+      "parse": {
+        "entrypoint": "file",
+        "tab_size": 2
+      },
+      "profiles": {
+        "exact_parse": "snapshots/m1a-nested-entrypoint.exact.json",
+        "semantic_roundtrip": true
+      },
+      "expectation": {
+        "outcome": "valid",
+        "protected_behaviors": [
+          "title_resolution_from_path",
+          "graph_root_derivation_without_file_uri"
+        ],
+        "identity_policy": {
+          "synthetic_uuid": "stable",
+          "source_uuid": "absent",
+          "relations": "outline_paths"
+        },
+        "expected_diagnostics": []
+      },
+      "notes": "Nested fixture under pages/ for file-entrypoint title and graph-root derivation behavior."
+    }
+  ]
+}
