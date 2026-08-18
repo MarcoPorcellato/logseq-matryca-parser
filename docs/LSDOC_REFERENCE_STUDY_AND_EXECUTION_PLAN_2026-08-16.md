@@ -645,6 +645,17 @@ converted into a pass or silently added to an allowlist.
 
 ### M7 — Parser phase extraction under frozen evidence
 
+**Current tranche**
+
+- [Issue #165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165)
+  records the first intentionally narrow implementation slice: a private,
+  pure line-classification event. Local code commit `f8c3f65` reuses the event
+  within `StackMachineParser.parse()` while leaving state reduction, node
+  creation, identity registration, semantic enrichment, package exports, and
+  dependencies unchanged. It passed focused parser, compatibility-corpus,
+  adversarial, and deterministic work-growth gates locally. This is not a
+  publication, performance, release, or #108-closure claim.
+
 **Outcome**
 
 - Resume [#108](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/108)
@@ -832,3 +843,5 @@ Completion is unproven until every applicable item has authoritative evidence.
 | 2026-08-18 | M2–M4 controlled publication | merged | M3, M4, and M2 merged through [PR #162](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/162), [PR #163](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/163), and [PR #164](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/164), yielding `main` commits `172be70`, `5d38e01`, and `98bc5aa`. This updates the delivery state only; it does not close #104, #103, #87, #111, or #108. |
 | 2026-08-18 | M5 local graph assurance `41486b3` | local implementation checkpoint | An isolated branch based on `main@27d0061` adds a fresh-worker `assure` CLI command, file/byte/timeout bounds, symlink rejection, ordinary-socket denial, project-owned structure and reference checks, a fixed aggregate-only report schema, and a synthetic self-test. The current head validates nested report fields, rejects unknown finding codes and invalid direct limit values, and rechecks the total byte bound while reading. It remains local only; exact-head qualification, independent review, hosted checks, PR, merge, and release remain separate gates. |
 | 2026-08-18 | M5 direct final review and correction `e2d0e5a` | locally qualified; publication pending | Direct full-patch review reproduced four fail-closed defects: arbitrary runtime strings passed report validation, symlink-loop inputs produced path-bearing parent tracebacks, dangling `pages/` links could pass, and global graph input was ignored by `--self-test`. Non-amending corrections bind reports to exact runtime labels and parent limits, preserve invalid-root handling inside the worker, reject dangling root links, and enforce self-test isolation. The corrected code head passed 622 tests plus Ruff, mypy, documentation, vendor, coverage, and diff gates. No P0/P1/P2 finding remains in the reviewed local patch; live-base refresh, push authorization, hosted checks, PR, merge, and release remain separate gates. |
+ | 2026-08-18 | M6 source-location decision `7bf5c6d` | local documentation and regression checkpoint | The accepted source-location RFC retains the existing one-based logical line contract for diagnostics, writer splicing, and SYNAPSE lineage. A CRLF/Unicode regression covers line positions. Byte, code-point, column, range, and source-map expansion is rejected until a named consumer meets the RFC admission gate. No parser or public API change is claimed. |
+ | 2026-08-18 | M7 line classifier / #165 `f8c3f65` | local implementation checkpoint | A fresh impact review classified `_refresh_node` as HIGH risk and created [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165). The first slice adds a private pure syntax event and routes the existing parser through it without extracting state reduction or semantic enrichment. Focused parser, corpus, adversarial, and work-growth checks pass locally; independent review, exact-head full qualification, hosted checks, PR, merge, and release remain separate gates. |

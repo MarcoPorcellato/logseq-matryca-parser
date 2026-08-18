@@ -42,6 +42,14 @@ content, paths, titles, UUIDs, exception text, or host names; it must not claim
 #103 incremental/cold-load equivalence, #87 or #111 performance evidence,
 external-oracle parity, release qualification, or closure of #104/#108.
 
+M6 has an accepted local source-location RFC at `7bf5c6d`: existing one-based
+logical line fields remain the only supported coordinates, while offset and
+source-map expansion stays behind its admission gate. M7 begins at local code
+checkpoint `f8c3f65` for [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165),
+the private line-classification extraction. It preserves parser state reduction,
+node creation, identities, graph behavior, public imports, and dependencies;
+publication and review gates remain independent of M5.
+
 M2 is complete through the accepted negative
 [ADR-001](../decisions/ADR-001-external-oracle-boundary.md): no external
 `mldoc` executable may be installed, invoked, pinned, packaged, or integrated
