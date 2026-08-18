@@ -54,6 +54,7 @@ navigation layers only.
 | [Structured diagnostics](reference/DIAGNOSTICS.md) | Stable diagnostic schema, codes, path safety, rendering, and escalation |
 | [Filesystem safety](reference/FILESYSTEM_SAFETY.md) | Vault containment, atomic write, dry-run, metadata, and asset-read policy |
 | [Local graph assurance](reference/LOCAL_GRAPH_ASSURANCE.md) | Bounded aggregate-only vault checks with no report persistence or network operation |
+| [Source-location decision](rfc/SOURCE_LOCATION_RFC.md) | Accepted logical-line coordinate contract and offset-expansion admission gate |
 | [Documentation log](log.md) | Chronology of maintained knowledge changes |
 
 ## Root governance and support

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Tests
 
+- Define and regress the existing one-based source-line contract across Unicode
+  text and CRLF input. The accepted M6 decision retains line-only
+  parse-snapshot locations and adds no offset API or parser behavior change.
 - Add a deterministic, test-only parser work-growth laboratory with fixed
   size-scaled synthetic cases, semantic and structural gates, source-free
   receipts, and non-gating platform observations. No runtime API or performance
