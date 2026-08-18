@@ -64,7 +64,7 @@ release qualification.
 
 | Risk | Control | Residual boundary |
 |---|---|---|
-| Vault Markdown or identifiers leak through a report | Fixed aggregate-only report schema; report validation rejects additional fields | A user can still redirect the safe JSON locally; that is their own filesystem choice |
+| Vault Markdown or identifiers leak through a report | Fixed aggregate-only report schema; report validation rejects additional fields, arbitrary runtime strings, substituted limits, and inconsistent status/finding pairs | A user can still redirect the safe JSON locally; that is their own filesystem choice |
 | Symlink traversal reads unrelated files | Any encountered symlink is rejected before parser input | Read-only discovery still has filesystem race limits; failures are reported without path detail |
 | Oversized or numerous files exhaust resources | Explicit `--max-files`, `--max-total-bytes`, `--max-file-bytes`, and timeout limits | Limits are intake bounds, not performance claims |
 | Parser or library code reaches the network | Worker replaces normal socket construction, connection, and name resolution with failure | This is a process-local guard, not an operating-system sandbox |
@@ -98,5 +98,10 @@ or vault mutation is part of its contract.
   values; exact-head qualification remains a separate gate.
 - Focused tests cover content-free reports, symlink rejection, file limits,
   socket denial, CLI self-test behavior, and misuse rejection.
+- Final review correction `e2d0e5a` rejects arbitrary worker runtime strings,
+  binds child reports to parent-supplied limits, fails closed on dangling root
+  links and symlink-loop inputs, and rejects global graph paths in self-test
+  mode. The exact code head passes 622 repository tests and all maintained
+  quality gates.
 - Full repository qualification remains a separate exact-head gate for the
   documentation-evidence commit and hosted pull request.

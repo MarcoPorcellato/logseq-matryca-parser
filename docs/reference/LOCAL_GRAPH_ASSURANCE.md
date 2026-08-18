@@ -37,9 +37,10 @@ child-worker path against a temporary synthetic vault.
 ## Privacy and containment contract
 
 The command has no network destination and does not create a report file. Its
-worker rejects encountered symlinks and accepts only regular Markdown files
-under `pages/` and `journals/`. It applies independent limits for files, total
-bytes, individual file bytes, and elapsed worker time.
+worker rejects encountered symlinks, including dangling `pages/` or `journals/`
+directory links, and accepts only regular Markdown files under those two roots.
+It applies independent limits for files, total bytes, individual file bytes,
+and elapsed worker time.
 
 The report intentionally excludes all source-derived strings: Markdown,
 snippets, relative or absolute paths, page titles, block UUIDs, exception text,
@@ -66,7 +67,10 @@ system controls when you require stronger process isolation.
 `status` is one of `passed`, `findings`, `limit_exceeded`, `error`, or
 `timeout`. Every `findings` item has only a stable code and a positive count.
 Consumers must reject reports with unknown fields at any schema level rather
-than assume they remain content-free.
+than assume they remain content-free. The parent also requires the exact limits
+it supplied, the project-generated coarse runtime labels, and a status/finding
+combination that is internally consistent; arbitrary runtime strings are not
+valid report data.
 
 ## Scope
 

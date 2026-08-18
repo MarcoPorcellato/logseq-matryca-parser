@@ -7,10 +7,11 @@
 - Branch: `agent/parser-privacy-assurance-m5`
 - Base: `origin/main` at `27d006153e45f2c4ae37ca03136114fb8246ac88`
 - Local implementation/evidence commits, oldest first:
-  `4f0342d`, `826aad7`, `9202967`, `41486b3`, and `eecea20`.
+  `4f0342d`, `826aad7`, `9202967`, `41486b3`, `eecea20`, `aee9136`,
+  `45fd755`, and corrected code head `e2d0e5a`.
 - Remote branch: none. Pull request: none. Hosted checks: none.
-- Persistent goal: active. The remaining M5 pre-publication gates are the
-  independent full-patch review, live-base refresh, explicit publication
+- Persistent goal: active. The direct final review is complete. The remaining
+  M5 pre-publication gates are live-base refresh, explicit publication
   authorization, and terminal hosted checks.
 
 The original checkout remains intentionally dirty and divergent. Do not use it
@@ -30,20 +31,27 @@ It must never emit vault Markdown, snippets, paths, titles, UUIDs, exception
 text, host names, or user-vault identifiers.
 
 The implementation validates every report level, permits only declared finding
-codes, rechecks the total byte bound while reading, and rejects invalid direct
-runtime-limit values. Its process-local socket guard is not an operating-system
-sandbox; filesystem races remain a documented residual boundary.
+codes, binds accepted results to parent-supplied limits and project-generated
+runtime labels, rechecks the total byte bound while reading, and rejects invalid
+direct runtime-limit values. Root symlink loops and dangling graph-directory
+links fail closed without path output. Its process-local socket guard is not an
+operating-system sandbox; filesystem races remain a documented residual
+boundary.
 
-## Terminal local evidence at `eecea20`
+## Terminal local evidence at corrected code head `e2d0e5a`
 
-- Focused CLI and assurance suite: 49 passed.
-- Full `rtk make all`: 614 collected tests passed; Ruff, mypy, documentation,
+- Focused CLI and assurance suite: 57 passed.
+- Full `rtk make all`: 622 collected tests passed; Ruff, mypy, documentation,
   vendor-name, and coverage gates passed.
 - `rtk make vendor-name-check`: passed.
 - `rtk git diff --check origin/main...HEAD`: passed.
-- Local audit-code cycle check: `cycleCount: 0`.
-- The raw, unfiltered full diff from `origin/main` through `eecea20` had
-  SHA-256 `6396fa22f1efef469ef6cd7d9b0b3a90e7fd4c68942a72de59b28850d2e59310`.
+- The available audit-code index, which is 61 commits stale, reports
+  `cycleCount: 0`; this is advisory only and is not exact-head qualification.
+- The direct final review reproduced and corrected four additional fail-closed
+  defects: arbitrary runtime-string admission, parent-side symlink-loop path
+  disclosure, dangling root-link acceptance, and ignored global graph input in
+  self-test mode. No P0, P1, or P2 finding remains after correction and exact
+  source/test review.
 
 This evidence proves only the stated local head. Re-run all relevant checks and
 freeze a new raw full-diff hash after any further commit, rebase, or review
@@ -70,13 +78,9 @@ correction.
    `origin/main`; do not use cached remote state for a publication decision.
 2. Freeze the raw `git --no-pager diff --no-ext-diff --binary --full-index
    origin/main...HEAD` bytes and hash them without filtering.
-3. Obtain the independent GPT-5.6 Sol review of that exact full patch only
-   after explicit permission to transmit repository material. Treat its output
-   as advisory until each finding is reproduced or rejected against source and
-   deterministic evidence.
-4. If anything changes, add a non-amending local correction, repeat exact-head
+3. If anything changes, add a non-amending local correction, repeat exact-head
    qualification, and obtain a review of the new full patch.
-5. Stop before push. Refresh live GitHub state and publish only after separate
+4. Stop before push. Refresh live GitHub state and publish only after separate
    user authorization. Required hosted checks then remain a distinct gate.
 
 ## Boundaries that must survive

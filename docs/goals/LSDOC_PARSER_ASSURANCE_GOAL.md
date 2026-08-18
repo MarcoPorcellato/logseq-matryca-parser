@@ -33,7 +33,7 @@ bounded adversarial laboratory; M4 remains a Python-native, test-only,
 deterministic work model. Neither expands #103, #87, or #111 ownership or
 constitutes a release claim.
 
-M5 is in delivery from local implementation head `41486b3` on
+M5 is in delivery from local corrected code head `e2d0e5a` on
 `agent/parser-privacy-assurance-m5`, based on `main@27d0061`. It adds an
 optional aggregate-only local assurance CLI with a fresh worker, file/byte/time
 bounds, symlink rejection, ordinary-socket denial, safe report validation, and
@@ -51,10 +51,11 @@ external-oracle, retention, upload, or richer source-derived reporting proposal
 requires a superseding ADR meeting every listed reconsideration condition,
 including a maintainer-approved process boundary.
 
-Before any M5 push or pull request, re-verify the live base, freeze the raw full
-diff, qualify its exact head, obtain an independent GPT-5.6 Sol full-patch
-review, adjudicate every finding, and stop before publication unless separately
-authorized.
+The direct GPT-5.6 Sol review found and corrected unsafe runtime-string
+admission, parent-side symlink-loop disclosure, dangling root-link acceptance,
+and ignored global graph input in self-test mode. Before any M5 push or pull
+request, re-verify the live base, freeze the raw full diff, qualify its exact
+head, and stop before publication unless separately authorized.
 
 The initial checkpoint `8806205c35b104ed65d00a273acc9eeca572ae38` is rejected
 pre-correction evidence. Corrective implementation

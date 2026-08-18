@@ -68,6 +68,12 @@ superseded_by: null
   M5 begins from `main@27d0061`; local implementation head `41486b3` is
   retained as a delivery checkpoint only. Exact-head qualification, independent
   review, hosted checks, PR, merge, and release remain separate gates.
+- Completed the direct final M5 review and corrected four fail-closed defects at
+  code head `e2d0e5a`: arbitrary runtime strings in child reports, path-bearing
+  parent tracebacks for symlink loops, dangling graph-root directory links, and
+  global graph input ignored by `--self-test`. The corrected code head passed
+  622 tests and all maintained local quality gates. Push, PR, hosted checks,
+  merge, and release remain separate gates.
 
 ## 2026-08-16
 
