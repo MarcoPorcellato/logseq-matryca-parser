@@ -21,6 +21,15 @@ superseded_by: null
 
 ## 2026-08-16
 
+- Recorded accepted negative M2 decision
+  [ADR-001](decisions/ADR-001-external-oracle-boundary.md). The repository will
+  not install, invoke, pin, package, or integrate an external `mldoc`
+  executable under the current Apache-2.0 project boundary. The decision is a
+  conservative engineering and governance boundary, not legal advice; it
+  preserves M3/M4 as project-owned evidence and leaves M5 limited to
+  project-owned invariants unless a later ADR satisfies explicit reconsideration
+  conditions. No external executable was downloaded or run, and no source,
+  dependency, CI, release, issue-ownership, push, PR, or merge claim is made.
 - Started M4 from the locally qualified, unpublished M3 commit `3edbefb`.
   M4 is test-only and counts declared Python-owned parser operations across
   fixed size-scaled synthetic families. It treats platform-labelled elapsed
