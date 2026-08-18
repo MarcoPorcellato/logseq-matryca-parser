@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
+from logseq_matryca_parser import local_graph_assurance
 from logseq_matryca_parser.kinetic import app
 from logseq_matryca_parser.local_graph_assurance import (
     AssuranceLimits,
@@ -85,6 +86,37 @@ def test_assurance_fails_closed_on_declared_file_limits(tmp_path: Path) -> None:
 
     assert report["status"] == "limit_exceeded"
     assert _finding_codes(report) == {"vault.max_files_exceeded"}
+
+
+def test_assurance_rechecks_total_bytes_while_reading(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _vault(tmp_path)
+    (root / "pages" / "One.md").write_text("- x\n", encoding="utf-8")
+    monkeypatch.setattr(
+        local_graph_assurance,
+        "_read_regular_file",
+        lambda *_args: b"- larger replacement\n",
+    )
+
+    report = local_graph_assurance._assure(str(root), AssuranceLimits(max_total_bytes=4))
+
+    assert report["status"] == "limit_exceeded"
+    assert _finding_codes(report) == {"vault.max_total_bytes_exceeded"}
+
+
+@pytest.mark.parametrize(
+    "limits",
+    [
+        {"max_files": True},
+        {"max_total_bytes": "1024"},
+        {"max_file_bytes": 0},
+        {"timeout_seconds": True},
+    ],
+)
+def test_limits_reject_invalid_runtime_values(limits: dict[str, object]) -> None:
+    with pytest.raises(ValueError):
+        AssuranceLimits(**limits)  # type: ignore[arg-type]
 
 
 def test_network_guard_rejects_socket_entry_points() -> None:

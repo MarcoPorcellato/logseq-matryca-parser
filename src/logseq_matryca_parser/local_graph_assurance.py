@@ -75,9 +75,14 @@ class AssuranceLimits:
     timeout_seconds: float = 30.0
 
     def __post_init__(self) -> None:
-        if min(self.max_files, self.max_total_bytes, self.max_file_bytes) < 1:
-            raise ValueError("file and byte limits must be positive")
-        if self.timeout_seconds <= 0:
+        for value in (self.max_files, self.max_total_bytes, self.max_file_bytes):
+            if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+                raise ValueError("file and byte limits must be positive integers")
+        if (
+            not isinstance(self.timeout_seconds, (int, float))
+            or isinstance(self.timeout_seconds, bool)
+            or self.timeout_seconds <= 0
+        ):
             raise ValueError("timeout_seconds must be positive")
 
 
