@@ -748,7 +748,8 @@ Milestone reports use:
 - next dependency.
 
 The current resumable checkpoint is
-[`internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md`](internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md).
+[`internal/M5_LOCAL_GRAPH_ASSURANCE_REVIEW_HANDOFF_2026-08-18.md`](internal/M5_LOCAL_GRAPH_ASSURANCE_REVIEW_HANDOFF_2026-08-18.md).
+The earlier M1-B handoff remains historical evidence.
 
 ## 16. Persistent goal
 
