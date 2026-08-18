@@ -11,6 +11,7 @@ from logseq_matryca_parser.kinetic import app
 from logseq_matryca_parser.local_graph_assurance import (
     AssuranceLimits,
     _network_denied,
+    _safe_report,
     run_local_graph_assurance,
     run_local_graph_assurance_self_test,
 )
@@ -89,6 +90,20 @@ def test_assurance_fails_closed_on_declared_file_limits(tmp_path: Path) -> None:
 def test_network_guard_rejects_socket_entry_points() -> None:
     with _network_denied(), pytest.raises(RuntimeError, match="network disabled"):
         socket.create_connection(("127.0.0.1", 1))
+
+
+def test_safe_report_rejects_nested_extra_fields_and_unknown_codes() -> None:
+    report = run_local_graph_assurance_self_test()
+    limits = report["limits"]
+    assert isinstance(limits, dict)
+    limits["private_markdown"] = "do-not-disclose"
+    assert not _safe_report(report)
+
+    report = run_local_graph_assurance_self_test()
+    findings = report["findings"]
+    assert isinstance(findings, list)
+    findings.append({"code": "do-not-disclose", "count": 1})
+    assert not _safe_report(report)
 
 
 def test_assure_cli_emits_safe_json_for_self_test() -> None:

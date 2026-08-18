@@ -27,6 +27,43 @@ from logseq_matryca_parser.logos_parser import StackMachineParser
 
 REPORT_SCHEMA_VERSION = 1
 
+_LIMIT_KEYS = frozenset({"max_files", "max_total_bytes", "max_file_bytes", "timeout_seconds"})
+_OBSERVED_KEYS = frozenset(
+    {
+        "markdown_files",
+        "total_bytes",
+        "parsed_pages",
+        "parsed_nodes",
+        "root_nodes",
+        "block_references",
+    }
+)
+_RUNTIME_KEYS = frozenset({"python", "platform"})
+_FINDING_CODES = frozenset(
+    {
+        "graph.duplicate_source_identity",
+        "graph.duplicate_synthetic_identity",
+        "graph.page_title_collision",
+        "graph.structure_invariant_violation",
+        "graph.unresolved_block_reference",
+        "parse.invalid_utf8",
+        "parse.unclassified_failure",
+        "runner.invalid_report",
+        "runner.no_report",
+        "runner.timeout",
+        "runner.unexpected_failure",
+        "vault.directory_read_error",
+        "vault.entry_stat_error",
+        "vault.file_changed_or_unreadable",
+        "vault.invalid_root",
+        "vault.max_file_bytes_exceeded",
+        "vault.max_files_exceeded",
+        "vault.max_total_bytes_exceeded",
+        "vault.root_directory_rejected",
+        "vault.symlink_rejected",
+    }
+)
+
 
 @dataclass(frozen=True)
 class AssuranceLimits:
@@ -140,6 +177,9 @@ def _walk_markdown(root: Path, limits: AssuranceLimits, report: dict[str, object
 
 def _read_regular_file(root: Path, path: Path, max_bytes: int) -> bytes | None:
     try:
+        path_stat = path.lstat()
+        if stat.S_ISLNK(path_stat.st_mode) or not stat.S_ISREG(path_stat.st_mode):
+            return None
         resolved = path.resolve(strict=True)
         resolved.relative_to(root)
         before = resolved.stat()
@@ -204,17 +244,20 @@ def _assure(root_text: str, limits: AssuranceLimits) -> dict[str, object]:
     if report["status"] != "passed":
         return report
 
-    parser = StackMachineParser()
     seen_titles: set[str] = set()
     seen_source_ids: set[str] = set()
     all_ids: set[str] = set()
     references: list[str] = []
+    bytes_read = 0
     for index, path in enumerate(paths):
         raw = _read_regular_file(root, path, limits.max_file_bytes)
         if raw is None:
             return _failed(limits, "error", "vault.file_changed_or_unreadable")
+        bytes_read += len(raw)
+        if bytes_read > limits.max_total_bytes:
+            return _failed(limits, "limit_exceeded", "vault.max_total_bytes_exceeded")
         try:
-            page = parser.parse(raw.decode("utf-8-sig"), page_title=f"m5-{index}")
+            page = StackMachineParser().parse(raw.decode("utf-8-sig"), page_title=f"m5-{index}")
         except UnicodeDecodeError:
             report["status"] = "findings"
             _finding(report, "parse.invalid_utf8")
@@ -309,6 +352,33 @@ def _safe_report(value: object) -> bool:
         "timeout",
     }:
         return False
+    limits = value.get("limits")
+    if not isinstance(limits, dict) or set(limits) != _LIMIT_KEYS:
+        return False
+    for key in ("max_files", "max_total_bytes", "max_file_bytes"):
+        if not isinstance(limits[key], int) or isinstance(limits[key], bool) or limits[key] < 1:
+            return False
+    timeout = limits["timeout_seconds"]
+    if not isinstance(timeout, (int, float)) or isinstance(timeout, bool) or timeout <= 0:
+        return False
+
+    observed = value.get("observed")
+    if not isinstance(observed, dict) or set(observed) != _OBSERVED_KEYS:
+        return False
+    if any(
+        not isinstance(count, int) or isinstance(count, bool) or count < 0
+        for count in observed.values()
+    ):
+        return False
+
+    runtime = value.get("runtime")
+    if (
+        not isinstance(runtime, dict)
+        or set(runtime) != _RUNTIME_KEYS
+        or not all(isinstance(part, str) for part in runtime.values())
+    ):
+        return False
+
     findings = value.get("findings")
     if not isinstance(findings, list):
         return False
@@ -316,7 +386,9 @@ def _safe_report(value: object) -> bool:
         isinstance(item, dict)
         and set(item) == {"code", "count"}
         and isinstance(item["code"], str)
+        and item["code"] in _FINDING_CODES
         and isinstance(item["count"], int)
+        and not isinstance(item["count"], bool)
         and item["count"] > 0
         for item in findings
     ) and _json_safe(value)
