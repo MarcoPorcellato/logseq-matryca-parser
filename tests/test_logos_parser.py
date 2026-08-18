@@ -12,6 +12,7 @@ from logseq_matryca_parser.exceptions import BlockReferenceError
 from logseq_matryca_parser.logos_parser import (
     LogosParser,
     StackMachineParser,
+    _classify_line,
     clean_node_content,
     is_system_block,
     normalize_logseq_timestamp,
@@ -1339,6 +1340,45 @@ def test_line_locations_use_logical_one_based_lines_for_unicode_crlf(
     assert (first.line_start, first.line_end) == (1, 3)
     assert (second.line_start, second.line_end) == (4, 4)
     assert "\r" not in first.content
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("\r", {"is_blank": True}),
+        ("  - Child", {"bullet": "  ", "is_system_block": False}),
+        ("\t## Heading", {"heading": "\t"}),
+        (" status:: open ", {"property": ("status", "open")}),
+        ("---", {"is_yaml_delimiter": True}),
+        ("#+BEGIN_QUERY", {"is_query_begin": True}),
+        ("#+END_QUERY", {"is_query_end": True}),
+        ("  ```python", {"is_code_fence": True}),
+        (":LOGBOOK:", {"is_logbook_begin": True, "is_system_block": True}),
+        (":END:", {"is_drawer_end": True, "is_system_block": False}),
+        ("collapsed:: true", {"collapsed": "true", "is_system_block": True}),
+    ],
+)
+def test_line_classifier_reports_private_pure_syntax_signals(
+    source: str, expected: dict[str, object]
+) -> None:
+    event = _classify_line(source)
+
+    assert "\r" not in event.raw_line
+    for key, value in expected.items():
+        if key == "bullet":
+            assert event.bullet_match is not None
+            assert event.bullet_match.group(1) == value
+        elif key == "heading":
+            assert event.heading_match is not None
+            assert event.heading_match.group(1) == value
+        elif key == "property":
+            assert event.property_match is not None
+            assert event.property_match.groups() == value
+        elif key == "collapsed":
+            assert event.collapsed_match is not None
+            assert event.collapsed_match.group(1) == value
+        else:
+            assert getattr(event, key) == value
 
 
 def test_resolve_asset_path_nested_namespace_page(tmp_path: Path) -> None:

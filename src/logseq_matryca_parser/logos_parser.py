@@ -7,6 +7,7 @@ import logging
 import os
 import re
 import uuid
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -90,6 +91,50 @@ logger = logging.getLogger(__name__)
 def _sanitize_line(raw_line: str) -> str:
     """Strip stray CR bytes from Windows-edited graph lines before tokenization."""
     return raw_line.rstrip("\r")
+
+
+@dataclass(frozen=True)
+class _LineClassification:
+    """Private syntax signals for one sanitized logical parser input line."""
+
+    raw_line: str
+    stripped_line: str
+    bullet_match: re.Match[str] | None
+    heading_match: re.Match[str] | None
+    property_match: re.Match[str] | None
+    yaml_property_match: re.Match[str] | None
+    collapsed_match: re.Match[str] | None
+    is_blank: bool
+    is_system_block: bool
+    is_yaml_delimiter: bool
+    is_code_fence: bool
+    is_query_begin: bool
+    is_query_end: bool
+    is_logbook_begin: bool
+    is_drawer_end: bool
+
+
+def _classify_line(raw_line: str) -> _LineClassification:
+    """Classify syntax without reading or mutating parser state."""
+    sanitized = _sanitize_line(raw_line)
+    stripped = sanitized.strip()
+    return _LineClassification(
+        raw_line=sanitized,
+        stripped_line=stripped,
+        bullet_match=BULLET_PATTERN.match(sanitized),
+        heading_match=HEADING_BLOCK_PATTERN.match(sanitized),
+        property_match=LOGSEQ_PATTERNS["property"].match(stripped),
+        yaml_property_match=YAML_FRONTMATTER_PROPERTY_PATTERN.match(stripped),
+        collapsed_match=re.match(r"^\s*collapsed::\s*(\S+)\s*$", sanitized, re.IGNORECASE),
+        is_blank=not stripped,
+        is_system_block=is_system_block(sanitized),
+        is_yaml_delimiter=stripped == "---",
+        is_code_fence=_is_code_fence_line(stripped),
+        is_query_begin=_is_query_begin_line(stripped),
+        is_query_end=_is_query_end_line(stripped),
+        is_logbook_begin=stripped.upper() == ":LOGBOOK:",
+        is_drawer_end=stripped.upper() == ":END:",
+    )
 
 
 def _normalize_property_key(key: str) -> str:
@@ -668,19 +713,20 @@ class StackMachineParser:
         in_yaml_frontmatter = False
         line_number = 0
 
-        for line_number, raw_line in enumerate(text.splitlines(), start=1):
-            raw_line = _sanitize_line(raw_line)
-            stripped_line = raw_line.strip()
+        for line_number, input_line in enumerate(text.splitlines(), start=1):
+            line = _classify_line(input_line)
+            raw_line = line.raw_line
+            stripped_line = line.stripped_line
 
             if in_yaml_frontmatter:
-                if stripped_line == "---":
+                if line.is_yaml_delimiter:
                     in_yaml_frontmatter = False
                     frontmatter_active = False
                     yaml_title = page_properties.get("title")
                     if isinstance(yaml_title, str) and yaml_title.strip():
                         page_title = yaml_title.strip()
                     continue
-                yaml_match = YAML_FRONTMATTER_PROPERTY_PATTERN.match(stripped_line)
+                yaml_match = line.yaml_property_match
                 if yaml_match:
                     key = _normalize_property_key(yaml_match.group(1))
                     value = yaml_match.group(2).strip()
@@ -689,7 +735,7 @@ class StackMachineParser:
                         page_properties_order.append(key)
                 continue
 
-            if line_number == 1 and stripped_line == "---":
+            if line_number == 1 and line.is_yaml_delimiter:
                 in_yaml_frontmatter = True
                 continue
 
@@ -698,7 +744,7 @@ class StackMachineParser:
                 updated = self._refresh_node(current_node, merged_content, line_end=line_number)
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
-                if _is_query_end_line(stripped_line):
+                if line.is_query_end:
                     in_query_block = False
                 frontmatter_active = False
                 pending_list_key = None
@@ -711,7 +757,7 @@ class StackMachineParser:
                 updated = self._refresh_node(current_node, merged_content, line_end=line_number)
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
-                if _is_code_fence_line(stripped_line):
+                if line.is_code_fence:
                     in_code_block = False
                     properties_allowed = True
                 frontmatter_active = False
@@ -721,10 +767,10 @@ class StackMachineParser:
                 continue
 
             if in_drawer:
-                if stripped_line.upper() == ":END:":
+                if line.is_drawer_end:
                     in_drawer = False
                     continue
-                if BULLET_PATTERN.match(raw_line):
+                if line.bullet_match:
                     in_drawer = False
                 else:
                     if current_node is not None:
@@ -759,7 +805,7 @@ class StackMachineParser:
                         current_node = updated
                     continue
 
-            if stripped_line.upper() == ":LOGBOOK:" and current_node is not None:
+            if line.is_logbook_begin and current_node is not None:
                 in_drawer = True
                 properties = dict(current_node.properties)
                 properties.setdefault("logbook", [])
@@ -773,7 +819,7 @@ class StackMachineParser:
                 current_node = updated
                 continue
 
-            collapsed_match = re.match(r"^\s*collapsed::\s*(\S+)\s*$", raw_line, re.IGNORECASE)
+            collapsed_match = line.collapsed_match
             if collapsed_match and current_node is not None:
                 collapsed_value = collapsed_match.group(1).lower() == "true"
                 properties = dict(current_node.properties)
@@ -788,11 +834,11 @@ class StackMachineParser:
                 current_node = updated
                 continue
 
-            if not stripped_line or is_system_block(raw_line):
+            if line.is_blank or line.is_system_block:
                 continue
 
             if pending_list_key is not None and current_node is not None:
-                pending_bullet = BULLET_PATTERN.match(raw_line)
+                pending_bullet = line.bullet_match
                 if pending_bullet is not None:
                     pending_indent = self._compute_indent_level(pending_bullet.group(1))
                     if (
@@ -828,7 +874,7 @@ class StackMachineParser:
                 pending_list_items = []
                 pending_list_indent = None
 
-            bullet_match = BULLET_PATTERN.match(raw_line)
+            bullet_match = line.bullet_match
             if bullet_match:
                 indent_level = self._compute_indent_level(bullet_match.group(1))
 
@@ -871,7 +917,7 @@ class StackMachineParser:
                 properties_allowed = True
                 continue
 
-            heading_match = HEADING_BLOCK_PATTERN.match(raw_line)
+            heading_match = line.heading_match
             if heading_match:
                 indent_level = self._compute_indent_level(heading_match.group(1))
 
@@ -906,7 +952,7 @@ class StackMachineParser:
                 properties_allowed = True
                 continue
 
-            property_match = LOGSEQ_PATTERNS["property"].match(raw_line.strip())
+            property_match = line.property_match
             if property_match:
                 key, value = property_match.groups()
                 key = _normalize_property_key(key)
@@ -1005,9 +1051,9 @@ class StackMachineParser:
             )
             frontmatter_active = False
             properties_allowed = False
-            if _is_code_fence_line(stripped_line):
+            if line.is_code_fence:
                 in_code_block = True
-            if _is_query_begin_line(stripped_line):
+            if line.is_query_begin:
                 in_query_block = True
 
         if pending_list_key is not None and current_node is not None:
