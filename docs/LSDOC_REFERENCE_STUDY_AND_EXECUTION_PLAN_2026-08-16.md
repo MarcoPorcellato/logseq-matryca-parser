@@ -62,7 +62,7 @@ Markdown source-of-truth model.
 | Existing delivery anchors | #87, #103, #104, #108, #111 are open; #106 and #113 are closed | live GitHub issue reads on 2026-08-16 |
 | Local implementation checkpoint | `8806205c35b104ed65d00a273acc9eeca572ae38` | clean local commit on `agent/parser-assurance-m1`; exact-head tests passed, but independent oracle review rejected publication |
 | M1 delivery | merged | [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161) merged the project-owned compatibility-corpus foundation; it remains only the first #104 tranche |
-| Current milestone | M3 in delivery | isolated branch from the verified source base; original, test-only bounded generator laboratory only; no publication claim |
+| Current milestone | M4 local qualification | code commit `65275cd` above qualified local M3; deterministic, test-only work-growth evidence only; no publication claim |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
@@ -526,6 +526,24 @@ converted into a pass or silently added to an allowlist.
   explicitly documented exceptions.
 - Preserve #87 as the focused pathological seed and #111 as the wall-time,
   p95, RSS, and vault-scale owner.
+- Keep the work model under `tests/` only. It may count input lines,
+  indentation resolution, node construction and initialization, attachment,
+  refresh, replacement, normalization, and reference-collection operations,
+  but it must not expose a parser runtime hook or public API.
+- Use the fixed project-authored matrix `8`, `16`, `32`, and `64` for flat
+  blocks, deep chains, fenced continuations, and properties. Every
+  non-exception operation in the vector must remain within a `2.5x` ratio as a
+  size doubles. The deep-chain
+  family is the sole named structural exception: immutable ancestor rebuilding
+  is asserted against its exact `n * (n - 1) / 2` model while its remaining
+  vector stays within the linear envelope.
+- Emit source-free receipts with schema and generator versions, case identity,
+  exact replay command with bounded mode and timeout when applicable, size,
+  source hash and byte count, operation vector,
+  classification, semantic and structural gates, and Python/platform labels.
+  Elapsed time and process high-water memory may appear only as platform-
+  labelled, non-gating observations; they are not comparable budgets or
+  performance conclusions.
 
 **Dependencies**
 
@@ -533,9 +551,10 @@ converted into a pass or silently added to an allowlist.
 
 **Exit evidence**
 
-- Deterministic work ratios, targeted timeout tests, platform-labelled timing
-  baselines, memory evidence, unchanged semantic projection, and documented
-  noise policy.
+- Deterministic work ratios, parent-enforced timeout classification, platform-
+  labelled timing and memory observations, unchanged semantic projection, and
+  documented noise policy. A receipt cannot contain generated source text or
+  assert a wall-time, RSS, p95, vault-scale, or release claim.
 
 **Impact**
 
@@ -742,8 +761,9 @@ It must not replace the requirements in this plan.
   dependency-owned #103 and M3 evidence before #104 is closed.
 - [ ] The external-oracle decision is recorded, including a valid negative
   decision if license or process boundaries are unacceptable.
-- [ ] Adversarial and property-based tests have deterministic replay and bounded
-  execution.
+- [x] Adversarial and property-based tests have deterministic replay and bounded
+  execution through local exact-head M3 commit `3edbefb`; publication remains a
+  separate explicit gate.
 - [ ] #87 and #111 have complementary deterministic-work and measured-runtime
   evidence without semantic drift.
 - [ ] The privacy-safe local graph tool is delivered or explicitly rejected with
@@ -779,4 +799,5 @@ Completion is unproven until every applicable item has authoritative evidence.
 | 2026-08-16 | M1-B second frozen Sol review `5007dc3` | verified and unresolved | Review returned `NEEDS_CORRECTION`: valid mixed-backtick input still removed an authentic content wikilink, simple tests did not cover unequal delimiter runs, and the supplied patch hash/line receipt was invalid because it came from filtered rather than raw Git diff bytes. |
 | 2026-08-16 | M1-B second corrective implementation `7870b84` | locally qualified (non-amending) | Added parser-equivalent exact backtick-run matching, bounded fence/query-region closing, precise inline-math closing, unclosed-comment parity, the exact Sol reproducer, and post-region visible-link regressions. A 14-family direct differential probe found no parser/oracle wikilink mismatch. Exact-head snapshot freshness and `make all` passed with 584 tests and 92.16% coverage; Ruff, mypy, documentation, vendor-name, diff, and zero-cycle checks passed. No `src/`, package, API, dependency, push, PR, merge, or release change occurred. |
 | 2026-08-16 | M1 / PR #161 | merged | [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161) merged the first #104 compatibility-corpus tranche. Historical local M1 receipts remain historical only; the live `main` base is `5b0a73e`. |
-| 2026-08-16 | M3 laboratory | locally qualified, uncommitted | An isolated branch from `main@5b0a73e` adds only test, workflow, and documentation changes: seven original bounded generator families, fresh-subprocess timeout classification, source-free receipts, classification- and exception-preserving minimization, structural invariants, valid-input semantic round trips, a 21-case fixed profile, and a 63-case scheduled broad profile. Sol correction review added explicit unequal and overlapping delimiter cases and minimization-policy regression coverage. No public API, runtime dependency, #103, #111/#87, external-oracle, release, or publication claim is made; final exact-diff review remains a separate gate. |
+| 2026-08-16 | M3 laboratory `3edbefb` | locally qualified, unpublished | An isolated branch from `main@5b0a73e` adds only test, workflow, and documentation changes: seven original bounded generator families, fresh-subprocess timeout classification, source-free receipts, classification- and exception-preserving minimization, structural invariants, valid-input semantic round trips, a 21-case fixed profile, and a 63-case scheduled broad profile. The exact head passed `make all`, the broad profile, and final Sol review. No public API, runtime dependency, #103, #111/#87, external-oracle, release, or publication claim is made. |
+| 2026-08-16 | M4 laboratory `65275cd` | locally qualified, unpublished | Added only test and documentation changes: a fixed-seed `8/16/32/64` matrix for flat blocks, deep chains, fenced continuations, and properties; a test-only parser subclass that records declared Python-owned operations; a `2.5x` independently enforced envelope for every non-exception operation; and an exact immutable-ancestor-rebuild exception for deep chains. The exact code head passed targeted lint, type, and 64-test regression checks before final qualification. Receipts include source hashes, actual bounded mode and timeout replay commands, semantic/structural gates, and platform-labelled diagnostic observations only. The optional RSS probe is unavailable-safe on platforms without the Unix `resource` module. No `src/`, package, dependency, #87, #111, #103, external-oracle, release, or publication claim changed; final full-patch Sol review remains required. |

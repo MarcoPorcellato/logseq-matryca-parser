@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Tests
+
+- Add a deterministic, test-only parser work-growth laboratory with fixed
+  size-scaled synthetic cases, semantic and structural gates, source-free
+  receipts, and non-gating platform observations. No runtime API or performance
+  claim is added.
+
 ### Added
 
 - **Deterministic adversarial parser laboratory (#104 M3)** — added original,

@@ -21,6 +21,18 @@ superseded_by: null
 
 ## 2026-08-16
 
+- Started M4 from the locally qualified, unpublished M3 commit `3edbefb`.
+  M4 is test-only and counts declared Python-owned parser operations across
+  fixed size-scaled synthetic families. It treats platform-labelled elapsed
+  time and process high-water memory as non-gating observations only, preserves
+  #87 and #111 ownership boundaries, and does not add a runtime hook or API.
+- Locally qualified M4 code commit `65275cd`: each non-exception operation now
+  has its own `2.5x` growth gate, so a growing counter cannot be hidden by the
+  aggregate vector; bounded receipts carry their actual timeout in both data and
+  replay command. Targeted lint, type, and 64-test regression checks passed.
+  The optional RSS probe degrades safely on platforms without the Unix-only
+  `resource` module. This is local evidence only; the exact final review and
+  every publication gate remain separate.
 - Started the M3 parser-assurance laboratory from `main@5b0a73e` after
   [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161)
   merged M1. M3 is explicitly test-only: deterministic original generators,
