@@ -65,7 +65,7 @@ superseded_by: null
   of M3 [PR #162](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/162),
   M4 [PR #163](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/163),
   and M2 [PR #164](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/164).
-  M5 begins from `main@27d0061`; local implementation head `826aad7` is
+  M5 begins from `main@27d0061`; local implementation head `41486b3` is
   retained as a delivery checkpoint only. Exact-head qualification, independent
   review, hosted checks, PR, merge, and release remain separate gates.
 

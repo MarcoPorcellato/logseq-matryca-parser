@@ -33,7 +33,7 @@ bounded adversarial laboratory; M4 remains a Python-native, test-only,
 deterministic work model. Neither expands #103, #87, or #111 ownership or
 constitutes a release claim.
 
-M5 is in delivery from local implementation head `826aad7` on
+M5 is in delivery from local implementation head `41486b3` on
 `agent/parser-privacy-assurance-m5`, based on `main@27d0061`. It adds an
 optional aggregate-only local assurance CLI with a fresh worker, file/byte/time
 bounds, symlink rejection, ordinary-socket denial, safe report validation, and

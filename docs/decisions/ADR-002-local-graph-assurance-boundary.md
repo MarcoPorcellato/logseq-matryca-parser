@@ -93,7 +93,8 @@ or vault mutation is part of its contract.
 - Initial implementation commit `4f0342d` adds the isolated worker, CLI entry
   point, and project-owned synthetic self-test. Follow-up commit `826aad7`
   validates every nested report field against the fixed schema, rejects unknown
-  finding codes, and rechecks the total byte bound during reads.
+  finding codes, and rechecks the total byte bound during reads. Current local
+  head `41486b3` also rejects invalid direct runtime-limit values.
 - Focused tests cover content-free reports, symlink rejection, file limits,
   socket denial, CLI self-test behavior, and misuse rejection.
 - Full repository qualification remains a separate exact-head gate for the
