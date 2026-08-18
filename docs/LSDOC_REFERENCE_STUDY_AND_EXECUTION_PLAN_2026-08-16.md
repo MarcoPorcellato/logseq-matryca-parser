@@ -8,15 +8,15 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-16
-verified: 2026-08-16
+last_verified: 2026-08-18
+verified: 2026-08-18
 stale_after: 2026-11-14
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
 superseded_by: null
 parent_plan: docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md
-source_commit: 5b0a73eb052cdbfb624b016223545c693fd6d40e
+source_commit: 27d006153e45f2c4ae37ca03136114fb8246ac88
 reference_commit: c79cb059da5b4360ebde2e5fd953fa1f43ddabc3
 ---
 
@@ -52,8 +52,8 @@ Markdown source-of-truth model.
 
 | Item | Verified state | Evidence |
 |---|---|---|
-| Source repository | `MarcoPorcellato/logseq-matryca-parser` | `origin/main` fetched 2026-08-16 |
-| Source base | `5b0a73eb052cdbfb624b016223545c693fd6d40e` | live `origin/main` verified on 2026-08-16 after [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161) merged |
+| Source repository | `MarcoPorcellato/logseq-matryca-parser` | `origin/main` fetched 2026-08-18 |
+| Source base | `27d006153e45f2c4ae37ca03136114fb8246ac88` | live `origin/main` verified on 2026-08-18 after M2–M4 PRs merged |
 | Source license | Apache License 2.0 | [`LICENSE`](../LICENSE) |
 | Reference repository | `martinkoutecky/lsdoc` release `v0.5.5` | [reference commit `c79cb059`](https://github.com/martinkoutecky/lsdoc/commit/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3) |
 | Reference license | `AGPL-3.0-only` | [`Cargo.toml`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/Cargo.toml) and [`LICENSE`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/LICENSE) |
@@ -62,7 +62,8 @@ Markdown source-of-truth model.
 | Existing delivery anchors | #87, #103, #104, #108, #111 are open; #106 and #113 are closed | live GitHub issue reads on 2026-08-16 |
 | Local implementation checkpoint | `8806205c35b104ed65d00a273acc9eeca572ae38` | clean local commit on `agent/parser-assurance-m1`; exact-head tests passed, but independent oracle review rejected publication |
 | M1 delivery | merged | [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161) merged the project-owned compatibility-corpus foundation; it remains only the first #104 tranche |
-| Current milestone | M2 decision recorded; M4 locally qualified | [ADR-001](decisions/ADR-001-external-oracle-boundary.md) records a negative external-oracle decision. M4 code commit `65275cd` and evidence head `19ac996` remain locally qualified test-only work; no publication claim |
+| M2–M4 delivery | merged | M3 [PR #162](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/162), M4 [PR #163](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/163), and M2 [PR #164](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/164) are in `main` as `172be70`, `5d38e01`, and `98bc5aa` respectively |
+| Current milestone | M5 in delivery | Local code head `826aad7` on `agent/parser-privacy-assurance-m5`; it is not a publication, hosted-check, merge, or release claim |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
@@ -579,12 +580,12 @@ converted into a pass or silently added to an allowlist.
 
 **Outcome**
 
-- Optional local command evaluates project-owned invariants and, only if a
-  superseding ADR explicitly approves adoption, differential overlap against an
-  external oracle.
-- Default behavior uploads nothing, excludes graph content from reports, bounds
-  files/bytes/time, stores only safe aggregates, and requires explicit opt-in to
-  retain minimized snippets.
+- Optional local command evaluates only project-owned invariants. It does not
+  invoke an external oracle under the accepted M2 boundary.
+- Default behavior uploads and persists nothing, excludes graph content from
+  reports, bounds files/bytes/time, and emits only a fixed aggregate schema.
+  Any future local retention of minimized snippets requires a superseding ADR,
+  explicit opt-in, and separate privacy review.
 
 **Dependencies**
 
@@ -592,8 +593,9 @@ converted into a pass or silently added to an allowlist.
 
 **Exit evidence**
 
-- Temporary synthetic vault tests; self-test; privacy review; fail-closed report
-  schema; no network operation during graph analysis.
+- Temporary synthetic-vault tests; same-worker self-test; privacy review;
+  fail-closed nested report schema; no network operation during graph analysis;
+  exact-head repository qualification and hosted checks before publication.
 
 **Impact**
 
@@ -601,7 +603,8 @@ converted into a pass or silently added to an allowlist.
 
 **Residual risk**
 
-- Even minimized snippets can be sensitive; retention remains opt-in and local.
+- Process-local socket denial is not an operating-system sandbox. Filesystem
+  races remain a residual boundary and failures expose no path detail.
 
 ### M6 — Source-location RFC and prototype
 
@@ -779,7 +782,9 @@ It must not replace the requirements in this plan.
 - [ ] #87 and #111 have complementary deterministic-work and measured-runtime
   evidence without semantic drift.
 - [ ] The privacy-safe local graph tool is delivered or explicitly rejected with
-  recorded reasons.
+  recorded reasons. A local implementation head exists at `826aad7`, but
+  exact-head qualification, independent review, hosted checks, and publication
+  remain open.
 - [ ] The source-location RFC is accepted or rejected with consumer and cost
   evidence.
 - [ ] Every #108 extraction slice is covered by the semantic and performance
@@ -813,3 +818,5 @@ Completion is unproven until every applicable item has authoritative evidence.
 | 2026-08-16 | M1 / PR #161 | merged | [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161) merged the first #104 compatibility-corpus tranche. Historical local M1 receipts remain historical only; the live `main` base is `5b0a73e`. |
 | 2026-08-16 | M3 laboratory `3edbefb` | locally qualified, unpublished | An isolated branch from `main@5b0a73e` adds only test, workflow, and documentation changes: seven original bounded generator families, fresh-subprocess timeout classification, source-free receipts, classification- and exception-preserving minimization, structural invariants, valid-input semantic round trips, a 21-case fixed profile, and a 63-case scheduled broad profile. The exact head passed `make all`, the broad profile, and final Sol review. No public API, runtime dependency, #103, #111/#87, external-oracle, release, or publication claim is made. |
 | 2026-08-16 | M4 laboratory `65275cd` | locally qualified, unpublished | Added only test and documentation changes: a fixed-seed `8/16/32/64` matrix for flat blocks, deep chains, fenced continuations, and properties; a test-only parser subclass that records declared Python-owned operations; a `2.5x` independently enforced envelope for every non-exception operation; and an exact immutable-ancestor-rebuild exception for deep chains. The exact code head passed targeted lint, type, and 64-test regression checks before final qualification. Receipts include source hashes, actual bounded mode and timeout replay commands, semantic/structural gates, and platform-labelled diagnostic observations only. The optional RSS probe is unavailable-safe on platforms without the Unix `resource` module. No `src/`, package, dependency, #87, #111, #103, external-oracle, release, or publication claim changed; final full-patch Sol review remains required. |
+| 2026-08-18 | M2–M4 controlled publication | merged | M3, M4, and M2 merged through [PR #162](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/162), [PR #163](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/163), and [PR #164](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/164), yielding `main` commits `172be70`, `5d38e01`, and `98bc5aa`. This updates the delivery state only; it does not close #104, #103, #87, #111, or #108. |
+| 2026-08-18 | M5 local graph assurance `826aad7` | local implementation checkpoint | An isolated branch based on `main@27d0061` adds a fresh-worker `assure` CLI command, file/byte/timeout bounds, symlink rejection, ordinary-socket denial, project-owned structure and reference checks, a fixed aggregate-only report schema, and a synthetic self-test. The current head also validates nested report fields, rejects unknown finding codes, and rechecks the total byte bound while reading. It remains local only; exact-head qualification, independent review, hosted checks, PR, merge, and release remain separate gates. |

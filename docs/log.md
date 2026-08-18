@@ -51,6 +51,23 @@ superseded_by: null
   a validated immutable commit. The checksum contract was also exercised in
   both its internal `dist/` layout and the flat public-download layout. Hosted
   workflow, settings, and release receipts remain separate gates.
+## 2026-08-18
+
+- Recorded [ADR-002](decisions/ADR-002-local-graph-assurance-boundary.md) and
+  the [local graph assurance reference](reference/LOCAL_GRAPH_ASSURANCE.md) for
+  M5. The optional `matryca-parse assure` command is bounded and local-only: it
+  emits a fixed aggregate report, does not persist or upload vault data, rejects
+  encountered symlinks, and uses only project-owned parser invariants. The
+  process-local socket guard is explicitly not represented as an operating-
+  system sandbox; no external-oracle, performance, release, or issue-closure
+  claim is made.
+- Updated the parser-assurance plan and persistent goal after controlled merges
+  of M3 [PR #162](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/162),
+  M4 [PR #163](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/163),
+  and M2 [PR #164](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/164).
+  M5 begins from `main@27d0061`; local implementation head `826aad7` is
+  retained as a delivery checkpoint only. Exact-head qualification, independent
+  review, hosted checks, PR, merge, and release remain separate gates.
 
 ## 2026-08-16
 

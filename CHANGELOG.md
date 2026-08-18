@@ -28,6 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Pull-request dependency review and scheduled Scorecard** — added SHA-pinned,
   least-privilege workflows for newly introduced vulnerabilities and OpenSSF
   Scorecard SARIF monitoring.
+- **Privacy-safe local graph assurance (M5)** — add `matryca-parse assure`, an
+  optional bounded local check that runs in a fresh worker, rejects symlinks,
+  limits files/bytes/time, denies ordinary socket entry points, and returns a
+  fixed aggregate-only JSON report. It does not upload, persist, or emit vault
+  content, paths, titles, UUIDs, exception text, or host names. This is not an
+  external-parser, performance, or release-qualification claim.
 - **Deterministic adversarial parser laboratory (#104 M3)** — added original,
   bounded generators for parser depth, malformed fences, escapes and delimiters,
   properties and references, Unicode/newline variants, large lines, and strict

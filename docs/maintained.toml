@@ -38,6 +38,7 @@ maintained_documents = [
   "docs/decisions/ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md",
   "docs/decisions/ADR-0003-AAIF-SUBMISSION-GATE.md",
   "docs/decisions/ADR-001-external-oracle-boundary.md",
+  "docs/decisions/ADR-002-local-graph-assurance-boundary.md",
   "docs/reference/index.md",
   "docs/reference/AGENT_ACTION_CONTRACT.md",
   "docs/reference/API_STABILITY.md",
@@ -45,6 +46,7 @@ maintained_documents = [
   "docs/reference/DEPENDENCY_LICENSE_POLICY.md",
   "docs/reference/DIAGNOSTICS.md",
   "docs/reference/FILESYSTEM_SAFETY.md",
-  "docs/security/DAILY_METRICS_THREAT_MODEL.md",
+   "docs/security/DAILY_METRICS_THREAT_MODEL.md",
+   "docs/reference/LOCAL_GRAPH_ASSURANCE.md",
   "docs/log.md",
 ]

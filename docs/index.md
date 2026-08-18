@@ -53,6 +53,7 @@ navigation layers only.
 | [Reference index](reference/index.md) | Provenance and external relations |
 | [Structured diagnostics](reference/DIAGNOSTICS.md) | Stable diagnostic schema, codes, path safety, rendering, and escalation |
 | [Filesystem safety](reference/FILESYSTEM_SAFETY.md) | Vault containment, atomic write, dry-run, metadata, and asset-read policy |
+| [Local graph assurance](reference/LOCAL_GRAPH_ASSURANCE.md) | Bounded aggregate-only vault checks with no report persistence or network operation |
 | [Documentation log](log.md) | Chronology of maintained knowledge changes |
 
 ## Root governance and support
