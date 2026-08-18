@@ -24,6 +24,11 @@ from logseq_matryca_parser.kinetic import (
     app,
     console,
 )
+from logseq_matryca_parser.local_graph_assurance import (
+    AssuranceLimits,
+    run_local_graph_assurance,
+    run_local_graph_assurance_self_test,
+)
 from logseq_matryca_parser.logos_core import LogseqPage
 
 
@@ -175,6 +180,42 @@ def scan(
         console.print("")
         console.print(_build_broken_references_table(broken_diagnostics))
         raise typer.Exit(code=1)
+
+
+@app.command("assure")
+def assure(
+    ctx: typer.Context,
+    graph_path: Path | None = typer.Argument(
+        None,
+        help="Path to the Logseq graph root.",
+    ),
+    self_test: bool = typer.Option(
+        False,
+        "--self-test",
+        help="Run the same worker against a temporary project-owned synthetic vault.",
+    ),
+    max_files: int = typer.Option(10_000, "--max-files", min=1),
+    max_total_bytes: int = typer.Option(128 * 1024 * 1024, "--max-total-bytes", min=1),
+    max_file_bytes: int = typer.Option(8 * 1024 * 1024, "--max-file-bytes", min=1),
+    timeout_seconds: float = typer.Option(30.0, "--timeout-seconds", min=0.1),
+) -> None:
+    """Run bounded local graph assurance and print a content-free JSON report."""
+    if self_test and graph_path is not None:
+        print("Do not pass a graph path with --self-test.", file=sys.stderr)
+        raise typer.Exit(code=1)
+    limits = AssuranceLimits(
+        max_files=max_files,
+        max_total_bytes=max_total_bytes,
+        max_file_bytes=max_file_bytes,
+        timeout_seconds=timeout_seconds,
+    )
+    report = (
+        run_local_graph_assurance_self_test(limits)
+        if self_test
+        else run_local_graph_assurance(_resolve_graph_path(ctx, graph_path), limits)
+    )
+    typer.echo(json.dumps(report, indent=2, sort_keys=True))
+    raise typer.Exit(code=0 if report["status"] == "passed" else 1)
 
 
 @app.command()
