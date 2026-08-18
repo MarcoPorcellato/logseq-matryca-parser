@@ -40,10 +40,6 @@ def main(
         None,
         "--graph",
         help="Default Logseq graph root (used when a command omits the positional graph path).",
-        exists=True,
-        file_okay=False,
-        dir_okay=True,
-        readable=True,
     ),
 ) -> None:
     """Matryca KINETIC — deterministic Logseq graph tooling."""

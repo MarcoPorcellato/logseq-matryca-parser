@@ -32,6 +32,14 @@ from logseq_matryca_parser.local_graph_assurance import (
 from logseq_matryca_parser.logos_core import LogseqPage
 
 
+def _resolve_assurance_graph_path(ctx: typer.Context, graph_path: Path | None) -> Path | None:
+    """Return an assurance input path without putting it into operator output."""
+    if graph_path is not None:
+        return graph_path.expanduser()
+    default_graph = ctx.obj.get("graph") if isinstance(ctx.obj, dict) else None
+    return Path(str(default_graph)).expanduser() if default_graph is not None else None
+
+
 def _build_stats_table(pages: list[LogseqPage]) -> Table:
     total_blocks = 0
     total_tags = 0
@@ -212,7 +220,7 @@ def assure(
     report = (
         run_local_graph_assurance_self_test(limits)
         if self_test
-        else run_local_graph_assurance(_resolve_graph_path(ctx, graph_path), limits)
+        else run_local_graph_assurance(_resolve_assurance_graph_path(ctx, graph_path), limits)
     )
     typer.echo(json.dumps(report, indent=2, sort_keys=True))
     raise typer.Exit(code=0 if report["status"] == "passed" else 1)

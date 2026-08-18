@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import socket
 from pathlib import Path
 
@@ -88,6 +89,19 @@ def test_assurance_fails_closed_on_declared_file_limits(tmp_path: Path) -> None:
     assert _finding_codes(report) == {"vault.max_files_exceeded"}
 
 
+def test_assurance_detects_page_title_collisions_without_disclosing_titles(tmp_path: Path) -> None:
+    root = _vault(tmp_path)
+    (root / "pages" / "Private Daily.md").write_text("- page entry\n", encoding="utf-8")
+    (root / "journals" / "Private Daily.md").write_text("- journal entry\n", encoding="utf-8")
+
+    report = run_local_graph_assurance(root)
+    encoded = json.dumps(report, sort_keys=True)
+
+    assert report["status"] == "findings"
+    assert "graph.page_title_collision" in _finding_codes(report)
+    assert "Private Daily" not in encoded
+
+
 def test_assurance_rechecks_total_bytes_while_reading(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -112,6 +126,8 @@ def test_assurance_rechecks_total_bytes_while_reading(
         {"max_total_bytes": "1024"},
         {"max_file_bytes": 0},
         {"timeout_seconds": True},
+        {"timeout_seconds": math.inf},
+        {"timeout_seconds": math.nan},
     ],
 )
 def test_limits_reject_invalid_runtime_values(limits: dict[str, object]) -> None:
@@ -152,3 +168,14 @@ def test_assure_cli_rejects_graph_path_with_self_test(tmp_path: Path) -> None:
 
     assert result.exit_code == 1
     assert "Do not pass a graph path" in result.output
+
+
+@pytest.mark.parametrize("arguments", [["assure"], ["--graph", "/private/vault", "assure"]])
+def test_assure_cli_invalid_input_returns_safe_json_without_a_path(arguments: list[str]) -> None:
+    result = runner.invoke(app, arguments)
+
+    assert result.exit_code == 1
+    report = json.loads(result.output)
+    assert report["status"] == "error"
+    assert _finding_codes(report) == {"vault.invalid_root"}
+    assert "/private/vault" not in result.output

@@ -8,6 +8,7 @@ paths, page titles, UUIDs, Markdown, snippets, exception text, or host names.
 from __future__ import annotations
 
 import json
+import math
 import multiprocessing
 import os
 import platform
@@ -24,6 +25,7 @@ from typing import Any
 
 from logseq_matryca_parser.logos_core import LogseqNode
 from logseq_matryca_parser.logos_parser import StackMachineParser
+from logseq_matryca_parser.logseq_paths import derive_page_title_from_source_path
 
 REPORT_SCHEMA_VERSION = 1
 
@@ -82,8 +84,9 @@ class AssuranceLimits:
             not isinstance(self.timeout_seconds, (int, float))
             or isinstance(self.timeout_seconds, bool)
             or self.timeout_seconds <= 0
+            or not math.isfinite(self.timeout_seconds)
         ):
-            raise ValueError("timeout_seconds must be positive")
+            raise ValueError("timeout_seconds must be positive and finite")
 
 
 def _report(limits: AssuranceLimits, status: str = "passed") -> dict[str, object]:
@@ -254,7 +257,7 @@ def _assure(root_text: str, limits: AssuranceLimits) -> dict[str, object]:
     all_ids: set[str] = set()
     references: list[str] = []
     bytes_read = 0
-    for index, path in enumerate(paths):
+    for path in paths:
         raw = _read_regular_file(root, path, limits.max_file_bytes)
         if raw is None:
             return _failed(limits, "error", "vault.file_changed_or_unreadable")
@@ -262,7 +265,9 @@ def _assure(root_text: str, limits: AssuranceLimits) -> dict[str, object]:
         if bytes_read > limits.max_total_bytes:
             return _failed(limits, "limit_exceeded", "vault.max_total_bytes_exceeded")
         try:
-            page = StackMachineParser().parse(raw.decode("utf-8-sig"), page_title=f"m5-{index}")
+            page = StackMachineParser().parse(
+                raw.decode("utf-8-sig"), page_title=derive_page_title_from_source_path(path)
+            )
         except UnicodeDecodeError:
             report["status"] = "findings"
             _finding(report, "parse.invalid_utf8")
@@ -364,7 +369,12 @@ def _safe_report(value: object) -> bool:
         if not isinstance(limits[key], int) or isinstance(limits[key], bool) or limits[key] < 1:
             return False
     timeout = limits["timeout_seconds"]
-    if not isinstance(timeout, (int, float)) or isinstance(timeout, bool) or timeout <= 0:
+    if (
+        not isinstance(timeout, (int, float))
+        or isinstance(timeout, bool)
+        or timeout <= 0
+        or not math.isfinite(timeout)
+    ):
         return False
 
     observed = value.get("observed")
@@ -408,10 +418,12 @@ def _json_safe(value: object) -> bool:
 
 
 def run_local_graph_assurance(
-    graph_path: Path, limits: AssuranceLimits | None = None
+    graph_path: Path | None, limits: AssuranceLimits | None = None
 ) -> dict[str, object]:
     """Run assurance in a fresh local worker and return the safe report only."""
     selected = limits or AssuranceLimits()
+    if graph_path is None:
+        return _failed(selected, "error", "vault.invalid_root")
     context = multiprocessing.get_context("spawn")
     result_queue: Any = context.Queue(maxsize=1)
     process = context.Process(
