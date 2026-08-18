@@ -208,7 +208,8 @@ def assure(
     timeout_seconds: float = typer.Option(30.0, "--timeout-seconds", min=0.1),
 ) -> None:
     """Run bounded local graph assurance and print a content-free JSON report."""
-    if self_test and graph_path is not None:
+    selected_graph_path = _resolve_assurance_graph_path(ctx, graph_path)
+    if self_test and selected_graph_path is not None:
         print("Do not pass a graph path with --self-test.", file=sys.stderr)
         raise typer.Exit(code=1)
     limits = AssuranceLimits(
@@ -220,7 +221,7 @@ def assure(
     report = (
         run_local_graph_assurance_self_test(limits)
         if self_test
-        else run_local_graph_assurance(_resolve_assurance_graph_path(ctx, graph_path), limits)
+        else run_local_graph_assurance(selected_graph_path, limits)
     )
     typer.echo(json.dumps(report, indent=2, sort_keys=True))
     raise typer.Exit(code=0 if report["status"] == "passed" else 1)

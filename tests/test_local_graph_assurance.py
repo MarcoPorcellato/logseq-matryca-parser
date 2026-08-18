@@ -78,6 +78,17 @@ def test_assurance_rejects_a_symlink_before_reading_target(tmp_path: Path) -> No
     assert _finding_codes(report) == {"vault.symlink_rejected"}
 
 
+def test_assurance_rejects_a_dangling_root_directory_symlink(tmp_path: Path) -> None:
+    root = tmp_path / "vault"
+    root.mkdir()
+    (root / "pages").symlink_to(root / "missing-pages", target_is_directory=True)
+
+    report = run_local_graph_assurance(root)
+
+    assert report["status"] == "findings"
+    assert _finding_codes(report) == {"vault.root_directory_rejected"}
+
+
 def test_assurance_fails_closed_on_declared_file_limits(tmp_path: Path) -> None:
     root = _vault(tmp_path)
     (root / "pages" / "One.md").write_text("- one\n", encoding="utf-8")
@@ -153,6 +164,24 @@ def test_safe_report_rejects_nested_extra_fields_and_unknown_codes() -> None:
     findings.append({"code": "do-not-disclose", "count": 1})
     assert not _safe_report(report)
 
+    report = run_local_graph_assurance_self_test()
+    runtime = report["runtime"]
+    assert isinstance(runtime, dict)
+    runtime["platform"] = "private-vault-content"
+    assert not _safe_report(report)
+
+    report = run_local_graph_assurance_self_test()
+    limits = report["limits"]
+    assert isinstance(limits, dict)
+    limits["max_files"] = 1
+    assert not _safe_report(report, expected_limits=AssuranceLimits())
+
+    report = run_local_graph_assurance_self_test()
+    findings = report["findings"]
+    assert isinstance(findings, list)
+    findings.append({"code": "runner.no_report", "count": 1})
+    assert not _safe_report(report)
+
 
 def test_assure_cli_emits_safe_json_for_self_test() -> None:
     result = runner.invoke(app, ["assure", "--self-test"])
@@ -164,7 +193,13 @@ def test_assure_cli_emits_safe_json_for_self_test() -> None:
 
 
 def test_assure_cli_rejects_graph_path_with_self_test(tmp_path: Path) -> None:
-    result = runner.invoke(app, ["assure", str(_vault(tmp_path)), "--self-test"])
+    root = _vault(tmp_path)
+    result = runner.invoke(app, ["assure", str(root), "--self-test"])
+
+    assert result.exit_code == 1
+    assert "Do not pass a graph path" in result.output
+
+    result = runner.invoke(app, ["--graph", str(root), "assure", "--self-test"])
 
     assert result.exit_code == 1
     assert "Do not pass a graph path" in result.output
@@ -179,3 +214,20 @@ def test_assure_cli_invalid_input_returns_safe_json_without_a_path(arguments: li
     assert report["status"] == "error"
     assert _finding_codes(report) == {"vault.invalid_root"}
     assert "/private/vault" not in result.output
+
+
+@pytest.mark.parametrize("use_global_option", [False, True])
+def test_assure_cli_symlink_loop_returns_safe_json(
+    tmp_path: Path, use_global_option: bool
+) -> None:
+    loop = tmp_path / "private-vault-loop"
+    loop.symlink_to(loop, target_is_directory=True)
+    arguments = ["--graph", str(loop), "assure"] if use_global_option else ["assure", str(loop)]
+
+    result = runner.invoke(app, arguments)
+
+    assert result.exit_code == 1
+    report = json.loads(result.output)
+    assert report["status"] == "error"
+    assert _finding_codes(report) == {"vault.invalid_root"}
+    assert str(loop) not in result.output

@@ -45,7 +45,7 @@ def main(
     """Matryca KINETIC — deterministic Logseq graph tooling."""
     ctx.ensure_object(dict)
     ctx.obj["verbose"] = verbose
-    ctx.obj["graph"] = graph.resolve() if graph is not None else None
+    ctx.obj["graph"] = graph.expanduser() if graph is not None else None
     if verbose:
         logging.getLogger("logseq_matryca_parser").setLevel(logging.DEBUG)
 

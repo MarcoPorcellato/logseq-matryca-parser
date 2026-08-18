@@ -103,10 +103,15 @@ def _report(limits: AssuranceLimits, status: str = "passed") -> dict[str, object
             "block_references": 0,
         },
         "findings": [],
-        "runtime": {
-            "python": f"{sys.version_info.major}.{sys.version_info.minor}",
-            "platform": platform.system().lower(),
-        },
+        "runtime": _runtime_metadata(),
+    }
+
+
+def _runtime_metadata() -> dict[str, str]:
+    """Return the only coarse runtime labels allowed in a public report."""
+    return {
+        "python": f"{sys.version_info.major}.{sys.version_info.minor}",
+        "platform": platform.system().lower(),
     }
 
 
@@ -169,9 +174,12 @@ def _walk_markdown(root: Path, limits: AssuranceLimits, report: dict[str, object
 
     for name in ("pages", "journals"):
         folder = root / name
+        if folder.is_symlink():
+            report.update(_failed(limits, "findings", "vault.root_directory_rejected"))
+            return []
         if not folder.exists():
             continue
-        if folder.is_symlink() or not folder.is_dir():
+        if not folder.is_dir():
             report.update(_failed(limits, "findings", "vault.root_directory_rejected"))
             return []
         if not visit(folder):
@@ -344,7 +352,7 @@ def _worker(root: str, limits: AssuranceLimits, result_queue: Any) -> None:
         result_queue.put(_failed(limits, "error", "runner.unexpected_failure"))
 
 
-def _safe_report(value: object) -> bool:
+def _safe_report(value: object, expected_limits: AssuranceLimits | None = None) -> bool:
     if not isinstance(value, dict) or set(value) != {
         "schema_version",
         "status",
@@ -364,6 +372,8 @@ def _safe_report(value: object) -> bool:
         return False
     limits = value.get("limits")
     if not isinstance(limits, dict) or set(limits) != _LIMIT_KEYS:
+        return False
+    if expected_limits is not None and limits != asdict(expected_limits):
         return False
     for key in ("max_files", "max_total_bytes", "max_file_bytes"):
         if not isinstance(limits[key], int) or isinstance(limits[key], bool) or limits[key] < 1:
@@ -387,17 +397,15 @@ def _safe_report(value: object) -> bool:
         return False
 
     runtime = value.get("runtime")
-    if (
-        not isinstance(runtime, dict)
-        or set(runtime) != _RUNTIME_KEYS
-        or not all(isinstance(part, str) for part in runtime.values())
-    ):
+    if not isinstance(runtime, dict) or set(runtime) != _RUNTIME_KEYS:
+        return False
+    if runtime != _runtime_metadata():
         return False
 
     findings = value.get("findings")
     if not isinstance(findings, list):
         return False
-    return all(
+    if not all(
         isinstance(item, dict)
         and set(item) == {"code", "count"}
         and isinstance(item["code"], str)
@@ -406,7 +414,12 @@ def _safe_report(value: object) -> bool:
         and not isinstance(item["count"], bool)
         and item["count"] > 0
         for item in findings
-    ) and _json_safe(value)
+    ):
+        return False
+    status = value["status"]
+    if (status == "passed") != (not findings):
+        return False
+    return _json_safe(value)
 
 
 def _json_safe(value: object) -> bool:
@@ -427,7 +440,7 @@ def run_local_graph_assurance(
     context = multiprocessing.get_context("spawn")
     result_queue: Any = context.Queue(maxsize=1)
     process = context.Process(
-        target=_worker, args=(str(graph_path.expanduser().resolve()), selected, result_queue)
+        target=_worker, args=(str(graph_path.expanduser()), selected, result_queue)
     )
     process.start()
     process.join(selected.timeout_seconds)
@@ -442,7 +455,11 @@ def run_local_graph_assurance(
     finally:
         result_queue.close()
         result_queue.join_thread()
-    return result if _safe_report(result) else _failed(selected, "error", "runner.invalid_report")
+    return (
+        result
+        if _safe_report(result, expected_limits=selected)
+        else _failed(selected, "error", "runner.invalid_report")
+    )
 
 
 def run_local_graph_assurance_self_test(limits: AssuranceLimits | None = None) -> dict[str, object]:
