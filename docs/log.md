@@ -21,6 +21,14 @@ superseded_by: null
 
 ## 2026-08-16
 
+- Started the M3 parser-assurance laboratory from `main@5b0a73e` after
+  [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161)
+  merged M1. M3 is explicitly test-only: deterministic original generators,
+  source-free replay receipts, subprocess no-hang classification,
+  classification-preserving minimization, structural invariants, valid-case
+  semantic round trips, a fixed local subset, and a separately scheduled broad
+  profile. It does not claim #103 incremental/cold-load equivalence, #111/#87
+  performance evidence, external-oracle parity, a public API, or a release.
 - Recorded the second frozen Sol review on
   `5007dc357e05775c6221c8aa84f9a11edc695e0d` as `NEEDS_CORRECTION`: mixed
   backtick runs still caused an authentic content wikilink to be removed, and

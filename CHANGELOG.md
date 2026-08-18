@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Deterministic adversarial parser laboratory (#104 M3)** — added original,
+  bounded generators for parser depth, malformed fences, escapes and delimiters,
+  properties and references, Unicode/newline variants, large lines, and strict
+  unresolved references. Each case runs in a fresh subprocess with a parent
+  timeout, safe replay receipt, classification-preserving minimization, tree
+  invariants, and semantic round-trip checks for valid inputs. The fixed profile
+  runs with the ordinary suite; an offline scheduled broad profile expands only
+  deterministic seeds and case counts. No parser runtime, public API, package
+  dependency, #103 snapshot-equivalence, or #111 performance claim changes.
 - **Parser compatibility corpus foundation (#104-A)** — added six original,
   offline Apache-2.0 fixtures with source hashes and strict provenance, schema,
   parser-configuration, behavior, diagnostics, and identity-policy metadata;
