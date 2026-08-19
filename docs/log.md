@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-16
-verified: 2026-08-16
+last_verified: 2026-08-19
+verified: 2026-08-19
 stale_after: 2027-02-12
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,14 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-08-19
+
+- Published the evidence-backed [GitHub and AAIF repository readiness study](REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md), covering governance, security, documentation, agent interoperability, AAIF alignment, and a cost-aware implementation roadmap. The study records current local evidence, separates verified facts from unknown remote settings, and leaves GitHub mutation for a later execution phase.
+- Added the first lightweight governance, maintainer, support, citation, and
+  AI-assisted contribution surfaces. These documents describe the current
+  single-maintainer model and human accountability without claiming unverified
+  GitHub settings, AAIF membership, or multi-organization governance.
 
 ## 2026-08-16
 

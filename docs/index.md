@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-06
-verified: 2026-08-06
-stale_after: 2027-02-02
+last_verified: 2026-08-19
+verified: 2026-08-19
+stale_after: 2027-02-19
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -31,8 +31,10 @@ navigation layers only.
 | [AI agent guide](../AGENTS.md) | Product map, execution contract, safety boundaries, and repository gates |
 | [LLM discovery index](../llms.txt) | Concise standard-format project and capability map for inference-time discovery |
 | [Documentation system](DOCUMENTATION_SYSTEM.md) | Canonical governance, lifecycle, metadata, and federation guide |
+| [AI contribution policy](AI_CONTRIBUTION_POLICY.md) | Human accountability, privacy, disclosure, and review rules for AI-assisted work |
 | [Architecture](CLEAN_CODE_ARCHITECTURE.md) | Canonical architecture and public graph API |
 | [Repository roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Current evidence-backed improvement plan |
+| [GitHub and AAIF readiness study](REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md) | Governance, supply-chain, agent, and AAIF-readiness study |
 | [Parser assurance extension](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | License-safe comparative study and dependency-ordered semantic and complexity plan |
 | [README readability report](README_READABILITY_REPORT_2026-08-08.md) | Measured human and AI readability assessment and phased proposal |
 | [Issue reconciliation](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Current GitHub backlog decisions |
@@ -41,6 +43,15 @@ navigation layers only.
 | [Structured diagnostics](reference/DIAGNOSTICS.md) | Stable diagnostic schema, codes, path safety, rendering, and escalation |
 | [Filesystem safety](reference/FILESYSTEM_SAFETY.md) | Vault containment, atomic write, dry-run, metadata, and asset-read policy |
 | [Documentation log](log.md) | Chronology of maintained knowledge changes |
+
+## Root governance and support
+
+| Resource | Role |
+|---|---|
+| [Governance](../GOVERNANCE.md) | Decision classes, review authority, conflicts, and succession |
+| [Maintainers](../MAINTAINERS.md) | Current ownership and maintainer path |
+| [Support](../SUPPORT.md) | Public support scope, safe issue reports, and boundaries |
+| [Citation metadata](../CITATION.cff) | Machine-readable software citation record |
 
 ## Quality claim
 

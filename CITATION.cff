@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use Logseq Matryca Parser in your research or software, please cite this project."
+type: software
+title: "Logseq Matryca Parser"
+abstract: "Deterministic parsing of Logseq Markdown into a typed AST and in-memory graph."
+authors:
+  - family-names: Porcellato
+    given-names: Marco
+    email: marco@matryca.ai
+    affiliation: Matryca.ai
+version: 1.7.1
+date-released: 2026-08-08
+repository-code: "https://github.com/MarcoPorcellato/logseq-matryca-parser"
+url: "https://github.com/MarcoPorcellato/logseq-matryca-parser"
+license: Apache-2.0
+keywords:
+  - Logseq
+  - Markdown
+  - parser
+  - abstract syntax tree
+  - knowledge graph
+  - retrieval augmented generation

@@ -24,6 +24,8 @@ User-facing behavior is documented in:
 - [`docs/COOKBOOK.md`](docs/COOKBOOK.md) — integration recipes (Synapse, graph query, watcher)
 - [`docs/README.md`](docs/README.md) — documentation index (active vs historical)
 - [`docs/DOCUMENTATION_SYSTEM.md`](docs/DOCUMENTATION_SYSTEM.md) — documentation authority, metadata, lifecycle, validation, and federation workflow
+- [`docs/AI_CONTRIBUTION_POLICY.md`](docs/AI_CONTRIBUTION_POLICY.md) — AI assistance disclosure, privacy, and human review requirements
+- [`GOVERNANCE.md`](GOVERNANCE.md) · [`MAINTAINERS.md`](MAINTAINERS.md) · [`SUPPORT.md`](SUPPORT.md) — project decisions, ownership, and support boundaries
 - [`docs/rfc/OLLAMA_RAG.md`](docs/rfc/OLLAMA_RAG.md) — draft RFC for Ollama local RAG ([#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34))
 - [`docs/quality/`](docs/quality/) — architecture backlog, GitHub roadmap (v1.6), triage
 - [`docs/internal/STATIC_ANALYSIS_POLICY.md`](docs/internal/STATIC_ANALYSIS_POLICY.md) — Ghost Tooling policy (vendor-agnostic CI and public docs)
@@ -33,6 +35,14 @@ When you add or change observable parser or graph behavior, update the relevant 
 For documentation changes, first classify the target as maintained, active,
 historical, or generated. Follow the metadata, freshness, supersession, and
 projection rules in [`docs/DOCUMENTATION_SYSTEM.md`](docs/DOCUMENTATION_SYSTEM.md).
+
+### AI-assisted contributions
+
+AI tools may help with exploration, drafting, tests, or review, but the human
+contributor remains responsible for the submitted work. Follow the full
+[`AI-assisted contribution policy`](docs/AI_CONTRIBUTION_POLICY.md): disclose
+meaningful assistance, never upload private vault data or credentials, and
+verify the complete diff with deterministic checks.
 
 ### Repository language
 
