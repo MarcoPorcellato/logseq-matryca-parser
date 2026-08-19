@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # Bug Hunt Report — logseq-matryca-parser
 
 **Date:** 2026-06-23 (audit) · **Resolution:** 2026-06-23

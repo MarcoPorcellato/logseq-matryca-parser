@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # 📜 Architectural Contract: Synthetic UUID Hardening & Graph Orchestration Module
 **Contract Status:** Completed (Autonomous Execution)
 

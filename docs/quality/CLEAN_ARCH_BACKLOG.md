@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # Clean Architecture — Residual Backlog
 
 **Status:** 2026-07-02 · post **v1.6.0** (structural v1 **complete**)  

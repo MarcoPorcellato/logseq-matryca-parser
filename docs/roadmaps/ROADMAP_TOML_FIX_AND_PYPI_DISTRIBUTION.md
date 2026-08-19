@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # Architectural Contract: TOML Hotfix, Dynamic Versioning & PyPI Distribution Setup
 
 **Contract Status:** Completed (Wave 8 — validated locally)

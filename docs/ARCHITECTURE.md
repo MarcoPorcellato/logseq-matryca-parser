@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # Logseq Matryca Parser — Architecture (The Logos Protocol)
 
 **Audience:** contributors, integrators, and operators  

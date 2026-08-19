@@ -206,6 +206,10 @@ def _validate_links(path: Path, root: Path, text: str, findings: list[Finding], 
                 findings.append(Finding(source, line_number, "DOC_ANCHOR_MISSING", f"local anchor does not exist: {raw}"))
 
 
+def _is_reserved_nested_index(relative: str, text: str) -> bool:
+    return relative.endswith("/index.md") and relative != "docs/index.md" and not text.lstrip().startswith("---")
+
+
 def check(root: Path, profile: Path, as_of: date) -> list[Finding]:
     root = root.resolve()
     documents, required = _profile(profile)
@@ -222,12 +226,15 @@ def check(root: Path, profile: Path, as_of: date) -> list[Finding]:
         if not path.is_file():
             findings.append(Finding(relative, 1, "DOC_PATH_MISSING", "maintained document is not a file"))
             continue
+        text = path.read_text(encoding="utf-8")
+        if _is_reserved_nested_index(relative, text):
+            _validate_links(path, root, text, findings, anchor_cache)
+            continue
         metadata = _frontmatter(path, root, findings)
         if metadata is None:
             continue
         source = _relative(path, root)
         _validate_metadata(metadata, source, required, as_of, findings)
-        text = path.read_text(encoding="utf-8")
         _validate_links(path, root, text, findings, anchor_cache)
         if metadata.get("classification") == "canonical" and (doc_type := metadata.get("type")):
             canonical.setdefault(doc_type, []).append(source)

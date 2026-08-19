@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # 📜 Architectural Contract: Agent-Native "Printing Press" & X-Ray Mode
 
 **Contract Status:** Wave 11 — executed (suite green)

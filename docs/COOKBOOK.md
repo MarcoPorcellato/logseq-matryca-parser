@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # Integration cookbook
 
 Copy-paste recipes for common **Logseq Matryca Parser** workflows. All snippets assume you installed the package and synced extras:
