@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # Local Code Audit — Maintainer Runbook (audit code)
 
 **Audience:** repository maintainers with a local Cursor / MCP setup  

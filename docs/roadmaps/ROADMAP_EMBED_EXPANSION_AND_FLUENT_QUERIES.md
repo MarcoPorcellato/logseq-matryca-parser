@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # Architectural Contract: Recursive Embed Transclusion & Fluent Topological Queries
 
 **Contract Status:** Wave 6 — executed (suite green)

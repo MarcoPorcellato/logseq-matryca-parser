@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # 📜 Architectural Contract: Lenient Indentation & Multiline Soft-Breaks
 **Contract Status:** Wave 9 — Implemented (lenient indent + soft-break accumulator)
 **Target Stack:** Python 3.12+ | Pydantic V2 | Pytest

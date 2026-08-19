@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # 📜 Architectural Contract: Graph-Wide Backlinks & Property Inheritance
 **Contract Status:** Complete — Wave 2 executed (autonomous implementation verified)
 **Target Stack:** Python 3.12+ | Pydantic V2 (Strict/Frozen Models) | Local-First No-DB

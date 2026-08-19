@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # 🧠 Logseq AST Primer: Understanding Spatial Markdown and the Logos Protocol
 
 To contribute to or understand the **Logos Protocol**, you must first understand the idiosyncratic nature of Logseq's data structure. 

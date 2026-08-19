@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # Release process
 
 **Logseq Matryca Parser** (The Logos Protocol · Marco Porcellato · [Matryca.ai](https://matryca.ai)) uses a **curated** [`CHANGELOG.md`](../CHANGELOG.md) (Keep a Changelog). Pushing a `v*` git tag triggers one ordered, fail-closed release workflow:

@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # RFC: Ollama one-click local RAG
 
 > **Status:** Draft placeholder — full design tracked in [GitHub issue #34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34). Contributions welcome.

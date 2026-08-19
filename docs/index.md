@@ -15,6 +15,7 @@ okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
 superseded_by: null
+okf_version: "0.2"
 ---
 
 # Logseq Matryca Parser knowledge bundle

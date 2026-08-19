@@ -1,3 +1,6 @@
+---
+type: Document
+---
 > ⚠️ **Notice:** For the active documentation index, please refer to the main [README.md](../../README.md).
 
 # Historical design documents

@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # 📜 Architectural Contract: Obsidian Vault Native Compiler
 
 **Contract Status:** Delivered (Wave 10)  

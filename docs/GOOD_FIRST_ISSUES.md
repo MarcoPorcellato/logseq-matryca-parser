@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # Good First Issues
 
 Welcome! These tasks are scoped for a **first pull request** — mostly tests and documentation, with a few small CLI/FORGE features. Each has clear acceptance criteria and avoids changes to `logos_core.py` without prior design discussion.

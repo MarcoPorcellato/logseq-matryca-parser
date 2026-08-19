@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # Issue triage — July 2026
 
 **Date:** 2026-07-02  

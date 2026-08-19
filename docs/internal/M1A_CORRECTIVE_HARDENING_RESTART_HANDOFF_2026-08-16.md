@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # M1-B post-correction pre-push handoff — 2026-08-16
 
 ## Safe resume point

@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # 📜 Architectural Contract: CLI Graph Integration & Metadata Hydration
 
 **Contract Status:** Executed (Wave 5 — green pipeline)

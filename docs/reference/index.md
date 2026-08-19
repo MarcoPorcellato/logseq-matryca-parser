@@ -1,22 +1,3 @@
----
-type: ReferenceIndex
-title: Reference and provenance index
-description: Canonical external relations and immutable provenance for maintained documentation.
-status: stable
-classification: canonical
-audience: maintainers
-owner: logseq-matryca-parser
-authority: source_repository
-execution_mode: reviewed
-last_verified: 2026-08-07
-verified: 2026-08-07
-stale_after: 2027-02-02
-okf_profile: matryca_okf_inspired_quality
-okf_spec_version: null
-supersedes: null
-superseded_by: null
----
-
 # Reference and provenance index
 
 ## Matryca relations
