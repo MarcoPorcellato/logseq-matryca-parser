@@ -92,11 +92,12 @@ not **AAIF membership**, **AAIF certification**, or **official OKF conformance**
 | Anchor | Value | Meaning |
 |---|---|---|
 | Local branch | `agent/parser-assurance-m1` | Active assurance branch, not `main` |
-| Local `HEAD` | `bcd8d023d2ec68ea6c934dfa922d0c357231d7cf` | Exact checkout used for local inspection |
-| Local `origin/main` ref | `27d006153e45f2c4ae37ca03136114fb8246ac88` | Cached remote-tracking ref, not freshly fetched in this run |
-| Divergence | ahead 7, behind 6 | Local branch must not be presented as public state |
-| Worktree | clean at inspection | No local changes were present before this study |
-| Remote probe | `git ls-remote` failed with DNS resolution error | Fresh public `main` verification is **Unknown** |
+| Local `HEAD` | `4737721b10eb55cd2323cdac50670ce6e106c13b` | Exact committed Luna tranche used for publication |
+| Published branch head | `4737721b10eb55cd2323cdac50670ce6e106c13b` | Fresh `git ls-remote` confirmation for `agent/parser-assurance-m1` |
+| Fresh remote `main` | `8de6f9a02d00f0a42a4f25ec07b8fb3f25dae7e5` | Exact public base observed after the push |
+| Local `origin/main` ref | `27d006153e45f2c4ae37ca03136114fb8246ac88` | Cached tracking ref; it is stale relative to the fresh remote readback |
+| Worktree | clean after commit | No uncommitted local changes remain |
+| GitHub API/settings | Unknown | `gh auth status` reports an invalid token; no settings claim is made |
 
 The exact local commands were:
 
@@ -105,12 +106,15 @@ rtk git status --short --branch
 rtk git rev-parse HEAD origin/main
 rtk git diff --check
 rtk git worktree list --porcelain
-rtk git ls-remote origin refs/heads/main
+rtk git ls-remote origin refs/heads/main refs/heads/agent/parser-assurance-m1
+rtk git push origin HEAD:agent/parser-assurance-m1
 ```
 
-The last command failed because `github.com` could not be resolved. GitHub CLI
-API reads also failed with an API connection error. This is a verification gap,
-not evidence that a remote setting is absent or present.
+The initial study probe failed because `github.com` could not be resolved. A
+later authorized push and readback succeeded for the feature branch, while
+GitHub CLI API reads still report an invalid token. Branch publication is
+verified; repository settings, rulesets, security toggles, issues, projects,
+and pull requests remain unverified.
 
 ### 3.2 Matryca Knowledge evidence
 
@@ -731,11 +735,15 @@ of writing:
 - lightweight governance, maintainer, support, citation, and AI-contribution
   documentation was added;
 - no GitHub setting was changed;
-- no issue, project, milestone, PR, commit, push, merge, release, or AAIF
-  submission was performed yet;
+- commit `4737721b10eb55cd2323cdac50670ce6e106c13b` was created locally;
+- that commit was pushed to `agent/parser-assurance-m1` and confirmed by fresh
+  `git ls-remote` readback;
+- no issue, project, milestone, pull request, merge, release, or AAIF submission
+  was performed;
 - the worktree contains only the report, its indexes, the documentation log,
   and the bounded Luna documentation tranche;
-- fresh public GitHub readback remains the first implementation gate.
+- fresh GitHub API/settings readback remains incomplete because the local GitHub
+  CLI token is invalid.
 
 The next safe action after preserving this local tranche is M0: obtain the exact
 remote receipt, compare it with this report's anchors, and update only the
