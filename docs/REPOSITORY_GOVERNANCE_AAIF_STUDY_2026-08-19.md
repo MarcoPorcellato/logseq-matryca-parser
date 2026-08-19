@@ -92,8 +92,8 @@ not **AAIF membership**, **AAIF certification**, or **official OKF conformance**
 | Anchor | Value | Meaning |
 |---|---|---|
 | Local branch | `agent/parser-assurance-m1` | Active assurance branch, not `main` |
-| Local `HEAD` | `4737721b10eb55cd2323cdac50670ce6e106c13b` | Exact committed Luna tranche used for publication |
-| Published branch head | `4737721b10eb55cd2323cdac50670ce6e106c13b` | Fresh `git ls-remote` confirmation for `agent/parser-assurance-m1` |
+| Local `HEAD` | `f04f9d2e83a34871a5aceb70197217e6226dbf53` | Exact committed Luna tranche and provenance correction |
+| Published branch head | `f04f9d2e83a34871a5aceb70197217e6226dbf53` | Fresh `git ls-remote` confirmation for `agent/parser-assurance-m1` |
 | Fresh remote `main` | `8de6f9a02d00f0a42a4f25ec07b8fb3f25dae7e5` | Exact public base observed after the push |
 | Local `origin/main` ref | `27d006153e45f2c4ae37ca03136114fb8246ac88` | Cached tracking ref; it is stale relative to the fresh remote readback |
 | Worktree | clean after commit | No uncommitted local changes remain |
@@ -735,9 +735,10 @@ of writing:
 - lightweight governance, maintainer, support, citation, and AI-contribution
   documentation was added;
 - no GitHub setting was changed;
-- commit `4737721b10eb55cd2323cdac50670ce6e106c13b` was created locally;
-- that commit was pushed to `agent/parser-assurance-m1` and confirmed by fresh
-  `git ls-remote` readback;
+- commits `4737721b10eb55cd2323cdac50670ce6e106c13b` and
+  `f04f9d2e83a34871a5aceb70197217e6226dbf53` were created locally;
+- both commits were pushed to `agent/parser-assurance-m1` and the final head was
+  confirmed by fresh `git ls-remote` readback;
 - no issue, project, milestone, pull request, merge, release, or AAIF submission
   was performed;
 - the worktree contains only the report, its indexes, the documentation log,
