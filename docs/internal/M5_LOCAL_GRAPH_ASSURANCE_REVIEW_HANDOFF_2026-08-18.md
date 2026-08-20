@@ -1,3 +1,7 @@
+---
+type: Document
+---
+
 # M5 local graph assurance pre-publication handoff — 2026-08-18
 
 ## Safe resume point
