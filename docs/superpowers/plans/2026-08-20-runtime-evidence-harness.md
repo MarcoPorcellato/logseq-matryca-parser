@@ -446,7 +446,7 @@ Run: `rtk .venv/bin/python -m tests.performance.runtime_evidence`
 
 Expected: one JSON object with five scenario entries, each available entry reporting exactly 3 warm-ups and 21 samples, and no generated Markdown, paths, titles, UUIDs, host name, or exception text. Treat observed time and RSS values as local diagnostics only.
 
-- [ ] **Step 7: Commit the executable test-only harness**
+- [x] **Step 7: Commit the executable test-only harness**
 
 ```bash
 rtk git add tests/performance/runtime_evidence.py tests/test_runtime_evidence.py
@@ -598,3 +598,16 @@ The plan contains no unbounded work item, unresolved interface, external corpus 
   `tests/test_performance_evidence_docs.py`, rather than the timing-model test
   module, so documentation navigation can evolve without expanding the
   scenario suite's runtime.
+
+### Execution record — 2026-08-20
+
+- The approved deep-graph precondition is `b5ace92`; its 1024-level graph
+  regression and the focused graph/parser qualification passed.
+- The deterministic vault, source-free receipt model, semantic runner, and
+  documentation commits are `259d3ce`, `b2c93e8`, `c554786`, and `1b6afc4`.
+- On exact committed head `1b6afc4`, the default replay command completed with
+  exit code `0`. All five scenarios were available and their semantic gates
+  passed. The source-free host-local JSON was deliberately not persisted.
+- Full local qualification passed with 679 tests, 89.46% coverage, Ruff,
+  mypy, documentation validation, terminology policy, and zero source import
+  cycles. A separate independent final review remains required before a PR.
