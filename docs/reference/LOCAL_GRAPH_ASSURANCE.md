@@ -8,8 +8,8 @@ audience: integrators
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-18
-verified: 2026-08-18
+last_verified: 2026-08-20
+verified: 2026-08-20
 stale_after: 2027-02-18
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null

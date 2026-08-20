@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-08-20
+
 ### Tests
 
 - Define and regress the existing one-based source-line contract across Unicode
@@ -31,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Pull-request dependency review and scheduled Scorecard** — added SHA-pinned,
   least-privilege workflows for newly introduced vulnerabilities and OpenSSF
   Scorecard SARIF monitoring.
-- **Privacy-safe local graph assurance (M5)** — add `matryca-parse assure`, an
+- **Privacy-safe local graph assurance (M5)** — added `matryca-parse assure`, an
   optional bounded local check that runs in a fresh worker, rejects symlinks,
   limits files/bytes/time, denies ordinary socket entry points, and returns a
   fixed aggregate-only JSON report. It does not upload, persist, or emit vault
@@ -85,6 +87,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fields; corpus bytes are forced to LF, and the snapshot generator is covered
   by the maintained mypy gate. This changes tests and tooling only, not package
   runtime behavior.
+- **Packaging metadata compatibility** — pin the Hatchling build backend to the
+  last release that emits Core Metadata 2.4 by default, keeping the published
+  wheel and source distribution accepted by the release Twine gate.
 
 ### Security
 

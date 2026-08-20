@@ -43,13 +43,13 @@ version; use `vX.Y.Z` for the git tag).
 
 - [ ] Move everything from `[Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD` in `CHANGELOG.md`
 - [ ] Leave an empty `## [Unreleased]` section at the top
-- [ ] Set `__version__ = "X.Y.Z"` in `src/logseq_matryca_parser/_version.py`; Hatchling derives package metadata from this single source
+- [ ] Set `__version__ = "X.Y.Z"` in `src/logseq_matryca_parser/_version.py`; the pinned Hatchling backend derives package metadata from this single source
 - [ ] Update `README.md`, `SECURITY.md`, and contributor-facing current-version references
 - [ ] Verify every file, command, issue disposition, and shipped capability
       named in the versioned changelog against the exact release commit
 - [ ] Run `make all` (Ruff, Mypy, documentation checks, and Pytest)
 - [ ] Run `python -m scripts.check_release_contract --tag vX.Y.Z`
-- [ ] Build wheel and sdist once locally, run `python scripts/check_wheel_contract.py path/to/wheel.whl`, `twine check`, and record SHA-256 digests
+- [ ] Build wheel and sdist once locally, run `python scripts/check_wheel_contract.py path/to/wheel.whl`, `twine check`, and record SHA-256 digests; keep the build backend pin when metadata compatibility matters
 - [ ] Review [the dependency/license policy](reference/DEPENDENCY_LICENSE_POLICY.md),
       including every direct dependency, VCS source, and version-exact override
 

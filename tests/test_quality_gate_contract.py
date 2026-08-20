@@ -86,6 +86,12 @@ def test_release_builds_once_and_orders_publication() -> None:
     assert "release-bundle/dist/*" in workflow
 
 
+def test_build_backend_pin_keeps_release_metadata_twine_compatible() -> None:
+    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+
+    assert 'requires = ["hatchling==1.30.1"]' in pyproject
+
+
 def test_release_publishes_and_verifies_supply_chain_evidence() -> None:
     workflow = (ROOT / ".github" / "workflows" / "pypi_publish.yml").read_text(
         encoding="utf-8"
