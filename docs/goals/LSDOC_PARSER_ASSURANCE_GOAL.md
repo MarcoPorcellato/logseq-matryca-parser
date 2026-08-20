@@ -76,6 +76,17 @@ and [PyPI package](https://pypi.org/project/logseq-matryca-parser/1.8.0/)
 were checked after publication. The broader #104, #103, #87, #111, and #108
 acceptance work remains open where the plan still marks it incomplete.
 
+Post-release #87 work is in delivery on a local branch and is not yet a release
+or hosted-validation claim. On source code identical to v1.8.0, a valid
+1024-level nested outline raised `RecursionError`; profiling also identified
+quadratic Pydantic ancestor copies during incremental tree construction. The
+bounded correction replaces parser-owned recursive traversals with iterative
+ones and forbids immutable ancestor rebuilding in the test-only work model. The
+new checks preserve tree order, parent and left relationships, source paths,
+and a linear model-copy budget. Local elapsed observations remain diagnostic
+only; #111 still owns vault-scale wall-time, p95, RSS, reload, search, and
+RAG-chunk benchmark evidence.
+
 The initial checkpoint `8806205c35b104ed65d00a273acc9eeca572ae38` is rejected
 pre-correction evidence. Corrective implementation
 `996c5a52b08f2670ecd80fb3f1515b65ae567465` passed local exact-head checks, but

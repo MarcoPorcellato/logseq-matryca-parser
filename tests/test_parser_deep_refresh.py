@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
+from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -77,6 +79,55 @@ def test_deep_refresh_preserves_sibling_order_and_left_pointer() -> None:
     assert second.left_id == first.uuid
     assert second.parent_id == parent.uuid
     assert second.line_end == 10
+
+
+def test_parse_handles_a_1024_node_chain_without_recursion() -> None:
+    page = StackMachineParser().parse(_nested_source(1024, []), page_title="deep-chain")
+    branch = _branch(page.root_nodes[0])
+
+    assert len(branch) == 1024
+    assert [node.indent_level for node in branch] == list(range(1024))
+    for parent, child in zip(branch, branch[1:], strict=False):
+        assert child.parent_id == parent.uuid
+        assert child.left_id is None
+
+
+def test_strict_parse_handles_a_1024_node_chain_without_recursion() -> None:
+    page = StackMachineParser(strict_refs=True).parse(
+        _nested_source(1024, []), page_title="deep-strict-chain"
+    )
+
+    assert len(_branch(page.root_nodes[0])) == 1024
+
+
+def test_deep_chain_uses_a_linear_model_copy_budget(monkeypatch: pytest.MonkeyPatch) -> None:
+    copies = 0
+    original_model_copy = LogseqNode.model_copy
+
+    def counted_model_copy(
+        node: LogseqNode, *, update: Mapping[str, Any] | None = None, deep: bool = False
+    ) -> LogseqNode:
+        nonlocal copies
+        copies += 1
+        return original_model_copy(node, update=update, deep=deep)
+
+    monkeypatch.setattr(LogseqNode, "model_copy", counted_model_copy)
+
+    StackMachineParser().parse(_nested_source(128, []), page_title="deep-copy-budget")
+
+    assert copies <= 5 * 128
+
+
+def test_parse_page_file_handles_a_1024_node_chain_without_recursion(tmp_path: Path) -> None:
+    path = tmp_path / "pages" / "deep-chain.md"
+    path.parent.mkdir()
+    path.write_text(_nested_source(1024, []), encoding="utf-8")
+
+    page = StackMachineParser().parse_page_file(path)
+    branch = _branch(page.root_nodes[0])
+
+    assert len(branch) == 1024
+    assert all(node.source_path == str(path.resolve()) for node in branch)
 
 
 @pytest.mark.parametrize(

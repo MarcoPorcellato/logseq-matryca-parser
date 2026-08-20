@@ -263,7 +263,7 @@ class InstrumentedStackMachineParser(StackMachineParser):
         root_nodes: list[LogseqNode],
         node: LogseqNode,
     ) -> LogseqNode:
-        self._add(node_attachments=1, immutable_ancestor_rebuild_steps=len(stack))
+        self._add(node_attachments=1)
         return super()._attach_node_to_parent(stack, root_nodes, node)
 
     def _refresh_node(
@@ -289,10 +289,7 @@ class InstrumentedStackMachineParser(StackMachineParser):
         root_nodes: list[LogseqNode],
         updated_node: LogseqNode,
     ) -> None:
-        self._add(
-            replacement_events=1,
-            immutable_ancestor_rebuild_steps=max(len(stack) - 1, 0),
-        )
+        self._add(replacement_events=1)
         super()._replace_stack_tail_node(stack, root_nodes, updated_node)
 
     def _normalize_indent_levels(
@@ -567,10 +564,6 @@ def run_profile(
     return tuple(evaluate_case(case) for case in cases)
 
 
-def _expected_deep_ancestor_steps(size: int) -> int:
-    return size * (size - 1) // 2
-
-
 def assert_growth_contract(receipts: Sequence[WorkReceipt]) -> None:
     """Reject unexplained superlinear deterministic work in the declared matrix."""
     by_family: dict[WorkFamily, list[WorkReceipt]] = {}
@@ -598,17 +591,8 @@ def assert_growth_contract(receipts: Sequence[WorkReceipt]) -> None:
                     raise AssertionError(
                         f"{family}: {operation} work exceeded the documented 2.5x envelope"
                     )
-        if family == "deep-chain":
-            for receipt in ordered:
-                assert receipt.work is not None
-                if receipt.work.immutable_ancestor_rebuild_steps != _expected_deep_ancestor_steps(
-                    receipt.size
-                ):
-                    raise AssertionError(
-                        "deep-chain: immutable ancestor rebuild exception no longer matches its model"
-                    )
-        elif any(receipt.work and receipt.work.immutable_ancestor_rebuild_steps for receipt in ordered):
-            raise AssertionError(f"{family}: undeclared immutable ancestor rebuild work")
+        if any(receipt.work and receipt.work.immutable_ancestor_rebuild_steps for receipt in ordered):
+            raise AssertionError(f"{family}: immutable ancestor rebuild work is forbidden")
 
 
 def _worker_main() -> int:

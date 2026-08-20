@@ -1155,15 +1155,23 @@ class StackMachineParser:
         return derive_graph_root_from_source_path(path)
 
     def _apply_source_path(self, nodes: list[LogseqNode], source_path: str) -> list[LogseqNode]:
-        return [
-            node.model_copy(
+        copied: dict[int, LogseqNode] = {}
+        pending = [(node, False) for node in reversed(nodes)]
+
+        while pending:
+            node, children_copied = pending.pop()
+            if not children_copied:
+                pending.append((node, True))
+                pending.extend((child, False) for child in reversed(node.children))
+                continue
+            copied[id(node)] = node.model_copy(
                 update={
                     "source_path": source_path,
-                    "children": self._apply_source_path(node.children, source_path),
+                    "children": [copied[id(child)] for child in node.children],
                 }
             )
-            for node in nodes
-        ]
+
+        return [copied[id(node)] for node in nodes]
 
     def _compute_indent_level(self, indentation: str) -> int:
         spaces = indentation.count(" ") + (indentation.count("\t") * self.tab_size)
@@ -1288,19 +1296,16 @@ class StackMachineParser:
         root_nodes: list[LogseqNode],
         updated_node: LogseqNode,
     ) -> None:
-        """Replace the active leaf and rebuild every immutable ancestor to the root."""
+        """Replace the active leaf while the parser still exclusively owns the tree."""
         if not stack:
             return
 
         stack[-1] = updated_node
         updated_ancestor = updated_node
 
-        for idx in range(len(stack) - 2, -1, -1):
-            ancestor = stack[idx]
-            ancestor_children = list(ancestor.children)
-            ancestor_children[-1] = updated_ancestor
-            updated_ancestor = ancestor.model_copy(update={"children": ancestor_children})
-            stack[idx] = updated_ancestor
+        for ancestor in reversed(stack[:-1]):
+            ancestor.children[-1] = updated_ancestor
+            updated_ancestor = ancestor
 
         root_nodes[-1] = updated_ancestor
 
@@ -1312,19 +1317,9 @@ class StackMachineParser:
     ) -> LogseqNode:
         parent = stack[-1]
         attached_node = node.model_copy(update={"parent_id": parent.uuid})
-        updated_ancestor = attached_node
-
-        for idx in range(len(stack) - 1, -1, -1):
-            ancestor = stack[idx]
-            ancestor_children = list(ancestor.children)
-            if idx == len(stack) - 1:
-                ancestor_children.append(updated_ancestor)
-            else:
-                ancestor_children[-1] = updated_ancestor
-            updated_ancestor = ancestor.model_copy(update={"children": ancestor_children})
-            stack[idx] = updated_ancestor
-
-        root_nodes[-1] = stack[0]
+        # ``children`` is parser-owned until ``parse`` returns the page.  Mutating
+        # it here avoids copying every ancestor for each new child.
+        parent.children.append(attached_node)
         return attached_node
 
     def _initialize_node_graph_fields(
@@ -1356,16 +1351,15 @@ class StackMachineParser:
     def _collect_page_refs(self, roots: list[LogseqNode]) -> list[str]:
         collected: list[str] = []
         seen: set[str] = set()
+        pending = list(reversed(roots))
 
-        def visit(nodes: list[LogseqNode]) -> None:
-            for node in nodes:
-                for token in node.refs:
-                    if token not in seen:
-                        seen.add(token)
-                        collected.append(token)
-                visit(node.children)
-
-        visit(roots)
+        while pending:
+            node = pending.pop()
+            for token in node.refs:
+                if token not in seen:
+                    seen.add(token)
+                    collected.append(token)
+            pending.extend(reversed(node.children))
         return collected
 
     def _resolve_block_ref_on_page(self, block_ref: str) -> LogseqNode | None:
@@ -1386,17 +1380,16 @@ class StackMachineParser:
     def _validate_references(self, roots: list[LogseqNode]) -> None:
         if not self.strict_refs:
             return
+        pending = list(reversed(roots))
 
-        def visit(nodes: list[LogseqNode]) -> None:
-            for node in nodes:
-                for ref in node.block_refs:
-                    if self._resolve_block_ref_on_page(ref) is None:
-                        raise BlockReferenceError(
-                            f"Unresolved block reference (({ref})) on node {node.uuid}"
-                        )
-                visit(node.children)
-
-        visit(roots)
+        while pending:
+            node = pending.pop()
+            for ref in node.block_refs:
+                if self._resolve_block_ref_on_page(ref) is None:
+                    raise BlockReferenceError(
+                        f"Unresolved block reference (({ref})) on node {node.uuid}"
+                    )
+            pending.extend(reversed(node.children))
 
     def _refresh_node(
         self,
@@ -1465,13 +1458,25 @@ class StackMachineParser:
     def _normalize_indent_levels(
         self, nodes: list[LogseqNode], depth: int = 0
     ) -> list[LogseqNode]:
-        normalized_nodes: list[LogseqNode] = []
-        for node in nodes:
-            normalized_children = self._normalize_indent_levels(node.children, depth + 1)
-            normalized_nodes.append(
-                node.model_copy(update={"indent_level": depth, "children": normalized_children})
+        normalized: dict[int, LogseqNode] = {}
+        pending = [(node, depth, False) for node in reversed(nodes)]
+
+        while pending:
+            node, node_depth, children_normalized = pending.pop()
+            if not children_normalized:
+                pending.append((node, node_depth, True))
+                pending.extend(
+                    (child, node_depth + 1, False) for child in reversed(node.children)
+                )
+                continue
+            normalized[id(node)] = node.model_copy(
+                update={
+                    "indent_level": node_depth,
+                    "children": [normalized[id(child)] for child in node.children],
+                }
             )
-        return normalized_nodes
+
+        return [normalized[id(node)] for node in nodes]
 
 
 # Backward-compatible alias.
