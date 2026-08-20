@@ -4,12 +4,17 @@ import datetime as dt
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts.archive_repository_metrics import (
+    MetricsFetchError,
     archive_repository_metrics,
     empty_quarter_payload,
+    fetch_api,
     migrate_legacy_history,
     quarter_file_path,
     quarter_key_from_date,
+    save_quarter_payload,
 )
 
 
@@ -102,3 +107,87 @@ def test_empty_quarter_payload_shape() -> None:
     payload = empty_quarter_payload("2026-Q3")
     assert payload["quarter"] == "2026-Q3"
     assert set(payload) == {"quarter", "views", "clones", "releases", "referrers", "popular_content"}
+
+
+def test_failed_fetch_leaves_metrics_tree_unchanged(tmp_path: Path, monkeypatch) -> None:
+    metrics_dir = tmp_path / "metrics"
+
+    def fail_fetch(url: str, token: str):
+        raise MetricsFetchError("offline")
+
+    monkeypatch.setattr("scripts.archive_repository_metrics.fetch_api", fail_fetch)
+
+    with pytest.raises(MetricsFetchError, match="offline"):
+        archive_repository_metrics(metrics_dir, "owner/repo", "token")
+
+    assert not metrics_dir.exists()
+
+
+def test_malformed_snapshot_leaves_metrics_tree_unchanged(tmp_path: Path, monkeypatch) -> None:
+    metrics_dir = tmp_path / "metrics"
+
+    def malformed_fetch(url: str, token: str):
+        if url.endswith("/traffic/views"):
+            return {"views": ["not-an-object"]}
+        if url.endswith("/traffic/clones"):
+            return {"clones": []}
+        return []
+
+    monkeypatch.setattr("scripts.archive_repository_metrics.fetch_api", malformed_fetch)
+
+    with pytest.raises(MetricsFetchError, match="non-object row"):
+        archive_repository_metrics(metrics_dir, "owner/repo", "token")
+
+    assert not metrics_dir.exists()
+
+
+def test_malformed_scalar_fields_leave_metrics_tree_unchanged(tmp_path: Path, monkeypatch) -> None:
+    metrics_dir = tmp_path / "metrics"
+
+    def malformed_fetch(url: str, token: str):
+        if url.endswith("/traffic/views"):
+            return {
+                "views": [
+                    {
+                        "timestamp": "2026-08-19T00:00:00Z",
+                        "count": {"unexpected": "object"},
+                        "uniques": 1,
+                    }
+                ]
+            }
+        if url.endswith("/traffic/clones"):
+            return {"clones": []}
+        return []
+
+    monkeypatch.setattr("scripts.archive_repository_metrics.fetch_api", malformed_fetch)
+
+    with pytest.raises(MetricsFetchError, match="malformed fields"):
+        archive_repository_metrics(metrics_dir, "owner/repo", "token")
+
+    assert not metrics_dir.exists()
+
+
+def test_fetch_api_rejects_oversized_payload(monkeypatch) -> None:
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def read(self, limit: int) -> bytes:
+            return b"x" * limit
+
+    monkeypatch.setattr("scripts.archive_repository_metrics.urlopen", lambda *args, **kwargs: Response())
+
+    with pytest.raises(MetricsFetchError, match="response exceeds"):
+        fetch_api("https://api.github.com/repos/owner/repo/traffic/views", "token")
+
+
+def test_json_writes_replace_atomically_without_temp_residue(tmp_path: Path) -> None:
+    metrics_dir = tmp_path / "metrics"
+
+    path = save_quarter_payload(metrics_dir, empty_quarter_payload("2026-Q3"))
+
+    assert json.loads(path.read_text(encoding="utf-8"))["quarter"] == "2026-Q3"
+    assert list(path.parent.glob(f".{path.name}.*.tmp")) == []

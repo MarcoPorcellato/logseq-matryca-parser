@@ -44,3 +44,55 @@
 - name: architecture
   color: "5319e7"
   description: Layer boundaries, dependency rule, structural refactor
+
+- name: "area: parser"
+  color: "1d76db"
+  description: LOGOS parsing, AST, syntax, or semantic compatibility
+
+- name: "area: graph"
+  color: "5319e7"
+  description: Graph identity, backlinks, registries, queries, or watching
+
+- name: "area: agent"
+  color: "0e8a16"
+  description: Agent reads, writes, authority, or provenance
+
+- name: "area: cli"
+  color: e99695
+  description: KINETIC command-line behavior or presentation
+
+- name: "area: docs"
+  color: "0075ca"
+  description: Documentation, governance, or contributor experience
+
+- name: "area: ci"
+  color: "fbca04"
+  description: Continuous integration, checks, or repository automation
+
+- name: "priority: critical"
+  color: b60205
+  description: Active security, data-loss, or widespread release-blocking impact
+
+- name: "priority: high"
+  color: d93f0b
+  description: High user impact or a near-term delivery blocker
+
+- name: "priority: medium"
+  color: fbca04
+  description: Important planned work with a bounded path
+
+- name: "priority: low"
+  color: c5def5
+  description: Useful but not time-sensitive improvement
+
+- name: "status: needs-reproduction"
+  color: fef2c0
+  description: Waiting for a minimal, safe reproduction
+
+- name: "status: blocked"
+  color: d4c5f9
+  description: Waiting for a documented external or design dependency
+
+- name: "status: stale"
+  color: e6e6e6
+  description: Waiting for evidence after the documented stale-review window

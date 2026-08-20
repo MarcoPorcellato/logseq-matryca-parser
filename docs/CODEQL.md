@@ -15,6 +15,12 @@ Default setup is the recommended path for this repository: GitHub maintains the 
 - **Security → Code scanning** on the repository
 - [CodeQL status page](https://github.com/MarcoPorcellato/logseq-matryca-parser/security/code-scanning/tools/CodeQL/status/) for coverage and run history
 
+The repository also defines a separate scheduled OpenSSF Scorecard workflow.
+It uploads third-party SARIF findings to the same code-scanning interface; it
+does not replace CodeQL default setup or introduce a custom CodeQL analysis.
+Treat the workflow file as the intended configuration and the hosted run as the
+only current result.
+
 ## Switching to an advanced workflow (optional)
 
 Only if you need a custom `codeql.yml` (extra queries, manual build steps, etc.):
@@ -30,4 +36,5 @@ Do not re-enable default setup while an advanced workflow is active.
 - [`SECURITY.md`](../SECURITY.md) — vulnerability reporting
 - [`CONTRIBUTING.md`](../CONTRIBUTING.md) — local quality gates (`make all`)
 - [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) — starter tasks for new contributors
+- [`reference/DEPENDENCY_LICENSE_POLICY.md`](reference/DEPENDENCY_LICENSE_POLICY.md) — SBOM, dependency/license, and release provenance contract
 - [Troubleshooting: default setup enabled](https://docs.github.com/en/code-security/reference/code-scanning/sarif-files/troubleshoot-sarif-uploads/default-setup-enabled)

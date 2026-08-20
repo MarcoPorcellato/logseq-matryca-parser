@@ -15,4 +15,13 @@ Fixes # (issue_number)
 - [ ] I updated [`CHANGELOG.md`](../CHANGELOG.md) under `[Unreleased]` for user-visible behavior changes.
 - [ ] My code follows the project's typing conventions (explicit hints on new functions; Pydantic `strict=True` on domain models).
 
+## 🤖 AI assistance and data handling
+- [ ] I disclosed meaningful AI assistance, if any, and I remain responsible for the submitted work.
+- [ ] I did not upload private vault data, credentials, tokens, or unpublished security details to an AI service.
+- [ ] I reviewed the complete diff and followed the [AI-assisted contribution policy](../docs/AI_CONTRIBUTION_POLICY.md).
+
+## 🧭 Contract impact
+- [ ] I updated the relevant API, agent-action, support, roadmap, or decision document when this change affects a documented contract.
+- [ ] This PR does not claim a GitHub setting, release provenance result, AAIF status, or external protocol support without a current receipt.
+
 ## Screenshots / CLI Output (if applicable)

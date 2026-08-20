@@ -27,6 +27,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
+          version: "0.11.7"
           python-version: ${{ matrix.python-version }}
           enable-cache: true
 
@@ -48,6 +49,10 @@ jobs:
     name: Build immutable release bundle
     needs: pre-flight
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     steps:
       - name: Checkout exact tag
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -57,6 +62,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
+          version: "0.11.7"
           python-version: "3.12"
           enable-cache: true
 
@@ -72,6 +78,24 @@ jobs:
       - name: Build wheel and source distribution once
         run: uv build --out-dir release-bundle/dist
 
+      - name: Generate locked CycloneDX and dependency-license evidence
+        run: |
+          uv export --preview-features sbom-export --format cyclonedx1.5 \
+            --no-dev --locked \
+            --output-file "${{ runner.temp }}/runtime.cdx.json"
+          uv export --preview-features sbom-export --format cyclonedx1.5 \
+            --all-extras --no-dev --locked \
+            --output-file release-bundle/SBOM.cdx.json
+          uv export --preview-features sbom-export --format cyclonedx1.5 \
+            --all-extras --all-groups --locked \
+            --output-file "${{ runner.temp }}/development.cdx.json"
+          uv run python scripts/generate_supply_chain_evidence.py \
+            --runtime-sbom "${{ runner.temp }}/runtime.cdx.json" \
+            --production-sbom release-bundle/SBOM.cdx.json \
+            --development-sbom "${{ runner.temp }}/development.cdx.json" \
+            --inventory-out release-bundle/DEPENDENCY_LICENSES.json \
+            --project-root .
+
       - name: Verify wheel and package metadata
         run: |
           wheel_count=0
@@ -85,8 +109,38 @@ jobs:
       - name: Record and verify distribution digests
         working-directory: release-bundle
         run: |
-          sha256sum dist/* > SHA256SUMS
-          sha256sum --check SHA256SUMS
+          sha256sum dist/* SBOM.cdx.json DEPENDENCY_LICENSES.json \
+            | sed 's#  dist/#  #' > SHA256SUMS
+          sed -E 's#  ([^/]+(\.whl|\.tar\.gz))$#  dist/\1#' SHA256SUMS \
+            | sha256sum --check -
+
+      - name: Attest release artifact provenance
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: |
+            release-bundle/dist/*
+            release-bundle/SBOM.cdx.json
+            release-bundle/DEPENDENCY_LICENSES.json
+            release-bundle/SHA256SUMS
+
+      - name: Bind the production SBOM to the distributions
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: release-bundle/dist/*
+          sbom-path: release-bundle/SBOM.cdx.json
+
+      - name: Verify GitHub attestations before publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for artifact in \
+            release-bundle/dist/* \
+            release-bundle/SBOM.cdx.json \
+            release-bundle/DEPENDENCY_LICENSES.json \
+            release-bundle/SHA256SUMS
+          do
+            gh attestation verify "$artifact" --repo "$GITHUB_REPOSITORY"
+          done
 
       - name: Upload immutable release bundle
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -116,7 +170,9 @@ jobs:
 
       - name: Verify distribution digests
         working-directory: release-bundle
-        run: sha256sum --check SHA256SUMS
+        run: |
+          sed -E 's#  ([^/]+(\.whl|\.tar\.gz))$#  dist/\1#' SHA256SUMS \
+            | sha256sum --check -
 
       - name: Publish package distributions with OIDC attestations
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
@@ -138,7 +194,9 @@ jobs:
 
       - name: Verify distribution digests
         working-directory: release-bundle
-        run: sha256sum --check SHA256SUMS
+        run: |
+          sed -E 's#  ([^/]+(\.whl|\.tar\.gz))$#  dist/\1#' SHA256SUMS \
+            | sha256sum --check -
 
       - name: Create GitHub Release with verified artifacts
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
@@ -148,6 +206,8 @@ jobs:
           body_path: release-bundle/RELEASE_NOTES.md
           files: |
             release-bundle/dist/*
+            release-bundle/SBOM.cdx.json
+            release-bundle/DEPENDENCY_LICENSES.json
             release-bundle/SHA256SUMS
           generate_release_notes: false
           make_latest: true

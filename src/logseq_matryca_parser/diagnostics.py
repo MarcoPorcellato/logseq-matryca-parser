@@ -2,15 +2,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from types import MappingProxyType
-from typing import TYPE_CHECKING
+from typing import Protocol
 
-if TYPE_CHECKING:
-    from logseq_matryca_parser.graph import LogseqGraph
+from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 
 
 class DiagnosticSeverity(StrEnum):
@@ -83,6 +82,21 @@ class Diagnostic:
         }
 
 
+class _GraphDiagnosticsSource(Protocol):
+    """Minimal graph surface consumed by deterministic diagnostics."""
+
+    graph_path: Path
+
+    @property
+    def index_diagnostics(self) -> Sequence[Diagnostic]: ...
+
+    def get_broken_references(self) -> list[LogseqNode]: ...
+
+    def page_for_node(self, node: LogseqNode) -> LogseqPage | None: ...
+
+    def get_node_by_embed_ref(self, block_ref: str) -> LogseqNode | None: ...
+
+
 def _vault_relative_source(graph_path: Path, source_path: str | None) -> str | None:
     if source_path is None:
         return None
@@ -92,7 +106,7 @@ def _vault_relative_source(graph_path: Path, source_path: str | None) -> str | N
         return None
 
 
-def collect_graph_diagnostics(graph: LogseqGraph) -> list[Diagnostic]:
+def collect_graph_diagnostics(graph: _GraphDiagnosticsSource) -> list[Diagnostic]:
     """Collect deterministic graph diagnostics without changing graph behavior."""
     diagnostics = list(graph.index_diagnostics)
     for node in graph.get_broken_references():

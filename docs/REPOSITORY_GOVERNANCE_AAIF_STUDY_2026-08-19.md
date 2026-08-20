@@ -57,8 +57,8 @@ commit, a push, or a pull request.
 | Agent discoverability | Strong foundation: `AGENTS.md`, `llms.txt`, package map, explicit safety boundaries | High |
 | Local quality and release engineering | Strong in the inspected checkout: pinned Actions, non-mutating CI contract, immutable release bundle, PyPI OIDC history | High for local files; remote settings still separate |
 | GitHub community health | Good files are present; branch rules, security settings, and live issue/PR state were not readable in this run | Medium |
-| Maintainer governance | Incomplete: `CODEOWNERS` identifies one owner, but no public `GOVERNANCE.md`, `MAINTAINERS.md`, or decision ladder exists | High |
-| Supply-chain assurance | Good baseline, but GitHub artifact attestations, SBOM publication, dependency review, and Scorecard evidence are not present in the inspected tree | High |
+| Maintainer governance | Public governance, maintainer, support, ownership, triage, and decision surfaces now exist locally; independent review still requires a second accepted maintainer | High for source files; external practice remains unproved |
+| Supply-chain assurance | Dependency review, Scorecard, release SBOM, dependency/license inventory, GitHub attestations, and metrics hardening are implemented and locally tested; hosted PR, schedule, and release receipts remain pending | High for local source; external execution remains unproved |
 | Matryca documentation quality | Matryca-v1 passed in the latest federation snapshot; official OKF v0.2 remains a separate migration with 38 parser findings | High for the cited snapshot |
 | AAIF readiness | Plausible alignment candidate, not an AAIF project and not yet supported by the adoption/diverse-governance evidence required for Growth or Impact | High |
 
@@ -92,36 +92,37 @@ not **AAIF membership**, **AAIF certification**, or **official OKF conformance**
 | Anchor | Value | Meaning |
 |---|---|---|
 | Local branch | `agent/parser-assurance-m1` | Active assurance branch, not `main` |
-| Local `HEAD` | `f04f9d2e83a34871a5aceb70197217e6226dbf53` | Exact committed Luna tranche and provenance correction |
-| Published branch head | `f04f9d2e83a34871a5aceb70197217e6226dbf53` | Fresh `git ls-remote` confirmation for `agent/parser-assurance-m1` |
-| Fresh remote `main` | `8de6f9a02d00f0a42a4f25ec07b8fb3f25dae7e5` | Exact public base observed after the push |
-| Local `origin/main` ref | `27d006153e45f2c4ae37ca03136114fb8246ac88` | Cached tracking ref; it is stale relative to the fresh remote readback |
-| Worktree | clean after commit | No uncommitted local changes remain |
+| Local `HEAD` | `1947251d2df79f37550a40cda3c0c26bb602245f` | Exact committed checkpoint beneath the current Terra and Sol source tranche |
+| Published branch head | Historical: `f04f9d2e83a34871a5aceb70197217e6226dbf53` | Last fresh branch readback recorded by this study; not current publication evidence |
+| Fresh remote `main` | Historical: `8de6f9a02d00f0a42a4f25ec07b8fb3f25dae7e5` | Last exact public base observed; must be refreshed before integration |
+| Local `origin/main` ref | Cached and divergent | `git status` reports the assurance branch ahead 10 and behind 6; this is not a live remote receipt |
+| Worktree | intentionally dirty | Terra policy files plus the Sol supply-chain, metrics, release, decision, test, and documentation tranche are under review; no commit claim is made |
 | GitHub API/settings | Unknown | `gh auth status` reports an invalid token; no settings claim is made |
 
 The exact local commands were:
 
 ```text
 rtk git status --short --branch
-rtk git rev-parse HEAD origin/main
+rtk git rev-parse HEAD
 rtk git diff --check
 rtk git worktree list --porcelain
-rtk git ls-remote origin refs/heads/main refs/heads/agent/parser-assurance-m1
-rtk git push origin HEAD:agent/parser-assurance-m1
 ```
 
 The initial study probe failed because `github.com` could not be resolved. A
-later authorized push and readback succeeded for the feature branch, while
-GitHub CLI API reads still report an invalid token. Branch publication is
-verified; repository settings, rulesets, security toggles, issues, projects,
-and pull requests remain unverified.
+later authorized push and readback succeeded for an earlier feature-branch
+checkpoint, while GitHub CLI API reads still reported an invalid token. That
+historical publication does not cover the current worktree. Repository
+settings, rulesets, security toggles, issues, projects, pull requests, and the
+current branch head remain unverified until a fresh readback succeeds.
 
 ### 3.2 Matryca Knowledge evidence
 
-The current local Matryca Knowledge checkout is on branch
-`feat/okf-v02-migration-tool` at `f0318a04f1ad30a87f8d55727f96a759d9e2aa90`.
-Its `main` history and `sources.toml` already contain the parser's maintained
-entry points. The dated federation audit at
+The Matryca Knowledge implementation used for the final local audit is on
+branch `codex-deepseek-harness-study-20260819` at
+`63a3162ca5cbc1110e7e95be38c97de992ce597d`; its checkout is dirty and its
+local branch is 14 commits behind its tracking branch. Its current working-tree
+`sources.toml` contains the parser's maintained entry points, but that local
+state is not a clean federation receipt. The dated federation audit at
 `docs/FEDERATED_DOCUMENTATION_AUDIT_2026-08-19.md` records the latest exact
 source snapshot used by the coordination plane:
 
@@ -132,6 +133,17 @@ source snapshot used by the coordination plane:
 | Official OKF v0.2 profile | Nonconformant, 38 findings |
 | Federation-wide official OKF findings | 577 across six sources |
 | Source authority | Parser repository; `knowledge/` is a generated reviewed projection |
+
+A read-only dual-profile rerun on 2026-08-19 against the current parser
+worktree, explicitly labeled
+`worktree-1947251d2df79f37550a40cda3c0c26bb602245f-dirty-sol-final`, inspected 64
+Markdown documents. It preserved the same official result: nonconformant with
+38 findings (35 invalid/missing concept frontmatters, two forbidden nested-index
+frontmatters, and one invalid root-index version), while the declared
+Matryca-v1 profile remained conformant with zero findings. Because the parser
+worktree and the Matryca coordination checkout were not both clean immutable
+commits, this rerun is local migration evidence, not federation publication or
+official conformance proof.
 
 This corrects an important documentation hazard in older parser documents:
 some still cite the older Matryca Knowledge revision `7a3ebd8` and say that the
@@ -202,25 +214,23 @@ Every future milestone in this study uses the following vocabulary:
 | Agent entry point | Root `AGENTS.md` with product map, commands, safety, and hub rules | Keep; add explicit authority, scope, and safe escalation semantics if needed |
 | LLM discovery | `llms.txt` with raw GitHub links and capability map | Keep as an optional discovery index; do not treat it as an enforcement standard |
 | Contribution path | `CONTRIBUTING.md`, issue forms, PR template, good-first-issue catalogue | Add governance, AI contribution disclosure, support expectations, and a triage policy |
-| Safety path | `SECURITY.md`, CodeQL documentation, filesystem safety reference | Verify remote security features and add dependency/release evidence |
-| Release path | `CHANGELOG.md`, `RELEASE_HIGHLIGHTS.md`, `docs/RELEASE_PROCESS.md`, pinned release Actions | Add GitHub artifact attestation and SBOM verification |
-| License and notices | Apache-2.0 `LICENSE`, root `NOTICE`, package notice | Add a machine-readable dependency/license inventory to release evidence |
+| Safety path | `SECURITY.md`, CodeQL documentation, filesystem safety reference, metrics threat model | Verify remote security features and hosted workflow execution |
+| Release path | `CHANGELOG.md`, `RELEASE_HIGHLIGHTS.md`, release process, pinned workflow, local SBOM/inventory/attestation contract | Qualify the new evidence on a real exact-tag run |
+| License and notices | Apache-2.0 `LICENSE`, root `NOTICE`, package notice, version-exact override policy, generated inventory | Review the real release inventory and preserve legal review as a human gate |
 | Ownership | `.github/CODEOWNERS` | Split ownership by security, release, parser, graph, and docs when a second maintainer exists |
-| Automation | CI, package contract, release, Dependabot, daily metrics | Harden token boundaries and explicitly qualify self-mutating automation |
+| Automation | CI, package contract, release, Dependabot, dependency review, Scorecard, hardened daily metrics | Collect hosted receipts and verify remote token/settings boundaries |
 
-### 5.2 Confirmed documentation and governance gaps
+### 5.2 Current documentation and governance boundaries
 
-| Gap | Evidence | Priority |
-|---|---|---:|
-| No public `GOVERNANCE.md` | Root inventory contains no file | P0 for AAIF readiness |
-| No public `MAINTAINERS.md` or `OWNERS.md` | Root inventory contains no file | P0 for AAIF readiness |
-| No `SUPPORT.md` or explicit support matrix | Root inventory contains no file | P1 |
-| No `CITATION.cff` | Root inventory contains no file | P1 |
-| One default owner only | `.github/CODEOWNERS` maps all files to `@MarcoPorcellato` | P0 governance / P1 resilience |
-| AI contribution disclosure is not explicit | `CONTRIBUTING.md` has no AI disclosure policy comparable to MCP | P1 |
-| GitHub settings are not locally declarative | Branch rules, security toggles, discussions, projects, and rulesets are remote state | P0 evidence gap |
-| Official OKF v0.2 migration is incomplete | Matryca audit records 38 parser findings | P1 documentation quality |
-| Parser docs contain stale federation statements | `docs/reference/index.md` cites `7a3ebd8` and old entry-point status | P1 documentation drift |
+| Boundary | Current local evidence | Remaining work |
+|---|---|---|
+| Governance, maintainer, support, citation, and AI policy | Public source files now exist and are linked from contribution/documentation entry points | Establish an independent maintainer before requiring a second approval |
+| Agent authority and interoperability | Action contract, AAIF alignment page, support matrix, and protocol-adapter ADR are source-owned documents | Any networked protocol needs the separate schema, threat-model, permission, and conformance gates |
+| Ownership | `.github/CODEOWNERS` now maps governance, delivery, product, and documentation paths to the current maintainer | Add a second owner only after that person accepts the role; do not claim independent review enforcement before then |
+| Community process | Public roadmap, issue triage policy, label manifest, issue routing, and PR template now describe the intended workflow | Synchronize labels and measure activity only after authenticated GitHub readback |
+| GitHub settings | Branch rules, security toggles, discussions, projects, and rulesets remain remote state | P0 receipt still required; local files cannot prove a setting |
+| Official OKF v0.2 migration | Matryca audit records 38 parser findings | Separate reviewed source/profile/projection migration |
+| Federation references | `docs/reference/index.md` now records current local entry-point evidence | Projection refresh and current public-source audit remain separate evidence gates |
 
 The absence of a file is a local fact. The absence of a remote setting is not
 claimed until the GitHub API or settings UI is read successfully.
@@ -511,6 +521,46 @@ dependency.
 | P3-03 | Offer a small contributor workshop or issue sprint | New contributors complete a test/docs task with documented onboarding friction |
 | P3-04 | Reassess AAIF proposal readiness | A completed AAIF matrix with evidence, sponsor discussion, legal decision, and explicit GO/NO-GO |
 
+### 10.1 Terra implementation state
+
+The following cross-file source changes are implemented in the authorized Terra
+tranche and require only normal repository validation/publication:
+
+| Capability | Source evidence | Boundary retained |
+|---|---|---|
+| Agent action, provenance, and prompt-injection contract | `docs/reference/AGENT_ACTION_CONTRACT.md` and `AGENTS.md` | No new runtime authority or network access |
+| Compatibility and support matrix | `docs/reference/CONFORMANCE_SUPPORT_MATRIX.md` | No external conformance claim |
+| Public roadmap and current triage policy | `docs/ROADMAP_2026-2027.md`, `docs/ISSUE_TRIAGE_POLICY.md`, label manifest, issue/PR templates | No claim that labels or GitHub settings are already live |
+| Staged ownership | `.github/CODEOWNERS` path map | No invented second maintainer or independent-review requirement |
+| AAIF alignment and protocol decision | `docs/AAIF_ALIGNMENT.md`, `docs/decisions/ADR-0001-PROTOCOL_ADAPTER_BOUNDARY.md` | No AAIF membership, protocol endpoint, legal, or submission claim |
+
+### 10.2 Sol implementation state
+
+The security-sensitive source tranche is implemented in the current worktree:
+
+| Capability | Local source evidence | Still required before a public claim |
+|---|---|---|
+| Dependency review | `.github/workflows/dependency-review.yml` blocks newly introduced moderate-or-higher vulnerabilities on `pull_request` without write permissions | Successful hosted PR run and any required-check/ruleset receipt |
+| Scorecard monitoring | `.github/workflows/scorecard.yml` uses pinned actions, read-only checkout, bounded SARIF retention, and code-scanning upload | Successful `main` or scheduled run plus reviewed findings; no badge or score claim yet |
+| Release SBOM and license inventory | `scripts/generate_supply_chain_evidence.py`, version-exact override policy, tests, and `docs/reference/DEPENDENCY_LICENSE_POLICY.md` | Exact-tag artifact review and legal escalation for material license questions |
+| GitHub release attestations | Release build requests only `id-token` and `attestations` writes, attests all checksummed evidence, binds the SBOM to distributions, and verifies before transport | A terminal tag run and independent `gh attestation verify` against downloaded artifacts |
+| Metrics automation | Main-only workflow, separate traffic and write credentials, bounded API reads, full-snapshot validation, atomic writes, and threat model | Live token-scope receipt, successful run, and proof that the resulting commit touches only `metrics/` |
+| Official OKF v0.2 | ADR-0002 records the 38 findings and the nested-index/profile conflict | Separate reviewed dual-profile migration; no mechanical zero-finding rewrite |
+| AAIF submission | ADR-0003 records a NO-GO and evidence-based reconsideration gate | Maintainer diversity, adoption, sponsor, legal review, live assurance, and a new explicit authorization |
+
+Local end-to-end generation on 2026-08-19 produced a 130-component inventory
+with 14 direct dependencies, one VCS dependency, and zero unresolved direct
+licenses from the current lockfile. The VCS record retains and validates its
+immutable 40-character commit revision. The inventory also exposes 31
+transitive dependencies whose installed metadata does not resolve to a specific
+license expression;
+those remain visible non-blocking review debt rather than guessed identifiers.
+This is a local contract receipt, not a release or legal-compatibility
+conclusion.
+
+Remote settings, legal decisions, official OKF migration, community adoption,
+and any AAIF contact or submission remain explicit maintainer/external gates.
+
 ## 11. Recommended target configuration
 
 ### GitHub repository settings
@@ -549,16 +599,19 @@ Keep the current strong patterns:
 - `uv sync --locked` in release jobs;
 - non-mutating CI followed by an explicit clean-checkout assertion.
 
-Add or evaluate:
+The current source tranche adds GitHub attestations for release distributions
+and evidence files, a bound production SBOM, pull-request dependency review,
+scheduled Scorecard analysis, policy tests for the metrics write path, and
+explicit artifact retention. These remain **implemented locally**, not
+**verified remotely**, until their exact hosted runs pass.
 
-- `actions/attest` for release wheel/sdist provenance;
-- SBOM generation bound to the same artifact digest;
-- dependency review on pull requests;
-- a scheduled Scorecard or equivalent supply-chain assessment;
-- explicit action allowlisting at the repository level;
-- shell/YAML/action linting for workflow files;
-- a separate policy test for the daily metrics write path;
-- artifact retention and deletion rules that match release support needs.
+Still evaluate through GitHub settings or a later bounded change:
+
+- explicit repository-level action allowlisting;
+- a dedicated shell/YAML/action lint gate if existing tests prove insufficient;
+- retention and deletion settings outside the workflow files;
+- whether dependency review should become a required ruleset check after the
+  first successful run.
 
 Do not make the CI run untrusted PR code with write-capable tokens. Do not use
 `pull_request_target` for build/test execution unless the checkout and data flow
@@ -659,32 +712,46 @@ The study is complete as a planning artifact when these items remain true:
 - [x] The authorized Luna tranche added lightweight governance, maintainer,
   support, citation, and AI-contribution documentation without changing code,
   workflows, or remote GitHub state.
+- [x] The authorized Terra tranche added cross-file agent, compatibility,
+  roadmap, triage, ownership, AAIF-alignment, and protocol-adapter policy
+  surfaces without claiming remote configuration or creating a new runtime.
+- [x] The Sol source tranche added dependency review, scheduled Scorecard,
+  release SBOM and dependency/license evidence, GitHub attestations, hardened
+  metrics collection, focused tests, and maintained security/release policy.
+- [x] Official OKF v0.2 and AAIF submission decisions are recorded as explicit
+  defer/NO-GO gates rather than inferred conformance or membership claims.
+- [x] Local supply-chain generation resolved every direct dependency license
+  from the current lockfile and retained the VCS revision in evidence.
 - [ ] Fresh GitHub API/settings readback is still required before any remote
   readiness claim.
-- [ ] Terra/Sol work remains required for cross-file governance decisions,
-  security and supply-chain controls, release provenance, official OKF
-  migration, and AAIF submission readiness.
+- [ ] Hosted dependency-review and Scorecard runs are required before those
+  workflows can be called operational.
+- [ ] A real tag run and downloaded-artifact verification are required before
+  the new release provenance, SBOM, and inventory contract can be called
+  qualified.
+- [ ] Metrics token scope and the first successful main-only write must be
+  verified without exposing the token.
+- [ ] Official OKF migration, legal review, independent maintainership,
+  adoption evidence, and any AAIF reconsideration remain external gates.
 
 ## 15. Copy-paste persistent execution goal
 
 Use this as the next bounded execution pointer:
 
 ```text
-Implement the GitHub and AAIF readiness programme defined in
-docs/REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md. First verify the exact
-public main SHA, GitHub rulesets/protection, Actions permissions, security
-features, issue/PR/project state, and the current Matryca Knowledge source and
-OKF audit heads. Then execute M1–M4 in dependency order with one owner per file
-group: add and review governance/support/AI-contribution documentation, harden
-supply-chain evidence, reconcile federation documentation, and qualify semantic
-assurance. Use deterministic tools first; delegate bounded inventory, docs, and
-test-log work to Luna; use Terra for cross-file implementation; retain security,
-license, release, legal, AAIF, and merge decisions for the primary reviewer.
-Preserve Markdown authority, parser determinism, vault containment, lazy
-optional integrations, clean worktrees, exact-head evidence, and separate
-commit/push/PR/merge/release gates. Stop before remote mutation unless each
-applicable approval is explicit. Continue until the milestone checklist is
-proved or a precise external blocker is recorded.
+Qualify the implemented GitHub and AAIF readiness source tranche defined in
+docs/REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md. Preserve the current dirty
+worktree until its complete diff passes focused tests, make all, documentation
+validation, YAML parsing, supply-chain generation, and manual security review.
+Then, only with explicit publication authority, commit and publish one
+reviewable branch and obtain hosted dependency-review and Scorecard receipts.
+Separately verify the exact public main SHA, rulesets/protection, Actions
+permissions, security features, issue/PR/project state, and Matryca Knowledge
+profile head. Qualify release provenance only through a real exact-tag run and
+downloaded-artifact verification; do not tag or release without a separate
+maintainer gate. Preserve Markdown authority, parser determinism, vault
+containment, lazy optional integrations, exact-head evidence, and distinct
+commit, push, PR, merge, settings, release, legal, OKF, and AAIF gates.
 ```
 
 ## 16. References
@@ -728,25 +795,52 @@ proved or a precise external blocker is recorded.
 
 ## 17. Handoff status
 
-This report and the authorized Luna tranche are local changes only. At the time
-of writing:
+The published Luna checkpoint and the current Terra plus Sol source tranche do
+not alter package runtime, remote repository settings, or external services. At
+the time of this record:
 
-- no package code, tests, or workflows were changed;
-- lightweight governance, maintainer, support, citation, and AI-contribution
-  documentation was added;
-- no GitHub setting was changed;
-- commits `4737721b10eb55cd2323cdac50670ce6e106c13b` and
-  `f04f9d2e83a34871a5aceb70197217e6226dbf53` were created locally;
-- both commits were pushed to `agent/parser-assurance-m1` and the final head was
-  confirmed by fresh `git ls-remote` readback;
-- no issue, project, milestone, pull request, merge, release, or AAIF submission
-  was performed;
-- the worktree contains only the report, its indexes, the documentation log,
-  and the bounded Luna documentation tranche;
-- fresh GitHub API/settings readback remains incomplete because the local GitHub
-  CLI token is invalid.
+- local `HEAD` is `1947251d2df79f37550a40cda3c0c26bb602245f` and the intended
+  governance/assurance changes remain uncommitted above it;
+- governance, maintainer, support, citation, AI-contribution, agent,
+  compatibility, roadmap, triage, ownership, AAIF-alignment, protocol,
+  supply-chain, release, metrics-security, and decision documents exist in the
+  worktree;
+- workflows and tests now cover dependency review, Scorecard, release evidence,
+  and metrics hardening, while package runtime remains unchanged;
+- the completed local diff passes Ruff, mypy on 61 source files,
+  `vendor-name-check`, the maintained documentation gate, YAML parsing, 603
+  tests, 92.16% coverage, and a zero-cycle source import check; two independent
+  SBOM exports normalize to identical bytes, the current inventory resolves all
+  14 direct licenses, and its single VCS dependency retains a validated
+  immutable commit; the checksum manifest verifies both inside the build
+  bundle and after flattening assets into the public GitHub Release layout;
+- no GitHub setting, issue, project, milestone, pull request, merge, release,
+  legal acceptance, OKF projection, or AAIF submission was performed by this
+  tranche;
+- earlier feature-branch publication receipts remain historical and do not
+  prove publication of this worktree;
+- fresh GitHub API/settings readback remains required before any remote-state
+  claim.
 
-The next safe action after preserving this local tranche is M0: obtain the exact
-remote receipt, compare it with this report's anchors, and update only the
-evidence that can be proved live. Terra/Sol review remains required before
-remote governance, security, release, federation, or AAIF changes.
+Exact-worktree validation and Sol diff review are complete. Publication and
+hosted qualification now require their own explicit maintainer gates; release,
+legal, official OKF, and AAIF actions remain separate.
+
+### 17.1 Final Sol completion audit
+
+| Planned Sol responsibility | Final local disposition | Evidence still external |
+|---|---|---|
+| P1-02 dependency review | Source-qualified: PR-only trigger, read-only permissions, SHA-pinned action, moderate-or-higher vulnerability gate | First hosted PR run and required-check decision |
+| P1-03 artifact provenance | Source-qualified: all checksummed release evidence is attested and verified before transport | Exact-tag terminal run and downloaded-artifact verification |
+| P1-04 reproducible SBOM | Source-qualified: two independent locked exports normalized to identical bytes | Exact-tag SBOM and attestation receipt |
+| P1-05 dependency/license inventory | Source-qualified: 130 components, 14 direct licenses resolved, 31 unresolved transitive records visible, one immutable VCS commit, two content-addressed overrides | Material legal questions and real-release review |
+| P1-06 metrics write path | Source-qualified: main-only execution, separated credentials, bounded reads, schema validation, atomic writes, and non-force retry | Secret-scope readback and first clean hosted metrics commit |
+| P2-03 Scorecard | Source-qualified: restricted official job shape, bounded SARIF artifact, code-scanning upload | First hosted `main` or scheduled run and findings review |
+| P2-04 official OKF v0.2 | Decision-complete: ADR-0002 defers migration and preserves the measured 38-finding backlog | A separately reviewed profile migration |
+| M7 AAIF gate | Decision-complete: ADR-0003 records NO-GO without membership or conformance claims | Governance, adoption, sponsor, legal, and renewed explicit authorization |
+| Repository structural gate | Qualified: public diagnostics behavior preserved and the current `src/` import graph has zero cycles | Hosted CI after publication |
+
+**Local Sol verdict: QUALIFIED FOR REVIEW.** This verdict covers the complete
+source implementation and exact-worktree evidence in this tranche. It does not
+authorize or claim a commit, push, pull request, settings mutation, tag, release,
+legal approval, official OKF migration, or AAIF contact.

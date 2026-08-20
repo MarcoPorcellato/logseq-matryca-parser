@@ -11,14 +11,17 @@ The release graph is deliberately sequential:
 ```text
 Python 3.12/3.13 pre-flight
   -> tag/version/changelog contract
-  -> one wheel/sdist build + Twine + SHA-256
+  -> one wheel/sdist build + Twine
+  -> locked CycloneDX SBOM + dependency/license inventory + SHA-256
+  -> GitHub provenance and SBOM attestations + in-workflow verification
   -> PyPI trusted publication
-  -> GitHub Release with the exact same distributions
+  -> GitHub Release with the exact same evidence bundle
 ```
 
 Every external action is pinned to a full commit SHA. The uploaded Actions
 artifact is transport only; `SHA256SUMS` is verified again before both public
-publication stages.
+publication stages. The release workflow also pins the `uv` binary version so
+lock interpretation and SBOM generation do not float between tag runs.
 
 ---
 
@@ -44,6 +47,8 @@ version; use `vX.Y.Z` for the git tag).
 - [ ] Run `make all` (Ruff, Mypy, documentation checks, and Pytest)
 - [ ] Run `python -m scripts.check_release_contract --tag vX.Y.Z`
 - [ ] Build wheel and sdist once locally, run `python scripts/check_wheel_contract.py path/to/wheel.whl`, `twine check`, and record SHA-256 digests
+- [ ] Review [the dependency/license policy](reference/DEPENDENCY_LICENSE_POLICY.md),
+      including every direct dependency, VCS source, and version-exact override
 
 **Cursor shortcut:** ask the agent to *“prepare release vX.Y.Z”* (see [`.cursor/rules/04-release-preparation.mdc`](../.cursor/rules/04-release-preparation.mdc)).
 
@@ -75,15 +80,33 @@ git push origin vX.Y.Z
 On tag push:
 
 1. **Pre-flight** — Python 3.12 and 3.13 run dependency audit and `make all`.
-2. **Build** — tag/version/changelog contract, one wheel/sdist build, wheel
-   contract, Twine metadata check, release-note extraction, and SHA-256 manifest.
-3. **PyPI** — trusted publishing uploads only the downloaded build artifact and
-   creates PyPI's OIDC-backed attestations.
+2. **Build and attest** — tag/version/changelog contract, one wheel/sdist build,
+   wheel contract, Twine metadata check, release-note extraction, locked
+   CycloneDX 1.5 production SBOM, scoped dependency/license inventory, and a
+   SHA-256 manifest. GitHub provenance covers every checksummed artifact; a
+   separate SBOM attestation binds the production SBOM to the distributions,
+   and the job verifies those attestations before transport.
+3. **PyPI** — trusted publishing uploads only the downloaded distributions and
+   creates PyPI's separate OIDC-backed attestations.
 4. **GitHub Release** — runs only after PyPI succeeds and attaches the same
-   wheel, sdist, and `SHA256SUMS` with curated changelog notes.
+   wheel, sdist, `SBOM.cdx.json`, `DEPENDENCY_LICENSES.json`, and
+   `SHA256SUMS` with curated changelog notes.
 
 Verify the complete **Release** run under GitHub Actions, then verify the new
 version, files, hashes, and attestations on PyPI and the GitHub Release page.
+From a clean download directory, run:
+
+```bash
+sha256sum --check SHA256SUMS
+gh attestation verify logseq_matryca_parser-*.whl -R MarcoPorcellato/logseq-matryca-parser
+gh attestation verify logseq_matryca_parser-*.tar.gz -R MarcoPorcellato/logseq-matryca-parser
+gh attestation verify SBOM.cdx.json -R MarcoPorcellato/logseq-matryca-parser
+gh attestation verify DEPENDENCY_LICENSES.json -R MarcoPorcellato/logseq-matryca-parser
+```
+
+A local successful build proves only that the contract can be generated. A
+release is qualified only by the terminal exact-tag workflow receipt and the
+verification of its downloaded public artifacts.
 
 #### Failed or interrupted release
 
@@ -129,6 +152,8 @@ only explanatory text — are wrong.
 | CI fails on tests | Run `make all` locally before tagging. |
 | Tag/version mismatch | Run `python -m scripts.check_release_contract --tag vX.Y.Z`; align `_version.py`, runtime metadata, and changelog before creating a new tag. |
 | Hash verification fails | Stop. Do not publish or attach the bundle; create a clean patch release after diagnosis. |
+| Direct dependency license is unresolved | Stop. Correct upstream metadata or add a reviewed version-exact override with immutable evidence; never downgrade the failure silently. |
+| GitHub attestation verification fails | Stop before publication. Diagnose identity, repository, permissions, and artifact digest; never rebuild or attest different bytes under the same tag. |
 
 ---
 
@@ -138,3 +163,4 @@ only explanatory text — are wrong.
 - [`CONTRIBUTING.md`](../CONTRIBUTING.md) — quality gates before tag
 - [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) — contributor task index
 - [`scripts/extract_changelog.py`](../scripts/extract_changelog.py)
+- [`reference/DEPENDENCY_LICENSE_POLICY.md`](reference/DEPENDENCY_LICENSE_POLICY.md)

@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-07
-verified: 2026-08-07
-stale_after: 2027-02-02
+last_verified: 2026-08-19
+verified: 2026-08-19
+stale_after: 2027-02-19
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -78,12 +78,21 @@ date expires.
 | [`index.md`](index.md) | Machine entry point and bundle map |
 | [`README.md`](README.md) | Human navigation by audience and lifecycle |
 | [`DOCUMENTATION_SYSTEM.md`](DOCUMENTATION_SYSTEM.md) | Documentation governance and contributor workflow |
+| [`ROADMAP_2026-2027.md`](ROADMAP_2026-2027.md) | Public milestones, dependencies, owners, and exit evidence |
+| [`ISSUE_TRIAGE_POLICY.md`](ISSUE_TRIAGE_POLICY.md) | Current issue, contributor-handoff, stale-work, and closure policy |
+| [`AAIF_ALIGNMENT.md`](AAIF_ALIGNMENT.md) | Agentic-interoperability alignment and non-membership boundary |
 | [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) | Architecture rings, public graph API, and dependency rules |
 | [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Current evidence-backed repository roadmap |
 | [`quality/ISSUE_RECONCILIATION_2026-08-06.md`](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Dated GitHub backlog evidence |
 | [`quality/README.md`](quality/README.md) | Quality and architecture navigation |
 | [`decisions/index.md`](decisions/index.md) | Decision registry and ADR gaps |
 | [`reference/index.md`](reference/index.md) | Provenance and ecosystem relations |
+| [`reference/AGENT_ACTION_CONTRACT.md`](reference/AGENT_ACTION_CONTRACT.md) | Agent authority, provenance, and untrusted-content rules |
+| [`reference/CONFORMANCE_SUPPORT_MATRIX.md`](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Runtime support, compatibility tiers, and optional integration limits |
+| [`reference/DEPENDENCY_LICENSE_POLICY.md`](reference/DEPENDENCY_LICENSE_POLICY.md) | Release SBOM, dependency/license inventory, override, and provenance contract |
+| [`security/DAILY_METRICS_THREAT_MODEL.md`](security/DAILY_METRICS_THREAT_MODEL.md) | Trust boundaries and qualification gates for metrics automation |
+| [`decisions/ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md`](decisions/ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md) | Official OKF migration boundary and measured backlog |
+| [`decisions/ADR-0003-AAIF-SUBMISSION-GATE.md`](decisions/ADR-0003-AAIF-SUBMISSION-GATE.md) | AAIF NO-GO and evidence-based reconsideration gate |
 | [`log.md`](log.md) | Chronology of documentation-system changes |
 
 The Matryca Knowledge source profile may select a smaller set of these paths as
@@ -260,6 +269,7 @@ includes the entry points and the resulting projection passes its own checks.
 | Stellar audit phase | Evidence-backed roadmap, issue reconciliation, entry points, classification, and freshness | Private source profile still lacked parser entry points |
 | English standardization | Repository documentation and maintainer text moved to one shared language | Governance needed a single explanatory contract |
 | Source-enforcement phase | `docs/maintained.toml` and `make docs-check` enforce the maintained bundle in local and remote CI | Private registry admission and projection remain a separate gate |
+| Governance and assurance phase | Public governance, agent authority, support, supply-chain evidence, threat models, and explicit OKF/AAIF decision gates | Hosted settings, real release receipts, adoption, independent maintainership, and legal review remain external gates |
 
 The source-enforcement phase was merged in
 [PR #115](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/115).
@@ -292,6 +302,7 @@ merged source commit.
 - [Matryca Knowledge](https://github.com/MarcoPorcellato/matryca-knowledge)
 - [Matryca Plumber](https://github.com/MarcoPorcellato/matryca-plumber)
 
-The Matryca Knowledge policy baseline used for this guide is commit
-[`7a3ebd8`](https://github.com/MarcoPorcellato/matryca-knowledge/commit/7a3ebd8),
-fetched and reviewed on 2026-08-06.
+The current immutable Matryca Knowledge coordination anchor and its separate
+profile results are recorded in [`reference/index.md`](reference/index.md).
+Revalidate that anchor before changing entry points or refreshing a projection;
+do not treat an older projected copy as current policy.
