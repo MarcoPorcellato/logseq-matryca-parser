@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-19
-verified: 2026-08-19
-stale_after: 2027-02-19
+last_verified: 2026-08-20
+verified: 2026-08-20
+stale_after: 2027-02-20
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -54,6 +54,7 @@ navigation layers only.
 | [Structured diagnostics](reference/DIAGNOSTICS.md) | Stable diagnostic schema, codes, path safety, rendering, and escalation |
 | [Filesystem safety](reference/FILESYSTEM_SAFETY.md) | Vault containment, atomic write, dry-run, metadata, and asset-read policy |
 | [Local graph assurance](reference/LOCAL_GRAPH_ASSURANCE.md) | Bounded aggregate-only vault checks with no report persistence or network operation |
+| [Runtime evidence](reference/PERFORMANCE_EVIDENCE.md) | Test-only local runtime protocol and source-free receipt contract |
 | [Source-location decision](rfc/SOURCE_LOCATION_RFC.md) | Accepted logical-line coordinate contract and offset-expansion admission gate |
 | [Documentation log](log.md) | Chronology of maintained knowledge changes |
 

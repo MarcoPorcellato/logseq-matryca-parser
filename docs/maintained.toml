@@ -48,6 +48,7 @@ maintained_documents = [
   "docs/reference/FILESYSTEM_SAFETY.md",
    "docs/security/DAILY_METRICS_THREAT_MODEL.md",
    "docs/reference/LOCAL_GRAPH_ASSURANCE.md",
+   "docs/reference/PERFORMANCE_EVIDENCE.md",
    "docs/rfc/SOURCE_LOCATION_RFC.md",
   "docs/log.md",
 ]

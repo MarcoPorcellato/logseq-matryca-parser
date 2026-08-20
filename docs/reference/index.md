@@ -50,6 +50,7 @@ already been refreshed.
 - [Dependency, license, SBOM, and provenance policy](DEPENDENCY_LICENSE_POLICY.md)
 - [Daily metrics threat model](../security/DAILY_METRICS_THREAT_MODEL.md)
 - [Privacy-safe local graph assurance](LOCAL_GRAPH_ASSURANCE.md)
+- [Test-only runtime evidence protocol](PERFORMANCE_EVIDENCE.md)
 - [Source-location decision](../rfc/SOURCE_LOCATION_RFC.md)
 - [Architecture](../CLEAN_CODE_ARCHITECTURE.md)
 - [AST primer](../logseq_ast_primer.md)

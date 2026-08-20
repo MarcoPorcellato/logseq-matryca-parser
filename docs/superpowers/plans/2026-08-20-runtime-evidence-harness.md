@@ -34,6 +34,7 @@
 | `tests/performance/runtime_evidence.py` | Scenario names, availability/result/receipt dataclasses, deterministic percentile calculation, source-free receipt serialization, semantic scenario functions, and `python -m` entry point. |
 | `tests/test_performance_synthetic_vault.py` | Generator cardinality, determinism, bounds, materialization, and no-private-input tests. |
 | `tests/test_runtime_evidence.py` | Sampling protocol, statistics, source-free receipt schema, semantic gates, optional-adapter classification, and stdout-only CLI tests. |
+| `tests/test_performance_evidence_docs.py` | Maintained-reference registration checks, kept separate from the runtime scenario suite. |
 | `docs/reference/PERFORMANCE_EVIDENCE.md` | Maintained operator contract, replay command, receipt interpretation, and noise policy. |
 | `docs/index.md` | Adds the maintained performance-evidence entry point. |
 | `docs/maintained.toml` | Adds the new maintained reference document to the documentation checker. |
@@ -52,7 +53,7 @@
 - Consumes: standard-library `Path`, `TemporaryDirectory` callers, and no repository runtime API.
 - Produces: `SyntheticVault`, `build_synthetic_vault()`, `PAGE_COUNT`, `BLOCKS_PER_PAGE`, `DEEP_CHAIN_DEPTH`, and `SYNTHETIC_VAULT_SCHEMA_VERSION` for the runner.
 
-- [ ] **Step 1: Write failing generator-contract tests**
+- [x] **Step 1: Write failing generator-contract tests**
 
 ```python
 from tests.performance.synthetic_vault import (
@@ -85,13 +86,13 @@ def test_synthetic_vault_is_deterministic_and_materializes_only_under_destinatio
     assert all(path.is_relative_to(destination) for path in destination.rglob("*.md"))
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `rtk .venv/bin/python -m pytest tests/test_performance_synthetic_vault.py -q`
 
 Expected: FAIL during collection because `tests.performance.synthetic_vault` does not exist.
 
-- [ ] **Step 3: Implement the fixed generator and bounded materializer**
+- [x] **Step 3: Implement the fixed generator and bounded materializer**
 
 ```python
 SYNTHETIC_VAULT_SCHEMA_VERSION: Final = 1
@@ -144,7 +145,7 @@ class SyntheticVault:
 
 Generate 95 ordinary `pages/` files and one deep-chain `pages/` file. Each ordinary page must contain exactly 24 blocks, one fixed tag, one alias, and a deterministic link to the next page. Build the deep source from `DEEP_CHAIN_DEPTH` two-space-indented outline lines. Sort paths before freezing `files`; do not place generated labels in any public receipt.
 
-- [ ] **Step 4: Add exact boundary tests**
+- [x] **Step 4: Add exact boundary tests**
 
 ```python
 def test_synthetic_vault_has_no_external_input_parameter() -> None:
@@ -165,13 +166,13 @@ def test_synthetic_vault_rejects_materialization_escape(tmp_path: Path) -> None:
 
 Raise `ValueError("synthetic vault path escapes destination")` when a resolved target is outside the resolved destination. The public fixed builder must never generate this condition.
 
-- [ ] **Step 5: Run the focused tests to verify they pass**
+- [x] **Step 5: Run the focused tests to verify they pass**
 
 Run: `rtk .venv/bin/python -m pytest tests/test_performance_synthetic_vault.py -q`
 
 Expected: PASS. The source fingerprint is identical across two builds, exactly 96 Markdown files materialize below the destination, and the escape test fails closed.
 
-- [ ] **Step 6: Commit the self-contained generator slice**
+- [x] **Step 6: Commit the self-contained generator slice**
 
 ```bash
 rtk git add tests/performance/__init__.py tests/performance/synthetic_vault.py tests/test_performance_synthetic_vault.py
@@ -190,7 +191,7 @@ rtk git commit -m "test: add deterministic runtime evidence vault"
 - Consumes: `SyntheticVault` and its aggregate properties from Task 1.
 - Produces: `ScenarioName`, `ScenarioAvailability`, `ScenarioReceipt`, `RuntimeEvidenceReceipt`, `build_runtime_receipt()`, `measure_scenario()`, `percentile_p95_ns()`, and `resident_high_water_observation()` for Task 3.
 
-- [ ] **Step 1: Write failing pure-model tests**
+- [x] **Step 1: Write failing pure-model tests**
 
 ```python
 def test_p95_uses_the_declared_nearest_rank_rule() -> None:
@@ -213,13 +214,13 @@ def test_measurement_protocol_uses_three_warmups_and_twenty_one_samples() -> Non
     assert receipt.semantic_gate_passed is True
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `rtk .venv/bin/python -m pytest tests/test_runtime_evidence.py -q`
 
 Expected: FAIL during collection because `tests.performance.runtime_evidence` does not exist.
 
-- [ ] **Step 3: Implement immutable receipts and deterministic statistics**
+- [x] **Step 3: Implement immutable receipts and deterministic statistics**
 
 ```python
 WARMUP_COUNT: Final = 3
@@ -281,7 +282,7 @@ def median_ns(samples: tuple[int, ...]) -> int:
 
 `measure_scenario()` must call the supplied no-argument action three times before capturing any duration and 21 times inside `started = clock_ns(); action(); elapsed = clock_ns() - started`. Reject negative elapsed values. Use `median_ns()` and `percentile_p95_ns()` for available samples. If any action raises or fails its semantic assertion, return `availability="invalid"`, `semantic_gate_passed=False`, and all duration fields as `None`; store neither the exception nor its text.
 
-- [ ] **Step 4: Write receipt privacy and platform-observation tests**
+- [x] **Step 4: Write receipt privacy and platform-observation tests**
 
 ```python
 def test_receipt_payload_is_source_free() -> None:
@@ -316,13 +317,13 @@ def test_missing_native_rss_is_explicitly_unavailable(monkeypatch: pytest.Monkey
 
 The outer receipt must include only: schema/harness/generator versions, source hash, aggregate page/block/deep-depth/byte counts, Python version, platform system/machine, a fixed replay command, RSS observation, and scenario receipts. Its `to_payload()` must not expose a `samples` field, raw source, generated filename, page title, UUID, exception, current working directory, or host name.
 
-- [ ] **Step 5: Run the focused model tests to verify they pass**
+- [x] **Step 5: Run the focused model tests to verify they pass**
 
 Run: `rtk .venv/bin/python -m pytest tests/test_runtime_evidence.py -q`
 
 Expected: PASS. Tests prove the exact 3+21 protocol, nearest-rank p95, invalid semantic handling without exception disclosure, optional RSS availability, and source-free serialization.
 
-- [ ] **Step 6: Commit the pure measurement slice**
+- [x] **Step 6: Commit the pure measurement slice**
 
 ```bash
 rtk git add tests/performance/runtime_evidence.py tests/test_runtime_evidence.py
@@ -341,7 +342,7 @@ rtk git commit -m "test: add source-free runtime receipt model"
 - Consumes: `build_synthetic_vault()`, `SyntheticVault.materialize()`, `measure_scenario()`, `RuntimeEvidenceReceipt`, `StackMachineParser`, `LogseqGraph`, `SynapseAdapter`, and `assert_tree_invariants()`.
 - Produces: `run_runtime_evidence() -> RuntimeEvidenceReceipt` and `main(argv: Sequence[str] | None = None) -> int`; both are private test-harness surfaces, not package APIs.
 
-- [ ] **Step 1: Write failing semantic-scenario tests**
+- [x] **Step 1: Write failing semantic-scenario tests**
 
 ```python
 def test_all_core_scenarios_are_semantically_valid() -> None:
@@ -372,13 +373,13 @@ def test_optional_synapse_is_unavailable_not_skipped(monkeypatch: pytest.MonkeyP
     assert scenario.sample_count == 0
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `rtk .venv/bin/python -m pytest tests/test_runtime_evidence.py -q`
 
 Expected: FAIL because the scenario functions and runner do not yet exist.
 
-- [ ] **Step 3: Implement the five semantic actions**
+- [x] **Step 3: Implement the five semantic actions**
 
 ```python
 def run_deep_parse_1024(vault: SyntheticVault) -> ScenarioReceipt:
@@ -403,7 +404,7 @@ For `incremental_alias_move_reload`, materialize a new temporary synthetic vault
 
 For `search_content`, cold-load a temporary vault, search the fixed unique token embedded by the generator, and assert the expected aggregate count and non-empty node identities. Import `logseq_matryca_parser.synapse` as `synapse_module`. For `synapse_context_chunks`, return `unavailable` before sampling when `synapse_module.Document is None`; otherwise patch `synapse_module.Document` with a small local `HarnessDocument`, run `SynapseAdapter.to_context_enriched_chunks()`, and assert expected count plus non-empty lineage metadata (`page_title`, `source_path`, `line_start`, and `parent_id` where applicable). Do not import, invoke, or serialize any real vault.
 
-- [ ] **Step 4: Write the failing stdout-only CLI test**
+- [x] **Step 4: Write the failing stdout-only CLI test**
 
 ```python
 def test_module_cli_emits_one_source_free_json_object() -> None:
@@ -421,7 +422,7 @@ def test_module_cli_emits_one_source_free_json_object() -> None:
     assert "exception" not in completed.stdout.casefold()
 ```
 
-- [ ] **Step 5: Implement the replay entry point and execute focused verification**
+- [x] **Step 5: Implement the replay entry point and execute focused verification**
 
 ```python
 def main(argv: Sequence[str] | None = None) -> int:
@@ -439,7 +440,7 @@ Run: `rtk .venv/bin/python -m pytest tests/test_performance_synthetic_vault.py t
 
 Expected: PASS. The core scenarios are valid, SYNAPSE has an explicit unavailable state if optional support is absent, and subprocess output is one parseable source-free JSON object with no persisted file.
 
-- [ ] **Step 6: Inspect a manual local receipt without recording it in the repository**
+- [x] **Step 6: Inspect a manual local receipt without recording it in the repository**
 
 Run: `rtk .venv/bin/python -m tests.performance.runtime_evidence`
 
@@ -466,7 +467,7 @@ rtk git commit -m "test: add runtime evidence scenarios"
 - Consumes: the fixed replay command and receipt field contract from Task 3; the M8 decision from the canonical execution plan.
 - Produces: a maintained human/agent-facing reference that explains how to obtain and interpret local evidence without adding a public performance promise.
 
-- [ ] **Step 1: Write failing maintained-document registration checks**
+- [x] **Step 1: Write failing maintained-document registration checks**
 
 ```python
 def test_performance_evidence_reference_is_maintained_and_indexed() -> None:
@@ -477,15 +478,15 @@ def test_performance_evidence_reference_is_maintained_and_indexed() -> None:
     assert "[Runtime evidence](reference/PERFORMANCE_EVIDENCE.md)" in index
 ```
 
-Place this focused assertion in `tests/test_runtime_evidence.py`; `tests/test_check_documentation.py` already validates the checker itself against disposable fixtures, while this assertion protects the real M8 registration and avoids a second documentation-test framework.
+Place this focused assertion in `tests/test_performance_evidence_docs.py`; `tests/test_check_documentation.py` already validates the checker itself against disposable fixtures, while this assertion protects the real M8 registration and avoids a second documentation-test framework.
 
-- [ ] **Step 2: Run the registration check to verify it fails**
+- [x] **Step 2: Run the registration check to verify it fails**
 
 Run: `rtk .venv/bin/python -m pytest tests/test_runtime_evidence.py -q`
 
 Expected: FAIL because the reference and registrations do not yet exist.
 
-- [ ] **Step 3: Add the reference document with exact operational boundaries**
+- [x] **Step 3: Add the reference document with exact operational boundaries**
 
 The new document must have the repository-required frontmatter fields and state all of the following in direct English:
 
@@ -521,11 +522,11 @@ or general performance guarantee.
 
 Add a compact noise policy: run on an exact committed head; record the unmodified JSON externally only when a maintainer explicitly needs it; close competing local workloads when practical; repeat only with the same command and environment; never average observations across machines; investigate a semantic-gate failure before considering any duration; and require a separately approved baseline/promotion decision before a budget, release statement, or public headline. State the fixed 3 warm-up/21-sample protocol, nearest-rank p95, native RSS labelling, synthetic-only scope, no private input path, and SYNAPSE `unavailable` status.
 
-- [ ] **Step 4: Register the document and record the documentation evolution**
+- [x] **Step 4: Register the document and record the documentation evolution**
 
 Add exactly one `Runtime evidence` row to the maintained-entry table in `docs/index.md`, add the exact path to `maintained_documents` in `docs/maintained.toml`, and add a concise dated entry to `docs/log.md`. The log may claim that the contract and replay documentation were added; it must not claim benchmark results, cross-machine comparability, CI enforcement, release qualification, or a public performance improvement.
 
-- [ ] **Step 5: Run focused and repository documentation validation**
+- [x] **Step 5: Run focused and repository documentation validation**
 
 Run:
 
@@ -538,7 +539,7 @@ rtk git diff --check
 
 Expected: PASS. The maintained checker accepts frontmatter and registration, the terminology policy accepts public files, and no whitespace error is present.
 
-- [ ] **Step 6: Perform required structural and full-suite verification**
+- [x] **Step 6: Perform required structural and full-suite verification**
 
 Run:
 
@@ -586,3 +587,14 @@ The plan contains no unbounded work item, unresolved interface, external corpus 
 ### Type and contract consistency
 
 `SyntheticVault` is the only generated-source carrier and supplies aggregate fields to `RuntimeEvidenceReceipt`. `measure_scenario()` returns `ScenarioReceipt`; each scenario runner returns the same type; `run_runtime_evidence()` aggregates those five scenario receipts. Receipt serialization is the sole data path to stdout, which keeps generated source and exception objects out of emitted data.
+
+### Implementation amendments
+
+- The ordinary CLI unit test calls `main()` with the full runner replaced by a
+  fixed source-free receipt. The exact default command is separately exercised
+  manually. This keeps the 3+21 timing protocol out of the normal test suite
+  while retaining one real receipt observation and pure protocol coverage.
+- The real registration assertion lives in
+  `tests/test_performance_evidence_docs.py`, rather than the timing-model test
+  module, so documentation navigation can evolve without expanding the
+  scenario suite's runtime.
