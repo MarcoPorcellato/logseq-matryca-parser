@@ -65,6 +65,17 @@ and ignored global graph input in self-test mode. These corrections are now
 published through PR #168; the M5 privacy and non-retention boundary remains
 part of the supported contract.
 
+The v1.8.0 release gates are complete. Release preparation merged through
+[PR #171](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/171) as
+`06a1d6cb3dcbb215c6aa108ce82d37da530d52a5`, and tag `v1.8.0` published through
+the exact [release workflow run](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32324328464).
+The run passed both Python pre-flight jobs, package contract, SBOM and license
+evidence, checksum verification, GitHub attestations, PyPI publication, and
+GitHub Release creation. The public [GitHub Release](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.8.0)
+and [PyPI package](https://pypi.org/project/logseq-matryca-parser/1.8.0/)
+were checked after publication. The broader #104, #103, #87, #111, and #108
+acceptance work remains open where the plan still marks it incomplete.
+
 The initial checkpoint `8806205c35b104ed65d00a273acc9eeca572ae38` is rejected
 pre-correction evidence. Corrective implementation
 `996c5a52b08f2670ecd80fb3f1515b65ae567465` passed local exact-head checks, but
@@ -78,13 +89,9 @@ unequal-backtick shielding parity. Non-amending corrective implementation
 `7870b84` changed only `tests/parser_assurance/projection.py` and
 `tests/test_compat_corpus.py` and passed exact-head local qualification with
 584 tests and 92.16% coverage on a clean worktree.
-Before any push, re-verify the live anchor, review the frozen full diff with GPT-5.6
-Sol again, and follow the
-[post-correction handoff](../internal/M1A_CORRECTIVE_HARDENING_RESTART_HANDOFF_2026-08-16.md).
-The refreshed documentation-evidence commit containing this pointer must
-receive exact-head qualification. Then freeze the raw full diff, record its
-unfiltered SHA-256 and line count, rerun a final GPT-5.6 Sol review, and stop
-before push.
+The historical post-correction handoff remains available for provenance, but
+its pre-publication stop condition is superseded by the merged M1–M7 evidence
+and the completed v1.8.0 release receipt above.
 
 Preserve the Apache-2.0 boundary: do not copy or adapt lsdoc code, tests,
 corpora, schemas, module structure, control flow, or documentation. Keep lsdoc
