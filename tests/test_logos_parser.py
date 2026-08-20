@@ -213,6 +213,51 @@ def test_query_block_shields_graph_tokens(
     assert "+BEGIN_QUERY" not in root.tags
 
 
+def test_lexical_boundaries_keep_properties_out_of_query_and_drawer(
+    parser: StackMachineParser,
+) -> None:
+    """Keep block text and properties separated across code/query/drawer boundaries."""
+    source = (
+        "- Root\n"
+        "  ```\n"
+        "  literal:: fence\n"
+        "  ```\n"
+        "  tags:: [[Visible]]\n"
+        "  #+BEGIN_QUERY\n"
+        "  query:: [[HiddenQuery]]\n"
+        "  #+END_QUERY\n"
+        "  :LOGBOOK:\n"
+        "  collapsed:: true\n"
+        "  :END:\n"
+        "  - Child"
+    )
+
+    page = parser.parse(source, page_title="lexical-boundaries")
+    root = page.root_nodes[0]
+
+    assert root.properties["tags"] == "[[Visible]]"
+    assert "query" not in root.properties
+    assert "collapsed" not in root.properties
+    assert "literal:: fence" in root.content
+    assert "query:: [[HiddenQuery]]" in root.content
+    assert "collapsed:: true" in root.properties["logbook"]
+    assert root.children[0].content == "Child"
+
+
+def test_nonstructural_preamble_closes_page_frontmatter_eligibility(
+    parser: StackMachineParser,
+) -> None:
+    """Non-structural preamble lines stop page property parsing."""
+    page = parser.parse(
+        "title:: Page title\nplain preamble\nalias:: MustNotBecomePageProperty\n- Root",
+        page_title="fallback",
+    )
+
+    assert page.title == "Page title"
+    assert page.properties == {"title": "Page title"}
+    assert page.root_nodes[0].content == "Root"
+
+
 def test_zero_to_four_space_fracture_binds_to_root(parser: StackMachineParser) -> None:
     """A direct 0->4 space jump is legal and binds to root."""
     content = "- Root\n    - Four space child"
