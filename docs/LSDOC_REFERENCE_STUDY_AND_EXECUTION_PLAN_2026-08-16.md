@@ -10,7 +10,7 @@ authority: source_repository
 execution_mode: reviewed
 last_verified: 2026-08-20
 verified: 2026-08-20
-stale_after: 2026-11-14
+stale_after: 2026-11-18
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -66,6 +66,7 @@ Markdown source-of-truth model.
 | M5 delivery | merged | Privacy-safe local graph assurance merged through [PR #168](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/168) |
 | M6 delivery | merged | Source-location contract and RFC merged through [PR #169](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/169) |
 | M7 delivery | merged | Internal line-classification slice merged through [PR #170](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/170); issue [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165) is closed |
+| M9 local checkpoint | locally qualified, unpublished | Private lexical-state slice `d3dd316d4536ea428747dc3a4895ad633ffa6993` from `b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e`; publication and hosted validation remain separate gates |
 | Current milestone | v1.8.0 released; broader assurance work remains | M5–M7 are in `origin/main@06a1d6c`; tag `v1.8.0`, exact workflow run `32324328464`, PyPI publication, GitHub Release, checksums, and attestations were verified on 2026-08-20 |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
@@ -739,6 +740,44 @@ converted into a pass or silently added to an allowlist.
   optional-adapter condition. It establishes reproducible local observations,
   not a universal speed guarantee.
 
+### M9 — Private lexical-state extraction under frozen evidence (#108)
+
+**Local checkpoint and boundary**
+
+- Exact implementation head `d3dd316d4536ea428747dc3a4895ad633ffa6993`
+  is based on `b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e`.
+- A private standard-library-only `_LexicalState` owns YAML, code, query,
+  drawer, frontmatter, and block-property eligibility transitions.
+  `StackMachineParser.parse()` still owns line classification, branch order,
+  page properties, AST construction, identity, LOGBOOK/CLOCK handling,
+  pending property lists, node refresh, and content mutation.
+- This is the second private #108 slice. It adds no public API or dependency and
+  does not close #108, #87, #103, #104, or #111.
+
+**Terminal local evidence**
+
+- Native-worktree `make all` passed at the exact implementation head with 685
+  tests, 89.73% coverage, Ruff, mypy, documentation validation, and the
+  vendor-name gate. The focused parser/corpus/round-trip/adversarial/deep-refresh/
+  work-growth selection passed 288 tests; diff validation and the repeated
+  vendor-name gate also passed.
+- Fresh protected-hub impact analysis classified `StackMachineParser.parse()`
+  as CRITICAL with 101 direct and 117 total dependents. The maintainer approved
+  that exact risk before integration. Final change analysis identified 16
+  affected execution processes, all expected parser consumers, and the source
+  import-cycle check returned zero cycles.
+- An independent complete-range Luna review of
+  `b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e..d3dd316d4536ea428747dc3a4895ad633ffa6993`
+  returned `APPROVED` with no actionable correctness, test, dependency, or scope
+  finding. The primary controller retained the architecture and qualification
+  decision.
+
+**Residual boundary**
+
+- This is a local implementation checkpoint only. Push, hosted checks, pull
+  request, merge, issue-state changes, release, and performance claims remain
+  separate explicit gates.
+
 ## 12. Explicit deferrals and rejection triggers
 
 | Proposal | Disposition | Reconsider only when |
@@ -870,6 +909,9 @@ It must not replace the requirements in this plan.
   cost evidence recorded in the decision document.
 - [x] The first #108 extraction slice is covered by semantic and work-growth
   gates through PR #170; the broader extraction epic remains open.
+- [x] The second private #108 lexical-state slice is locally exact-head
+  qualified at `d3dd316`; hosted validation, publication, and epic closure
+  remain separate gates.
 - [ ] No AGPL-covered expression entered Apache-only source, tests, fixtures,
   schemas, or documentation.
 - [ ] Documentation, issue state, and public claims match the delivered behavior.
@@ -882,6 +924,7 @@ Completion is unproven until every applicable item has authoritative evidence.
 
 | Date | Anchor | Result | Evidence and residual boundary |
 |---|---|---|---|
+| 2026-08-20 | M9 lexical-state implementation `d3dd316` | local implementation checkpoint / docs checkpointing | Native make all ran from exact base `b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e` to `d3dd316d4536ea428747dc3a4895ad633ffa6993`; it passed 685 tests (89.73%), Ruff, mypy, documentation checks, vendor-name check, git diff check, and zero-cycle audit. Focused suite passed with 288 tests. Complete-range review on `Luna` found no actionable correctness or scope defects. This second private #108 slice does not close #108, #87, #103, #104, or #111; no publication or GitHub-release claim is made. |
 | 2026-08-16 | M0 / PR #159 | merged | Source head `a6056413`, squash merge `30946446`; PR records 535 passing tests, 91.95% coverage, documentation/package/vendor gates, and zero cycles. No parser behavior changed. |
 | 2026-08-16 | M1 activation | verified | Clean `agent/parser-assurance-m1` at `e2a3f9a`, matching `origin/main`; no tracked M1 changes at activation. |
 | 2026-08-16 | Independent M1 review | reconciled | Accepted the larger review surface, two-profile/single-projector model, explicit identity policy, and manifest expansion after source and live-issue verification. M1 is #104-A; #104 remains open. |
