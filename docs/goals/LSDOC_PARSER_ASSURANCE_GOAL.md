@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-18
-verified: 2026-08-18
+last_verified: 2026-08-20
+verified: 2026-08-20
 stale_after: 2026-11-14
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -33,22 +33,22 @@ bounded adversarial laboratory; M4 remains a Python-native, test-only,
 deterministic work model. Neither expands #103, #87, or #111 ownership or
 constitutes a release claim.
 
-M5 is in delivery from local corrected code head `e2d0e5a` on
-`agent/parser-privacy-assurance-m5`, based on `main@27d0061`. It adds an
-optional aggregate-only local assurance CLI with a fresh worker, file/byte/time
-bounds, symlink rejection, ordinary-socket denial, safe report validation, and
-a project-owned synthetic self-test. It must not emit or retain vault-derived
-content, paths, titles, UUIDs, exception text, or host names; it must not claim
-#103 incremental/cold-load equivalence, #87 or #111 performance evidence,
-external-oracle parity, release qualification, or closure of #104/#108.
+M5 was delivered through [PR #168](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/168)
+and adds an optional aggregate-only local assurance CLI with a fresh worker,
+file/byte/time bounds, symlink rejection, ordinary-socket denial, safe report
+validation, and a project-owned synthetic self-test. It does not emit or retain
+vault-derived content, paths, titles, UUIDs, exception text, or host names.
 
-M6 has an accepted local source-location RFC at `7bf5c6d`: existing one-based
-logical line fields remain the only supported coordinates, while offset and
-source-map expansion stays behind its admission gate. M7 begins at local code
-checkpoint `f8c3f65` for [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165),
-the private line-classification extraction. It preserves parser state reduction,
-node creation, identities, graph behavior, public imports, and dependencies;
-publication and review gates remain independent of M5.
+M6 was delivered through [PR #169](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/169).
+Its accepted source-location RFC retains one-based logical line fields as the
+only supported coordinates; offset and source-map expansion stays behind its
+admission gate.
+
+M7 was delivered through [PR #170](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/170)
+and closes child issue [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165).
+The private line-classification extraction preserves parser state reduction,
+node creation, identities, graph behavior, public imports, and dependencies.
+The broader #108 epic remains open for later gated phase slices.
 
 M2 is complete through the accepted negative
 [ADR-001](../decisions/ADR-001-external-oracle-boundary.md): no external
@@ -61,9 +61,9 @@ including a maintainer-approved process boundary.
 
 The direct GPT-5.6 Sol review found and corrected unsafe runtime-string
 admission, parent-side symlink-loop disclosure, dangling root-link acceptance,
-and ignored global graph input in self-test mode. Before any M5 push or pull
-request, re-verify the live base, freeze the raw full diff, qualify its exact
-head, and stop before publication unless separately authorized.
+and ignored global graph input in self-test mode. These corrections are now
+published through PR #168; the M5 privacy and non-retention boundary remains
+part of the supported contract.
 
 The initial checkpoint `8806205c35b104ed65d00a273acc9eeca572ae38` is rejected
 pre-correction evidence. Corrective implementation

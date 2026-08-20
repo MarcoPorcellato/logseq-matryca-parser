@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-18
-verified: 2026-08-18
+last_verified: 2026-08-20
+verified: 2026-08-20
 stale_after: 2027-02-18
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -22,7 +22,7 @@ decision_date: 2026-08-18
 
 ## Status
 
-Accepted on 2026-08-18. M6 records a deliberately small source-location
+Accepted on 2026-08-18 and shipped in v1.8.0. M6 records a deliberately small source-location
 contract and rejects a new byte-, code-point-, or column-offset prototype for
 the current release line.
 

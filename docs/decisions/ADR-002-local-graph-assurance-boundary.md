@@ -9,8 +9,8 @@ owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
 decision_date: 2026-08-18
-last_verified: 2026-08-18
-verified: 2026-08-18
+last_verified: 2026-08-20
+verified: 2026-08-20
 stale_after: 2027-02-18
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -22,7 +22,7 @@ superseded_by: null
 
 ## Status
 
-Accepted on 2026-08-18 for the M5 assurance tranche. The initial implementation
+Accepted on 2026-08-18 for the M5 assurance tranche and shipped in v1.8.0. The initial implementation
 is the optional `matryca-parse assure` command and its project-owned synthetic
 self-test.
 

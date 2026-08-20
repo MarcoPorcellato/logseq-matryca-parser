@@ -8,15 +8,15 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-18
-verified: 2026-08-18
+last_verified: 2026-08-20
+verified: 2026-08-20
 stale_after: 2026-11-14
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
 superseded_by: null
 parent_plan: docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md
-source_commit: 27d006153e45f2c4ae37ca03136114fb8246ac88
+source_commit: e427234be4ffb30e770e75344e914b85a6c78ef2
 reference_commit: c79cb059da5b4360ebde2e5fd953fa1f43ddabc3
 ---
 
@@ -52,18 +52,21 @@ Markdown source-of-truth model.
 
 | Item | Verified state | Evidence |
 |---|---|---|
-| Source repository | `MarcoPorcellato/logseq-matryca-parser` | `origin/main` fetched 2026-08-18 |
-| Source base | `27d006153e45f2c4ae37ca03136114fb8246ac88` | live `origin/main` verified on 2026-08-18 after M2–M4 PRs merged |
+| Source repository | `MarcoPorcellato/logseq-matryca-parser` | `origin/main` fetched 2026-08-20 |
+| Source base | `e427234be4ffb30e770e75344e914b85a6c78ef2` | live `origin/main` verified on 2026-08-20 after M5–M7 PRs merged |
 | Source license | Apache License 2.0 | [`LICENSE`](../LICENSE) |
 | Reference repository | `martinkoutecky/lsdoc` release `v0.5.5` | [reference commit `c79cb059`](https://github.com/martinkoutecky/lsdoc/commit/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3) |
 | Reference license | `AGPL-3.0-only` | [`Cargo.toml`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/Cargo.toml) and [`LICENSE`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/LICENSE) |
 | Parent roadmap | current repository-wide quality SSOT | [stellar roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) |
 | M0 publication | merged as [PR #159](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/159) | source head `a6056413`, squash merge `30946446`, terminal validation recorded in the PR |
-| Existing delivery anchors | #87, #103, #104, #108, #111 are open; #106 and #113 are closed | live GitHub issue reads on 2026-08-16 |
+| Existing delivery anchors | #87, #103, #104, #108, and #111 remain open; #106, #113, and #165 are closed | live GitHub issue reads on 2026-08-20 |
 | Local implementation checkpoint | `8806205c35b104ed65d00a273acc9eeca572ae38` | clean local commit on `agent/parser-assurance-m1`; exact-head tests passed, but independent oracle review rejected publication |
 | M1 delivery | merged | [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161) merged the project-owned compatibility-corpus foundation; it remains only the first #104 tranche |
 | M2–M4 delivery | merged | M3 [PR #162](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/162), M4 [PR #163](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/163), and M2 [PR #164](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/164) are in `main` as `172be70`, `5d38e01`, and `98bc5aa` respectively |
-| Current milestone | M5 locally qualified; publication pending | Corrected code head `e2d0e5a` on `agent/parser-privacy-assurance-m5` passed direct final review and local gates; it is not a publication, hosted-check, merge, or release claim |
+| M5 delivery | merged | Privacy-safe local graph assurance merged through [PR #168](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/168) |
+| M6 delivery | merged | Source-location contract and RFC merged through [PR #169](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/169) |
+| M7 delivery | merged | Internal line-classification slice merged through [PR #170](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/170); issue [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165) is closed |
+| Current milestone | v1.8.0 release preparation | M5–M7 are in `origin/main@e427234`; release contract, package evidence, protected-branch publication, tag workflow, and public artifact verification remain the open gates |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
@@ -803,14 +806,12 @@ It must not replace the requirements in this plan.
   separate explicit gate.
 - [ ] #87 and #111 have complementary deterministic-work and measured-runtime
   evidence without semantic drift.
-- [ ] The privacy-safe local graph tool is delivered or explicitly rejected with
-  recorded reasons. Corrected code head `e2d0e5a` passed exact-code
-  qualification and direct final review; live-base refresh, hosted checks, and
-  publication remain open.
-- [ ] The source-location RFC is accepted or rejected with consumer and cost
-  evidence.
-- [ ] Every #108 extraction slice is covered by the semantic and performance
-  gates, or the epic records why no extraction is justified.
+- [x] The privacy-safe local graph tool is delivered through PR #168 with its
+  aggregate-only privacy boundary and bounded local execution contract.
+- [x] The source-location RFC is accepted through PR #169 with consumer and
+  cost evidence recorded in the decision document.
+- [x] The first #108 extraction slice is covered by semantic and work-growth
+  gates through PR #170; the broader extraction epic remains open.
 - [ ] No AGPL-covered expression entered Apache-only source, tests, fixtures,
   schemas, or documentation.
 - [ ] Documentation, issue state, and public claims match the delivered behavior.
@@ -844,4 +845,6 @@ Completion is unproven until every applicable item has authoritative evidence.
 | 2026-08-18 | M5 local graph assurance `41486b3` | local implementation checkpoint | An isolated branch based on `main@27d0061` adds a fresh-worker `assure` CLI command, file/byte/timeout bounds, symlink rejection, ordinary-socket denial, project-owned structure and reference checks, a fixed aggregate-only report schema, and a synthetic self-test. The current head validates nested report fields, rejects unknown finding codes and invalid direct limit values, and rechecks the total byte bound while reading. It remains local only; exact-head qualification, independent review, hosted checks, PR, merge, and release remain separate gates. |
 | 2026-08-18 | M5 direct final review and correction `e2d0e5a` | locally qualified; publication pending | Direct full-patch review reproduced four fail-closed defects: arbitrary runtime strings passed report validation, symlink-loop inputs produced path-bearing parent tracebacks, dangling `pages/` links could pass, and global graph input was ignored by `--self-test`. Non-amending corrections bind reports to exact runtime labels and parent limits, preserve invalid-root handling inside the worker, reject dangling root links, and enforce self-test isolation. The corrected code head passed 622 tests plus Ruff, mypy, documentation, vendor, coverage, and diff gates. No P0/P1/P2 finding remains in the reviewed local patch; live-base refresh, push authorization, hosted checks, PR, merge, and release remain separate gates. |
  | 2026-08-18 | M6 source-location decision `7bf5c6d` | local documentation and regression checkpoint | The accepted source-location RFC retains the existing one-based logical line contract for diagnostics, writer splicing, and SYNAPSE lineage. A CRLF/Unicode regression covers line positions. Byte, code-point, column, range, and source-map expansion is rejected until a named consumer meets the RFC admission gate. No parser or public API change is claimed. |
- | 2026-08-18 | M7 line classifier / #165 `f8c3f65` | local implementation checkpoint | A fresh impact review classified `_refresh_node` as HIGH risk and created [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165). The first slice adds a private pure syntax event and routes the existing parser through it without extracting state reduction or semantic enrichment. Focused parser, corpus, adversarial, and work-growth checks pass locally; independent review, exact-head full qualification, hosted checks, PR, merge, and release remain separate gates. |
+| 2026-08-18 | M7 line classifier / #165 `f8c3f65` | local implementation checkpoint | A fresh impact review classified `_refresh_node` as HIGH risk and created [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165). The first slice adds a private pure syntax event and routes the existing parser through it without extracting state reduction or semantic enrichment. Focused parser, corpus, adversarial, and work-growth checks passed locally. |
+| 2026-08-20 | M5–M7 controlled publication | merged | PRs [#168](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/168), [#169](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/169), and [#170](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/170) were squash-merged in order. `origin/main` is `e427234`; issue #165 was closed with the delivered evidence. |
+| 2026-08-20 | v1.8.0 release preparation | in progress | The release branch updates the source version, changelog, README release index, security support window, contributor guidance, and assurance goal. Exact package, supply-chain, tag, workflow, and public-artifact receipts remain required before declaring the release complete. |
