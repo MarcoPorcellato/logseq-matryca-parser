@@ -53,6 +53,13 @@ superseded_by: null
   workflow, settings, and release receipts remain separate gates.
 ## 2026-08-18
 
+- Created [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165)
+  after an impact review of the parser hub and locally implemented its first M7
+  slice: a private pure line-classification event. The reducer, AST creation,
+  semantic enrichment, deterministic identities, public imports, and
+  dependencies remain unchanged. Parser, corpus, adversarial, and work-growth
+  gates passed locally; no publication, benchmark, release, or #108-closure
+  claim is made.
 - Recorded the accepted [source-location contract decision](rfc/SOURCE_LOCATION_RFC.md).
   Existing one-based `line_start`/`line_end` fields remain the supported
   parse-snapshot coordinates for diagnostics, bounded writer splicing, and

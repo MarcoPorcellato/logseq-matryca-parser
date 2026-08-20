@@ -60,6 +60,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   graph checks, and a source-location RFC. No AGPL source, tests, corpora,
   schemas, or documentation were copied or adapted.
 
+### Changed
+
+- **Internal line classification (#165 M7)** — route the existing parser loop
+  through a private, immutable syntax event while retaining the stack reducer,
+  AST construction, semantic enrichment, identities, public API, and
+  dependencies. The change is covered by focused parser, corpus, adversarial,
+  and deterministic work-growth tests; it makes no benchmark or release claim.
+
 ### Fixed
 
 - **Diagnostic dependency boundary** — replaced the graph module's type-only
