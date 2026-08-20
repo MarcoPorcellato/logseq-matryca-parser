@@ -16,7 +16,7 @@ okf_spec_version: null
 supersedes: null
 superseded_by: null
 parent_plan: docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md
-source_commit: e427234be4ffb30e770e75344e914b85a6c78ef2
+source_commit: 06a1d6cb3dcbb215c6aa108ce82d37da530d52a5
 reference_commit: c79cb059da5b4360ebde2e5fd953fa1f43ddabc3
 ---
 
@@ -53,7 +53,7 @@ Markdown source-of-truth model.
 | Item | Verified state | Evidence |
 |---|---|---|
 | Source repository | `MarcoPorcellato/logseq-matryca-parser` | `origin/main` fetched 2026-08-20 |
-| Source base | `e427234be4ffb30e770e75344e914b85a6c78ef2` | live `origin/main` verified on 2026-08-20 after M5–M7 PRs merged |
+| Source base | `06a1d6cb3dcbb215c6aa108ce82d37da530d52a5` | live `origin/main` verified on 2026-08-20 after the v1.8.0 release-preparation merge |
 | Source license | Apache License 2.0 | [`LICENSE`](../LICENSE) |
 | Reference repository | `martinkoutecky/lsdoc` release `v0.5.5` | [reference commit `c79cb059`](https://github.com/martinkoutecky/lsdoc/commit/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3) |
 | Reference license | `AGPL-3.0-only` | [`Cargo.toml`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/Cargo.toml) and [`LICENSE`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/LICENSE) |
@@ -66,7 +66,7 @@ Markdown source-of-truth model.
 | M5 delivery | merged | Privacy-safe local graph assurance merged through [PR #168](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/168) |
 | M6 delivery | merged | Source-location contract and RFC merged through [PR #169](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/169) |
 | M7 delivery | merged | Internal line-classification slice merged through [PR #170](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/170); issue [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165) is closed |
-| Current milestone | v1.8.0 release preparation | M5–M7 are in `origin/main@e427234`; release contract, package evidence, protected-branch publication, tag workflow, and public artifact verification remain the open gates |
+| Current milestone | v1.8.0 released; broader assurance work remains | M5–M7 are in `origin/main@06a1d6c`; tag `v1.8.0`, exact workflow run `32324328464`, PyPI publication, GitHub Release, checksums, and attestations were verified on 2026-08-20 |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
@@ -847,4 +847,4 @@ Completion is unproven until every applicable item has authoritative evidence.
  | 2026-08-18 | M6 source-location decision `7bf5c6d` | local documentation and regression checkpoint | The accepted source-location RFC retains the existing one-based logical line contract for diagnostics, writer splicing, and SYNAPSE lineage. A CRLF/Unicode regression covers line positions. Byte, code-point, column, range, and source-map expansion is rejected until a named consumer meets the RFC admission gate. No parser or public API change is claimed. |
 | 2026-08-18 | M7 line classifier / #165 `f8c3f65` | local implementation checkpoint | A fresh impact review classified `_refresh_node` as HIGH risk and created [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165). The first slice adds a private pure syntax event and routes the existing parser through it without extracting state reduction or semantic enrichment. Focused parser, corpus, adversarial, and work-growth checks passed locally. |
 | 2026-08-20 | M5–M7 controlled publication | merged | PRs [#168](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/168), [#169](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/169), and [#170](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/170) were squash-merged in order. `origin/main` is `e427234`; issue #165 was closed with the delivered evidence. |
-| 2026-08-20 | v1.8.0 release preparation | in progress | The release branch updates the source version, changelog, README release index, security support window, contributor guidance, and assurance goal. Exact package, supply-chain, tag, workflow, and public-artifact receipts remain required before declaring the release complete. |
+| 2026-08-20 | v1.8.0 release | released | [PR #171](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/171) merged the release preparation as `06a1d6c`; tag `v1.8.0` triggered [workflow run #32324328464](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32324328464). Both pre-flight jobs, the immutable bundle, Twine/package metadata, CycloneDX SBOM, dependency/license inventory, checksums, GitHub attestations, PyPI publication, and GitHub Release completed successfully. Public asset checksums and attestations were verified after download; broader #104, #103, #87, #111, and #108 acceptance items remain open where marked incomplete. |

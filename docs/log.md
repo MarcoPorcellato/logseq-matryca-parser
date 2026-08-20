@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-19
-verified: 2026-08-19
+last_verified: 2026-08-20
+verified: 2026-08-20
 stale_after: 2027-02-12
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,13 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-08-20
+
+- Prepared v1.8.0 in [PR #171](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/171), merged it as `06a1d6cb3dcbb215c6aa108ce82d37da530d52a5`, and published tag `v1.8.0` through [release workflow run #32324328464](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32324328464).
+- The exact-tag run passed Python 3.12/3.13 pre-flight, package contract, one-time wheel/sdist build, Twine metadata checks, CycloneDX SBOM generation, dependency/license evidence, checksum verification, GitHub provenance and SBOM attestations, PyPI trusted publication, and GitHub Release creation.
+- Verified the public [GitHub Release](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.8.0) assets after download: SHA-256 checks passed for the wheel, sdist, SBOM, and dependency/license inventory, and GitHub attestation verification passed for all four attestable artifacts. PyPI exposes version `1.8.0` with the published wheel and sdist digests.
+- Updated the maintained assurance goal and execution ledger to distinguish completed v1.8.0 publication from the broader #104, #103, #87, #111, and #108 work that remains open.
 
 ## 2026-08-19
 
