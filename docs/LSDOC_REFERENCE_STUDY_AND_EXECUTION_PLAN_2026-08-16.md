@@ -608,13 +608,22 @@ converted into a pass or silently added to an allowlist.
 
 ### M6 — Source-location RFC and prototype
 
+**Recorded decision**
+
+- [`SOURCE_LOCATION_RFC.md`](rfc/SOURCE_LOCATION_RFC.md) accepts the existing
+  one-based logical line fields as the supported coordinate system and rejects
+  a new offset/source-map prototype for the current release line. The decision
+  is based on diagnostics, bounded writer splicing, and SYNAPSE lineage as the
+  concrete current consumers. It does not alter the stable API or parser.
+
 **Outcome**
 
 - Decide whether consumers need byte offsets, code-point offsets, line/column
   ranges, or a separate source-map object.
 - Define newline, Unicode, transformed text, provenance, serialization, and
   stale-range behavior.
-- Prototype behind an experimental API without changing stable node fields.
+- Do not prototype a new API unless the future admission gate in the RFC is
+  satisfied; retaining the existing line-only contract is the current outcome.
 
 **Dependencies**
 
@@ -622,8 +631,9 @@ converted into a pass or silently added to an allowlist.
 
 **Exit evidence**
 
-- Accepted or rejected RFC; non-ASCII and CR/LF tests; safe slicing behavior;
-  round-trip and writer compatibility; performance measurement.
+- Accepted or rejected RFC; non-ASCII and CR/LF line-contract tests; existing
+  safe writer slicing and consumer compatibility evidence; and a new measured
+  impact only if a future coordinate expansion is admitted.
 
 **Impact**
 

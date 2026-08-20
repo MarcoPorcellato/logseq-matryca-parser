@@ -1323,6 +1323,24 @@ def test_parser_strips_carriage_return_from_windows_edited_graph(parser: StackMa
     assert "\r" not in root.properties["status"]
 
 
+def test_line_locations_use_logical_one_based_lines_for_unicode_crlf(
+    parser: StackMachineParser,
+) -> None:
+    """Existing line locations remain safe across Unicode text and CRLF input."""
+    page = parser.parse(
+        "- Café 🙂\r\n"
+        "  status:: open\r\n"
+        "  continuation 東京\r\n"
+        "- Next\r\n",
+        page_title="source-location-crlf",
+    )
+    first, second = page.root_nodes
+
+    assert (first.line_start, first.line_end) == (1, 3)
+    assert (second.line_start, second.line_end) == (4, 4)
+    assert "\r" not in first.content
+
+
 def test_resolve_asset_path_nested_namespace_page(tmp_path: Path) -> None:
     """Nested namespace pages resolve ../assets links from graph root."""
     graph_root = tmp_path / "graph"

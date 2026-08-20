@@ -68,6 +68,7 @@ entry points.
 | [`decisions/ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md`](decisions/ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md) | Maintainers, documentation reviewers | Decision to preserve the measured official OKF backlog until profile conflicts are resolved |
 | [`decisions/ADR-0003-AAIF-SUBMISSION-GATE.md`](decisions/ADR-0003-AAIF-SUBMISSION-GATE.md) | Maintainers, legal reviewers | Evidence-based NO-GO and reconsideration gate for any AAIF submission |
 | [`reference/LOCAL_GRAPH_ASSURANCE.md`](reference/LOCAL_GRAPH_ASSURANCE.md) | Integrators, maintainers | Bounded aggregate-only local vault assurance, report schema, and privacy boundary |
+| [`rfc/SOURCE_LOCATION_RFC.md`](rfc/SOURCE_LOCATION_RFC.md) | Maintainers, integrators | Accepted logical-line source-location contract and future expansion gate |
 | [`log.md`](log.md) | Maintainers | Maintained documentation chronology |
 | [`rfc/OLLAMA_RAG.md`](rfc/OLLAMA_RAG.md) | Integrators | Draft RFC for local Ollama RAG (issue [#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)) |
 | [`roadmaps/`](roadmaps/) | Historians | Executed architectural contracts (Waves 2–12) |

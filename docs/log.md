@@ -53,6 +53,13 @@ superseded_by: null
   workflow, settings, and release receipts remain separate gates.
 ## 2026-08-18
 
+- Recorded the accepted [source-location contract decision](rfc/SOURCE_LOCATION_RFC.md).
+  Existing one-based `line_start`/`line_end` fields remain the supported
+  parse-snapshot coordinates for diagnostics, bounded writer splicing, and
+  SYNAPSE lineage. CRLF and Unicode line behavior is now covered directly. No
+  byte, code-point, column, range, source-map, parser, public-API, dependency,
+  or release change is claimed; a future expansion needs the RFC admission
+  gate.
 - Recorded [ADR-002](decisions/ADR-002-local-graph-assurance-boundary.md) and
   the [local graph assurance reference](reference/LOCAL_GRAPH_ASSURANCE.md) for
   M5. The optional `matryca-parse assure` command is bounded and local-only: it
