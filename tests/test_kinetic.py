@@ -67,7 +67,7 @@ def test_cli_help_uses_rich_markup_mode() -> None:
 
 @pytest.mark.parametrize(
     "command",
-    ["scan", "export", "visualize", "agent-read", "agent-write", "append", "demo"],
+    ["scan", "assure", "export", "visualize", "agent-read", "agent-write", "append", "demo"],
 )
 def test_per_command_help_renders_without_error(command: str) -> None:
     """``--help`` on every subcommand must exit 0 (issue #27)."""

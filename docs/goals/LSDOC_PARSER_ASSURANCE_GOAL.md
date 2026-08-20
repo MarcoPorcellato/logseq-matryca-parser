@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-16
-verified: 2026-08-16
+last_verified: 2026-08-18
+verified: 2026-08-18
 stale_after: 2026-11-14
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -24,36 +24,38 @@ Complete the license-safe parser assurance program defined in
 This goal is an execution pointer subordinate to the repository stellar roadmap
 and has no independent scope authority.
 
-M1 was merged through [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161).
-M3 is locally qualified at `3edbefb` but remains unpublished. M4 code is
-locally qualified at `65275cd` on an isolated branch based on that exact M3
-commit. Its Python-native, test-only deterministic work model uses original
-fixed-seed, size-scaled inputs; counts only declared Python-owned operations;
-rejects unexplained superlinear work; proves structural and semantic contracts;
-classifies parent-enforced timeouts; and emits source-free receipts with
-platform-labelled, non-gating timing and memory observations. The final exact
-full-patch review remains required before any publication.
+M1 merged through [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161).
+M3, M4, and M2 subsequently merged through [PR #162](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/162),
+[PR #163](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/163), and
+[PR #164](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/164), as
+`172be70`, `5d38e01`, and `98bc5aa` on `main`. M3 remains a project-owned,
+bounded adversarial laboratory; M4 remains a Python-native, test-only,
+deterministic work model. Neither expands #103, #87, or #111 ownership or
+constitutes a release claim.
 
-M4 must not change parser runtime behavior, public APIs, package metadata,
-dependencies, or the valid-fixture manifest. It must not claim #103
-incremental/cold-load snapshot equivalence, #87 pathological-latency ownership,
-#111 wall-time/p95/RSS/vault-scale ownership, an external-oracle result, or
-release qualification. A new regression fixture is allowed only after a
-minimized original input has been reviewed for provenance, privacy, and
-licensing.
+M5 is in delivery from local corrected code head `e2d0e5a` on
+`agent/parser-privacy-assurance-m5`, based on `main@27d0061`. It adds an
+optional aggregate-only local assurance CLI with a fresh worker, file/byte/time
+bounds, symlink rejection, ordinary-socket denial, safe report validation, and
+a project-owned synthetic self-test. It must not emit or retain vault-derived
+content, paths, titles, UUIDs, exception text, or host names; it must not claim
+#103 incremental/cold-load equivalence, #87 or #111 performance evidence,
+external-oracle parity, release qualification, or closure of #104/#108.
 
 M2 is complete through the accepted negative
 [ADR-001](../decisions/ADR-001-external-oracle-boundary.md): no external
 `mldoc` executable may be installed, invoked, pinned, packaged, or integrated
 under the current boundary. The ADR is a conservative engineering decision, not
-legal advice. M3 and M4 remain project-owned evidence. Any future M5 work may
-use only project-owned invariants unless a superseding ADR meets every listed
-reconsideration condition, including a maintainer-approved process boundary.
+legal advice. M3, M4, and M5 use only project-owned evidence. Any future
+external-oracle, retention, upload, or richer source-derived reporting proposal
+requires a superseding ADR meeting every listed reconsideration condition,
+including a maintainer-approved process boundary.
 
-Before any push or pull request, re-verify the live base, freeze the raw full
-diff, qualify its exact head, obtain an independent GPT-5.6 Sol full-patch
-review, adjudicate every finding, and stop before publication unless separately
-authorized.
+The direct GPT-5.6 Sol review found and corrected unsafe runtime-string
+admission, parent-side symlink-loop disclosure, dangling root-link acceptance,
+and ignored global graph input in self-test mode. Before any M5 push or pull
+request, re-verify the live base, freeze the raw full diff, qualify its exact
+head, and stop before publication unless separately authorized.
 
 The initial checkpoint `8806205c35b104ed65d00a273acc9eeca572ae38` is rejected
 pre-correction evidence. Corrective implementation
