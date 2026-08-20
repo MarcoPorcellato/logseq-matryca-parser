@@ -869,20 +869,6 @@ class LogseqGraph(BaseModel):
         for node in _flatten_nodes(page.root_nodes):
             self._node_registry[node.uuid] = node
 
-    def _append_page_backlinks(self, page: LogseqPage) -> None:
-        for node in _flatten_nodes(page.root_nodes):
-            for link in node.wikilinks:
-                for key in _wikilink_backlink_keys(self.pages, link):
-                    _append_backlink(self._backlink_registry, key, node.uuid)
-            for tag in node.tags:
-                key = _normalize_backlink_key(tag)
-                if key:
-                    _append_backlink(self._backlink_registry, key, node.uuid)
-            for block_ref in node.block_refs:
-                key = _normalize_backlink_key(block_ref)
-                if key:
-                    _append_backlink(self._backlink_registry, key, node.uuid)
-
     def invalidate_and_reload_page(self, file_path: Path) -> None:
         """Re-parse a single file, purge its old nodes/backlinks, and merge fresh indexes."""
         resolved = Path(file_path).expanduser().resolve()
@@ -898,6 +884,7 @@ class LogseqGraph(BaseModel):
         if not resolved.exists():
             self.pages = new_pages
             self._lower_title_map = _build_lower_title_map(new_pages)
+            self._backlink_registry = _build_backlink_registry(new_pages)
             logger.debug("invalidate_and_reload_page: purged deleted path=%s", resolved)
             return
         fresh = StackMachineParser().parse_page_file(resolved)
@@ -907,7 +894,7 @@ class LogseqGraph(BaseModel):
         self.pages = new_pages
         self._lower_title_map = _build_lower_title_map(new_pages)
         self._register_page_nodes(enriched)
-        self._append_page_backlinks(enriched)
+        self._backlink_registry = _build_backlink_registry(new_pages)
         logger.debug(
             "Stack-Machine incremental re-hydrate: path=%s title=%s nodes=%s",
             resolved,

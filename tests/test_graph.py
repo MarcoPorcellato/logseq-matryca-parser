@@ -489,6 +489,52 @@ def test_invalidate_and_reload_purges_deleted_page(tmp_path: Path) -> None:
     assert graph.get_node_by_uuid(stale_uuid) is None
 
 
+def test_incremental_rename_rebuilds_backlinks_like_cold_load(tmp_path: Path) -> None:
+    """A moved page's renamed title and aliases rebind backlinks from unchanged pages."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    source = pages / "Alpha.md"
+    source.write_text("title:: Alpha\nalias:: Old\n\n- target\n", encoding="utf-8")
+    (pages / "Linker.md").write_text("- links [[Old]]\n", encoding="utf-8")
+
+    incremental = LogseqGraph.load_directory(graph_root)
+    moved = pages / "Beta.md"
+    source.write_text("title:: Beta\nalias:: Old, New\n\n- target\n", encoding="utf-8")
+    source.rename(moved)
+    incremental.invalidate_and_reload_page(source)
+    incremental.invalidate_and_reload_page(moved)
+
+    cold = LogseqGraph.load_directory(graph_root)
+    for target in ("Alpha", "Beta", "Old", "New"):
+        assert [node.uuid for node in incremental.get_backlinks(target)] == [
+            node.uuid for node in cold.get_backlinks(target)
+        ]
+    assert incremental.get_page("Alpha") is None
+    assert incremental.get_page("Beta") is not None
+    assert incremental.get_page("New") is incremental.get_page("Beta")
+
+
+def test_incremental_deletion_rebuilds_backlinks_like_cold_load(tmp_path: Path) -> None:
+    """Deleting an aliased page removes its former canonical backlink key."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    source = pages / "Alpha.md"
+    source.write_text("title:: Alpha\nalias:: Old\n\n- target\n", encoding="utf-8")
+    (pages / "Linker.md").write_text("- links [[Old]]\n", encoding="utf-8")
+
+    incremental = LogseqGraph.load_directory(graph_root)
+    source.unlink()
+    incremental.invalidate_and_reload_page(source)
+
+    cold = LogseqGraph.load_directory(graph_root)
+    for target in ("Alpha", "Old"):
+        assert [node.uuid for node in incremental.get_backlinks(target)] == [
+            node.uuid for node in cold.get_backlinks(target)
+        ]
+
+
 def test_title_collision_pages_journals_no_ghost_registry(tmp_path: Path) -> None:
     """``pages/`` and ``journals/`` with the same title must not leave loser nodes in the registry."""
     graph_root = tmp_path / "vault"
