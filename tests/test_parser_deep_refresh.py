@@ -11,6 +11,7 @@ import pytest
 from logseq_matryca_parser.logos_core import LogseqNode
 from logseq_matryca_parser.logos_parser import StackMachineParser
 from logseq_matryca_parser.logseq_markdown import serialize_logseq_page
+from tests.parser_assurance.invariants import assert_tree_invariants, walk_nodes
 from tests.parser_assurance.projection import IdentityPolicy, project_page
 
 _DEEP_IDENTITY_POLICY = IdentityPolicy(
@@ -90,6 +91,13 @@ def test_parse_handles_a_1024_node_chain_without_recursion() -> None:
     for parent, child in zip(branch, branch[1:], strict=False):
         assert child.parent_id == parent.uuid
         assert child.left_id is None
+
+
+def test_structural_invariants_handle_a_1024_node_chain_without_recursion() -> None:
+    page = StackMachineParser().parse(_nested_source(1024, []), page_title="deep-invariants")
+
+    assert_tree_invariants(page)
+    assert len(list(walk_nodes(page.root_nodes))) == 1024
 
 
 def test_strict_parse_handles_a_1024_node_chain_without_recursion() -> None:

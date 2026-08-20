@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+import logseq_matryca_parser.graph as graph_module
 from logseq_matryca_parser.exceptions import BlockReferenceError
 from logseq_matryca_parser.graph import (
     GraphQuery,
@@ -47,6 +48,27 @@ def test_load_directory_bulk_parse_and_uuid_lookup(tmp_path: Path) -> None:
     assert graph.get_node_by_uuid(root.uuid) == root
     assert graph.get_node_by_uuid(child.uuid) == child
     assert graph.get_node_by_uuid("00000000-0000-0000-0000-000000000000") is None
+
+
+def test_load_directory_handles_a_1024_level_outline(tmp_path: Path) -> None:
+    """Graph indexing preserves a parser-supported 1024-level outline without recursion."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Deep.md").write_text(
+        "".join(f"{'  ' * depth}- level-{depth}\n" for depth in range(1024)),
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    current = graph.pages["Deep"].root_nodes[0]
+    for depth in range(1024):
+        assert current.content == f"level-{depth}"
+        if depth < 1023:
+            assert len(current.children) == 1
+            current = current.children[0]
+        else:
+            assert current.children == []
 
 
 def test_get_nodes_by_tag_cross_page(tmp_path: Path) -> None:
@@ -487,6 +509,61 @@ def test_invalidate_and_reload_purges_deleted_page(tmp_path: Path) -> None:
 
     assert graph.get_page("Gone") is None
     assert graph.get_node_by_uuid(stale_uuid) is None
+
+
+def test_incremental_rename_reindexes_backlinks_without_a_global_rebuild(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A moved page reindexes affected backlinks without scanning the whole vault."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    source = pages / "Alpha.md"
+    source.write_text("title:: Alpha\nalias:: Old\n\n- target\n", encoding="utf-8")
+    (pages / "A-existing.md").write_text("- links [[Beta]]\n", encoding="utf-8")
+    (pages / "Linker.md").write_text("- links [[Old]]\n", encoding="utf-8")
+
+    incremental = LogseqGraph.load_directory(graph_root)
+    moved = pages / "Beta.md"
+    source.write_text("title:: Beta\nalias:: Old, New\n\n- target\n", encoding="utf-8")
+    source.rename(moved)
+
+    def forbid_global_rebuild(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("incremental reload must not rebuild the whole backlink registry")
+
+    with monkeypatch.context() as isolated:
+        isolated.setattr(graph_module, "_build_backlink_registry", forbid_global_rebuild)
+        incremental.invalidate_and_reload_page(source)
+        incremental.invalidate_and_reload_page(moved)
+
+    cold = LogseqGraph.load_directory(graph_root)
+    for target in ("Alpha", "Beta", "Old", "New"):
+        assert [node.uuid for node in incremental.get_backlinks(target)] == [
+            node.uuid for node in cold.get_backlinks(target)
+        ]
+    assert incremental.get_page("Alpha") is None
+    assert incremental.get_page("Beta") is not None
+    assert incremental.get_page("New") is incremental.get_page("Beta")
+
+
+def test_incremental_deletion_rebuilds_backlinks_like_cold_load(tmp_path: Path) -> None:
+    """Deleting an aliased page removes its former canonical backlink key."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    source = pages / "Alpha.md"
+    source.write_text("title:: Alpha\nalias:: Old\n\n- target\n", encoding="utf-8")
+    (pages / "Linker.md").write_text("- links [[Old]]\n", encoding="utf-8")
+
+    incremental = LogseqGraph.load_directory(graph_root)
+    source.unlink()
+    incremental.invalidate_and_reload_page(source)
+
+    cold = LogseqGraph.load_directory(graph_root)
+    for target in ("Alpha", "Old"):
+        assert [node.uuid for node in incremental.get_backlinks(target)] == [
+            node.uuid for node in cold.get_backlinks(target)
+        ]
 
 
 def test_title_collision_pages_journals_no_ghost_registry(tmp_path: Path) -> None:

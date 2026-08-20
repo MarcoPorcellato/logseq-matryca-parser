@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Incremental graph reloads (#103)** — backlink indexes are rebuilt from the
+  current page set after a tracked page is deleted or reloaded. Title and alias
+  changes delivered through a filesystem move now match a cold load; no public
+  API or performance claim changes.
 - **Pathological nested outlines (#87)** — parse and file-entrypoint traversal
   now remain iterative for a 1024-level valid outline, while parser-owned tree
   construction avoids quadratic immutable-ancestor copies. Tree order, parent

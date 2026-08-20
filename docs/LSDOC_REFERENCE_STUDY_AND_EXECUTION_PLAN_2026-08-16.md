@@ -679,6 +679,66 @@ converted into a pass or silently added to an allowlist.
 
 - Some seams may not justify extraction; preserving a deliberate hub is valid.
 
+### M8 — Reproducible measured-runtime evidence (#111)
+
+**Decision and boundary**
+
+- Add a project-owned, test-only runtime-evidence harness under
+  `tests/performance/`; it is neither a package API nor a normal CI timing
+  gate.
+- Use only a deterministic original synthetic vault. The initial scale is 96
+  pages with 24 blocks per page, cross-page links, aliases, tags, and one
+  bounded deep-chain page. The generator and its schema version are part of
+  the evidence contract.
+- Measure five separately named scenarios: a 1024-level #87 parse seed, cold
+  graph load, #103 title-and-alias move reload, `search_content`, and SYNAPSE
+  context-enriched chunk construction.
+- A default run emits one source-free JSON receipt to stdout and writes no
+  result by default. It must not receive a private vault path or send network
+  traffic. Generated source, source paths, page titles, UUIDs, and exception
+  text are excluded from receipts.
+
+**Measurement protocol**
+
+- Each scenario has three warm-up iterations followed by 21 measured samples;
+  `perf_counter_ns` supplies duration samples. The receipt reports median and
+  p95 only with the full sample count and warm-up count.
+- Where the platform provides it, report process high-water memory with its
+  native unit and an explicit availability state. It is an observation, not a
+  normalized cross-platform value.
+- Label every receipt with harness and generator versions, exact scenario
+  identity, source hash and aggregate counts, Python version, platform,
+  machine labels available without probing private data, and the exact replay
+  command. Receipts are host-specific and non-comparable by default.
+- Verify semantic output in every scenario: parser tree invariants, #103
+  incremental-versus-cold graph equivalence, expected search identities, and
+  chunk count and lineage. A timing sample without its scenario's semantic
+  gate is invalid evidence.
+
+**Dependencies**
+
+- #87's bounded parser correction, #103 cold-load equivalence evidence, and
+  the existing original M1/M3/M4 fixtures. SYNAPSE remains optional: if its
+  runtime dependency is unavailable, that scenario is classified as
+  unavailable rather than skipped or passed.
+
+**Exit evidence**
+
+- Deterministic generator and receipt-schema tests; source-free local receipts
+  from an exact committed head; semantic gates for all available scenarios;
+  fresh impact analysis and zero import cycles; and a documented noise policy.
+- The ordinary suite validates structure and semantics only. No CI duration,
+  p95, or RSS threshold is introduced in this milestone. Any future
+  host-specific budget, cross-machine comparison, release claim, or public
+  performance headline requires a separately approved baseline and promotion
+  decision.
+
+**Residual risk**
+
+- Synthetic evidence cannot represent every real vault, filesystem, CPU, or
+  optional-adapter condition. It establishes reproducible local observations,
+  not a universal speed guarantee.
+
 ## 12. Explicit deferrals and rejection triggers
 
 | Proposal | Disposition | Reconsider only when |
