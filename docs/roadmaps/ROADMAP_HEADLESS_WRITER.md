@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # 📜 Architectural Contract: Headless Write Engine & AST Linters
 **Contract Status:** Wave 12 — executed (suite green)
 **Target Stack:** Python 3.12+ | Pydantic V2

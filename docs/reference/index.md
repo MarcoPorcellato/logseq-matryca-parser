@@ -16,7 +16,6 @@ okf_spec_version: null
 supersedes: null
 superseded_by: null
 ---
-
 # Reference and provenance index
 
 ## Matryca relations

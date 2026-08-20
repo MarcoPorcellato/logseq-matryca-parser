@@ -24,10 +24,36 @@ Complete the license-safe parser assurance program defined in
 This goal is an execution pointer subordinate to the repository stellar roadmap
 and has no independent scope authority.
 
-First verify the live source revision, issue state, documentation policy, and
-delivery state. Continue through the dependency-ordered milestones until every
-applicable completion item has authoritative current evidence. Do not redo work
-already proved in the plan.
+M1 was merged through [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161).
+M3 is locally qualified at `3edbefb` but remains unpublished. M4 code is
+locally qualified at `65275cd` on an isolated branch based on that exact M3
+commit. Its Python-native, test-only deterministic work model uses original
+fixed-seed, size-scaled inputs; counts only declared Python-owned operations;
+rejects unexplained superlinear work; proves structural and semantic contracts;
+classifies parent-enforced timeouts; and emits source-free receipts with
+platform-labelled, non-gating timing and memory observations. The final exact
+full-patch review remains required before any publication.
+
+M4 must not change parser runtime behavior, public APIs, package metadata,
+dependencies, or the valid-fixture manifest. It must not claim #103
+incremental/cold-load snapshot equivalence, #87 pathological-latency ownership,
+#111 wall-time/p95/RSS/vault-scale ownership, an external-oracle result, or
+release qualification. A new regression fixture is allowed only after a
+minimized original input has been reviewed for provenance, privacy, and
+licensing.
+
+M2 is complete through the accepted negative
+[ADR-001](../decisions/ADR-001-external-oracle-boundary.md): no external
+`mldoc` executable may be installed, invoked, pinned, packaged, or integrated
+under the current boundary. The ADR is a conservative engineering decision, not
+legal advice. M3 and M4 remain project-owned evidence. Any future M5 work may
+use only project-owned invariants unless a superseding ADR meets every listed
+reconsideration condition, including a maintainer-approved process boundary.
+
+Before any push or pull request, re-verify the live base, freeze the raw full
+diff, qualify its exact head, obtain an independent GPT-5.6 Sol full-patch
+review, adjudicate every finding, and stop before publication unless separately
+authorized.
 
 The initial checkpoint `8806205c35b104ed65d00a273acc9eeca572ae38` is rejected
 pre-correction evidence. Corrective implementation

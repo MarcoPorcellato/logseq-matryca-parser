@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # GitHub roadmap — Clean Architecture v1.6
 
 **Status:** 2026-07-02 · **v1.6.0 shipped** — close milestone after tag `v1.6.0`  

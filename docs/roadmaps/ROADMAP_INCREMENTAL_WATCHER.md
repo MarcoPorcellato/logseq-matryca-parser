@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # 📜 Architectural Contract: Live Incremental Invalidation & File Watcher
 **Contract Status:** Wave 7 — Implemented (incremental invalidation + lazy watchdog watcher)
 

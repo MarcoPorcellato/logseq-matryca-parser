@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # 📜 Architectural Contract: Inline Token Shielding & Namespace Hierarchy Resolution
 **Contract Status:** Executed (Wave 3 — green `make check` + pytest)
 **Target Stack:** Python 3.12+ | Pydantic V2 | Local-First No-DB

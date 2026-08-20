@@ -16,7 +16,7 @@ okf_spec_version: null
 supersedes: null
 superseded_by: null
 parent_plan: docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md
-source_commit: e2a3f9a8d190fd115028d0ad344c31fded0357d9
+source_commit: 5b0a73eb052cdbfb624b016223545c693fd6d40e
 reference_commit: c79cb059da5b4360ebde2e5fd953fa1f43ddabc3
 ---
 
@@ -53,7 +53,7 @@ Markdown source-of-truth model.
 | Item | Verified state | Evidence |
 |---|---|---|
 | Source repository | `MarcoPorcellato/logseq-matryca-parser` | `origin/main` fetched 2026-08-16 |
-| Source base | `e2a3f9a8d190fd115028d0ad344c31fded0357d9` | clean `agent/parser-assurance-m1` checkout matching `origin/main` on 2026-08-16 and [GitHub commit](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/e2a3f9a8d190fd115028d0ad344c31fded0357d9) |
+| Source base | `5b0a73eb052cdbfb624b016223545c693fd6d40e` | live `origin/main` verified on 2026-08-16 after [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161) merged |
 | Source license | Apache License 2.0 | [`LICENSE`](../LICENSE) |
 | Reference repository | `martinkoutecky/lsdoc` release `v0.5.5` | [reference commit `c79cb059`](https://github.com/martinkoutecky/lsdoc/commit/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3) |
 | Reference license | `AGPL-3.0-only` | [`Cargo.toml`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/Cargo.toml) and [`LICENSE`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/LICENSE) |
@@ -61,7 +61,8 @@ Markdown source-of-truth model.
 | M0 publication | merged as [PR #159](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/159) | source head `a6056413`, squash merge `30946446`, terminal validation recorded in the PR |
 | Existing delivery anchors | #87, #103, #104, #108, #111 are open; #106 and #113 are closed | live GitHub issue reads on 2026-08-16 |
 | Local implementation checkpoint | `8806205c35b104ed65d00a273acc9eeca572ae38` | clean local commit on `agent/parser-assurance-m1`; exact-head tests passed, but independent oracle review rejected publication |
-| Current milestone | M1-B second corrective implementation locally qualified; refreshed documentation evidence and final frozen Sol review pending | second frozen Sol review on `5007dc357e05775c6221c8aa84f9a11edc695e0d` returned `NEEDS_CORRECTION`; non-amending corrective implementation `7870b84` passed exact-head local qualification with 584 tests; no push or PR |
+| M1 delivery | merged | [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161) merged the project-owned compatibility-corpus foundation; it remains only the first #104 tranche |
+| Current milestone | M2 decision recorded; M4 locally qualified | [ADR-001](decisions/ADR-001-external-oracle-boundary.md) records a negative external-oracle decision. M4 code commit `65275cd` and evidence head `19ac996` remain locally qualified test-only work; no publication claim |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
@@ -441,6 +442,15 @@ converted into a pass or silently added to an allowlist.
   project's intentionally different AST and graph responsibilities are typed.
 - Oracle errors, version drift, and unknown mappings fail closed.
 
+**Recorded decision**
+
+- [ADR-001](decisions/ADR-001-external-oracle-boundary.md) completes M2 with a
+  negative decision. Under the current Apache-2.0 project boundary, no external
+  `mldoc` executable is adopted, installed, invoked, pinned, or integrated.
+  This is a conservative engineering decision, not legal advice. M3 and M4
+  remain project-owned evidence; an M5 implementation may use only
+  project-owned invariants unless a future ADR supersedes this decision.
+
 **Dependencies**
 
 - M1 projection stable; dependency-license inventory; maintainer approval of the
@@ -449,10 +459,11 @@ converted into a pass or silently added to an allowlist.
 
 **Exit evidence**
 
-- Accepted ADR, exact oracle version/hash, documented installation boundary,
-  no package/runtime dependency, original comparison adapter and fixtures, and
-  a reproducible local proof. If rejected, the negative decision is the valid
-  milestone result and M3 continues without an external oracle.
+- If adoption is proposed, an accepted ADR, exact oracle version/hash,
+  documented installation boundary, no package/runtime dependency, original
+  comparison adapter and fixtures, and a reproducible local proof are required.
+  The accepted negative decision in ADR-001 is the current valid milestone
+  result; M3 continues without an external oracle.
 
 **Impact**
 
@@ -468,21 +479,44 @@ converted into a pass or silently added to an allowlist.
 **Outcome**
 
 - Original generators cover indentation depth, malformed fences, escapes,
-  overlapping delimiters, properties, references, Unicode, CR/LF variants,
-  large lines, and incremental/cold-load equivalence.
-- Every generated run has bounded size, deterministic replay information, and
-  subprocess timeout protection.
-- Complete the remaining expanded #104 acceptance criteria without duplicating
-  the focused #103 snapshot owner or the established #106 security contracts.
+  overlapping delimiters, properties, references, Unicode, CR/LF variants, and
+  large lines.
+- Every generated run has an explicit byte budget, canonical case identity,
+  deterministic seed replay information, source-free receipts, and parent-
+  enforced fresh-subprocess timeout protection.
+- The laboratory classifies a successful parse, expected typed parser error,
+  unexpected exception, structural-invariant failure, semantic-roundtrip
+  failure, timeout, or runner failure. Tolerated malformed syntax is recorded
+  as malformed input with a successful parse; it is not misrepresented as a
+  parser error.
+- Valid generated cases prove parse/serialize/parse semantic equivalence using
+  an identity policy that allows synthetic UUID recomputation while preserving
+  semantic outline relationships. All generated cases prove tree invariants
+  whenever parsing succeeds.
+- A fixed small profile runs with ordinary tests. A separate offline scheduled
+  profile increases only deterministic seeds and bounded case counts; it is not
+  a benchmark, a release gate, or required for ordinary pull-request review.
+- Failure minimization is greedy and deterministic, preserves the exact outcome
+  classification and exception type, and records only minimized byte length and
+  hash. A maintainer must review any proposed regression fixture before adding
+  original Apache-2.0 source to the valid corpus.
+- #103 remains the sole owner of complete incremental-versus-cold-load snapshot
+  equivalence. M3 provides no such claim. #111 and #87 remain the owners of
+  scale, wall-time, percentile, memory, and performance conclusions; M3 uses a
+  fixed safety timeout only to establish no-hang classification.
 
 **Dependencies**
 
-- M1; optional M2 when accepted; #103 for complete incremental snapshot claims.
+- M1. M2 is not required because this laboratory has no external oracle. #103
+  is a boundary, not an M3 dependency, unless a future change seeks to claim
+  complete incremental snapshot equivalence.
 
 **Exit evidence**
 
-- Fixed-seed CI subset; scheduled broader run; minimized original regression
-  fixtures; no crash, hang, invariant loss, or unclassified failure.
+- Fixed-seed CI subset and a separately scheduled broader run; deterministic
+  seed/case replay command; source-free receipts; minimized original candidate
+  only after failure and review; no crash, hang, structural-invariant loss,
+  semantic-roundtrip mismatch, or unclassified failure in the selected matrix.
 
 **Impact**
 
@@ -502,6 +536,24 @@ converted into a pass or silently added to an allowlist.
   explicitly documented exceptions.
 - Preserve #87 as the focused pathological seed and #111 as the wall-time,
   p95, RSS, and vault-scale owner.
+- Keep the work model under `tests/` only. It may count input lines,
+  indentation resolution, node construction and initialization, attachment,
+  refresh, replacement, normalization, and reference-collection operations,
+  but it must not expose a parser runtime hook or public API.
+- Use the fixed project-authored matrix `8`, `16`, `32`, and `64` for flat
+  blocks, deep chains, fenced continuations, and properties. Every
+  non-exception operation in the vector must remain within a `2.5x` ratio as a
+  size doubles. The deep-chain
+  family is the sole named structural exception: immutable ancestor rebuilding
+  is asserted against its exact `n * (n - 1) / 2` model while its remaining
+  vector stays within the linear envelope.
+- Emit source-free receipts with schema and generator versions, case identity,
+  exact replay command with bounded mode and timeout when applicable, size,
+  source hash and byte count, operation vector,
+  classification, semantic and structural gates, and Python/platform labels.
+  Elapsed time and process high-water memory may appear only as platform-
+  labelled, non-gating observations; they are not comparable budgets or
+  performance conclusions.
 
 **Dependencies**
 
@@ -509,9 +561,10 @@ converted into a pass or silently added to an allowlist.
 
 **Exit evidence**
 
-- Deterministic work ratios, targeted timeout tests, platform-labelled timing
-  baselines, memory evidence, unchanged semantic projection, and documented
-  noise policy.
+- Deterministic work ratios, parent-enforced timeout classification, platform-
+  labelled timing and memory observations, unchanged semantic projection, and
+  documented noise policy. A receipt cannot contain generated source text or
+  assert a wall-time, RSS, p95, vault-scale, or release claim.
 
 **Impact**
 
@@ -526,8 +579,9 @@ converted into a pass or silently added to an allowlist.
 
 **Outcome**
 
-- Optional local command evaluates project-owned invariants and, only if M2 is
-  accepted, differential overlap against the external oracle.
+- Optional local command evaluates project-owned invariants and, only if a
+  superseding ADR explicitly approves adoption, differential overlap against an
+  external oracle.
 - Default behavior uploads nothing, excludes graph content from reports, bounds
   files/bytes/time, stores only safe aggregates, and requires explicit opt-in to
   retain minimized snippets.
@@ -716,10 +770,12 @@ It must not replace the requirements in this plan.
   hosted validation and merge remain deferred until explicit user authorization.
 - [ ] The remaining expanded #104 acceptance criteria are proved through the
   dependency-owned #103 and M3 evidence before #104 is closed.
-- [ ] The external-oracle decision is recorded, including a valid negative
-  decision if license or process boundaries are unacceptable.
-- [ ] Adversarial and property-based tests have deterministic replay and bounded
-  execution.
+- [x] The external-oracle decision is recorded in
+  [ADR-001](decisions/ADR-001-external-oracle-boundary.md): no external oracle
+  is adopted under the current boundary.
+- [x] Adversarial and property-based tests have deterministic replay and bounded
+  execution through local exact-head M3 commit `3edbefb`; publication remains a
+  separate explicit gate.
 - [ ] #87 and #111 have complementary deterministic-work and measured-runtime
   evidence without semantic drift.
 - [ ] The privacy-safe local graph tool is delivered or explicitly rejected with
@@ -754,3 +810,6 @@ Completion is unproven until every applicable item has authoritative evidence.
 | 2026-08-16 | M1-B corrective implementation `9e8708e` | locally qualified, then superseded | Corrected the first frozen review's simple shield cases and `#[[Foo]]` normalization. Exact-head qualification passed with 579 tests, but the next full-patch Sol review found incomplete parity for unequal backtick runs; this receipt is therefore historical, not publication-ready. |
 | 2026-08-16 | M1-B second frozen Sol review `5007dc3` | verified and unresolved | Review returned `NEEDS_CORRECTION`: valid mixed-backtick input still removed an authentic content wikilink, simple tests did not cover unequal delimiter runs, and the supplied patch hash/line receipt was invalid because it came from filtered rather than raw Git diff bytes. |
 | 2026-08-16 | M1-B second corrective implementation `7870b84` | locally qualified (non-amending) | Added parser-equivalent exact backtick-run matching, bounded fence/query-region closing, precise inline-math closing, unclosed-comment parity, the exact Sol reproducer, and post-region visible-link regressions. A 14-family direct differential probe found no parser/oracle wikilink mismatch. Exact-head snapshot freshness and `make all` passed with 584 tests and 92.16% coverage; Ruff, mypy, documentation, vendor-name, diff, and zero-cycle checks passed. No `src/`, package, API, dependency, push, PR, merge, or release change occurred. |
+| 2026-08-16 | M1 / PR #161 | merged | [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161) merged the first #104 compatibility-corpus tranche. Historical local M1 receipts remain historical only; the live `main` base is `5b0a73e`. |
+| 2026-08-16 | M3 laboratory `3edbefb` | locally qualified, unpublished | An isolated branch from `main@5b0a73e` adds only test, workflow, and documentation changes: seven original bounded generator families, fresh-subprocess timeout classification, source-free receipts, classification- and exception-preserving minimization, structural invariants, valid-input semantic round trips, a 21-case fixed profile, and a 63-case scheduled broad profile. The exact head passed `make all`, the broad profile, and final Sol review. No public API, runtime dependency, #103, #111/#87, external-oracle, release, or publication claim is made. |
+| 2026-08-16 | M4 laboratory `65275cd` | locally qualified, unpublished | Added only test and documentation changes: a fixed-seed `8/16/32/64` matrix for flat blocks, deep chains, fenced continuations, and properties; a test-only parser subclass that records declared Python-owned operations; a `2.5x` independently enforced envelope for every non-exception operation; and an exact immutable-ancestor-rebuild exception for deep chains. The exact code head passed targeted lint, type, and 64-test regression checks before final qualification. Receipts include source hashes, actual bounded mode and timeout replay commands, semantic/structural gates, and platform-labelled diagnostic observations only. The optional RSS probe is unavailable-safe on platforms without the Unix `resource` module. No `src/`, package, dependency, #87, #111, #103, external-oracle, release, or publication claim changed; final full-patch Sol review remains required. |

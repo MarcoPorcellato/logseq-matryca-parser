@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # Matryca.ai Policy: Ghost Tooling & Static Analysis
 
 ## 1. Context and Risk (Restrictive Licenses)

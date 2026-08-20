@@ -15,6 +15,7 @@ okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
 superseded_by: null
+okf_version: "0.2"
 ---
 
 # Logseq Matryca Parser knowledge bundle
@@ -48,7 +49,7 @@ navigation layers only.
 | [Parser assurance extension](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | License-safe comparative study and dependency-ordered semantic and complexity plan |
 | [README readability report](README_READABILITY_REPORT_2026-08-08.md) | Measured human and AI readability assessment and phased proposal |
 | [Issue reconciliation](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Current GitHub backlog decisions |
-| [Decision index](decisions/index.md) | Architectural decisions and missing ADRs |
+| [Decision index](decisions/index.md) | Architectural decisions, including the external-oracle boundary |
 | [Reference index](reference/index.md) | Provenance and external relations |
 | [Structured diagnostics](reference/DIAGNOSTICS.md) | Stable diagnostic schema, codes, path safety, rendering, and escalation |
 | [Filesystem safety](reference/FILESYSTEM_SAFETY.md) | Vault containment, atomic write, dry-run, metadata, and asset-read policy |

@@ -1,3 +1,6 @@
+---
+type: Document
+---
 # 📜 Architectural Contract: Context-Enriched Chunking & Scoping Priority Shadowing
 **Contract Status:** Wave 4 — executed
 **Target Stack:** Python 3.12+ | Pydantic V2 | Local-First No-DB

@@ -1,3 +1,6 @@
+---
+type: Document
+---
 ## [2026-04-24] Static Analysis & Linter Refactoring (Mypy / Pylance / Ruff)
 
 ### Module: `kinetic.py`

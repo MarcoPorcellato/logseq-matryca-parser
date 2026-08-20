@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Tests
+
+- Add a deterministic, test-only parser work-growth laboratory with fixed
+  size-scaled synthetic cases, semantic and structural gates, source-free
+  receipts, and non-gating platform observations. No runtime API or performance
+  claim is added.
+
 ### Added
 
 - **Governance and agent-assurance system** — added public governance,
@@ -21,6 +28,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Pull-request dependency review and scheduled Scorecard** — added SHA-pinned,
   least-privilege workflows for newly introduced vulnerabilities and OpenSSF
   Scorecard SARIF monitoring.
+- **Deterministic adversarial parser laboratory (#104 M3)** — added original,
+  bounded generators for parser depth, malformed fences, escapes and delimiters,
+  properties and references, Unicode/newline variants, large lines, and strict
+  unresolved references. Each case runs in a fresh subprocess with a parent
+  timeout, safe replay receipt, classification-preserving minimization, tree
+  invariants, and semantic round-trip checks for valid inputs. The fixed profile
+  runs with the ordinary suite; an offline scheduled broad profile expands only
+  deterministic seeds and case counts. No parser runtime, public API, package
+  dependency, #103 snapshot-equivalence, or #111 performance claim changes.
 - **Parser compatibility corpus foundation (#104-A)** — added six original,
   offline Apache-2.0 fixtures with source hashes and strict provenance, schema,
   parser-configuration, behavior, diagnostics, and identity-policy metadata;
@@ -63,7 +79,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   threat models, retained the measured official OKF v0.2 backlog instead of
   masking it, and recorded a NO-GO for AAIF submission until external,
   governance, adoption, release, and legal evidence exists.
-
 ## [1.7.1] - 2026-08-08
 
 Patch release correcting the v1.7.0 SYNAPSE example promise, hardening release

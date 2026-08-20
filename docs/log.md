@@ -54,6 +54,35 @@ superseded_by: null
 
 ## 2026-08-16
 
+- Recorded accepted negative M2 decision
+  [ADR-001](decisions/ADR-001-external-oracle-boundary.md). The repository will
+  not install, invoke, pin, package, or integrate an external `mldoc`
+  executable under the current Apache-2.0 project boundary. The decision is a
+  conservative engineering and governance boundary, not legal advice; it
+  preserves M3/M4 as project-owned evidence and leaves M5 limited to
+  project-owned invariants unless a later ADR satisfies explicit reconsideration
+  conditions. No external executable was downloaded or run, and no source,
+  dependency, CI, release, issue-ownership, push, PR, or merge claim is made.
+- Started M4 from the locally qualified, unpublished M3 commit `3edbefb`.
+  M4 is test-only and counts declared Python-owned parser operations across
+  fixed size-scaled synthetic families. It treats platform-labelled elapsed
+  time and process high-water memory as non-gating observations only, preserves
+  #87 and #111 ownership boundaries, and does not add a runtime hook or API.
+- Locally qualified M4 code commit `65275cd`: each non-exception operation now
+  has its own `2.5x` growth gate, so a growing counter cannot be hidden by the
+  aggregate vector; bounded receipts carry their actual timeout in both data and
+  replay command. Targeted lint, type, and 64-test regression checks passed.
+  The optional RSS probe degrades safely on platforms without the Unix-only
+  `resource` module. This is local evidence only; the exact final review and
+  every publication gate remain separate.
+- Started the M3 parser-assurance laboratory from `main@5b0a73e` after
+  [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161)
+  merged M1. M3 is explicitly test-only: deterministic original generators,
+  source-free replay receipts, subprocess no-hang classification,
+  classification-preserving minimization, structural invariants, valid-case
+  semantic round trips, a fixed local subset, and a separately scheduled broad
+  profile. It does not claim #103 incremental/cold-load equivalence, #111/#87
+  performance evidence, external-oracle parity, a public API, or a release.
 - Recorded the second frozen Sol review on
   `5007dc357e05775c6221c8aa84f9a11edc695e0d` as `NEEDS_CORRECTION`: mixed
   backtick runs still caused an authentic content wikilink to be removed, and
