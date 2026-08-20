@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+import logseq_matryca_parser.graph as graph_module
 from logseq_matryca_parser.exceptions import BlockReferenceError
 from logseq_matryca_parser.graph import (
     GraphQuery,
@@ -510,21 +511,30 @@ def test_invalidate_and_reload_purges_deleted_page(tmp_path: Path) -> None:
     assert graph.get_node_by_uuid(stale_uuid) is None
 
 
-def test_incremental_rename_rebuilds_backlinks_like_cold_load(tmp_path: Path) -> None:
-    """A moved page's renamed title and aliases rebind backlinks from unchanged pages."""
+def test_incremental_rename_reindexes_backlinks_without_a_global_rebuild(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A moved page reindexes affected backlinks without scanning the whole vault."""
     graph_root = tmp_path / "vault"
     pages = graph_root / "pages"
     pages.mkdir(parents=True)
     source = pages / "Alpha.md"
     source.write_text("title:: Alpha\nalias:: Old\n\n- target\n", encoding="utf-8")
+    (pages / "A-existing.md").write_text("- links [[Beta]]\n", encoding="utf-8")
     (pages / "Linker.md").write_text("- links [[Old]]\n", encoding="utf-8")
 
     incremental = LogseqGraph.load_directory(graph_root)
     moved = pages / "Beta.md"
     source.write_text("title:: Beta\nalias:: Old, New\n\n- target\n", encoding="utf-8")
     source.rename(moved)
-    incremental.invalidate_and_reload_page(source)
-    incremental.invalidate_and_reload_page(moved)
+
+    def forbid_global_rebuild(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("incremental reload must not rebuild the whole backlink registry")
+
+    with monkeypatch.context() as isolated:
+        isolated.setattr(graph_module, "_build_backlink_registry", forbid_global_rebuild)
+        incremental.invalidate_and_reload_page(source)
+        incremental.invalidate_and_reload_page(moved)
 
     cold = LogseqGraph.load_directory(graph_root)
     for target in ("Alpha", "Beta", "Old", "New"):

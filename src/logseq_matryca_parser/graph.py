@@ -230,6 +230,20 @@ def _wikilink_backlink_keys(pages: dict[str, LogseqPage], link: str) -> list[str
     return keys
 
 
+def _node_backlink_keys(pages: dict[str, LogseqPage], node: LogseqNode) -> Iterator[str]:
+    """Yield every backlink index key contributed by one source node."""
+    for link in node.wikilinks:
+        yield from _wikilink_backlink_keys(pages, link)
+    for tag in node.tags:
+        key = _normalize_backlink_key(tag)
+        if key:
+            yield key
+    for block_ref in node.block_refs:
+        key = _normalize_backlink_key(block_ref)
+        if key:
+            yield key
+
+
 def _build_node_registry_from_pages(pages: dict[str, LogseqPage]) -> dict[str, LogseqNode]:
     """Build the global node registry from indexed pages only (no title-collision ghosts)."""
     registry: dict[str, LogseqNode] = {}
@@ -443,17 +457,8 @@ def _build_backlink_registry(pages: dict[str, LogseqPage]) -> dict[str, list[str
     registry: dict[str, list[str]] = {}
     for page in iter_canonical_pages_from_dict(pages):
         for node in _flatten_nodes(page.root_nodes):
-            for link in node.wikilinks:
-                for key in _wikilink_backlink_keys(pages, link):
-                    _append_backlink(registry, key, node.uuid)
-            for tag in node.tags:
-                key = _normalize_backlink_key(tag)
-                if key:
-                    _append_backlink(registry, key, node.uuid)
-            for block_ref in node.block_refs:
-                key = _normalize_backlink_key(block_ref)
-                if key:
-                    _append_backlink(registry, key, node.uuid)
+            for key in _node_backlink_keys(pages, node):
+                _append_backlink(registry, key, node.uuid)
     logger.debug("backlink registry built: %s distinct targets", len(registry))
     return registry
 
@@ -871,6 +876,80 @@ class LogseqGraph(BaseModel):
         for node in _flatten_nodes(page.root_nodes):
             self._node_registry[node.uuid] = node
 
+    def _append_page_backlinks(self, page: LogseqPage) -> None:
+        for node in _flatten_nodes(page.root_nodes):
+            for key in _node_backlink_keys(self.pages, node):
+                _append_backlink(self._backlink_registry, key, node.uuid)
+
+    def _capture_incoming_page_wikilinks(
+        self, page: LogseqPage
+    ) -> list[tuple[str, str, tuple[str, ...]]]:
+        """Capture existing wikilinks that resolve to ``page`` before its index changes."""
+        canonical_key = _normalize_backlink_key(page.title)
+        page_keys = [canonical_key]
+        page_keys.extend(
+            _normalize_backlink_key(alias) for alias in _collect_page_alias_tokens(page.properties)
+        )
+        source_uuids: list[str] = []
+        seen_source_uuids: set[str] = set()
+        for key in page_keys:
+            for source_uuid in self._backlink_registry.get(key, []):
+                if source_uuid not in seen_source_uuids:
+                    seen_source_uuids.add(source_uuid)
+                    source_uuids.append(source_uuid)
+        captured: list[tuple[str, str, tuple[str, ...]]] = []
+        for source_uuid in source_uuids:
+            node = self._node_registry.get(source_uuid)
+            if node is None:
+                continue
+            for link in node.wikilinks:
+                keys = tuple(_wikilink_backlink_keys(self.pages, link))
+                if canonical_key in keys:
+                    captured.append((source_uuid, link, keys))
+        return captured
+
+    def _backlink_source_order(self, source_uuid: str) -> tuple[str, int, tuple[int, ...], str]:
+        """Return the deterministic cold-load order key for an indexed source node."""
+        node = self._node_registry[source_uuid]
+        return (
+            node.source_path or "",
+            node.line_start or 0,
+            tuple(node.outline_path),
+            source_uuid,
+        )
+
+    def _reindex_incoming_page_wikilinks(
+        self, captured: list[tuple[str, str, tuple[str, ...]]]
+    ) -> None:
+        """Reindex only sources whose wikilinks targeted a changed page identity."""
+        if not captured:
+            return
+        source_uuids = {source_uuid for source_uuid, _link, _keys in captured}
+        affected_keys = {key for _source_uuid, _link, keys in captured for key in keys}
+        for _source_uuid, link, _keys in captured:
+            affected_keys.update(_wikilink_backlink_keys(self.pages, link))
+
+        for key in affected_keys:
+            sources = self._backlink_registry.get(key, [])
+            remaining = [source_uuid for source_uuid in sources if source_uuid not in source_uuids]
+            if remaining:
+                self._backlink_registry[key] = remaining
+            else:
+                self._backlink_registry.pop(key, None)
+
+        for source_uuid in source_uuids:
+            node = self._node_registry.get(source_uuid)
+            if node is None:
+                continue
+            for key in _node_backlink_keys(self.pages, node):
+                if key in affected_keys:
+                    _append_backlink(self._backlink_registry, key, source_uuid)
+
+        for key in affected_keys:
+            sources = self._backlink_registry.get(key, [])
+            if sources:
+                sources.sort(key=self._backlink_source_order)
+
     def invalidate_and_reload_page(self, file_path: Path) -> None:
         """Re-parse a single file, purge its old nodes/backlinks, and merge fresh indexes."""
         resolved = Path(file_path).expanduser().resolve()
@@ -883,10 +962,13 @@ class LogseqGraph(BaseModel):
         if old_page is not None:
             stale = {n.uuid for n in _flatten_nodes(old_page.root_nodes)}
             self._purge_stale_page_uuids(stale)
+        incoming_wikilinks = (
+            self._capture_incoming_page_wikilinks(old_page) if old_page is not None else []
+        )
         if not resolved.exists():
             self.pages = new_pages
             self._lower_title_map = _build_lower_title_map(new_pages)
-            self._backlink_registry = _build_backlink_registry(new_pages)
+            self._reindex_incoming_page_wikilinks(incoming_wikilinks)
             logger.debug("invalidate_and_reload_page: purged deleted path=%s", resolved)
             return
         fresh = StackMachineParser().parse_page_file(resolved)
@@ -895,8 +977,10 @@ class LogseqGraph(BaseModel):
         enriched = _page_for_source_path(new_pages, resolved) or fresh
         self.pages = new_pages
         self._lower_title_map = _build_lower_title_map(new_pages)
+        incoming_wikilinks.extend(self._capture_incoming_page_wikilinks(enriched))
         self._register_page_nodes(enriched)
-        self._backlink_registry = _build_backlink_registry(new_pages)
+        self._append_page_backlinks(enriched)
+        self._reindex_incoming_page_wikilinks(incoming_wikilinks)
         logger.debug(
             "Stack-Machine incremental re-hydrate: path=%s title=%s nodes=%s",
             resolved,
