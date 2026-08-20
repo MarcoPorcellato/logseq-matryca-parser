@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-16
-verified: 2026-08-16
+last_verified: 2026-08-19
+verified: 2026-08-19
 stale_after: 2027-02-12
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,39 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-08-19
+
+- Published the evidence-backed [GitHub and AAIF repository readiness study](REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md), covering governance, security, documentation, agent interoperability, AAIF alignment, and a cost-aware implementation roadmap. The study records current local evidence, separates verified facts from unknown remote settings, and leaves GitHub mutation for a later execution phase.
+- Added the first lightweight governance, maintainer, support, citation, and
+  AI-assisted contribution surfaces. These documents describe the current
+  single-maintainer model and human accountability without claiming unverified
+  GitHub settings, AAIF membership, or multi-organization governance.
+- Added the Terra-owned cross-file policy tranche: an agent action and
+  provenance contract, compatibility matrix, public roadmap, current triage
+  policy, staged ownership map, AAIF alignment page, and protocol-adapter ADR.
+  Security, release, legal, official OKF migration, and external GitHub-setting
+  decisions remain separate gates with their own evidence requirements.
+- Added the Sol-owned source tranche: pull-request dependency review, scheduled
+  Scorecard analysis, release-time CycloneDX and dependency/license evidence,
+  GitHub provenance and SBOM attestations, and a hardened main-only metrics
+  archive with bounded network reads and atomic writes. The maintained policy
+  records the local evidence contract separately from hosted workflow and
+  exact-tag release receipts.
+- Recorded ADR-0002 as a defer decision for official OKF v0.2 while the
+  38-finding backlog and nested-index profile conflict remain, and ADR-0003 as
+  a NO-GO for AAIF submission until governance, adoption, legal, live security,
+  and release evidence gates pass. Historical documents and generated Matryca
+  projections remain protected from mechanical rewriting.
+- Qualified the completed local governance and assurance diff with Ruff, mypy
+  on 61 source files, vendor-name and maintained-documentation checks, YAML
+  parsing, 603 tests, 92.16% coverage, and a zero-cycle source import check.
+  Repeated SBOM generation normalized to identical bytes; all 14 direct
+  dependency licenses resolved, while 31 ambiguous transitive records remain
+  explicitly visible as non-blocking review debt, and the one VCS record retains
+  a validated immutable commit. The checksum contract was also exercised in
+  both its internal `dist/` layout and the flat public-download layout. Hosted
+  workflow, settings, and release receipts remain separate gates.
 
 ## 2026-08-16
 

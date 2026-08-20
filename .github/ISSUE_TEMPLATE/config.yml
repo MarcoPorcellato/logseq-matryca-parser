@@ -1,5 +1,14 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Support and issue routing
+    url: https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/SUPPORT.md
+    about: Choose the right channel and keep vault data and security details private
+  - name: Public roadmap
+    url: https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ROADMAP_2026-2027.md
+    about: Current milestones, dependencies, and evidence gates
+  - name: Governance and maintainer path
+    url: https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/GOVERNANCE.md
+    about: Decision classes, review authority, and contributor-to-maintainer path
   - name: Clean Architecture epic (v1.6)
     url: https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/quality/GITHUB_CLEAN_ARCH_ROADMAP.md
     about: Milestone, project board, and phase issues for Uncle Bob v1.6 work

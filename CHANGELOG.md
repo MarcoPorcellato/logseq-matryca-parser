@@ -16,6 +16,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Governance and agent-assurance system** — added public governance,
+  maintainership, support, citation, AI-contribution, issue-triage, roadmap,
+  agent-action, compatibility, AAIF-alignment, and protocol-decision surfaces,
+  with explicit source authority and no unsupported remote or membership claim.
+- **Release supply-chain evidence** — the release workflow now generates a
+  CycloneDX 1.5 production SBOM, scoped dependency/license inventory, checksum
+  manifest, GitHub build-provenance attestations, and an SBOM attestation bound
+  to the exact wheel and sdist; all evidence is preserved in the immutable
+  bundle and attached to the GitHub Release.
+- **Pull-request dependency review and scheduled Scorecard** — added SHA-pinned,
+  least-privilege workflows for newly introduced vulnerabilities and OpenSSF
+  Scorecard SARIF monitoring.
 - **Deterministic adversarial parser laboratory (#104 M3)** — added original,
   bounded generators for parser depth, malformed fences, escapes and delimiters,
   properties and references, Unicode/newline variants, large lines, and strict
@@ -41,6 +53,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Diagnostic dependency boundary** — replaced the graph module's type-only
+  reverse import with a minimal structural protocol, preserving the public
+  diagnostic behavior while restoring a zero-cycle source import graph.
+- **Public checksum layout** — release checksum entries now use the flat asset
+  names exposed by GitHub Releases while each internal job still verifies the
+  immutable bundle layout, so the documented clean-download command works.
 - **Compatibility-corpus assurance oracle** — canonical reference-property
   sequences now preserve commas inside page references and normalize complex
   `#[[tag]]` values; property-origin wikilinks are removed by occurrence while
@@ -51,6 +69,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   by the maintained mypy gate. This changes tests and tooling only, not package
   runtime behavior.
 
+### Security
+
+- **Metrics archive hardening** — restricted the self-mutating workflow to
+  trusted `main`, separated read-only traffic credentials from the job-scoped
+  write token, bounded API retries, time, and response size, validated complete
+  payloads before mutation, and replaced JSON files atomically.
+- **Explicit assurance gates** — documented the release evidence and metrics
+  threat models, retained the measured official OKF v0.2 backlog instead of
+  masking it, and recorded a NO-GO for AAIF submission until external,
+  governance, adoption, release, and legal evidence exists.
 ## [1.7.1] - 2026-08-08
 
 Patch release correcting the v1.7.0 SYNAPSE example promise, hardening release

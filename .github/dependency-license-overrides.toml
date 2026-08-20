@@ -1,0 +1,23 @@
+schema_version = 1
+
+[[overrides]]
+name = "pyvis"
+version = "0.3.2"
+license_expression = "BSD-3-Clause"
+evidence_url = "https://files.pythonhosted.org/packages/ab/4b/e37e4e5d5ee1179694917b445768bdbfb084f5a59ecd38089d3413d4c70f/pyvis-0.3.2-py3-none-any.whl"
+artifact_sha256 = "5720c4ca8161dc5d9ab352015723abb7a8bb8fb443edeb07f7a322db34a97555"
+license_file = "pyvis-0.3.2.dist-info/LICENSE_BSD.txt"
+license_file_sha256 = "295e9ef50d142d9576117156755c6c82a78c16848cdf187efd4d924dcf7153e3"
+reviewed_on = "2026-08-19"
+reason = "The wheel metadata says only 'BSD'; its hashed LICENSE_BSD.txt contains the BSD-3-Clause terms."
+
+[[overrides]]
+name = "pip-audit"
+version = "2.10.1"
+license_expression = "Apache-2.0"
+evidence_url = "https://files.pythonhosted.org/packages/a3/a7/b0c504148114047bd1bc9d97447453c6850ca176bb2f3c0038835994e8b7/pip_audit-2.10.1-py3-none-any.whl"
+artifact_sha256 = "99ef3f600a317c1945f1e89e227ef26e1c2d618429b8bd3fa6f4f7c440c4611a"
+license_file = "pip_audit-2.10.1.dist-info/licenses/LICENSE"
+license_file_sha256 = "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+reviewed_on = "2026-08-19"
+reason = "The metadata has only the generic Apache classifier; the hashed wheel license contains Apache-2.0."

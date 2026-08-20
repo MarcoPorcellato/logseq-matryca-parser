@@ -47,6 +47,19 @@ This policy covers the **logseq-matryca-parser** Python package, CLI (`matryca-p
 
 Report security issues via the [Security tab](https://github.com/MarcoPorcellato/logseq-matryca-parser/security) — not via public issues. For general bugs and features, see [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md).
 
+## Supply-chain verification
+
+The release contract generates a CycloneDX SBOM, a scoped dependency/license
+inventory, checksums, GitHub artifact attestations, and PyPI trusted-publishing
+attestations. See the [dependency and provenance policy](docs/reference/DEPENDENCY_LICENSE_POLICY.md)
+for artifact names, evidence limits, and verification commands. Source workflow
+files are not proof that a particular release passed; use the exact release run
+and downloaded artifacts.
+
+The scheduled repository traffic archive is a separate self-mutating path. Its
+token, branch, data, failure, and privacy boundaries are documented in the
+[daily metrics threat model](docs/security/DAILY_METRICS_THREAT_MODEL.md).
+
 ## Recognition
 
 We appreciate responsible disclosure. Reporters who follow this policy will be credited in the security advisory when the fix is published, unless they request otherwise.

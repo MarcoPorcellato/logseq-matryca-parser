@@ -17,6 +17,8 @@ import json
 import logging
 import os
 import sys
+import tempfile
+import time
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError
@@ -31,8 +33,17 @@ _LEGACY_HISTORY_NAME = "history.json"
 _INDEX_NAME = "index.json"
 _SCHEMA_VERSION = 1
 _METRIC_SECTIONS = ("views", "clones", "releases", "referrers", "popular_content")
+_API_VERSION = "2026-03-10"
+_API_TIMEOUT_SECONDS = 30
+_MAX_RESPONSE_BYTES = 2_000_000
+_MAX_FETCH_ATTEMPTS = 3
+_RETRYABLE_HTTP_STATUS = {408, 429, 500, 502, 503, 504}
 
 MetricsPayload = dict[str, Any]
+
+
+class MetricsFetchError(RuntimeError):
+    """Raised when a complete, bounded GitHub metrics snapshot cannot be fetched."""
 
 
 def quarter_key_from_date(date_str: str) -> str:
@@ -78,7 +89,24 @@ def _read_json(path: Path) -> MetricsPayload | None:
 
 def _write_json(path: Path, payload: MetricsPayload) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temporary = Path(handle.name)
+            handle.write(json.dumps(payload, indent=2) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def load_quarter_payload(metrics_dir: Path, quarter: str) -> MetricsPayload:
@@ -181,7 +209,7 @@ def migrate_legacy_history(metrics_dir: Path) -> list[Path]:
         _route_date_section(in_memory, metrics_dir, section, legacy.get(section, {}))
 
     written: list[Path] = []
-    for quarter, payload in sorted(in_memory.items()):
+    for _quarter, payload in sorted(in_memory.items()):
         written.append(save_quarter_payload(metrics_dir, payload))
 
     legacy_path.unlink()
@@ -191,21 +219,116 @@ def migrate_legacy_history(metrics_dir: Path) -> list[Path]:
     return written
 
 
-def fetch_api(url: str, token: str) -> MetricsPayload | list[Any] | None:
+def fetch_api(url: str, token: str) -> MetricsPayload | list[Any]:
     headers = {
         "Authorization": f"Bearer {token}",
-        "Accept": "application/vnd.github.v3+json",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": _API_VERSION,
+        "User-Agent": "logseq-matryca-parser-metrics",
     }
-    try:
-        request = Request(url, headers=headers)
-        with urlopen(request) as response:
-            return json.loads(response.read().decode())
-    except HTTPError as exc:
-        logger.error("GitHub API HTTP %s for %s: %s", exc.code, url, exc.reason)
-        return None
-    except OSError as exc:
-        logger.error("Failed to fetch %s: %s", url, exc)
-        return None
+    request = Request(url, headers=headers)
+    last_error = "unknown failure"
+    for attempt in range(1, _MAX_FETCH_ATTEMPTS + 1):
+        retryable = True
+        try:
+            with urlopen(request, timeout=_API_TIMEOUT_SECONDS) as response:
+                raw = response.read(_MAX_RESPONSE_BYTES + 1)
+            if len(raw) > _MAX_RESPONSE_BYTES:
+                raise MetricsFetchError(
+                    f"GitHub API response exceeds {_MAX_RESPONSE_BYTES} bytes for {url}"
+                )
+            loaded = json.loads(raw.decode("utf-8"))
+            if not isinstance(loaded, (dict, list)):
+                raise MetricsFetchError(f"GitHub API returned a non-container payload for {url}")
+            return loaded
+        except HTTPError as exc:
+            retryable = exc.code in _RETRYABLE_HTTP_STATUS
+            last_error = f"HTTP {exc.code}: {exc.reason}"
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            last_error = str(exc)
+
+        if not retryable or attempt == _MAX_FETCH_ATTEMPTS:
+            break
+        time.sleep(attempt)
+    raise MetricsFetchError(f"GitHub API fetch failed for {url}: {last_error}")
+
+
+def _validate_snapshot_shapes(
+    views: object,
+    clones: object,
+    referrers: object,
+    paths: object,
+    releases: object,
+) -> None:
+    def nonnegative_int(value: object) -> bool:
+        return isinstance(value, int) and not isinstance(value, bool) and value >= 0
+
+    def valid_day_timestamp(value: object) -> bool:
+        if not isinstance(value, str) or len(value) < 10:
+            return False
+        try:
+            dt.date.fromisoformat(value[:10])
+        except ValueError:
+            return False
+        return True
+
+    def valid_count_row(row: dict[str, object], *, label_field: str) -> bool:
+        return (
+            isinstance(row.get(label_field), str)
+            and nonnegative_int(row.get("count", 0))
+            and nonnegative_int(row.get("uniques", 0))
+        )
+
+    if not isinstance(views, dict) or not isinstance(views.get("views"), list):
+        raise MetricsFetchError("GitHub traffic payload is missing list field 'views'")
+    if not isinstance(clones, dict) or not isinstance(clones.get("clones"), list):
+        raise MetricsFetchError("GitHub traffic payload is missing list field 'clones'")
+    if not isinstance(referrers, list):
+        raise MetricsFetchError("GitHub referrers payload must be a list")
+    if not isinstance(paths, list):
+        raise MetricsFetchError("GitHub popular paths payload must be a list")
+    if not isinstance(releases, list):
+        raise MetricsFetchError("GitHub releases payload must be a list")
+
+    row_sets = (
+        ("views", views["views"]),
+        ("clones", clones["clones"]),
+        ("referrers", referrers),
+        ("popular paths", paths),
+        ("releases", releases),
+    )
+    for label, rows in row_sets:
+        if any(not isinstance(row, dict) for row in rows):
+            raise MetricsFetchError(f"GitHub {label} payload contains a non-object row")
+
+    for label, rows in (("views", views["views"]), ("clones", clones["clones"])):
+        if any(
+            not valid_day_timestamp(row.get("timestamp"))
+            or not nonnegative_int(row.get("count", 0))
+            or not nonnegative_int(row.get("uniques", 0))
+            for row in rows
+        ):
+            raise MetricsFetchError(f"GitHub {label} payload contains malformed fields")
+
+    if any(not valid_count_row(row, label_field="referrer") for row in referrers):
+        raise MetricsFetchError("GitHub referrers payload contains malformed fields")
+    if any(
+        not valid_count_row(row, label_field="path") or not isinstance(row.get("title"), str)
+        for row in paths
+    ):
+        raise MetricsFetchError("GitHub popular paths payload contains malformed fields")
+
+    for release in releases:
+        assert isinstance(release, dict)
+        assets = release.get("assets", [])
+        if not isinstance(assets, list) or any(not isinstance(asset, dict) for asset in assets):
+            raise MetricsFetchError("GitHub releases payload contains malformed assets")
+        if not isinstance(release.get("tag_name"), str) or any(
+            not isinstance(asset.get("name"), str)
+            or not nonnegative_int(asset.get("download_count", 0))
+            for asset in assets
+        ):
+            raise MetricsFetchError("GitHub releases payload contains malformed fields")
 
 
 def _apply_views_or_clones(
@@ -235,6 +358,20 @@ def archive_repository_metrics(
     now: dt.datetime | None = None,
 ) -> list[Path]:
     """Fetch GitHub traffic APIs and persist updates into quarterly JSON files."""
+    base = f"https://api.github.com/repos/{repo_slug}"
+    views_data = fetch_api(f"{base}/traffic/views", token)
+    clones_data = fetch_api(f"{base}/traffic/clones", token)
+    referrers_data = fetch_api(f"{base}/traffic/popular/referrers", token)
+    paths_data = fetch_api(f"{base}/traffic/popular/paths", token)
+    releases_data = fetch_api(f"{base}/releases", token)
+    _validate_snapshot_shapes(
+        views_data,
+        clones_data,
+        referrers_data,
+        paths_data,
+        releases_data,
+    )
+
     metrics_dir.mkdir(parents=True, exist_ok=True)
     quarters_dir(metrics_dir).mkdir(parents=True, exist_ok=True)
 
@@ -244,76 +381,69 @@ def archive_repository_metrics(
     def touch_quarter(quarter: str) -> MetricsPayload:
         return touched_quarters.setdefault(quarter, load_quarter_payload(metrics_dir, quarter))
 
-    base = f"https://api.github.com/repos/{repo_slug}"
-    views_data = fetch_api(f"{base}/traffic/views", token)
-    clones_data = fetch_api(f"{base}/traffic/clones", token)
-    referrers_data = fetch_api(f"{base}/traffic/popular/referrers", token)
-    paths_data = fetch_api(f"{base}/traffic/popular/paths", token)
-    releases_data = fetch_api(f"{base}/releases", token)
-
     view_days = 0
-    if isinstance(views_data, dict) and isinstance(views_data.get("views"), list):
-        for row in views_data["views"]:
-            timestamp = str(row.get("timestamp", ""))
-            if len(timestamp) < 10:
-                continue
-            day = timestamp[:10]
-            quarter = quarter_key_from_date(day)
-            payload = touch_quarter(quarter)
-            view_days += _apply_views_or_clones(payload, "views", [row])
+    assert isinstance(views_data, dict)
+    for row in views_data["views"]:
+        timestamp = str(row.get("timestamp", ""))
+        if len(timestamp) < 10:
+            continue
+        day = timestamp[:10]
+        quarter = quarter_key_from_date(day)
+        payload = touch_quarter(quarter)
+        view_days += _apply_views_or_clones(payload, "views", [row])
 
     clone_days = 0
-    if isinstance(clones_data, dict) and isinstance(clones_data.get("clones"), list):
-        for row in clones_data["clones"]:
-            timestamp = str(row.get("timestamp", ""))
-            if len(timestamp) < 10:
-                continue
-            day = timestamp[:10]
-            quarter = quarter_key_from_date(day)
-            payload = touch_quarter(quarter)
-            clone_days += _apply_views_or_clones(payload, "clones", [row])
+    assert isinstance(clones_data, dict)
+    for row in clones_data["clones"]:
+        timestamp = str(row.get("timestamp", ""))
+        if len(timestamp) < 10:
+            continue
+        day = timestamp[:10]
+        quarter = quarter_key_from_date(day)
+        payload = touch_quarter(quarter)
+        clone_days += _apply_views_or_clones(payload, "clones", [row])
 
     moment = now or dt.datetime.now(dt.UTC)
     today = moment.strftime("%Y-%m-%d")
     current_quarter = quarter_key_from_date(today)
     current_payload = touch_quarter(current_quarter)
 
-    if isinstance(referrers_data, list):
-        current_payload["referrers"][today] = [
-            {
-                "referrer": item.get("referrer"),
-                "count": item.get("count", 0),
-                "uniques": item.get("uniques", 0),
-            }
-            for item in referrers_data
-        ]
+    assert isinstance(referrers_data, list)
+    current_payload["referrers"][today] = [
+        {
+            "referrer": item.get("referrer"),
+            "count": item.get("count", 0),
+            "uniques": item.get("uniques", 0),
+        }
+        for item in referrers_data
+    ]
 
-    if isinstance(paths_data, list):
-        current_payload["popular_content"][today] = [
-            {
-                "path": item.get("path"),
-                "title": item.get("title"),
-                "count": item.get("count", 0),
-                "uniques": item.get("uniques", 0),
-            }
-            for item in paths_data
-        ]
+    assert isinstance(paths_data, list)
+    current_payload["popular_content"][today] = [
+        {
+            "path": item.get("path"),
+            "title": item.get("title"),
+            "count": item.get("count", 0),
+            "uniques": item.get("uniques", 0),
+        }
+        for item in paths_data
+    ]
 
-    if isinstance(releases_data, list):
-        current_payload["releases"][today] = [
-            {
-                "tag": release.get("tag_name"),
-                "assets": [
-                    {asset.get("name", "asset"): asset.get("download_count", 0)}
-                    for asset in release.get("assets", [])
-                    if isinstance(asset, dict)
-                ],
-            }
-            for release in releases_data
-            if isinstance(release, dict)
-        ]
+    assert isinstance(releases_data, list)
+    current_payload["releases"][today] = [
+        {
+            "tag": release.get("tag_name"),
+            "assets": [
+                {asset.get("name", "asset"): asset.get("download_count", 0)}
+                for asset in release.get("assets", [])
+                if isinstance(asset, dict)
+            ],
+        }
+        for release in releases_data
+        if isinstance(release, dict)
+    ]
 
-    for quarter, payload in sorted(touched_quarters.items()):
+    for _quarter, payload in sorted(touched_quarters.items()):
         modified.append(save_quarter_payload(metrics_dir, payload))
 
     all_quarters = sorted(set(list_quarter_files(metrics_dir)))
@@ -344,11 +474,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="GitHub repository slug (owner/name); defaults to REPO_SLUG env var",
     )
     parser.add_argument(
-        "--token",
-        default=os.environ.get("GITHUB_TOKEN"),
-        help="GitHub API token; defaults to GITHUB_TOKEN env var",
-    )
-    parser.add_argument(
         "--log-level",
         default=os.environ.get("LOG_LEVEL", "INFO"),
         help="Python logging level (default: INFO)",
@@ -360,14 +485,19 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     logging.basicConfig(level=args.log_level.upper(), format="%(levelname)s: %(message)s")
 
-    if not args.token:
-        logger.error("GITHUB_TOKEN (or --token) is required")
+    token = os.environ.get("GITHUB_TOKEN")
+    if not token:
+        logger.error("GITHUB_TOKEN is required")
         return 1
     if not args.repo:
         logger.error("REPO_SLUG (or --repo) is required")
         return 1
 
-    archive_repository_metrics(args.metrics_dir, args.repo, args.token)
+    try:
+        archive_repository_metrics(args.metrics_dir, args.repo, token)
+    except MetricsFetchError as error:
+        logger.error("Metrics snapshot aborted: %s", error)
+        return 1
     return 0
 
 

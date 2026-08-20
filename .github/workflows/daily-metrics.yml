@@ -6,11 +6,11 @@ on:
   workflow_dispatch: # Allows one-click manual runs.
 
 concurrency:
-  group: daily-metrics-${{ github.repository }}
+  group: daily-metrics-${{ github.repository }}-main
   cancel-in-progress: false
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   # Force the Node.js 24 runtime to prevent the June 2026 deprecation warnings.
@@ -18,20 +18,27 @@ env:
 
 jobs:
   save-metrics:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Checkout Repository
+      - name: Checkout trusted default branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: main
           fetch-depth: 0
+          token: ${{ github.token }}
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.12'
 
-      - name: Sync latest branch before metrics
-        run: git pull --rebase origin "${GITHUB_REF_NAME}"
+      - name: Verify and fast-forward trusted branch
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          git pull --ff-only origin main
 
       - name: Fetch and Archive Quarterly Metrics
         env:
@@ -40,8 +47,6 @@ jobs:
         run: python scripts/archive_repository_metrics.py
 
       - name: Commit & Push Changes
-        env:
-          BRANCH: ${{ github.ref_name }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
@@ -53,7 +58,7 @@ jobs:
           git commit -m "chore(analytics): archive quarterly repository metrics [skip ci]"
           max_attempts=5
           for attempt in $(seq 1 "$max_attempts"); do
-            if git pull --rebase origin "$BRANCH" && git push origin "HEAD:${BRANCH}"; then
+            if git pull --rebase origin main && git push origin HEAD:main; then
               echo "Pushed metrics archive (attempt ${attempt})."
               exit 0
             fi

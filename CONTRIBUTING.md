@@ -17,13 +17,18 @@ User-facing behavior is documented in:
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — LOGOS, SYNAPSE, `LogseqGraph`, agents, and data flow
 - [`docs/internal/LOCAL_CODE_STUDY.md`](docs/internal/LOCAL_CODE_STUDY.md) — maintainer local code audit runbook (not for public issues/CHANGELOG)
 - [`docs/logseq_ast_primer.md`](docs/logseq_ast_primer.md) — Logseq Spatial Markdown domain rules
-- [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.7.0**) and **Unreleased** changes (Keep a Changelog)
+- [`CHANGELOG.md`](CHANGELOG.md) — shipped releases (current: **1.7.1**) and **Unreleased** changes (Keep a Changelog)
 - [`docs/RELEASE_PROCESS.md`](docs/RELEASE_PROCESS.md) — version bump, tag, and PyPI publish checklist
 - [`docs/CODEQL.md`](docs/CODEQL.md) — CodeQL default setup (no custom `codeql.yml`)
 - [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) — curated starter tasks for new contributors
 - [`docs/COOKBOOK.md`](docs/COOKBOOK.md) — integration recipes (Synapse, graph query, watcher)
 - [`docs/README.md`](docs/README.md) — documentation index (active vs historical)
 - [`docs/DOCUMENTATION_SYSTEM.md`](docs/DOCUMENTATION_SYSTEM.md) — documentation authority, metadata, lifecycle, validation, and federation workflow
+- [`docs/AI_CONTRIBUTION_POLICY.md`](docs/AI_CONTRIBUTION_POLICY.md) — AI assistance disclosure, privacy, and human review requirements
+- [`docs/ISSUE_TRIAGE_POLICY.md`](docs/ISSUE_TRIAGE_POLICY.md) — labels, priorities, newcomer issue lifecycle, stale work, and transparent closure
+- [`docs/ROADMAP_2026-2027.md`](docs/ROADMAP_2026-2027.md) — current milestones, dependencies, and evidence gates
+- [`docs/reference/CONFORMANCE_SUPPORT_MATRIX.md`](docs/reference/CONFORMANCE_SUPPORT_MATRIX.md) — supported runtimes, compatibility tiers, optional integrations, and deprecation policy
+- [`GOVERNANCE.md`](GOVERNANCE.md) · [`MAINTAINERS.md`](MAINTAINERS.md) · [`SUPPORT.md`](SUPPORT.md) — project decisions, ownership, and support boundaries
 - [`docs/rfc/OLLAMA_RAG.md`](docs/rfc/OLLAMA_RAG.md) — draft RFC for Ollama local RAG ([#34](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34))
 - [`docs/quality/`](docs/quality/) — architecture backlog, GitHub roadmap (v1.6), triage
 - [`docs/internal/STATIC_ANALYSIS_POLICY.md`](docs/internal/STATIC_ANALYSIS_POLICY.md) — Ghost Tooling policy (vendor-agnostic CI and public docs)
@@ -33,6 +38,22 @@ When you add or change observable parser or graph behavior, update the relevant 
 For documentation changes, first classify the target as maintained, active,
 historical, or generated. Follow the metadata, freshness, supersession, and
 projection rules in [`docs/DOCUMENTATION_SYSTEM.md`](docs/DOCUMENTATION_SYSTEM.md).
+
+### AI-assisted contributions
+
+AI tools may help with exploration, drafting, tests, or review, but the human
+contributor remains responsible for the submitted work. Follow the full
+[`AI-assisted contribution policy`](docs/AI_CONTRIBUTION_POLICY.md): disclose
+meaningful assistance, never upload private vault data or credentials, and
+verify the complete diff with deterministic checks.
+
+### Issue triage and roadmap
+
+Use [`SUPPORT.md`](SUPPORT.md) to choose the right channel, then follow the
+[issue triage policy](docs/ISSUE_TRIAGE_POLICY.md) for labels, reproducible
+reports, and contributor handoff. The public
+[roadmap](docs/ROADMAP_2026-2027.md) describes dependencies and evidence gates;
+it is not a promise that every requested feature will be scheduled.
 
 ### Repository language
 

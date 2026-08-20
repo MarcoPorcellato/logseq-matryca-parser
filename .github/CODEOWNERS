@@ -1,4 +1,27 @@
-# Default owners for all files in this repository.
+# Stage-one ownership map. One maintainer currently owns every path, so this
+# file documents review scope without claiming independent approval enforcement.
+# Add a second owner only when that person has accepted the corresponding role.
 # See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
 * @MarcoPorcellato
+
+# Governance and sensitive policy surfaces
+/GOVERNANCE.md @MarcoPorcellato
+/MAINTAINERS.md @MarcoPorcellato
+/SECURITY.md @MarcoPorcellato
+/SUPPORT.md @MarcoPorcellato
+/CITATION.cff @MarcoPorcellato
+
+# Delivery and automation surfaces
+/.github/ @MarcoPorcellato
+/pyproject.toml @MarcoPorcellato
+/uv.lock @MarcoPorcellato
+
+# Product and documentation surfaces
+/src/ @MarcoPorcellato
+/tests/ @MarcoPorcellato
+/docs/ @MarcoPorcellato
+/README.md @MarcoPorcellato
+/CONTRIBUTING.md @MarcoPorcellato
+/AGENTS.md @MarcoPorcellato
+/llms.txt @MarcoPorcellato

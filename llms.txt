@@ -28,6 +28,10 @@ boundaries. Read AGENTS.md before changing the repository.
 - [API stability](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/API_STABILITY.md): Stable, provisional, and internal API tiers plus typing guarantees.
 - [Structured diagnostics](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/DIAGNOSTICS.md): Diagnostic payloads, codes, rendering, path safety, and escalation.
 - [Filesystem safety](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/FILESYSTEM_SAFETY.md): Vault containment, symlink policy, atomic replacement, dry runs, metadata, and limits.
+- [Agent action contract](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/AGENT_ACTION_CONTRACT.md): Read/write authority, approval boundaries, provenance, and prompt-injection rules.
+- [Support and compatibility matrix](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/CONFORMANCE_SUPPORT_MATRIX.md): Supported runtimes, public API tiers, optional adapters, and explicit limits.
+- [Supply-chain evidence policy](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/DEPENDENCY_LICENSE_POLICY.md): Release SBOM, dependency/license inventory, checksums, and provenance verification.
+- [Daily metrics threat model](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/security/DAILY_METRICS_THREAT_MODEL.md): Security and privacy boundary for repository traffic automation.
 
 ## Runnable entry points
 
@@ -40,6 +44,11 @@ boundaries. Read AGENTS.md before changing the repository.
 
 - [Contributing](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/CONTRIBUTING.md): Environment setup, quality gates, tests, and pull-request workflow.
 - [Security policy](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/SECURITY.md): Supported versions and private vulnerability reporting.
+- [Public roadmap](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/ROADMAP_2026-2027.md): Milestones, dependencies, and evidence gates without release promises.
+- [Issue triage policy](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/ISSUE_TRIAGE_POLICY.md): Issue labels, priorities, good-first issue lifecycle, stale-work, and closure rules.
+- [Protocol adapter decision](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/decisions/ADR-0001-PROTOCOL_ADAPTER_BOUNDARY.md): Conditions for any future MCP, A2A, or networked adapter.
+- [Official OKF migration gate](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/decisions/ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md): Why the measured v0.2 backlog is not hidden by a mechanical rewrite.
+- [AAIF submission gate](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/decisions/ADR-0003-AAIF-SUBMISSION-GATE.md): Current NO-GO and the evidence required before reconsideration.
 - [Release process](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/RELEASE_PROCESS.md): SemVer, immutable build, provenance, PyPI, and GitHub publication procedure.
 
 ## Optional

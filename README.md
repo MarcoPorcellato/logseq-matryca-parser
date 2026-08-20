@@ -261,6 +261,10 @@ We welcome issues, pull requests, and constructive feedback.
 | **Cookbook** | [docs/COOKBOOK.md](docs/COOKBOOK.md) — integration recipes (Synapse, graph query, watcher) |
 | **Documentation index** | [docs/README.md](docs/README.md) — active vs historical docs |
 | **Documentation system** | [docs/DOCUMENTATION_SYSTEM.md](docs/DOCUMENTATION_SYSTEM.md) — authority, lifecycle, metadata, and federation |
+| **Roadmap** | [docs/ROADMAP_2026-2027.md](docs/ROADMAP_2026-2027.md) — milestones, dependencies, and evidence gates |
+| **Support** | [SUPPORT.md](SUPPORT.md) — safe issue routing, support scope, and response boundaries |
+| **Governance** | [GOVERNANCE.md](GOVERNANCE.md) — decisions, maintainer path, and conflict handling |
+| **Agent safety** | [docs/reference/AGENT_ACTION_CONTRACT.md](docs/reference/AGENT_ACTION_CONTRACT.md) — authority, approvals, provenance, and prompt-injection boundary |
 | **Code of Conduct** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — community standards |
 | **Security** | [SECURITY.md](SECURITY.md) — report vulnerabilities privately |
 

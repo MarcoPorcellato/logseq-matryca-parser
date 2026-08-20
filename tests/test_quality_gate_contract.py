@@ -37,6 +37,7 @@ def test_check_type_checks_compatibility_snapshot_generator() -> None:
 
     mypy_command = next(command for command in commands if command.startswith("uv run mypy "))
     assert "scripts/update_compat_snapshots.py" in mypy_command
+    assert "scripts/generate_supply_chain_evidence.py" in mypy_command
 
 
 def test_ci_finishes_with_clean_checkout_assertion() -> None:
@@ -75,9 +76,66 @@ def test_release_builds_once_and_orders_publication() -> None:
     )
 
     assert workflow.count("uv build --out-dir release-bundle/dist") == 1
+    assert workflow.count('version: "0.11.7"') == 2
     assert "needs: pre-flight" in workflow
     assert "needs: build" in workflow
     assert "needs: publish" in workflow
-    assert workflow.count("sha256sum --check SHA256SUMS") == 3
+    assert "sed 's#  dist/#  #' > SHA256SUMS" in workflow
+    assert workflow.count("sha256sum --check -") == 3
     assert "packages-dir: release-bundle/dist/" in workflow
     assert "release-bundle/dist/*" in workflow
+
+
+def test_release_publishes_and_verifies_supply_chain_evidence() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "pypi_publish.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "--format cyclonedx1.5" in workflow
+    assert "scripts/generate_supply_chain_evidence.py" in workflow
+    assert "release-bundle/SBOM.cdx.json" in workflow
+    assert "release-bundle/DEPENDENCY_LICENSES.json" in workflow
+    assert workflow.count("actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d") == 2
+    assert "id-token: write" in workflow
+    assert "attestations: write" in workflow
+    assert "gh attestation verify" in workflow
+    assert "sbom-path: release-bundle/SBOM.cdx.json" in workflow
+
+
+def test_dependency_review_is_read_only_and_pr_scoped() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "dependency-review.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "pull_request:" in workflow
+    assert "pull_request_target" not in workflow
+    assert "contents: read" in workflow
+    assert "fail-on-severity: moderate" in workflow
+    assert "license-check: false" in workflow
+    assert "actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294" in workflow
+
+
+def test_scorecard_follows_the_restricted_official_job_shape() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "scorecard.yml").read_text(encoding="utf-8")
+
+    assert 'branches: ["main"]' in workflow
+    assert "permissions: read-all" in workflow
+    assert "contents: read" in workflow
+    assert "security-events: write" in workflow
+    assert "id-token: write" in workflow
+    assert "persist-credentials: false" in workflow
+    assert "ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc" in workflow
+    assert "publish_results: true" in workflow
+
+
+def test_daily_metrics_write_job_is_main_only() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "daily-metrics.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "if: github.ref == 'refs/heads/main'" in workflow
+    assert "ref: main" in workflow
+    assert "git pull --ff-only origin main" in workflow
+    assert "git push origin HEAD:main" in workflow
+    assert "pull_request" not in workflow
+    assert "pull_request_target" not in workflow
