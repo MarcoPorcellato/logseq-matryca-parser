@@ -36,7 +36,7 @@ def test_fixed_profile_proves_declared_growth_and_semantic_contracts() -> None:
     assert all(receipt.python_version for receipt in receipts)
 
 
-def test_deep_chain_declares_and_proves_the_immutable_ancestor_exception() -> None:
+def test_deep_chain_forbids_immutable_ancestor_rebuild_work() -> None:
     receipts = [
         receipt
         for receipt in work_growth.run_profile("fixed")
@@ -47,7 +47,7 @@ def test_deep_chain_declares_and_proves_the_immutable_ancestor_exception() -> No
         assert receipt.growth_policy == "immutable-ancestor-rebuild-v1"
         assert receipt.work is not None
         assert receipt.work.node_builds == receipt.size
-        assert receipt.work.immutable_ancestor_rebuild_steps == receipt.size * (receipt.size - 1) // 2
+        assert receipt.work.immutable_ancestor_rebuild_steps == 0
 
 
 def test_growth_contract_rejects_superlinear_operation_growth_hidden_by_other_counters() -> None:
@@ -65,6 +65,24 @@ def test_growth_contract_rejects_superlinear_operation_growth_hidden_by_other_co
     )
 
     with pytest.raises(AssertionError, match="node_builds work exceeded"):
+        work_growth.assert_growth_contract(receipts)
+
+
+def test_growth_contract_rejects_immutable_ancestor_rebuild_work() -> None:
+    receipts = list(work_growth.run_profile("fixed"))
+    target_index = next(
+        index
+        for index, receipt in enumerate(receipts)
+        if receipt.family == "deep-chain" and receipt.size == 16
+    )
+    target = receipts[target_index]
+    assert target.work is not None
+    receipts[target_index] = replace(
+        target,
+        work=replace(target.work, immutable_ancestor_rebuild_steps=1),
+    )
+
+    with pytest.raises(AssertionError, match="immutable ancestor rebuild work is forbidden"):
         work_growth.assert_growth_contract(receipts)
 
 

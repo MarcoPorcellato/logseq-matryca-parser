@@ -536,8 +536,8 @@ converted into a pass or silently added to an allowlist.
 
 - Define a Python-native, test-only parser work model based on this parser's own
   phases and operations; do not reproduce lsdoc's counter placement or schema.
-- Run input families at increasing sizes and reject superlinear growth outside
-  explicitly documented exceptions.
+- Run input families at increasing sizes and reject superlinear growth in every
+  parser-owned operation.
 - Preserve #87 as the focused pathological seed and #111 as the wall-time,
   p95, RSS, and vault-scale owner.
 - Keep the work model under `tests/` only. It may count input lines,
@@ -545,12 +545,10 @@ converted into a pass or silently added to an allowlist.
   refresh, replacement, normalization, and reference-collection operations,
   but it must not expose a parser runtime hook or public API.
 - Use the fixed project-authored matrix `8`, `16`, `32`, and `64` for flat
-  blocks, deep chains, fenced continuations, and properties. Every
-  non-exception operation in the vector must remain within a `2.5x` ratio as a
-  size doubles. The deep-chain
-  family is the sole named structural exception: immutable ancestor rebuilding
-  is asserted against its exact `n * (n - 1) / 2` model while its remaining
-  vector stays within the linear envelope.
+  blocks, deep chains, fenced continuations, and properties. Every operation in
+  the vector must remain within a `2.5x` ratio as a size doubles. Immutable
+  ancestor rebuilding is forbidden: an independent model-copy budget guards the
+  deep-chain family against reintroducing quadratic Pydantic copies.
 - Emit source-free receipts with schema and generator versions, case identity,
   exact replay command with bounded mode and timeout when applicable, size,
   source hash and byte count, operation vector,
