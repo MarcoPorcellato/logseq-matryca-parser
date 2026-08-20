@@ -159,10 +159,12 @@ class GraphQuery:
 def _flatten_nodes(nodes: list[LogseqNode]) -> list[LogseqNode]:
     """Depth-first flattening of a node tree."""
     flat: list[LogseqNode] = []
-    for node in nodes:
+    pending = list(reversed(nodes))
+    while pending:
+        node = pending.pop()
         flat.append(node)
         if node.children:
-            flat.extend(_flatten_nodes(node.children))
+            pending.extend(reversed(node.children))
     return flat
 
 

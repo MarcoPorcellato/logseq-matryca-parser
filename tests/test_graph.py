@@ -49,6 +49,27 @@ def test_load_directory_bulk_parse_and_uuid_lookup(tmp_path: Path) -> None:
     assert graph.get_node_by_uuid("00000000-0000-0000-0000-000000000000") is None
 
 
+def test_load_directory_handles_a_1024_level_outline(tmp_path: Path) -> None:
+    """Graph indexing preserves a parser-supported 1024-level outline without recursion."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Deep.md").write_text(
+        "".join(f"{'  ' * depth}- level-{depth}\n" for depth in range(1024)),
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(graph_root)
+    current = graph.pages["Deep"].root_nodes[0]
+    for depth in range(1024):
+        assert current.content == f"level-{depth}"
+        if depth < 1023:
+            assert len(current.children) == 1
+            current = current.children[0]
+        else:
+            assert current.children == []
+
+
 def test_get_nodes_by_tag_cross_page(tmp_path: Path) -> None:
     """Tag query returns nodes from every loaded page."""
     graph_root = tmp_path / "vault"
