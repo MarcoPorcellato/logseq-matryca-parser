@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Reconcile the maintained parser-assurance documentation with the merged PR #176 receipt while keeping the unfinished #108 epic active and historically accurate.
+**Goal:** Reconcile the maintained parser-assurance documentation with the merged PR #176 receipt while keeping the unfinished #108 epic historically accurate. Issue #108 is currently CLOSED with reason `completed`; reactivation is planned after the source PR is reviewable.
 
 **Architecture:** Update only current maintained status and chronology surfaces. Preserve the accepted M9 design and implementation plan as historical records of the pre-publication boundary. Reopen #108 as a controller-owned GitHub action after the source documentation is reviewable; do not imply that reducer, semantic-enrichment, benchmark, or release gates are complete.
 
@@ -31,11 +31,11 @@
 
 **Interfaces:**
 - Consumes: PR #176 head `a8558aca305c43bbadb66b884b9def945f8af36c`, squash merge `2a3679e176772bfcc57ed49b2c7c63d9d7d72346`, successful CodeQL run `32434564524`, successful Dependency Review run `32434567688`, and successful Logos Protocol CI run `32434567730`.
-- Produces: current maintained documentation that describes M9 as merged and hosted-validated while leaving #108 active for reducer, semantic-enrichment, and final epic gates.
+- Produces: current maintained documentation that describes M9 as merged and hosted-validated while recording #108 as CLOSED with reason `completed`; reactivation is planned after the source PR is reviewable, with reducer, semantic enrichment, final equivalence, and benchmark gates remaining.
 
 - [ ] **Step 1: Update authoritative anchors and M9 status**
 
-  In the canonical execution plan, replace the local-only M9 anchor with the exact PR, source-head, merge, and hosted-check receipts. Update the current source anchor to `2a3679e176772bfcc57ed49b2c7c63d9d7d72346`. State that #108 was closed as completed at the merge timestamp but is being reconciled back to active because the merged artifacts explicitly delivered only the second private slice.
+  In the canonical execution plan, replace the local-only M9 anchor with the exact PR, source-head, merge, and hosted-check receipts. Update the current source anchor to `2a3679e176772bfcc57ed49b2c7c63d9d7d72346`. State that #108 is currently CLOSED with reason `completed`; reactivation is planned after the source PR is reviewable because the merged artifacts delivered only the second private slice.
 
 - [ ] **Step 2: Preserve the M9 local receipt and add the publication receipt**
 
@@ -47,7 +47,7 @@
 
 - [ ] **Step 4: Add the newest-first documentation log entry**
 
-  Add `## 2026-08-21` above the existing `2026-08-20` entry. Record PR #174, PR #175, and PR #176 as distinct post-v1.8.0 deliveries; explain that #108 remains an active epic after the status correction. Update `last_verified`, `verified`, and `stale_after` using the repository validator's accepted dates.
+  Add `## 2026-08-21` above the existing `2026-08-20` entry. Record PR #174, PR #175, and PR #176 as distinct post-v1.8.0 deliveries; explain that #108 is currently CLOSED with reason `completed` and reactivation is planned after the source PR is reviewable. Update `last_verified`, `verified`, and `stale_after` using the repository validator's accepted dates.
 
 - [ ] **Step 5: Run focused documentation validation**
 
@@ -78,7 +78,7 @@
 
 **Interfaces:**
 - Consumes: Task 1 exact commit and successful documentation gates.
-- Produces: reviewed source change, issue #108 active with a concise scope note, and a durable hosted receipt.
+- Produces: reviewed source change, planned reactivation of currently CLOSED issue #108 after the source PR is reviewable, and a durable hosted receipt.
 
 - [ ] **Step 1: Run exact-head repository gates**
 
@@ -114,6 +114,6 @@
 - [ ] Current maintained docs name PR #176 and its exact source/merge receipts.
 - [ ] Historical M9 design and implementation-plan records remain unchanged.
 - [ ] Matryca-v1 maintained metadata and links pass deterministically.
-- [ ] Issue #108 is active and describes the residual epic scope.
+- [ ] Issue #108 is reactivated after the source PR is reviewable and describes the residual reducer, semantic enrichment, final equivalence, and benchmark scope.
 - [ ] #87, #103, #104, and #111 ownership is unchanged.
 - [ ] The reconciliation PR is reviewable with exact-head local and hosted evidence.

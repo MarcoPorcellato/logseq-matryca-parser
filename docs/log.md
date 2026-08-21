@@ -26,11 +26,11 @@ superseded_by: null
   `b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e`, and PR #176 published M9 from
   source head `a8558aca305c43bbadb66b884b9def945f8af36c` as squash merge
   `2a3679e176772bfcc57ed49b2c7c63d9d7d72346`.
-- PR #176's CodeQL run `32434564524`, Dependency Review run `32434567688`,
-  and Logos Protocol CI run `32434567730` completed successfully.
-- Issue #108 was closed externally with reason `completed` at merge time and is
-  being reconciled to active: reducer, semantic-enrichment, final-equivalence,
-  and benchmark gates remain. No v1.8.1, universal speedup, #87 closure, or
+- PR #176's [CodeQL run 32434564524](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434564524), [Dependency Review run 32434567688](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567688),
+  and [Logos Protocol CI run 32434567730](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567730) completed successfully.
+- Issue #108 is currently CLOSED with reason `completed`; reactivation is
+  planned after the source PR is reviewable. Until then, residual scope is
+  reducer, semantic enrichment, final equivalence, and benchmark gates. No v1.8.1, universal speedup, #87 closure, or
   completion of #103, #104, or #111 is claimed.
 
 ## 2026-08-20
