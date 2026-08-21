@@ -442,3 +442,103 @@ def test_watcher_replay_after_writer_append_converges_to_a_cold_graph(tmp_path: 
         cold_graph,
         ("Splice",),
     )
+
+
+@pytest.mark.parametrize("operation", ["create", "edit", "delete", "rename"])
+def test_incremental_lifecycle_operations_match_a_cold_graph(
+    tmp_path: Path, operation: str
+) -> None:
+    """Each supported incremental lifecycle operation converges to its cold graph."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    anchor_path = pages / "Anchor.md"
+    anchor_path.write_text("- anchor\n", encoding="utf-8")
+    subject_path = pages / "Subject.md"
+
+    if operation != "create":
+        subject_path.write_text(
+            "alias:: Old Alias\n\n- subject [[Anchor]]\n",
+            encoding="utf-8",
+        )
+    incremental = LogseqGraph.load_directory(graph_root)
+
+    if operation == "create":
+        subject_path.write_text(
+            "alias:: Created Alias\n\n- created [[Anchor]]\n",
+            encoding="utf-8",
+        )
+        incremental.invalidate_and_reload_page(subject_path)
+    elif operation == "edit":
+        subject_path.write_text(
+            "alias:: Edited Alias\n\n- edited [[Anchor]]\n",
+            encoding="utf-8",
+        )
+        incremental.invalidate_and_reload_page(subject_path)
+    elif operation == "delete":
+        subject_path.unlink()
+        incremental.invalidate_and_reload_page(subject_path)
+    else:
+        renamed_path = pages / "Renamed.md"
+        subject_path.write_text(
+            "title:: Renamed\nalias:: New Alias\n\n- renamed [[Anchor]]\n",
+            encoding="utf-8",
+        )
+        subject_path.rename(renamed_path)
+        incremental.invalidate_and_reload_page(subject_path)
+        incremental.invalidate_and_reload_page(renamed_path)
+
+    cold_graph = LogseqGraph.load_directory(graph_root)
+    targets = ("Anchor", "Subject", "Renamed", "Old Alias", "New Alias", "Created Alias")
+    assert _public_graph_projection(incremental, targets) == _public_graph_projection(
+        cold_graph,
+        targets,
+    )
+
+
+def test_unrelated_graph_instances_do_not_share_mutation_coordination(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """One vault's paused reload cannot delay another graph instance's reload."""
+    first_root = tmp_path / "first-vault"
+    second_root = tmp_path / "second-vault"
+    first_path = first_root / "pages" / "First.md"
+    second_path = second_root / "pages" / "Second.md"
+    first_path.parent.mkdir(parents=True)
+    second_path.parent.mkdir(parents=True)
+    first_path.write_text("- first v1\n", encoding="utf-8")
+    second_path.write_text("- second v1\n", encoding="utf-8")
+    first_graph = LogseqGraph.load_directory(first_root)
+    second_graph = LogseqGraph.load_directory(second_root)
+    assert first_graph._coordination_lock is not second_graph._coordination_lock
+
+    first_path.write_text("- first v2\n", encoding="utf-8")
+    second_path.write_text("- second v2\n", encoding="utf-8")
+    first_build_entered = Event()
+    allow_first_build_to_finish = Event()
+    original_build_lower_title_map = graph_module._build_lower_title_map
+
+    def pause_first_graph_build(pages: dict[str, LogseqPage]) -> dict[str, str]:
+        if any(
+            page.source_path
+            and Path(page.source_path).resolve().is_relative_to(first_root.resolve())
+            for page in pages.values()
+        ):
+            first_build_entered.set()
+            assert allow_first_build_to_finish.wait(timeout=5), "first reload did not resume"
+        return original_build_lower_title_map(pages)
+
+    monkeypatch.setattr(graph_module, "_build_lower_title_map", pause_first_graph_build)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first_future = pool.submit(first_graph.invalidate_and_reload_page, first_path)
+        assert first_build_entered.wait(timeout=3), "first reload did not reach candidate build"
+        second_future = pool.submit(second_graph.invalidate_and_reload_page, second_path)
+        try:
+            second_future.result(timeout=1)
+        finally:
+            allow_first_build_to_finish.set()
+        first_future.result(timeout=3)
+
+    assert "first v2" in first_graph.pages["First"].root_nodes[0].clean_text
+    assert "second v2" in second_graph.pages["Second"].root_nodes[0].clean_text

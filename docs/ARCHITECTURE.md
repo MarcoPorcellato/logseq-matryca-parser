@@ -316,7 +316,7 @@ In the **LLM OS** metaphor, **LOGOS** is the **read path** into the hierarchical
 
 2. **Headless Markdown splicer (`append_child_to_node`).** For **in-place graph mutation** under an existing parent block, the engine resolves `target_uuid` via `LogseqGraph.get_node_by_uuid`, walks to the **deepest last descendant** to obtain a **1-based `line_end` insertion index**, and computes child indentation as **`(target_node.indent_level + 1) × graph.tab_size`** spaces before the `- {content}` bullet prefix. The raw file is split into lines (normalizing a missing final newline first so the last logical row is not concatenated with the splice), the new row is inserted at that index, and the result is flushed through a **same-directory `tempfile.mkstemp` + `os.replace`** — an atomic swap that avoids torn reads during concurrent tooling. **KINETIC** exposes this as **`matryca-parse agent-write`**, resolving parent blocks by **`--alias`** (from the X-Ray state file) or **`--target-uuid`**.
 
-Both paths keep **existing topology intact** relative to their contract: append-only journaling never truncates prior bytes; the splicer only inserts one new child line at an AST-derived coordinate so a subsequent **LOGOS** parse remains deterministic.
+Both paths keep **existing topology intact** relative to their contract: append-only journaling never truncates prior bytes; the splicer only inserts one new child line at an AST-derived coordinate so a subsequent **LOGOS** parse remains deterministic. For a loaded `LogseqGraph`, the complete headless-splice transaction is serialized with the graph's incremental reload, so concurrent appends to the same parent do not overwrite one another.
 
 ### 3.5 FORGE — multi-target serialization (JSON, Markdown, Obsidian)
 
@@ -377,9 +377,36 @@ policy is the [filesystem safety contract](reference/FILESYSTEM_SAFETY.md).
 
 This keeps **global indexes consistent** without rebuilding the entire graph — including alias keys and custom titles declared in frontmatter.
 
+#### One-process coherent mutation contract
+
+`LogseqGraph` provides a **one vault, one graph instance, one process**
+coordination contract. A private re-entrant coordinator serializes supported
+incremental reloads, headless writer transactions, and supported graph reads.
+Each reload constructs copied page and index candidates, then publishes one
+complete in-memory version. If parsing or candidate construction fails, the
+previous complete version remains published.
+
+Supported graph reader methods observe one complete version. Iterators capture
+their pages or nodes before yielding, so an iteration does not mix pre- and
+post-reload indexes. `graph.pages` remains a point-in-time compatibility
+mapping for existing integrations; callers must not mutate it directly and
+should use `iter_canonical_pages()` for deterministic, de-aliased traversal.
+
+This contract is intentionally in-process only. Cross-process file locking,
+distributed coordination, and a persistent graph store are deferred rather
+than implied by the API.
+
 #### Live filesystem watcher (`start_watching`)
 
 **`LogseqGraph.start_watching(callback=None, debounce_seconds=0.5)`** (optional **`watchdog`** install) returns a **`LogseqGraphWatcher`** that schedules a recursive **`Observer`** on the graph root. **`on_modified` / `on_created` / `on_deleted` / `on_moved`** events for tracked Markdown call **`invalidate_and_reload_page`**, then optionally invoke **`callback(path)`** — the intended hook for **vector store patch**, **re-embedding**, or UI refresh. **`_DebouncedGraphEventRouter`** coalesces rapid save bursts (~500ms default) and ignores editor temp/swap artifacts (`.swp`, `~`, `.tmp`, `.DS_Store`). Event routing ignores directories and non-tracked extensions so the hot path stays tight.
+
+Callbacks run only after successful graph publication. They are delivered by a
+per-watcher daemon dispatcher in FIFO order, outside graph coordination; one
+callback failure is logged and cannot block later deliveries. `stop()` closes
+new callback admission after observer shutdown and joins the dispatcher only
+for its documented bounded interval. A watcher that is still starting or
+stopping rejects a second `start()` call rather than creating competing
+observers.
 
 #### Parse-time reference validation (`strict_refs`)
 
