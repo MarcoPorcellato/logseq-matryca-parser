@@ -10,8 +10,10 @@ This handoff records a checkpoint; it is not a validation or release receipt.
 - Branch: `feat/graph-mutation-coherence-103`
 - Saved planning commit: `e02f9be` (`docs(graph): define coherent mutation delivery`)
 - Base: `main@8e2bc893dea34b756edb6632e04917b04a68c1e6`
-- Remote feature branch: not published at the saved-planning checkpoint.
-- Feature pull request: none at the saved-planning checkpoint.
+- Remote feature branch: published as `feat/graph-mutation-coherence-103` when
+  this handoff was finalized.
+- Feature pull request: draft PR #180, base `main`; it contains only the design,
+  plan, and handoff documents at this checkpoint.
 - Working tree before this handoff was added: clean.
 
 Re-verify every anchor live. The commit that contains this handoff necessarily
@@ -56,9 +58,12 @@ postdates `e02f9be`; use `git rev-parse HEAD` as the exact execution head.
 ## External state at handoff preparation
 
 - PR #179: draft, base `main`, head
-  `8d1c35ff3243fb79a26b18761a6b4c6e4e7f1c85`, mergeable. Fresh hosted checks
-  were running after the reconciliation push; do not treat them as passed until
-  a live terminal readback proves every required check.
+  `8d1c35ff3243fb79a26b18761a6b4c6e4e7f1c85`, `CLEAN`, and `MERGEABLE`. A
+  final live readback on 2026-08-21 showed all eight hosted checks successful.
+  Reverify before any merge because this is a checkpoint, not future proof.
+- PR #180: draft, base `main`, and `MERGEABLE` at publication. Its initial
+  hosted checks were still converging when this handoff was finalized; obtain a
+  fresh terminal readback before treating the PR as qualified.
 - v1.8.1: not merged, tagged, released, or published. Merge and release remain
   separate maintainer gates.
 - Issue #103: open. Design approved; implementation and eventual closure still
@@ -174,4 +179,3 @@ Copy this objective into the resumed task if the active goal is unavailable:
   or broad async architecture.
 - Do not publish vault content, paths, titles, UUIDs, exception text, host names,
   credentials, caches, or local audit state.
-
