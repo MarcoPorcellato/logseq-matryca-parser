@@ -1,0 +1,148 @@
+"""Deterministic one-process concurrency regressions for ``LogseqGraph``."""
+
+from __future__ import annotations
+
+from collections.abc import Iterator
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from threading import Event
+
+import pytest
+
+import logseq_matryca_parser.graph as graph_module
+from logseq_matryca_parser.graph import LogseqGraph
+from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
+
+
+def _walk(nodes: list[LogseqNode]) -> Iterator[LogseqNode]:
+    """Yield an outline in deterministic depth-first order without recursion."""
+    pending = list(reversed(nodes))
+    while pending:
+        node = pending.pop()
+        yield node
+        pending.extend(reversed(node.children))
+
+
+def _public_graph_projection(
+    graph: LogseqGraph,
+    targets: tuple[str, ...],
+    *,
+    pages_captured: Event | None = None,
+    continue_after_pages: Event | None = None,
+) -> dict[str, object]:
+    """Capture public graph behavior without deriving expectations from internals."""
+    pages = tuple(
+        (page.title, tuple(node.uuid for node in _walk(page.root_nodes)))
+        for page in graph.iter_canonical_pages()
+    )
+    if pages_captured is not None:
+        pages_captured.set()
+    if continue_after_pages is not None:
+        assert continue_after_pages.wait(timeout=5), "reader did not resume"
+    casefold_pages: list[tuple[str, str | None]] = []
+    for target in targets:
+        page = graph.get_page(target.casefold())
+        casefold_pages.append((target, page.title if page is not None else None))
+    return {
+        "pages": pages,
+        "nodes": tuple(
+            (node_uuid, graph.get_node_by_uuid(node_uuid) is not None)
+            for _title, node_uuids in pages
+            for node_uuid in node_uuids
+        ),
+        "backlinks": tuple(
+            (target, tuple(node.uuid for node in graph.get_backlinks(target)))
+            for target in targets
+        ),
+        "casefold_pages": tuple(casefold_pages),
+        "diagnostics": graph.index_diagnostics,
+    }
+
+
+def _graph_with_reload_target(tmp_path: Path) -> tuple[LogseqGraph, Path]:
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Target.md").write_text("- Target anchor\n", encoding="utf-8")
+    reload_path = pages / "Refresh.md"
+    reload_path.write_text("- Original source [[Target]]\n", encoding="utf-8")
+    return LogseqGraph.load_directory(graph_root), reload_path
+
+
+def test_failed_refresh_preserves_complete_prior_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A parse failure must not remove prior nodes or backlinks before publication."""
+    graph, reload_path = _graph_with_reload_target(tmp_path)
+    targets = ("Refresh", "Target")
+    before = _public_graph_projection(graph, targets)
+    reload_path.write_text("- Replacement source [[Target]]\n", encoding="utf-8")
+
+    def raise_parse(*_args: object, **_kwargs: object) -> object:
+        raise RuntimeError("synthetic parse failure")
+
+    monkeypatch.setattr(
+        graph_module.StackMachineParser,
+        "parse_page_file",
+        raise_parse,
+    )
+
+    with pytest.raises(RuntimeError, match="synthetic parse failure"):
+        graph.invalidate_and_reload_page(reload_path)
+
+    assert _public_graph_projection(graph, targets) == before
+
+
+def test_reader_never_observes_mixed_indexes_during_reload(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Reload must not expose new pages before their matching indexes are ready."""
+    graph, reload_path = _graph_with_reload_target(tmp_path)
+    targets = ("Refresh", "Target")
+    old_projection = _public_graph_projection(graph, targets)
+    reload_path.write_text("- Replacement source [[Target]]\n", encoding="utf-8")
+
+    build_entered = Event()
+    allow_build_to_continue = Event()
+    reader_started = Event()
+    reader_finished = Event()
+    reader_captured_pages = Event()
+    allow_reader_to_continue = Event()
+    original_build_lower_title_map = graph_module._build_lower_title_map
+
+    def pause_candidate_build(pages: dict[str, LogseqPage]) -> dict[str, str]:
+        build_entered.set()
+        assert allow_build_to_continue.wait(timeout=5), "reload did not resume"
+        return original_build_lower_title_map(pages)
+
+    monkeypatch.setattr(graph_module, "_build_lower_title_map", pause_candidate_build)
+
+    def read_public_projection() -> dict[str, object]:
+        reader_started.set()
+        try:
+            return _public_graph_projection(
+                graph,
+                targets,
+                pages_captured=reader_captured_pages,
+                continue_after_pages=allow_reader_to_continue,
+            )
+        finally:
+            reader_finished.set()
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        reload_future = pool.submit(graph.invalidate_and_reload_page, reload_path)
+        assert build_entered.wait(timeout=3), "reload did not reach candidate build"
+        reader_future = pool.submit(read_public_projection)
+        assert reader_started.wait(timeout=3), "reader did not start"
+        try:
+            if reader_captured_pages.wait(timeout=1):
+                allow_reader_to_continue.set()
+                assert reader_finished.wait(timeout=1), "unlocked reader did not finish"
+        finally:
+            allow_build_to_continue.set()
+            allow_reader_to_continue.set()
+        reload_future.result(timeout=3)
+        observed_projection = reader_future.result(timeout=3)
+
+    new_projection = _public_graph_projection(graph, targets)
+    assert observed_projection in (old_projection, new_projection)
