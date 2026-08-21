@@ -118,16 +118,17 @@ class _OrderedCallbackDispatcher:
                 return
             self._queue.put(path)
 
-    def close(self, *, timeout: float = 5.0) -> None:
-        """Stop admissions, drain accepted callbacks, and join for at most ``timeout``."""
+    def close(self, *, timeout: float = 5.0) -> bool:
+        """Stop admissions, drain accepted callbacks, and report bounded join completion."""
         with self._lock:
-            if self._closed:
-                return
-            self._closed = True
-            self._queue.put(None)
+            if not self._closed:
+                self._closed = True
+                self._queue.put(None)
             thread = self._thread
         if thread is not None:
             thread.join(timeout=timeout)
+            return not thread.is_alive()
+        return True
 
     def _run(self) -> None:
         while True:
@@ -1263,6 +1264,12 @@ class LogseqGraphWatcher:
         from watchdog.events import FileSystemEventHandler
         from watchdog.observers import Observer
 
+        if any(
+            value is not None
+            for value in (self._observer, self._debouncer, self._callback_dispatcher)
+        ):
+            raise RuntimeError("LogseqGraphWatcher is already started or still stopping")
+
         graph = self._graph
         callback_dispatcher = (
             _OrderedCallbackDispatcher(self._callback).start()
@@ -1319,13 +1326,26 @@ class LogseqGraphWatcher:
                     if not _is_ignored_watcher_path(dest_path):
                         debouncer.schedule(dest_path)
 
-        observer = Observer()
-        observer.schedule(
-            _MarkdownGraphHandler(),
-            str(graph.graph_path.resolve()),
-            recursive=True,
-        )
-        observer.start()
+        observer: Any = None
+        try:
+            observer = Observer()
+            observer.schedule(
+                _MarkdownGraphHandler(),
+                str(graph.graph_path.resolve()),
+                recursive=True,
+            )
+            observer.start()
+        except Exception:
+            debouncer.cancel_all()
+            self._debouncer = None
+            if observer is not None:
+                observer.stop()
+                if observer.is_alive():
+                    observer.join(timeout=5)
+            if callback_dispatcher is not None:
+                callback_dispatcher.close()
+            self._callback_dispatcher = None
+            raise
         self._observer = observer
         logger.debug("Stack-Machine watcher: started on graph_path=%s", graph.graph_path)
         return self
@@ -1340,5 +1360,9 @@ class LogseqGraphWatcher:
             self._observer = None
             logger.debug("Stack-Machine watcher: stopped")
         if self._callback_dispatcher is not None:
-            self._callback_dispatcher.close()
-            self._callback_dispatcher = None
+            if self._callback_dispatcher.close():
+                self._callback_dispatcher = None
+            else:
+                logger.warning(
+                    "Stack-Machine watcher: callback dispatcher is still draining after stop"
+                )

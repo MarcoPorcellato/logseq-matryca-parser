@@ -11,7 +11,7 @@ import pytest
 
 import logseq_matryca_parser.graph as graph_module
 from logseq_matryca_parser.agent_writer import append_child_to_node
-from logseq_matryca_parser.graph import LogseqGraph
+from logseq_matryca_parser.graph import LogseqGraph, LogseqGraphWatcher
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 
 
@@ -219,6 +219,59 @@ def test_watcher_callbacks_are_nonblocking_ordered_and_isolated(tmp_path: Path) 
         watcher.stop()
 
     assert delivered == [first_path.resolve(), second_path.resolve()]
+
+
+def test_watcher_start_failure_cleans_dispatcher_and_rejects_reentry(tmp_path: Path) -> None:
+    """Watcher startup cannot leak a callback worker or create a second observer."""
+    pytest.importorskip("watchdog")
+    from unittest.mock import MagicMock, patch
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Live.md").write_text("- live\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    watcher = LogseqGraphWatcher(graph, callback=lambda _path: None, debounce_seconds=0)
+
+    failed_observer = MagicMock()
+    failed_observer.start.side_effect = RuntimeError("synthetic observer failure")
+    with patch("watchdog.observers.Observer", return_value=failed_observer):
+        with pytest.raises(RuntimeError, match="synthetic observer failure"):
+            watcher.start()
+
+    assert watcher._observer is None
+    assert watcher._debouncer is None
+    assert watcher._callback_dispatcher is None
+
+    running_observer = MagicMock()
+    with patch("watchdog.observers.Observer", return_value=running_observer):
+        watcher.start()
+        try:
+            with pytest.raises(RuntimeError, match="already started"):
+                watcher.start()
+        finally:
+            watcher.stop()
+
+
+def test_callback_dispatcher_reports_a_callback_that_outlives_bounded_close(
+    tmp_path: Path,
+) -> None:
+    """A bounded close reports an admitted callback that still needs a later join."""
+    callback_started = Event()
+    release_callback = Event()
+
+    def callback(_path: Path) -> None:
+        callback_started.set()
+        assert release_callback.wait(timeout=5), "callback did not resume"
+
+    dispatcher = graph_module._OrderedCallbackDispatcher(callback).start()
+    dispatcher.submit(tmp_path / "pages" / "Live.md")
+    assert callback_started.wait(timeout=3), "callback did not start"
+    try:
+        assert not dispatcher.close(timeout=0.1)
+    finally:
+        release_callback.set()
+    assert dispatcher.close(timeout=3)
 
 
 @pytest.mark.parametrize("destination_first", [False, True])
