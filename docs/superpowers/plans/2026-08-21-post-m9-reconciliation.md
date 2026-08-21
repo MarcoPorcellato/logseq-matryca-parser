@@ -61,11 +61,11 @@
 
   Expected: all commands exit 0 and no historical design/plan file changes.
 
-  Task 1 status: documentation edits and focused documentation validation are
-  complete. Exact-head qualification, publication of this reconciliation, and
-  #108 reactivation remain pending.
+  Task 1 status: documentation edits, focused validation, and the bounded fix
+  review are complete. Publication of this reconciliation and #108
+  reactivation remain pending.
 
-- [ ] **Step 6: Commit the documentation reconciliation**
+- [x] **Step 6: Commit the documentation reconciliation**
 
   Stage only the three maintained documents and this plan, then commit:
 
@@ -84,7 +84,7 @@
 - Consumes: Task 1 exact commit and successful documentation gates.
 - Produces: reviewed source change, planned reactivation of currently CLOSED issue #108 after the source PR is reviewable, and a durable hosted receipt.
 
-- [ ] **Step 1: Run exact-head repository gates**
+- [x] **Step 1: Run exact-head repository gates**
 
   Run:
 
@@ -96,6 +96,10 @@
   ```
 
   Expected: 685 or more tests pass, coverage remains at or above 80%, all static/documentation gates pass, and the tracked worktree is clean.
+
+  Local result before publication: `make all` passed with 685 tests and 89.73%
+  coverage; Ruff, mypy, documentation, vendor-name, and diff gates passed. The
+  ignored SDD workspace retains the raw transcript and its exact-head manifest.
 
 - [ ] **Step 2: Obtain an independent bounded review**
 
