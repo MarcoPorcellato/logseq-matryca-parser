@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-20
-verified: 2026-08-20
-stale_after: 2026-11-18
+last_verified: 2026-08-21
+verified: 2026-08-21
+stale_after: 2027-02-17
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -50,16 +50,22 @@ The private line-classification extraction preserves parser state reduction,
 node creation, identities, graph behavior, public imports, and dependencies.
 The broader #108 epic remains open for later gated phase slices.
 
-M9 is a locally qualified, unpublished second private #108 slice at exact
-implementation head `d3dd316d4536ea428747dc3a4895ad633ffa6993`, based on
-`b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e`. It moves only lexical mode and
-eligibility transitions into a private standard-library-only state object while
-leaving parser semantics and ownership in `StackMachineParser.parse()`. Native
-`make all` passed with 685 tests and 89.73% coverage; the focused suite passed
-288 tests; static, documentation, vendor, diff, impact, zero-cycle, and
-independent-review gates are recorded in the canonical plan. This checkpoint
-does not close #108, #87, #103, #104, or #111, and it is not a hosted,
-publication, merge, release, or performance claim.
+M9 is merged through [PR #176](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/176): source head
+`a8558aca305c43bbadb66b884b9def945f8af36c` was squash-merged as
+`2a3679e176772bfcc57ed49b2c7c63d9d7d72346`. CodeQL run `32434564524`,
+Dependency Review run `32434567688`, and Logos Protocol CI run `32434567730`
+completed successfully. The local qualification at exact implementation head
+`d3dd316d4536ea428747dc3a4895ad633ffa6993`, based on
+`b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e`, remains a separate historical
+receipt. It moves only lexical mode and eligibility transitions into a private
+standard-library-only state object while leaving parser semantics and ownership
+in `StackMachineParser.parse()`. Native `make all` passed with 685 tests and
+89.73% coverage; the focused suite passed 288 tests; static, documentation,
+vendor, diff, impact, zero-cycle, and independent-review gates are recorded in
+the canonical plan. Issue #108 was closed externally with reason `completed` at
+merge time but remains an active residual epic for reducer, semantic-enrichment,
+final-equivalence, and benchmark gates. This does not claim closure of #87,
+#103, #104, or #111.
 
 M2 is complete through the accepted negative
 [ADR-001](../decisions/ADR-001-external-oracle-boundary.md): no external
