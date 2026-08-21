@@ -71,6 +71,24 @@ path = "src/logseq_matryca_parser/_version.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/logseq_matryca_parser"]
 
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.agents",
+    "/.claude",
+    "/.codex",
+    "/.coverage",
+    "/.cursor",
+    "/.git*",
+    "/.mypy_cache",
+    "/.pytest_cache",
+    "/.ruff_cache",
+    "/.serena",
+    "/.superpowers",
+    "/.venv",
+    "**/.DS_Store",
+    "**/__pycache__",
+]
+
 [dependency-groups]
 dev = [
     "logseq-matryca-parser[all,watch]",

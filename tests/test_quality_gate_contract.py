@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import subprocess
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -90,6 +91,22 @@ def test_build_backend_pin_keeps_release_metadata_twine_compatible() -> None:
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
     assert 'requires = ["hatchling==1.30.1"]' in pyproject
+
+
+def test_sdist_excludes_local_tooling_and_cache_state() -> None:
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    exclusions = set(pyproject["tool"]["hatch"]["build"]["targets"]["sdist"]["exclude"])
+
+    assert {
+        "/.git*",
+        "/.serena",
+        "/.venv",
+        "/.mypy_cache",
+        "/.pytest_cache",
+        "/.ruff_cache",
+        "**/__pycache__",
+        "**/.DS_Store",
+    } <= exclusions
 
 
 def test_release_publishes_and_verifies_supply_chain_evidence() -> None:
