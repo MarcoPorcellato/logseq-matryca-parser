@@ -15,10 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   API or performance claim changes.
 - **Pathological nested outlines (#87)** — parse and file-entrypoint traversal
   now remain iterative for a 1024-level valid outline, while parser-owned tree
-  construction avoids quadratic immutable-ancestor copies. Tree order, parent
-  and left relationships, source paths, and stable public API are preserved.
-  Local timing observations are diagnostic only; this does not add a vault-scale
-  performance claim.
+  construction avoids quadratic immutable-ancestor copies. Derived metadata is
+  refreshed once after tree construction instead of repeatedly across mutable
+  soft-break ancestors, and parser registries are rebuilt from the exact final
+  nodes returned by parse and file entry points. Strict reference validation is
+  confined to the current page. Tree order, parent and left relationships,
+  source paths, semantic snapshots, and the stable public API are preserved.
+  Deterministic tests bound refresh growth; local timing observations remain
+  diagnostic only and do not add a vault-scale performance claim.
 
 ## [1.8.0] - 2026-08-20
 
