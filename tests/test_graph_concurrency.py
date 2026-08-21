@@ -320,6 +320,42 @@ def test_watcher_stop_retains_an_observer_that_outlives_its_bounded_join(
     assert watcher._debouncer is None
 
 
+def test_watcher_rejects_start_while_stop_is_in_progress(tmp_path: Path) -> None:
+    """A concurrent start cannot race a watcher teardown transition."""
+    pytest.importorskip("watchdog")
+    from unittest.mock import MagicMock, patch
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Live.md").write_text("- live\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    watcher = LogseqGraphWatcher(graph, debounce_seconds=0)
+    observer = MagicMock()
+    observer.is_alive.return_value = False
+    stop_entered = Event()
+    allow_stop_to_finish = Event()
+
+    def block_observer_stop() -> None:
+        stop_entered.set()
+        assert allow_stop_to_finish.wait(timeout=5), "observer stop did not resume"
+
+    observer.stop.side_effect = block_observer_stop
+    with patch("watchdog.observers.Observer", return_value=observer):
+        watcher.start()
+        try:
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                stop_future = pool.submit(watcher.stop)
+                assert stop_entered.wait(timeout=3), "observer stop did not begin"
+                with pytest.raises(RuntimeError, match="still stopping"):
+                    watcher.start()
+                allow_stop_to_finish.set()
+                stop_future.result(timeout=3)
+        finally:
+            allow_stop_to_finish.set()
+            watcher.stop()
+
+
 @pytest.mark.parametrize("destination_first", [False, True])
 def test_watcher_rename_orders_converge_to_a_cold_graph(
     tmp_path: Path, destination_first: bool

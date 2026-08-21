@@ -1261,13 +1261,14 @@ class LogseqGraphWatcher:
         self._callback_dispatcher: _OrderedCallbackDispatcher | None = None
         self._lifecycle_lock = threading.Lock()
         self._starting = False
+        self._stopping = False
 
     def start(self) -> LogseqGraphWatcher:
         from watchdog.events import FileSystemEventHandler
         from watchdog.observers import Observer
 
         with self._lifecycle_lock:
-            if self._starting or any(
+            if self._starting or self._stopping or any(
                 value is not None
                 for value in (self._observer, self._debouncer, self._callback_dispatcher)
             ):
@@ -1362,23 +1363,30 @@ class LogseqGraphWatcher:
         with self._lifecycle_lock:
             if self._starting:
                 raise RuntimeError("LogseqGraphWatcher is still starting")
-        if self._observer is not None:
-            self._observer.stop()
-            self._observer.join(timeout=5)
-            if self._observer.is_alive():
-                if self._debouncer is not None:
-                    self._debouncer.cancel_all()
-                logger.warning("Stack-Machine watcher: observer is still stopping after timeout")
-                return
-            self._observer = None
-            logger.debug("Stack-Machine watcher: stopped")
-        if self._debouncer is not None:
-            self._debouncer.cancel_all()
-            self._debouncer = None
-        if self._callback_dispatcher is not None:
-            if self._callback_dispatcher.close():
-                self._callback_dispatcher = None
-            else:
-                logger.warning(
-                    "Stack-Machine watcher: callback dispatcher is still draining after stop"
-                )
+            if self._stopping:
+                raise RuntimeError("LogseqGraphWatcher is already stopping")
+            self._stopping = True
+        try:
+            if self._observer is not None:
+                self._observer.stop()
+                self._observer.join(timeout=5)
+                if self._observer.is_alive():
+                    if self._debouncer is not None:
+                        self._debouncer.cancel_all()
+                    logger.warning("Stack-Machine watcher: observer is still stopping after timeout")
+                    return
+                self._observer = None
+                logger.debug("Stack-Machine watcher: stopped")
+            if self._debouncer is not None:
+                self._debouncer.cancel_all()
+                self._debouncer = None
+            if self._callback_dispatcher is not None:
+                if self._callback_dispatcher.close():
+                    self._callback_dispatcher = None
+                else:
+                    logger.warning(
+                        "Stack-Machine watcher: callback dispatcher is still draining after stop"
+                    )
+        finally:
+            with self._lifecycle_lock:
+                self._stopping = False
