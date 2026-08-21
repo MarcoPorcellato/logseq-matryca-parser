@@ -61,8 +61,8 @@
 
   Expected: all commands exit 0 and no historical design/plan file changes.
 
-  Task 1 status: documentation edits and focused validation are complete.
-  Independent review, publication of this reconciliation, and #108
+  Task 1 status: documentation edits, focused validation, and independent
+  review are complete. Publication of this reconciliation and #108
   reactivation remain pending.
 
 - [x] **Step 6: Commit the documentation reconciliation**
@@ -101,9 +101,13 @@
   coverage; Ruff, mypy, documentation, vendor-name, and diff gates passed. The
   ignored SDD workspace retains the raw transcript and its exact-head manifest.
 
-- [ ] **Step 2: Obtain an independent bounded review**
+- [x] **Step 2: Obtain an independent bounded review**
 
   Review the complete `origin/main...HEAD` range for factual receipt accuracy, Matryca-v1 metadata, historical-record preservation, links, and issue-state consistency. Any Important or Critical finding must be corrected and re-reviewed before publication.
+
+  The scoped final re-review at `3692f7919269fa32a22e104d78e00bca9777f978`
+  returned `PASS` with no Critical, Important, or Minor findings and recommended
+  publication after this receipt was recorded.
 
 - [ ] **Step 3: Publish a draft pull request**
 
@@ -119,9 +123,9 @@
 
 ## Completion checklist
 
-- [ ] Current maintained docs name PR #176 and its exact source/merge receipts.
-- [ ] Historical M9 design and implementation-plan records remain unchanged.
-- [ ] Matryca-v1 maintained metadata and links pass deterministically.
+- [x] Current maintained docs name PR #176 and its exact source/merge receipts.
+- [x] Historical M9 design and implementation-plan records remain unchanged.
+- [x] Matryca-v1 maintained metadata and links pass deterministically.
 - [ ] Issue #108 is reactivated after the source PR is reviewable and describes the residual reducer, semantic enrichment, final equivalence, and benchmark scope.
-- [ ] #87, #103, #104, and #111 ownership is unchanged.
+- [x] #87, #103, #104, and #111 ownership is unchanged.
 - [ ] The reconciliation PR is reviewable with exact-head local and hosted evidence.
