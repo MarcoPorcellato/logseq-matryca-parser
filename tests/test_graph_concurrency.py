@@ -26,19 +26,12 @@ def _walk(nodes: list[LogseqNode]) -> Iterator[LogseqNode]:
 def _public_graph_projection(
     graph: LogseqGraph,
     targets: tuple[str, ...],
-    *,
-    pages_captured: Event | None = None,
-    continue_after_pages: Event | None = None,
 ) -> dict[str, object]:
     """Capture public graph behavior without deriving expectations from internals."""
     pages = tuple(
         (page.title, tuple(node.uuid for node in _walk(page.root_nodes)))
         for page in graph.iter_canonical_pages()
     )
-    if pages_captured is not None:
-        pages_captured.set()
-    if continue_after_pages is not None:
-        assert continue_after_pages.wait(timeout=5), "reader did not resume"
     casefold_pages: list[tuple[str, str | None]] = []
     for target in targets:
         page = graph.get_page(target.casefold())
@@ -93,22 +86,34 @@ def test_failed_refresh_preserves_complete_prior_version(
     assert _public_graph_projection(graph, targets) == before
 
 
-def test_reader_never_observes_mixed_indexes_during_reload(
+def test_effective_properties_never_mix_page_and_node_versions_during_reload(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Reload must not expose new pages before their matching indexes are ready."""
-    graph, reload_path = _graph_with_reload_target(tmp_path)
-    targets = ("Refresh", "Target")
-    old_projection = _public_graph_projection(graph, targets)
-    reload_path.write_text("- Replacement source [[Target]]\n", encoding="utf-8")
+    """One composite reader must not join an old node with new page properties."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    reload_path = pages / "Refresh.md"
+    reload_path.write_text(
+        "phase:: old\n\n- Original\n  state:: old-node\n",
+        encoding="utf-8",
+    )
+    graph = LogseqGraph.load_directory(graph_root)
+    old_uuid = graph.pages["Refresh"].root_nodes[0].uuid
+    old_properties = graph.get_effective_properties(old_uuid)
+    reload_path.write_text(
+        "phase:: new\n\n- Replacement\n  state:: new-node\n",
+        encoding="utf-8",
+    )
 
     build_entered = Event()
     allow_build_to_continue = Event()
     reader_started = Event()
     reader_finished = Event()
-    reader_captured_pages = Event()
-    allow_reader_to_continue = Event()
+    page_lookup_reached = Event()
+    allow_page_lookup_to_continue = Event()
     original_build_lower_title_map = graph_module._build_lower_title_map
+    original_page_for_node = LogseqGraph._page_for_node
 
     def pause_candidate_build(pages: dict[str, LogseqPage]) -> dict[str, str]:
         build_entered.set()
@@ -117,32 +122,35 @@ def test_reader_never_observes_mixed_indexes_during_reload(
 
     monkeypatch.setattr(graph_module, "_build_lower_title_map", pause_candidate_build)
 
-    def read_public_projection() -> dict[str, object]:
+    def pause_page_lookup(self: LogseqGraph, node: LogseqNode) -> LogseqPage | None:
+        page = original_page_for_node(self, node)
+        page_lookup_reached.set()
+        assert allow_page_lookup_to_continue.wait(timeout=5), "reader did not resume"
+        return page
+
+    monkeypatch.setattr(LogseqGraph, "_page_for_node", pause_page_lookup)
+
+    def read_effective_properties() -> dict[str, object]:
         reader_started.set()
         try:
-            return _public_graph_projection(
-                graph,
-                targets,
-                pages_captured=reader_captured_pages,
-                continue_after_pages=allow_reader_to_continue,
-            )
+            return graph.get_effective_properties(old_uuid)
         finally:
             reader_finished.set()
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         reload_future = pool.submit(graph.invalidate_and_reload_page, reload_path)
         assert build_entered.wait(timeout=3), "reload did not reach candidate build"
-        reader_future = pool.submit(read_public_projection)
+        reader_future = pool.submit(read_effective_properties)
         assert reader_started.wait(timeout=3), "reader did not start"
         try:
-            if reader_captured_pages.wait(timeout=1):
-                allow_reader_to_continue.set()
+            if page_lookup_reached.wait(timeout=1):
+                allow_page_lookup_to_continue.set()
                 assert reader_finished.wait(timeout=1), "unlocked reader did not finish"
         finally:
             allow_build_to_continue.set()
-            allow_reader_to_continue.set()
+            allow_page_lookup_to_continue.set()
         reload_future.result(timeout=3)
-        observed_projection = reader_future.result(timeout=3)
+        observed_properties = reader_future.result(timeout=3)
 
-    new_projection = _public_graph_projection(graph, targets)
-    assert observed_projection in (old_projection, new_projection)
+    new_properties = graph.get_effective_properties(old_uuid)
+    assert observed_properties in (old_properties, new_properties)
