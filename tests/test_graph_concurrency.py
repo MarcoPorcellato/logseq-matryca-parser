@@ -10,6 +10,7 @@ from threading import Event
 import pytest
 
 import logseq_matryca_parser.graph as graph_module
+from logseq_matryca_parser.agent_writer import append_child_to_node
 from logseq_matryca_parser.graph import LogseqGraph
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 
@@ -157,3 +158,150 @@ def test_effective_properties_never_mix_page_and_node_versions_during_reload(
 
     new_properties = graph.get_effective_properties(old_uuid)
     assert observed_properties in (old_properties, new_properties)
+
+
+def test_watcher_callbacks_are_nonblocking_ordered_and_isolated(tmp_path: Path) -> None:
+    """A blocked or failing callback cannot block reloads or later callback delivery."""
+    pytest.importorskip("watchdog")
+    from unittest.mock import MagicMock, patch
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    first_path = pages / "First.md"
+    second_path = pages / "Second.md"
+    first_path.write_text("- first\n", encoding="utf-8")
+    second_path.write_text("- second\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+
+    callback_started = Event()
+    allow_first_callback_to_finish = Event()
+    second_callback_delivered = Event()
+    first_handler_returned = Event()
+    delivered: list[Path] = []
+
+    def callback(path: Path) -> None:
+        delivered.append(path.resolve())
+        if path.resolve() == first_path.resolve():
+            callback_started.set()
+            assert allow_first_callback_to_finish.wait(timeout=5), "callback did not resume"
+            raise RuntimeError("synthetic callback failure")
+        second_callback_delivered.set()
+
+    mock_observer = MagicMock()
+    with patch("watchdog.observers.Observer", return_value=mock_observer):
+        watcher = graph.start_watching(callback=callback, debounce_seconds=0)
+        handler = mock_observer.schedule.call_args[0][0]
+
+    class _Event:
+        is_directory = False
+
+        def __init__(self, path: Path) -> None:
+            self.src_path = str(path)
+
+    def route_first_event() -> None:
+        handler.on_modified(_Event(first_path))
+        first_handler_returned.set()
+
+    try:
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            first_future = pool.submit(route_first_event)
+            assert callback_started.wait(timeout=3), "first callback did not start"
+            assert first_handler_returned.wait(timeout=1), (
+                "watcher handler waited for a blocked user callback"
+            )
+            handler.on_modified(_Event(second_path))
+            allow_first_callback_to_finish.set()
+            assert second_callback_delivered.wait(timeout=3), "second callback was not delivered"
+            first_future.result(timeout=3)
+    finally:
+        allow_first_callback_to_finish.set()
+        watcher.stop()
+
+    assert delivered == [first_path.resolve(), second_path.resolve()]
+
+
+@pytest.mark.parametrize("destination_first", [False, True])
+def test_watcher_rename_orders_converge_to_a_cold_graph(
+    tmp_path: Path, destination_first: bool
+) -> None:
+    """Source-first and destination-first rename events converge to one snapshot."""
+    pytest.importorskip("watchdog")
+    from unittest.mock import MagicMock, patch
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Target.md").write_text("- target\n", encoding="utf-8")
+    source_path = pages / "Source.md"
+    destination_path = pages / "Renamed.md"
+    source_path.write_text("- source [[Target]]\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+
+    mock_observer = MagicMock()
+    with patch("watchdog.observers.Observer", return_value=mock_observer):
+        watcher = graph.start_watching(debounce_seconds=0)
+        handler = mock_observer.schedule.call_args[0][0]
+
+    class _PathEvent:
+        is_directory = False
+
+        def __init__(self, path: Path) -> None:
+            self.src_path = str(path)
+
+    class _MovedEvent(_PathEvent):
+        def __init__(self, source: Path, destination: Path) -> None:
+            super().__init__(source)
+            self.dest_path = str(destination)
+
+    source_path.rename(destination_path)
+    try:
+        if destination_first:
+            handler.on_created(_PathEvent(destination_path))
+            handler.on_deleted(_PathEvent(source_path))
+        else:
+            handler.on_moved(_MovedEvent(source_path, destination_path))
+    finally:
+        watcher.stop()
+
+    cold_graph = LogseqGraph.load_directory(graph_root)
+    targets = ("Source", "Renamed", "Target")
+    assert _public_graph_projection(graph, targets) == _public_graph_projection(
+        cold_graph,
+        targets,
+    )
+
+
+def test_watcher_replay_after_writer_append_converges_to_a_cold_graph(tmp_path: Path) -> None:
+    """A watcher replay after a serialized append leaves the same graph as cold load."""
+    pytest.importorskip("watchdog")
+    from unittest.mock import MagicMock, patch
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    page_path = pages / "Splice.md"
+    page_path.write_text("- parent\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    parent_uuid = graph.pages["Splice"].root_nodes[0].uuid
+
+    mock_observer = MagicMock()
+    with patch("watchdog.observers.Observer", return_value=mock_observer):
+        watcher = graph.start_watching(debounce_seconds=0)
+        handler = mock_observer.schedule.call_args[0][0]
+
+    class _Event:
+        is_directory = False
+        src_path = str(page_path)
+
+    try:
+        append_child_to_node(graph, parent_uuid, "writer child")
+        handler.on_modified(_Event())
+    finally:
+        watcher.stop()
+
+    cold_graph = LogseqGraph.load_directory(graph_root)
+    assert _public_graph_projection(graph, ("Splice",)) == _public_graph_projection(
+        cold_graph,
+        ("Splice",),
+    )

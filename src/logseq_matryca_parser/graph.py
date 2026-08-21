@@ -12,6 +12,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
+from queue import Queue
 from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
@@ -85,6 +86,58 @@ class _DebouncedGraphEventRouter:
             for timer in self._timers.values():
                 timer.cancel()
             self._timers.clear()
+
+
+class _OrderedCallbackDispatcher:
+    """Deliver watcher callbacks in FIFO order without blocking graph mutation."""
+
+    def __init__(self, callback: Callable[[Path], None]) -> None:
+        self._callback = callback
+        self._queue: Queue[Path | None] = Queue()
+        self._closed = False
+        self._lock = threading.Lock()
+        self._thread: threading.Thread | None = None
+
+    def start(self) -> Self:
+        """Start the daemon dispatcher once and return it for watcher ownership."""
+        with self._lock:
+            if self._thread is None:
+                self._thread = threading.Thread(
+                    target=self._run,
+                    name="logseq-matryca-callbacks",
+                    daemon=True,
+                )
+                self._thread.start()
+        return self
+
+    def submit(self, path: Path) -> None:
+        """Queue one published path unless callback admission has closed."""
+        with self._lock:
+            if self._closed:
+                logger.debug("Stack-Machine watcher: callback admission closed")
+                return
+            self._queue.put(path)
+
+    def close(self, *, timeout: float = 5.0) -> None:
+        """Stop admissions, drain accepted callbacks, and join for at most ``timeout``."""
+        with self._lock:
+            if self._closed:
+                return
+            self._closed = True
+            self._queue.put(None)
+            thread = self._thread
+        if thread is not None:
+            thread.join(timeout=timeout)
+
+    def _run(self) -> None:
+        while True:
+            path = self._queue.get()
+            if path is None:
+                return
+            try:
+                self._callback(path)
+            except Exception:
+                logger.exception("Stack-Machine watcher callback failed for path=%s", path)
 
 
 def _normalize_tag_query(tag: str) -> str:
@@ -189,14 +242,21 @@ def _append_backlink(registry: dict[str, list[str]], key: str, source_uuid: str)
 
 
 def iter_canonical_pages_from_dict(pages: dict[str, LogseqPage]) -> Iterator[LogseqPage]:
-    """Yield each physical ``LogseqPage`` once (dedupe alias keys in ``pages``)."""
+    """Yield each physical ``LogseqPage`` once in deterministic source-path order."""
     seen_page_ids: set[int] = set()
+    canonical_pages: list[LogseqPage] = []
     for page in pages.values():
         page_id = id(page)
         if page_id in seen_page_ids:
             continue
         seen_page_ids.add(page_id)
-        yield page
+        canonical_pages.append(page)
+    canonical_pages.sort(
+        key=lambda page: str(Path(page.source_path).resolve())
+        if page.source_path
+        else page.title,
+    )
+    yield from canonical_pages
 
 
 def _resolve_page_by_title(pages: dict[str, LogseqPage], title: str) -> LogseqPage | None:
@@ -1197,13 +1257,19 @@ class LogseqGraphWatcher:
         self._debounce_seconds = debounce_seconds
         self._observer: Any = None
         self._debouncer: _DebouncedGraphEventRouter | None = None
+        self._callback_dispatcher: _OrderedCallbackDispatcher | None = None
 
     def start(self) -> LogseqGraphWatcher:
         from watchdog.events import FileSystemEventHandler
         from watchdog.observers import Observer
 
         graph = self._graph
-        user_callback = self._callback
+        callback_dispatcher = (
+            _OrderedCallbackDispatcher(self._callback).start()
+            if self._callback is not None
+            else None
+        )
+        self._callback_dispatcher = callback_dispatcher
 
         def _route_event(path: Path) -> None:
             if not graph._resolved_path_is_tracked_markdown(path):
@@ -1211,8 +1277,8 @@ class LogseqGraphWatcher:
                 return
             logger.debug("Stack-Machine watcher: invalidate path=%s", path)
             graph.invalidate_and_reload_page(path)
-            if user_callback is not None:
-                user_callback(path)
+            if callback_dispatcher is not None:
+                callback_dispatcher.submit(path)
 
         debouncer = _DebouncedGraphEventRouter(
             _route_event,
@@ -1273,3 +1339,6 @@ class LogseqGraphWatcher:
             self._observer.join(timeout=5)
             self._observer = None
             logger.debug("Stack-Machine watcher: stopped")
+        if self._callback_dispatcher is not None:
+            self._callback_dispatcher.close()
+            self._callback_dispatcher = None
