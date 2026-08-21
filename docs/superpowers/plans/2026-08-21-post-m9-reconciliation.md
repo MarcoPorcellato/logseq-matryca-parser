@@ -109,13 +109,21 @@
   returned `PASS` with no Critical, Important, or Minor findings and recommended
   publication after this receipt was recorded.
 
-- [ ] **Step 3: Publish a draft pull request**
+- [x] **Step 3: Publish a draft pull request**
 
   Push the exact branch and create a draft PR against `main`. The PR must link #108 without a closing keyword, list the exact local validation, disclose AI assistance, and state that historical pre-publication plans remain unchanged.
 
-- [ ] **Step 4: Reopen and annotate #108**
+  Published as draft [PR #177](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/177)
+  against `main`, with the required evidence, boundary, and AI-assistance
+  disclosure.
+
+- [x] **Step 4: Reopen and annotate #108**
 
   After the source PR is reviewable, reopen #108 and add one concise English comment: PR #170 completed private line classification, PR #176 completed private lexical state, and reducer/semantic-enrichment plus final equivalence and benchmark gates remain. This is a controller-owned GitHub mutation.
+
+  Issue [#108](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/108)
+  was reopened after PR #177 became reviewable and received the bounded residual
+  scope comment.
 
 - [ ] **Step 5: Verify hosted state**
 
@@ -126,6 +134,6 @@
 - [x] Current maintained docs name PR #176 and its exact source/merge receipts.
 - [x] Historical M9 design and implementation-plan records remain unchanged.
 - [x] Matryca-v1 maintained metadata and links pass deterministically.
-- [ ] Issue #108 is reactivated after the source PR is reviewable and describes the residual reducer, semantic enrichment, final equivalence, and benchmark scope.
+- [x] Issue #108 is reactivated after the source PR is reviewable and describes the residual reducer, semantic enrichment, final equivalence, and benchmark scope.
 - [x] #87, #103, #104, and #111 ownership is unchanged.
 - [ ] The reconciliation PR is reviewable with exact-head local and hosted evidence.
