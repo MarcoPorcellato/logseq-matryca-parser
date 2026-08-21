@@ -61,8 +61,8 @@
 
   Expected: all commands exit 0 and no historical design/plan file changes.
 
-  Task 1 status: documentation edits, focused validation, and the bounded fix
-  review are complete. Publication of this reconciliation and #108
+  Task 1 status: documentation edits and focused validation are complete.
+  Independent review, publication of this reconciliation, and #108
   reactivation remain pending.
 
 - [x] **Step 6: Commit the documentation reconciliation**
