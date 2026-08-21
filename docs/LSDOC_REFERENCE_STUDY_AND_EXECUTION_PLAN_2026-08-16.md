@@ -914,10 +914,12 @@ It must not replace the requirements in this plan.
 - [x] The source-location RFC is accepted through PR #169 with consumer and
   cost evidence recorded in the decision document.
 - [x] The first #108 extraction slice is covered by semantic and work-growth
-  gates through PR #170; the broader extraction epic remains open.
-- [x] The second private #108 lexical-state slice is locally exact-head
-  qualified at `d3dd316`; hosted validation, publication, and epic closure
-  remain separate gates.
+  gates through PR #170; the broader extraction scope remains unfinished.
+- [x] The second private #108 lexical-state slice was published through PR
+  #176 and its hosted checks completed. Issue #108 is currently CLOSED with
+  reason `completed`; reducer, semantic enrichment, final equivalence, and
+  benchmark gates remain, and reactivation is planned after the source PR is
+  reviewable.
 - [ ] No AGPL-covered expression entered Apache-only source, tests, fixtures,
   schemas, or documentation.
 - [ ] Documentation, issue state, and public claims match the delivered behavior.

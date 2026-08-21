@@ -33,23 +33,23 @@
 - Consumes: PR #176 head `a8558aca305c43bbadb66b884b9def945f8af36c`, squash merge `2a3679e176772bfcc57ed49b2c7c63d9d7d72346`, successful CodeQL run `32434564524`, successful Dependency Review run `32434567688`, and successful Logos Protocol CI run `32434567730`.
 - Produces: current maintained documentation that describes M9 as merged and hosted-validated while recording #108 as CLOSED with reason `completed`; reactivation is planned after the source PR is reviewable, with reducer, semantic enrichment, final equivalence, and benchmark gates remaining.
 
-- [ ] **Step 1: Update authoritative anchors and M9 status**
+- [x] **Step 1: Update authoritative anchors and M9 status**
 
   In the canonical execution plan, replace the local-only M9 anchor with the exact PR, source-head, merge, and hosted-check receipts. Update the current source anchor to `2a3679e176772bfcc57ed49b2c7c63d9d7d72346`. State that #108 is currently CLOSED with reason `completed`; reactivation is planned after the source PR is reviewable because the merged artifacts delivered only the second private slice.
 
-- [ ] **Step 2: Preserve the M9 local receipt and add the publication receipt**
+- [x] **Step 2: Preserve the M9 local receipt and add the publication receipt**
 
   Keep the exact local qualification evidence for `d3dd316d4536ea428747dc3a4895ad633ffa6993`. Add a separate hosted-publication paragraph and a newest-first execution-ledger row for PR #176. Do not rewrite the local receipt as if hosted checks ran on `d3dd316`.
 
-- [ ] **Step 3: Update the persistent assurance goal**
+- [x] **Step 3: Update the persistent assurance goal**
 
   Change M9 from `locally qualified, unpublished` to merged through PR #176. Record the exact source head and squash merge, the three successful hosted workflows, and the residual #108 boundary. Replace stale statements that all broader issues remain open with the exact current state after reconciliation.
 
-- [ ] **Step 4: Add the newest-first documentation log entry**
+- [x] **Step 4: Add the newest-first documentation log entry**
 
   Add `## 2026-08-21` above the existing `2026-08-20` entry. Record PR #174, PR #175, and PR #176 as distinct post-v1.8.0 deliveries; explain that #108 is currently CLOSED with reason `completed` and reactivation is planned after the source PR is reviewable. Update `last_verified`, `verified`, and `stale_after` using the repository validator's accepted dates.
 
-- [ ] **Step 5: Run focused documentation validation**
+- [x] **Step 5: Run focused documentation validation**
 
   Run:
 
@@ -60,6 +60,10 @@
   ```
 
   Expected: all commands exit 0 and no historical design/plan file changes.
+
+  Task 1 status: documentation edits and focused documentation validation are
+  complete. Exact-head qualification, publication of this reconciliation, and
+  #108 reactivation remain pending.
 
 - [ ] **Step 6: Commit the documentation reconciliation**
 

@@ -48,7 +48,9 @@ M7 was delivered through [PR #170](https://github.com/MarcoPorcellato/logseq-mat
 and closes child issue [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165).
 The private line-classification extraction preserves parser state reduction,
 node creation, identities, graph behavior, public imports, and dependencies.
-The broader #108 epic remains open for later gated phase slices.
+The broader #108 epic remains unfinished for later gated phase slices. Issue
+#108 is currently CLOSED with reason `completed`; it will be reopened only
+after this source PR is reviewable.
 
 M9 is merged through [PR #176](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/176): source head
 `a8558aca305c43bbadb66b884b9def945f8af36c` was squash-merged as
