@@ -143,9 +143,12 @@ def test_effective_properties_never_mix_page_and_node_versions_during_reload(
         reader_future = pool.submit(read_effective_properties)
         assert reader_started.wait(timeout=3), "reader did not start"
         try:
-            if page_lookup_reached.wait(timeout=1):
-                allow_page_lookup_to_continue.set()
-                assert reader_finished.wait(timeout=1), "unlocked reader did not finish"
+            assert not page_lookup_reached.wait(timeout=1), (
+                "reader reached page lookup while candidate publication was incomplete"
+            )
+            assert not reader_finished.is_set(), (
+                "reader finished before the candidate snapshot was published"
+            )
         finally:
             allow_build_to_continue.set()
             allow_page_lookup_to_continue.set()
