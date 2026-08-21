@@ -273,6 +273,8 @@ class InstrumentedStackMachineParser(StackMachineParser):
         properties_override: dict[str, Any] | None = None,
         properties_order_override: list[str] | None = None,
         line_end: int | None = None,
+        *,
+        refresh_derived: bool = False,
     ) -> LogseqNode:
         self._add(node_refreshes=1)
         return super()._refresh_node(
@@ -281,6 +283,7 @@ class InstrumentedStackMachineParser(StackMachineParser):
             properties_override=properties_override,
             properties_order_override=properties_order_override,
             line_end=line_end,
+            refresh_derived=refresh_derived,
         )
 
     def _replace_stack_tail_node(

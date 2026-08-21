@@ -28,10 +28,22 @@ superseded_by: null
   `2a3679e176772bfcc57ed49b2c7c63d9d7d72346`.
 - PR #176's [CodeQL run 32434564524](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434564524), [Dependency Review run 32434567688](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567688),
   and [Logos Protocol CI run 32434567730](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567730) completed successfully.
-- Issue #108 is currently CLOSED with reason `completed`; reactivation is
-  planned after the source PR is reviewable. Until then, residual scope is
-  reducer, semantic enrichment, final equivalence, and benchmark gates. No v1.8.1, universal speedup, #87 closure, or
-  completion of #103, #104, or #111 is claimed.
+- Reconciled maintained status through [PR #177](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/177): source head
+  `02bd6f293276faa5001aab05be5c4c19e99364fa` was squash-merged as
+  `60082bb725b80904572a43ac01c3849766a242a0`; all eight hosted checks passed.
+  Issue #108 is now open with residual reducer, semantic-enrichment, final
+  equivalence, and benchmark gates.
+- Locally qualified the bounded #87 soft-break correction as code commit
+  `c188556`. Derived metadata is finalized once per node, strict-reference state
+  is page-local, and parser registries contain the exact returned nodes across
+  direct and file entry points. `make all` passed 691 tests at 89.82% coverage;
+  the focused parser suite passed 33 tests; deterministic helper-call growth,
+  1024-level traversal, semantic snapshots, registry identity, Ruff, mypy,
+  documentation, and vendor gates passed. The 1,148-line privacy-clean seed had
+  a local 3-warm-up/21-sample median of 0.02702 seconds and p95 of 0.02739
+  seconds. This is diagnostic local evidence only: no v1.8.1, hosted #87
+  validation, universal speedup, or completion of #103, #104, or #111 is
+  claimed.
 
 ## 2026-08-20
 

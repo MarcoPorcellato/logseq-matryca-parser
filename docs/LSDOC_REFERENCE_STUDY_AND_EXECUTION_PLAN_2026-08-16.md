@@ -53,13 +53,13 @@ Markdown source-of-truth model.
 | Item | Verified state | Evidence |
 |---|---|---|
 | Source repository | `MarcoPorcellato/logseq-matryca-parser` | `origin/main` fetched 2026-08-21 |
-| Source base | `2a3679e176772bfcc57ed49b2c7c63d9d7d72346` | PR #176 squash merge; current source anchor verified on 2026-08-21 |
+| Source base | `60082bb725b80904572a43ac01c3849766a242a0` | PR #177 squash merge; current source anchor verified on 2026-08-21 |
 | Source license | Apache License 2.0 | [`LICENSE`](../LICENSE) |
 | Reference repository | `martinkoutecky/lsdoc` release `v0.5.5` | [reference commit `c79cb059`](https://github.com/martinkoutecky/lsdoc/commit/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3) |
 | Reference license | `AGPL-3.0-only` | [`Cargo.toml`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/Cargo.toml) and [`LICENSE`](https://github.com/martinkoutecky/lsdoc/blob/c79cb059da5b4360ebde2e5fd953fa1f43ddabc3/LICENSE) |
 | Parent roadmap | current repository-wide quality SSOT | [stellar roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) |
 | M0 publication | merged as [PR #159](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/159) | source head `a6056413`, squash merge `30946446`, terminal validation recorded in the PR |
-| Existing delivery anchors | #87, #103, #104, and #111 remain open; #106, #108, #113, and #165 are closed | live GitHub issue reads on 2026-08-21; reactivation of #108 is planned after the source PR is reviewable |
+| Existing delivery anchors | #87, #103, #104, #108, and #111 remain open; #106, #113, and #165 are closed | live GitHub issue reads on 2026-08-21; #108 was reopened after PR #177 became reviewable |
 | Local implementation checkpoint | `8806205c35b104ed65d00a273acc9eeca572ae38` | clean local commit on `agent/parser-assurance-m1`; exact-head tests passed, but independent oracle review rejected publication |
 | M1 delivery | merged | [PR #161](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/161) merged the project-owned compatibility-corpus foundation; it remains only the first #104 tranche |
 | M2–M4 delivery | merged | M3 [PR #162](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/162), M4 [PR #163](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/163), and M2 [PR #164](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/164) are in `main` as `172be70`, `5d38e01`, and `98bc5aa` respectively |
@@ -67,7 +67,8 @@ Markdown source-of-truth model.
 | M6 delivery | merged | Source-location contract and RFC merged through [PR #169](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/169) |
 | M7 delivery | merged | Internal line-classification slice merged through [PR #170](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/170); issue [#165](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/165) is closed |
 | M9 delivery | merged through [PR #176](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/176) | Source head `a8558aca305c43bbadb66b884b9def945f8af36c`, squash merge `2a3679e176772bfcc57ed49b2c7c63d9d7d72346`; [CodeQL run 32434564524](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434564524), [Dependency Review run 32434567688](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567688), and [Logos Protocol CI run 32434567730](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567730) completed successfully |
-| Current milestone | v1.8.0 released; M9 merged; broader assurance work remains | current source `2a3679e`; tag `v1.8.0`, exact workflow run `32324328464`, PyPI publication, GitHub Release, checksums, attestations, and PR #176 hosted checks were verified on 2026-08-21 |
+| Documentation reconciliation | merged through [PR #177](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/177) | Source head `02bd6f293276faa5001aab05be5c4c19e99364fa`, squash merge `60082bb725b80904572a43ac01c3849766a242a0`; eight hosted checks completed successfully and #108 is open |
+| Current milestone | v1.8.0 released; M9 and its maintained-status reconciliation merged; broader assurance work remains | current source `60082bb`; tag `v1.8.0`, exact workflow run `32324328464`, PyPI publication, GitHub Release, checksums, attestations, and PR #176/#177 hosted checks were verified on 2026-08-21 |
 
 Drift-prone anchors must be re-verified before issue edits, implementation,
 publication, or qualification.
@@ -578,6 +579,27 @@ converted into a pass or silently added to an allowlist.
 - An incomplete work model can miss uninstrumented library or regex costs;
   timing and profiling remain complementary.
 
+#### Current #87 bounded qualification
+
+PR #174 already delivered iterative 1024-level traversal and the linear
+model-copy guard. Local code commit `c188556`, based on the PR #177 merge,
+addresses the remaining pathological soft-break behavior by finalizing derived
+metadata once per node in iterative post-order. It also resets strict-reference
+state for each page and rebuilds registries from the exact final nodes returned
+by direct, same-tab, detected-tab, and empty-file entry points.
+
+The exact local gate passed 691 tests with 89.82% coverage, while the focused
+parser suite passed 33 tests. The regression compares metadata-helper calls at
+3 and 300 continuations, the 1024-level strict and file paths remain iterative,
+and semantic snapshots plus returned-node registry identity are preserved. A
+privacy-clean 1,148-line seed with SHA-256
+`4c2b1e87367d2b7b9c16ee62441f05c21c46c86c954703c5f7892789ca148a5d`
+produced one canonical in-process result across 21 measured samples after 3
+warm-ups; local median was 0.02702 seconds and p95 was 0.02739 seconds. These
+times are platform-labelled diagnostics only. Hosted validation, merge, and
+issue closure remain separate gates, while #111 retains all vault-scale,
+cross-machine, RSS, reload, search, and RAG-chunk performance ownership.
+
 ### M5 — Privacy-safe local graph assurance tool
 
 **Outcome**
@@ -758,7 +780,7 @@ converted into a pass or silently added to an allowlist.
 **Hosted publication and reconciliation**
 
 - The M9 source was published through [PR #176](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/176): source head `a8558aca305c43bbadb66b884b9def945f8af36c` was squash-merged as `2a3679e176772bfcc57ed49b2c7c63d9d7d72346`. [CodeQL run 32434564524](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434564524), [Dependency Review run 32434567688](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567688), and [Logos Protocol CI run 32434567730](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567730) all completed successfully.
-- Issue [#108](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/108) is currently CLOSED with reason `completed`. Reactivation is planned after the source PR is reviewable; until then, the residual scope is reducer, semantic enrichment, final equivalence, and benchmark gates.
+- Issue [#108](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/108) was reopened after PR #177 became reviewable and remains open. The residual scope is reducer, semantic enrichment, final equivalence, and benchmark gates.
 
 **Terminal local evidence**
 
@@ -916,10 +938,9 @@ It must not replace the requirements in this plan.
 - [x] The first #108 extraction slice is covered by semantic and work-growth
   gates through PR #170; the broader extraction scope remains unfinished.
 - [x] The second private #108 lexical-state slice was published through PR
-  #176 and its hosted checks completed. Issue #108 is currently CLOSED with
-  reason `completed`; reducer, semantic enrichment, final equivalence, and
-  benchmark gates remain, and reactivation is planned after the source PR is
-  reviewable.
+  #176 and its hosted checks completed. PR #177 reconciled the maintained
+  status and merged with eight successful hosted checks; issue #108 is open for
+  reducer, semantic enrichment, final equivalence, and benchmark gates.
 - [ ] No AGPL-covered expression entered Apache-only source, tests, fixtures,
   schemas, or documentation.
 - [ ] Documentation, issue state, and public claims match the delivered behavior.
@@ -932,7 +953,9 @@ Completion is unproven until every applicable item has authoritative evidence.
 
 | Date | Anchor | Result | Evidence and residual boundary |
 |---|---|---|---|
-| 2026-08-21 | M9 hosted publication / PR #176 | merged and hosted-validated | Source head `a8558aca305c43bbadb66b884b9def945f8af36c` was squash-merged as `2a3679e176772bfcc57ed49b2c7c63d9d7d72346`; [CodeQL `32434564524`](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434564524), [Dependency Review `32434567688`](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567688), and [Logos Protocol CI `32434567730`](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567730) completed successfully. PR #174 merged as `8801498a31251dc9b8b6f0e1106835d87e083e16` and PR #175 as `b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e`. Issue #108 is currently CLOSED with reason `completed`; reactivation is planned after the source PR is reviewable. Residual scope remains reducer, semantic enrichment, final equivalence, and benchmark gates. |
+| 2026-08-21 | #87 soft-break metadata refresh `c188556` | locally qualified; hosted validation pending | Based on `60082bb`, the code commit defers derived metadata until iterative finalization, makes strict-reference state page-local, and rebuilds registries from exact returned nodes. `make all` passed 691 tests at 89.82% coverage; the focused suite passed 33 tests; Ruff, mypy, documentation, vendor, deterministic work-growth, deep traversal, semantic, identity, and diff gates passed. The privacy-clean seed's 3-warm-up/21-sample local observation had a 0.02702-second median and 0.02739-second p95 with one canonical in-process result. These times are diagnostic only; PR, hosted checks, merge, release, and #111 performance claims remain separate. |
+| 2026-08-21 | Maintained-status reconciliation / PR #177 | merged and hosted-validated | Source head `02bd6f293276faa5001aab05be5c4c19e99364fa` was squash-merged as `60082bb725b80904572a43ac01c3849766a242a0`; all eight checks passed across [CodeQL `32442416999`](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32442416999), [Dependency Review `32442419152`](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32442419152), and [Logos Protocol CI `32442419151`](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32442419151). Issue #108 is open with bounded reducer, semantic-enrichment, final-equivalence, and benchmark residual scope. |
+| 2026-08-21 | M9 hosted publication / PR #176 | merged and hosted-validated | Source head `a8558aca305c43bbadb66b884b9def945f8af36c` was squash-merged as `2a3679e176772bfcc57ed49b2c7c63d9d7d72346`; [CodeQL `32434564524`](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434564524), [Dependency Review `32434567688`](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567688), and [Logos Protocol CI `32434567730`](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32434567730) completed successfully. PR #174 merged as `8801498a31251dc9b8b6f0e1106835d87e083e16` and PR #175 as `b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e`. Residual #108 scope was subsequently reopened and reconciled through PR #177. |
 | 2026-08-20 | M9 lexical-state implementation `d3dd316` | local implementation checkpoint / docs checkpointing | Native make all ran from exact base `b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e` to `d3dd316d4536ea428747dc3a4895ad633ffa6993`; it passed 685 tests (89.73%), Ruff, mypy, documentation checks, vendor-name check, git diff check, and zero-cycle audit. Focused suite passed with 288 tests. Complete-range review on `Luna` found no actionable correctness or scope defects. This second private #108 slice does not close #108, #87, #103, #104, or #111; no publication or GitHub-release claim is made. |
 | 2026-08-16 | M0 / PR #159 | merged | Source head `a6056413`, squash merge `30946446`; PR records 535 passing tests, 91.95% coverage, documentation/package/vendor gates, and zero cycles. No parser behavior changed. |
 | 2026-08-16 | M1 activation | verified | Clean `agent/parser-assurance-m1` at `e2a3f9a`, matching `origin/main`; no tracked M1 changes at activation. |

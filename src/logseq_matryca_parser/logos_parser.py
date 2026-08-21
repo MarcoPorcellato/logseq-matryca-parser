@@ -696,6 +696,7 @@ class StackMachineParser:
 
     def parse(self, text: str, page_title: str = "untitled") -> LogseqPage:
         """Parse Logseq markdown text into a `LogseqPage`."""
+        self.registry = PageRegistry()
         stack: list[LogseqNode] = []
         stack_columns: list[int] = []
         stack_indents: list[str] = []
@@ -1054,8 +1055,10 @@ class StackMachineParser:
                 line_number,
             )
 
+        root_nodes = self._finalize_node_metadata(root_nodes)
         self._validate_references(root_nodes)
         root_nodes = self._normalize_indent_levels(root_nodes)
+        self._rebuild_registry(root_nodes)
         page_refs = self._collect_page_refs(root_nodes)
         page_prop_wikilinks, page_prop_tags, page_prop_block_refs = _extract_property_graph_tokens(
             page_properties
@@ -1095,6 +1098,7 @@ class StackMachineParser:
         """Parse a markdown file and return a graph-native page model."""
         path = Path(path)
         content = path.read_text(encoding="utf-8-sig")
+        self.registry = PageRegistry()
         detected_tab = detect_tab_size_from_markdown(content)
         if not content.strip():
             logger.warning("File %s is empty.", path)
@@ -1102,7 +1106,7 @@ class StackMachineParser:
             title_segments = [segment for segment in page_title.split("/") if segment]
             namespace_chain = title_segments[:-1] if len(title_segments) > 1 else []
             graph_root = self._derive_graph_root(path)
-            return LogseqPage(
+            page = LogseqPage(
                 title=page_title,
                 raw_content=content,
                 namespace_chain=namespace_chain,
@@ -1110,6 +1114,8 @@ class StackMachineParser:
                 graph_root=str(graph_root),
                 tab_size=detected_tab,
             )
+            self._rebuild_registry(page.root_nodes)
+            return page
 
         page_title = self._derive_page_title(path)
         if detected_tab != self.tab_size:
@@ -1125,7 +1131,7 @@ class StackMachineParser:
         if updated_at is None:
             updated_at = int(os.path.getmtime(path))
         source_path = str(path.resolve())
-        return page.model_copy(
+        page = page.model_copy(
             update={
                 "source_path": source_path,
                 "graph_root": str(graph_root),
@@ -1135,6 +1141,8 @@ class StackMachineParser:
                 "root_nodes": self._apply_source_path(page.root_nodes, source_path),
             }
         )
+        self._rebuild_registry(page.root_nodes)
+        return page
 
     def _derive_page_title(self, path: Path) -> str:
         return derive_page_title_from_source_path(path)
@@ -1350,6 +1358,18 @@ class StackMachineParser:
             pending.extend(reversed(node.children))
         return collected
 
+    def _rebuild_registry(self, roots: list[LogseqNode]) -> None:
+        """Replace registry contents with the normalized nodes returned by parse()."""
+        registry = PageRegistry()
+        pending = list(reversed(roots))
+
+        while pending:
+            node = pending.pop()
+            registry.register(node)
+            pending.extend(reversed(node.children))
+
+        self.registry = registry
+
     def _resolve_block_ref_on_page(self, block_ref: str) -> LogseqNode | None:
         """Resolve a block UUID against the current page registry (synthetic, ``source_uuid``, ``id``)."""
         stripped = block_ref.strip()
@@ -1379,6 +1399,30 @@ class StackMachineParser:
                     )
             pending.extend(reversed(node.children))
 
+    def _finalize_node_metadata(self, nodes: list[LogseqNode]) -> list[LogseqNode]:
+        """Rebuild finalized nodes bottom-up without recursive traversal."""
+        finalized: dict[int, LogseqNode] = {}
+        pending = [(node, False) for node in reversed(nodes)]
+
+        while pending:
+            node, children_finalized = pending.pop()
+            if not children_finalized:
+                pending.append((node, True))
+                pending.extend((child, False) for child in reversed(node.children))
+                continue
+
+            finalized_node = self._refresh_node(
+                node.model_copy(
+                    update={"children": [finalized[id(child)] for child in node.children]}
+                ),
+                node.content,
+                refresh_derived=True,
+            )
+            finalized[id(node)] = finalized_node
+            self.registry.register(finalized_node)
+
+        return [finalized[id(node)] for node in nodes]
+
     def _refresh_node(
         self,
         node: LogseqNode,
@@ -1386,6 +1430,8 @@ class StackMachineParser:
         properties_override: dict[str, Any] | None = None,
         properties_order_override: list[str] | None = None,
         line_end: int | None = None,
+        *,
+        refresh_derived: bool = False,
     ) -> LogseqNode:
         properties = dict(node.properties) if properties_override is None else dict(properties_override)
         properties_order = (
@@ -1393,6 +1439,15 @@ class StackMachineParser:
             if properties_order_override is None
             else list(properties_order_override)
         )
+        updates: dict[str, Any] = {
+            "content": content,
+            "properties": properties,
+            "properties_order": properties_order,
+            "line_end": line_end if line_end is not None else node.line_end,
+        }
+        if not refresh_derived:
+            return node.model_copy(update=updates)
+
         time_properties = _extract_time_properties(content)
         scheduled_at: int | None = None
         deadline_at: int | None = None
@@ -1419,11 +1474,8 @@ class StackMachineParser:
         )
         wikilinks = [*_extract_wikilinks(content), *property_wikilinks]
         tags = [*_extract_tags(content), *property_tags]
-        return node.model_copy(
-            update={
-                "content": content,
-                "properties": properties,
-                "properties_order": properties_order,
+        updates.update(
+            {
                 "clean_text": clean_node_content(content, properties),
                 "task_status": task_status,
                 "task_priority": task_priority,
@@ -1437,11 +1489,11 @@ class StackMachineParser:
                 "assets": _extract_assets(content),
                 "refs": _merge_refs(wikilinks, tags),
                 "block_refs": [*_extract_block_refs(content), *property_block_refs],
-                "line_end": line_end if line_end is not None else node.line_end,
                 "created_at": _first_normalized_timestamp(properties, CREATED_AT_KEYS),
                 "updated_at": _first_normalized_timestamp(properties, UPDATED_AT_KEYS),
             }
         )
+        return node.model_copy(update=updates)
 
     def _normalize_indent_levels(
         self, nodes: list[LogseqNode], depth: int = 0

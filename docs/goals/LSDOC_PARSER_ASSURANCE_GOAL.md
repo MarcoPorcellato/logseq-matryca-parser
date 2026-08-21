@@ -49,8 +49,8 @@ and closes child issue [#165](https://github.com/MarcoPorcellato/logseq-matryca-
 The private line-classification extraction preserves parser state reduction,
 node creation, identities, graph behavior, public imports, and dependencies.
 The broader #108 epic remains unfinished for later gated phase slices. Issue
-#108 is currently CLOSED with reason `completed`; it will be reopened only
-after this source PR is reviewable.
+#108 was reopened on 2026-08-21 after the reconciliation source became
+reviewable and remains open for its bounded residual scope.
 
 M9 is merged through [PR #176](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/176): source head
 `a8558aca305c43bbadb66b884b9def945f8af36c` was squash-merged as
@@ -64,10 +64,15 @@ standard-library-only state object while leaving parser semantics and ownership
 in `StackMachineParser.parse()`. Native `make all` passed with 685 tests and
 89.73% coverage; the focused suite passed 288 tests; static, documentation,
 vendor, diff, impact, zero-cycle, and independent-review gates are recorded in
-the canonical plan. Issue #108 is currently CLOSED with reason `completed`;
-reactivation is planned after the source PR is reviewable. Until then, the
-residual scope is reducer, semantic enrichment, final equivalence, and benchmark
-gates. This does not claim closure of #87,
+the canonical plan. The maintained-status reconciliation then merged through
+[PR #177](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/177):
+source head `02bd6f293276faa5001aab05be5c4c19e99364fa` was squash-merged as
+`60082bb725b80904572a43ac01c3849766a242a0`. All eight hosted checks completed
+successfully across [CodeQL run 32442416999](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32442416999),
+[Dependency Review run 32442419152](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32442419152), and
+[Logos Protocol CI run 32442419151](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32442419151).
+Issue #108 is now open; residual scope remains reducer, semantic enrichment,
+final equivalence, and benchmark gates. This does not claim closure of #87,
 #103, #104, or #111.
 
 M2 is complete through the accepted negative
@@ -96,16 +101,22 @@ and [PyPI package](https://pypi.org/project/logseq-matryca-parser/1.8.0/)
 were checked after publication. The broader #104, #103, #87, #111, and #108
 acceptance work remains open where the plan still marks it incomplete.
 
-Post-release #87 work is in delivery on a local branch and is not yet a release
-or hosted-validation claim. On source code identical to v1.8.0, a valid
-1024-level nested outline raised `RecursionError`; profiling also identified
-quadratic Pydantic ancestor copies during incremental tree construction. The
-bounded correction replaces parser-owned recursive traversals with iterative
-ones and forbids immutable ancestor rebuilding in the test-only work model. The
-new checks preserve tree order, parent and left relationships, source paths,
-and a linear model-copy budget. Local elapsed observations remain diagnostic
-only; #111 still owns vault-scale wall-time, p95, RSS, reload, search, and
-RAG-chunk benchmark evidence.
+Post-release #87 work has two bounded stages. PR #174 delivered iterative
+1024-level traversal and a linear model-copy budget after the v1.8.0 source had
+shown `RecursionError` and quadratic immutable-ancestor copies. Local commit
+`c188556` now defers derived metadata refresh until iterative post-order
+finalization, resets strict-reference state for each page, and rebuilds the
+registry from the exact normalized or source-enriched nodes returned by every
+parse and file entry point. The deterministic regression compares helper-call
+growth at 3 and 300 continuations; the full gate passed 691 tests with 89.82%
+coverage, and the focused parser suite passed 33 tests. On the privacy-clean
+1,148-line seed (`sha256:4c2b1e87367d2b7b9c16ee62441f05c21c46c86c954703c5f7892789ca148a5d`),
+the final local 3-warm-up/21-sample observation had a 0.02702-second median and
+0.02739-second p95 with one canonical result in-process. These measurements are
+diagnostic on one host, not a hosted-validation, release, cross-machine,
+universal-speedup, or vault-scale claim. #111 still owns wall-time, p95, RSS,
+reload, search, and RAG-chunk benchmark evidence. Hosted validation, merge,
+release, and issue closure for local commit `c188556` remain separate gates.
 
 The initial checkpoint `8806205c35b104ed65d00a273acc9eeca572ae38` is rejected
 pre-correction evidence. Corrective implementation
