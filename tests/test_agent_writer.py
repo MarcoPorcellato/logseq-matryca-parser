@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import os
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
-from threading import Barrier, BrokenBarrierError
+from threading import Barrier, BrokenBarrierError, Event
 from unittest.mock import patch
 
 import pytest
@@ -138,6 +137,7 @@ def test_simultaneous_appends_preserve_both_children(
     graph = LogseqGraph.load_directory(graph_root)
     parent_uuid = graph.pages["Splice"].root_nodes[0].uuid
     source_read_barrier = Barrier(2)
+    simultaneous_reads = Event()
     original_read = agent_writer_module._read_validated_target
 
     def synchronize_after_read(
@@ -153,8 +153,12 @@ def test_simultaneous_appends_preserve_both_children(
             expected_stat,
             target_uuid=target_uuid,
         )
-        with suppress(BrokenBarrierError):
+        try:
             source_read_barrier.wait(timeout=1)
+        except BrokenBarrierError:
+            pass
+        else:
+            simultaneous_reads.set()
         return result
 
     monkeypatch.setattr(
@@ -169,6 +173,9 @@ def test_simultaneous_appends_preserve_both_children(
         first.result(timeout=5)
         second.result(timeout=5)
 
+    assert not simultaneous_reads.is_set(), (
+        "two writer transactions reached their validated source reads together"
+    )
     written = page_path.read_text(encoding="utf-8")
     assert written.count("- first child") == 1
     assert written.count("- second child") == 1
