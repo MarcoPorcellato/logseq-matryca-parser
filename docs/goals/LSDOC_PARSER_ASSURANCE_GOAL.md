@@ -10,7 +10,7 @@ authority: source_repository
 execution_mode: reviewed
 last_verified: 2026-08-20
 verified: 2026-08-20
-stale_after: 2026-11-14
+stale_after: 2026-11-18
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -49,6 +49,17 @@ and closes child issue [#165](https://github.com/MarcoPorcellato/logseq-matryca-
 The private line-classification extraction preserves parser state reduction,
 node creation, identities, graph behavior, public imports, and dependencies.
 The broader #108 epic remains open for later gated phase slices.
+
+M9 is a locally qualified, unpublished second private #108 slice at exact
+implementation head `d3dd316d4536ea428747dc3a4895ad633ffa6993`, based on
+`b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e`. It moves only lexical mode and
+eligibility transitions into a private standard-library-only state object while
+leaving parser semantics and ownership in `StackMachineParser.parse()`. Native
+`make all` passed with 685 tests and 89.73% coverage; the focused suite passed
+288 tests; static, documentation, vendor, diff, impact, zero-cycle, and
+independent-review gates are recorded in the canonical plan. This checkpoint
+does not close #108, #87, #103, #104, or #111, and it is not a hosted,
+publication, merge, release, or performance claim.
 
 M2 is complete through the accepted negative
 [ADR-001](../decisions/ADR-001-external-oracle-boundary.md): no external

@@ -21,6 +21,7 @@ from logseq_matryca_parser.logseq_paths import (
     derive_page_title_from_source_path,
 )
 
+from ._lexical_state import _LexicalState
 from .exceptions import BlockReferenceError
 from .logos_core import LogseqNode, LogseqPage
 
@@ -702,15 +703,10 @@ class StackMachineParser:
         page_properties: dict[str, Any] = {}
         page_properties_order: list[str] = []
         current_node: LogseqNode | None = None
-        frontmatter_active = True
-        properties_allowed = True
+        lexical_state = _LexicalState()
         pending_list_key: str | None = None
         pending_list_items: list[str] = []
         pending_list_indent: int | None = None
-        in_code_block = False
-        in_query_block = False
-        in_drawer = False
-        in_yaml_frontmatter = False
         line_number = 0
 
         for line_number, input_line in enumerate(text.splitlines(), start=1):
@@ -718,10 +714,9 @@ class StackMachineParser:
             raw_line = line.raw_line
             stripped_line = line.stripped_line
 
-            if in_yaml_frontmatter:
+            if lexical_state.mode == "yaml":
                 if line.is_yaml_delimiter:
-                    in_yaml_frontmatter = False
-                    frontmatter_active = False
+                    lexical_state.finish_yaml_frontmatter()
                     yaml_title = page_properties.get("title")
                     if isinstance(yaml_title, str) and yaml_title.strip():
                         page_title = yaml_title.strip()
@@ -736,42 +731,39 @@ class StackMachineParser:
                 continue
 
             if line_number == 1 and line.is_yaml_delimiter:
-                in_yaml_frontmatter = True
+                lexical_state.begin_yaml_frontmatter()
                 continue
 
-            if in_query_block and current_node is not None:
+            if lexical_state.mode == "query" and current_node is not None:
                 merged_content = f"{current_node.content}\n{raw_line}"
                 updated = self._refresh_node(current_node, merged_content, line_end=line_number)
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
-                if line.is_query_end:
-                    in_query_block = False
-                frontmatter_active = False
+                lexical_state.consume_query_line(is_query_end=line.is_query_end)
                 pending_list_key = None
                 pending_list_items = []
                 pending_list_indent = None
                 continue
 
-            if in_code_block and current_node is not None:
+            if lexical_state.mode == "code" and current_node is not None:
                 merged_content = f"{current_node.content}\n{raw_line}"
                 updated = self._refresh_node(current_node, merged_content, line_end=line_number)
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
-                if line.is_code_fence:
-                    in_code_block = False
-                    properties_allowed = True
-                frontmatter_active = False
+                lexical_state.consume_code_line(is_code_fence=line.is_code_fence)
                 pending_list_key = None
                 pending_list_items = []
                 pending_list_indent = None
                 continue
 
-            if in_drawer:
-                if line.is_drawer_end:
-                    in_drawer = False
-                    continue
-                if line.bullet_match:
-                    in_drawer = False
+            if lexical_state.mode == "drawer":
+                keep_drawer_payload = lexical_state.consume_drawer_line(
+                    is_drawer_end=line.is_drawer_end,
+                    is_bullet=line.bullet_match is not None,
+                )
+                if not keep_drawer_payload:
+                    if line.is_drawer_end:
+                        continue
                 else:
                     if current_node is not None:
                         properties = dict(current_node.properties)
@@ -806,7 +798,7 @@ class StackMachineParser:
                     continue
 
             if line.is_logbook_begin and current_node is not None:
-                in_drawer = True
+                lexical_state.begin_drawer()
                 properties = dict(current_node.properties)
                 properties.setdefault("logbook", [])
                 updated = self._refresh_node(
@@ -913,8 +905,7 @@ class StackMachineParser:
                 stack_indents.append(raw_indent)
                 current_node = node
                 self.registry.register(node)
-                frontmatter_active = False
-                properties_allowed = True
+                lexical_state.observe_structural_node()
                 continue
 
             heading_match = line.heading_match
@@ -948,8 +939,7 @@ class StackMachineParser:
                 stack_indents.append(raw_indent)
                 current_node = node
                 self.registry.register(node)
-                frontmatter_active = False
-                properties_allowed = True
+                lexical_state.observe_structural_node()
                 continue
 
             property_match = line.property_match
@@ -959,7 +949,7 @@ class StackMachineParser:
                 value = _sanitize_line(value)
                 value = value.strip().strip('"').strip("'")
 
-                if current_node is None and frontmatter_active:
+                if current_node is None and lexical_state.frontmatter_active:
                     page_properties[key] = value
                     if key not in page_properties_order:
                         page_properties_order.append(key)
@@ -968,11 +958,11 @@ class StackMachineParser:
                     continue
 
                 if current_node is None:
-                    frontmatter_active = False
+                    lexical_state.observe_nonstructural_line_without_node()
                     continue
 
                 block = current_node
-                if not properties_allowed:
+                if not lexical_state.properties_allowed:
                     pass
                 elif pending_list_key is not None:
                     finalized = self._finalize_pending_property_list(
@@ -990,7 +980,7 @@ class StackMachineParser:
                     pending_list_items = []
                     pending_list_indent = None
 
-                if properties_allowed and value.strip() == "":
+                if lexical_state.properties_allowed and value.strip() == "":
                     pending_list_key = key
                     pending_list_items = []
                     raw_prop_indent = raw_line[: len(raw_line) - len(raw_line.lstrip(" \t"))]
@@ -1008,10 +998,10 @@ class StackMachineParser:
                         block = updated
                         current_node = block
                         self.registry.register(updated)
-                    frontmatter_active = False
+                    lexical_state.observe_property()
                     continue
 
-                if properties_allowed:
+                if lexical_state.properties_allowed:
                     properties = dict(block.properties)
                     properties[key] = value
                     properties_order = list(block.properties_order)
@@ -1032,11 +1022,11 @@ class StackMachineParser:
                     self._replace_stack_tail_node(stack, root_nodes, updated)
                     current_node = updated
                     self.registry.register(updated)
-                    frontmatter_active = False
+                    lexical_state.observe_property()
                     continue
 
             if not stack:
-                frontmatter_active = False
+                lexical_state.observe_nonstructural_line_without_node()
                 continue
 
             active_node = stack[-1]
@@ -1049,12 +1039,10 @@ class StackMachineParser:
                 line_number,
                 len(stack),
             )
-            frontmatter_active = False
-            properties_allowed = False
-            if line.is_code_fence:
-                in_code_block = True
-            if line.is_query_begin:
-                in_query_block = True
+            lexical_state.observe_continuation(
+                is_code_fence=line.is_code_fence,
+                is_query_begin=line.is_query_begin,
+            )
 
         if pending_list_key is not None and current_node is not None:
             current_node = self._finalize_pending_property_list(
