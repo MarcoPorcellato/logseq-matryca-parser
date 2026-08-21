@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from logseq_matryca_parser.exceptions import BlockReferenceError
+from logseq_matryca_parser.logos_core import LogseqNode
 from logseq_matryca_parser.logos_parser import (
     LogosParser,
     StackMachineParser,
@@ -69,6 +70,45 @@ def test_fenced_code_shields_graph_tokens(parser: StackMachineParser) -> None:
     assert "Outer" in root.wikilinks
     assert "InnerNoise" not in root.wikilinks
     assert "inner-tag" not in root.tags
+
+
+def test_parser_defers_incremental_metadata_until_node_finalization(
+    parser: StackMachineParser, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Large soft-break nodes should refresh metadata minimally after finalization."""
+    import logseq_matryca_parser.logos_parser as logos_parser
+
+    calls = 0
+
+    original_shield = logos_parser._shield_inline_code
+
+    def counting_shield(content: str) -> tuple[str, list[str]]:
+        nonlocal calls
+        calls += 1
+        return original_shield(content)
+
+    monkeypatch.setattr(logos_parser, "_shield_inline_code", counting_shield)
+
+    def parse_case(continuations: int) -> tuple[LogseqNode, int]:
+        nonlocal calls
+        calls = 0
+        content_lines = [
+            "- Start [[Start]] `inline code with [[Ignored]] and #ignored`"
+        ] + [
+            f"  Continuation line {index} with `inline code [[Ignored{index}]] and #ignored{index}`"
+            for index in range(continuations)
+        ] + ["  final [[Target]] #topic"]
+        page = parser.parse("\n".join(content_lines), page_title="refresh-boundary")
+        return page.root_nodes[0], calls
+
+    _, short_calls = parse_case(3)
+    root, long_calls = parse_case(300)
+
+    assert root.line_end == 302
+    assert root.wikilinks == ["Start", "Target"]
+    assert root.tags == ["topic"]
+    assert root.refs == ["Start", "Target", "topic"]
+    assert long_calls <= short_calls + 2
 
 
 def test_macro_embed_extracts_nested_wikilinks(parser: StackMachineParser) -> None:
@@ -353,6 +393,31 @@ def test_strict_refs_allows_resolved_block_reference() -> None:
     assert page.root_nodes[0].children[0].block_refs == [existing_uuid]
 
 
+def test_parse_resets_registry_for_strict_current_page_validation() -> None:
+    """Reusing a parser must not resolve references from a previous page."""
+    previous_uuid = "33333333-3333-3333-3333-333333333333"
+    parser = StackMachineParser(strict_refs=True)
+
+    parser.parse(f"- First page\n  id:: {previous_uuid}", page_title="first-page")
+
+    with pytest.raises(BlockReferenceError, match=previous_uuid):
+        parser.parse(
+            f"- Second page with stale ref (({previous_uuid}))",
+            page_title="second-page",
+        )
+
+
+def test_registry_matches_normalized_returned_nodes() -> None:
+    """Registry entries must be the normalized nodes returned by parse()."""
+    parser = StackMachineParser()
+
+    page = parser.parse("- Root\n    - Child", page_title="normalized-registry")
+    child = page.root_nodes[0].children[0]
+
+    assert child.indent_level == 1
+    assert parser.registry.resolve(child.uuid) is child
+
+
 @pytest.mark.parametrize(
     "noise_line",
     [
@@ -403,6 +468,50 @@ def test_parse_page_file_zero_byte_returns_empty_page(tmp_path: Path) -> None:
     assert page.root_nodes == []
     assert page.title == "dangling-link"
     assert page.raw_content == ""
+
+
+def test_parse_file_registry_matches_source_path_nodes(tmp_path: Path) -> None:
+    """Compatibility file parsing must register the exact returned source-path nodes."""
+    page_path = tmp_path / "graph" / "pages" / "same-tab.md"
+    page_path.parent.mkdir(parents=True, exist_ok=True)
+    page_path.write_text("- Root\n  - Child\n", encoding="utf-8")
+    parser = StackMachineParser(tab_size=2)
+
+    roots = parser.parse_file(page_path)
+    root = roots[0]
+    child = root.children[0]
+
+    assert root.source_path == str(page_path.resolve())
+    assert parser.registry.resolve(root.uuid) is root
+    assert parser.registry.resolve(child.uuid) is child
+
+
+def test_parse_page_file_transfers_registry_from_detected_tab_parser(tmp_path: Path) -> None:
+    """Detected-tab delegation must populate the caller's current-page registry."""
+    page_path = tmp_path / "graph" / "pages" / "detected-tab.md"
+    page_path.parent.mkdir(parents=True, exist_ok=True)
+    page_path.write_text("- Root\n  - Child\n", encoding="utf-8")
+    parser = StackMachineParser(tab_size=4)
+
+    page = parser.parse_page_file(page_path)
+    root = page.root_nodes[0]
+
+    assert page.tab_size == 2
+    assert parser.registry.resolve(root.uuid) is root
+
+
+def test_parse_page_file_empty_resets_registry(tmp_path: Path) -> None:
+    """An empty file must leave no entries from an earlier parsed page."""
+    page_path = tmp_path / "graph" / "pages" / "empty.md"
+    page_path.parent.mkdir(parents=True, exist_ok=True)
+    page_path.write_text("", encoding="utf-8")
+    parser = StackMachineParser()
+    parser.parse("- Previous", page_title="previous")
+
+    page = parser.parse_page_file(page_path)
+
+    assert page.root_nodes == []
+    assert parser.registry.blocks == {}
 
 
 def test_parse_page_file_decodes_percent_encoded_title(tmp_path: Path) -> None:
