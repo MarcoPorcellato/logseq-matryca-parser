@@ -189,6 +189,7 @@ def test_watcher_callbacks_are_nonblocking_ordered_and_isolated(tmp_path: Path) 
         second_callback_delivered.set()
 
     mock_observer = MagicMock()
+    mock_observer.is_alive.return_value = False
     with patch("watchdog.observers.Observer", return_value=mock_observer):
         watcher = graph.start_watching(callback=callback, debounce_seconds=0)
         handler = mock_observer.schedule.call_args[0][0]
@@ -234,6 +235,7 @@ def test_watcher_start_failure_cleans_dispatcher_and_rejects_reentry(tmp_path: P
     watcher = LogseqGraphWatcher(graph, callback=lambda _path: None, debounce_seconds=0)
 
     failed_observer = MagicMock()
+    failed_observer.is_alive.return_value = False
     failed_observer.start.side_effect = RuntimeError("synthetic observer failure")
     with patch("watchdog.observers.Observer", return_value=failed_observer):
         with pytest.raises(RuntimeError, match="synthetic observer failure"):
@@ -243,13 +245,27 @@ def test_watcher_start_failure_cleans_dispatcher_and_rejects_reentry(tmp_path: P
     assert watcher._debouncer is None
     assert watcher._callback_dispatcher is None
 
+    start_entered = Event()
+    allow_start_to_finish = Event()
     running_observer = MagicMock()
+    running_observer.is_alive.return_value = False
+
+    def block_observer_start() -> None:
+        start_entered.set()
+        assert allow_start_to_finish.wait(timeout=5), "observer start did not resume"
+
+    running_observer.start.side_effect = block_observer_start
     with patch("watchdog.observers.Observer", return_value=running_observer):
-        watcher.start()
         try:
-            with pytest.raises(RuntimeError, match="already started"):
-                watcher.start()
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                start_future = pool.submit(watcher.start)
+                assert start_entered.wait(timeout=3), "observer start did not begin"
+                with pytest.raises(RuntimeError, match="already started"):
+                    watcher.start()
+                allow_start_to_finish.set()
+                start_future.result(timeout=3)
         finally:
+            allow_start_to_finish.set()
             watcher.stop()
 
 
@@ -274,6 +290,36 @@ def test_callback_dispatcher_reports_a_callback_that_outlives_bounded_close(
     assert dispatcher.close(timeout=3)
 
 
+def test_watcher_stop_retains_an_observer_that_outlives_its_bounded_join(
+    tmp_path: Path,
+) -> None:
+    """A timed-out observer stop retains lifecycle ownership and blocks restart."""
+    pytest.importorskip("watchdog")
+    from unittest.mock import MagicMock, patch
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Live.md").write_text("- live\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    watcher = LogseqGraphWatcher(graph, debounce_seconds=0)
+    observer = MagicMock()
+    observer.is_alive.return_value = True
+
+    with patch("watchdog.observers.Observer", return_value=observer):
+        watcher.start()
+        watcher.stop()
+        assert watcher._observer is observer
+        assert watcher._debouncer is not None
+        with pytest.raises(RuntimeError, match="still stopping"):
+            watcher.start()
+        observer.is_alive.return_value = False
+        watcher.stop()
+
+    assert watcher._observer is None
+    assert watcher._debouncer is None
+
+
 @pytest.mark.parametrize("destination_first", [False, True])
 def test_watcher_rename_orders_converge_to_a_cold_graph(
     tmp_path: Path, destination_first: bool
@@ -292,6 +338,7 @@ def test_watcher_rename_orders_converge_to_a_cold_graph(
     graph = LogseqGraph.load_directory(graph_root)
 
     mock_observer = MagicMock()
+    mock_observer.is_alive.return_value = False
     with patch("watchdog.observers.Observer", return_value=mock_observer):
         watcher = graph.start_watching(debounce_seconds=0)
         handler = mock_observer.schedule.call_args[0][0]
@@ -339,6 +386,7 @@ def test_watcher_replay_after_writer_append_converges_to_a_cold_graph(tmp_path: 
     parent_uuid = graph.pages["Splice"].root_nodes[0].uuid
 
     mock_observer = MagicMock()
+    mock_observer.is_alive.return_value = False
     with patch("watchdog.observers.Observer", return_value=mock_observer):
         watcher = graph.start_watching(debounce_seconds=0)
         handler = mock_observer.schedule.call_args[0][0]

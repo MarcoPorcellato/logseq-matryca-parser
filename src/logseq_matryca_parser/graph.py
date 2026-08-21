@@ -1259,16 +1259,20 @@ class LogseqGraphWatcher:
         self._observer: Any = None
         self._debouncer: _DebouncedGraphEventRouter | None = None
         self._callback_dispatcher: _OrderedCallbackDispatcher | None = None
+        self._lifecycle_lock = threading.Lock()
+        self._starting = False
 
     def start(self) -> LogseqGraphWatcher:
         from watchdog.events import FileSystemEventHandler
         from watchdog.observers import Observer
 
-        if any(
-            value is not None
-            for value in (self._observer, self._debouncer, self._callback_dispatcher)
-        ):
-            raise RuntimeError("LogseqGraphWatcher is already started or still stopping")
+        with self._lifecycle_lock:
+            if self._starting or any(
+                value is not None
+                for value in (self._observer, self._debouncer, self._callback_dispatcher)
+            ):
+                raise RuntimeError("LogseqGraphWatcher is already started or still stopping")
+            self._starting = True
 
         graph = self._graph
         callback_dispatcher = (
@@ -1345,20 +1349,32 @@ class LogseqGraphWatcher:
             if callback_dispatcher is not None:
                 callback_dispatcher.close()
             self._callback_dispatcher = None
+            with self._lifecycle_lock:
+                self._starting = False
             raise
         self._observer = observer
+        with self._lifecycle_lock:
+            self._starting = False
         logger.debug("Stack-Machine watcher: started on graph_path=%s", graph.graph_path)
         return self
 
     def stop(self) -> None:
-        if self._debouncer is not None:
-            self._debouncer.cancel_all()
-            self._debouncer = None
+        with self._lifecycle_lock:
+            if self._starting:
+                raise RuntimeError("LogseqGraphWatcher is still starting")
         if self._observer is not None:
             self._observer.stop()
             self._observer.join(timeout=5)
+            if self._observer.is_alive():
+                if self._debouncer is not None:
+                    self._debouncer.cancel_all()
+                logger.warning("Stack-Machine watcher: observer is still stopping after timeout")
+                return
             self._observer = None
             logger.debug("Stack-Machine watcher: stopped")
+        if self._debouncer is not None:
+            self._debouncer.cancel_all()
+            self._debouncer = None
         if self._callback_dispatcher is not None:
             if self._callback_dispatcher.close():
                 self._callback_dispatcher = None

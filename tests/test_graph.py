@@ -379,6 +379,7 @@ def test_graph_watcher_filesystem_events(tmp_path: Path) -> None:
         callback_delivered.set()
 
     mock_observer = MagicMock()
+    mock_observer.is_alive.return_value = False
     with patch("watchdog.observers.Observer", return_value=mock_observer):
         watcher = graph.start_watching(callback=cb, debounce_seconds=0)
         handler = mock_observer.schedule.call_args[0][0]
@@ -439,6 +440,7 @@ def test_watcher_ignores_temp_and_swap_files(tmp_path: Path) -> None:
     routed: list[Path] = []
 
     mock_observer = MagicMock()
+    mock_observer.is_alive.return_value = False
     with patch("watchdog.observers.Observer", return_value=mock_observer):
         watcher = graph.start_watching(
             callback=lambda p: routed.append(p.resolve()),
@@ -660,6 +662,7 @@ def test_watcher_on_deleted_purges_page(tmp_path: Path) -> None:
     stale_uuid = graph.pages["Ephemeral"].root_nodes[0].uuid
 
     mock_observer = MagicMock()
+    mock_observer.is_alive.return_value = False
     with patch("watchdog.observers.Observer", return_value=mock_observer):
         watcher = graph.start_watching(debounce_seconds=0)
         handler = mock_observer.schedule.call_args[0][0]
