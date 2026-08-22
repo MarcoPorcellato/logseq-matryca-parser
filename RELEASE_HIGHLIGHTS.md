@@ -5,6 +5,33 @@ For the exhaustive change history, see the [changelog](CHANGELOG.md). For
 published artifacts and attestations, see
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
+## v1.8.1
+
+Patch release — removes pathological parser work growth, corrects incremental backlink
+reloads, and adds reproducible assurance evidence. **No intentional breaking
+changes** to stable package imports or CLI behavior.
+
+| Area | Change |
+| :--- | :--- |
+| **Parser correctness and work** | Valid 1024-level outlines stay iterative; derived metadata is finalized once per node; strict-reference state is page-local; returned-node registry identity is preserved. |
+| **Incremental graph reloads** | Delete and filesystem-move identity changes reindex affected backlinks to match a cold load without rebuilding the global backlink registry. This is a bounded #103 correctness slice, not the complete concurrency contract. |
+| **Runtime evidence** | A deterministic offline synthetic-vault generator and source-free runner establish repeatable parser, graph, search, and optional SYNAPSE observations. #111 remains open for explicit vault-scale budgets. |
+| **Parser internals** | Private lexical state now owns eligibility transitions while reduction, AST construction, semantic enrichment, identities, and public behavior remain in the parser. #108 remains open. |
+| **Test suite** | **692** pytest cases with **89.82%** coverage at release preparation. |
+
+## v1.8.0
+
+Minor release — adds project-owned parser assurance, bounded local graph checks,
+and stronger release supply-chain evidence. **No intentional breaking changes**
+to stable package imports or CLI behavior.
+
+| Area | Change |
+| :--- | :--- |
+| **Parser assurance** | Versioned compatibility fixtures, deterministic adversarial cases, work-growth evidence, and one-based source-line contracts protect semantics without adopting an external parser oracle. |
+| **Local graph assurance** | New bounded `matryca-parse assure` command runs in a fresh worker and emits aggregate-only results without retaining vault content, paths, titles, UUIDs, or exception text. |
+| **Parser internals** | The first private line-classification phase preserves parser reduction, identities, public imports, and dependencies. |
+| **Supply chain** | Release jobs produce a CycloneDX SBOM, dependency/license inventory, checksums, and provenance attestations for the exact published distributions. |
+
 ## v1.7.1
 
 Patch release — completes the promised SYNAPSE example and closes the security

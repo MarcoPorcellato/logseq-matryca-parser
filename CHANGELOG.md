@@ -7,12 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.1] - 2026-08-21
+
+### Added
+
+- **Reproducible runtime evidence foundation (#111)** — add a deterministic,
+  offline synthetic-vault generator and a source-free measurement runner for
+  parser, cold-load, reload, search, and optional SYNAPSE scenarios. The runner
+  records semantic validity, Python/platform metadata, wall time, p95, and RSS
+  availability outside the default CI gate. It establishes a measurement
+  protocol, not vault-scale budgets or a universal performance claim; #111
+  remains open.
+
+### Changed
+
+- **Private lexical-state extraction (#108 M9)** — move YAML, code, query,
+  drawer, frontmatter, and block-property eligibility transitions into a private
+  standard-library-only state object. `StackMachineParser.parse()` retains line
+  classification, reduction, AST construction, identities, semantic enrichment,
+  and public behavior. The broader #108 epic remains open.
+
 ### Fixed
 
-- **Incremental graph reloads (#103)** — backlink indexes are rebuilt from the
-  current page set after a tracked page is deleted or reloaded. Title and alias
-  changes delivered through a filesystem move now match a cold load; no public
-  API or performance claim changes.
+- **Incremental graph reloads (#103)** — affected backlink entries are reindexed
+  against the current page identities after a tracked page is deleted or
+  reloaded. Title and alias changes delivered through a filesystem move now
+  match a cold load without a global backlink rebuild. This is the bounded
+  correctness slice; #103 remains open for mutation serialization and complete
+  snapshot-coherence work.
 - **Pathological nested outlines (#87)** — parse and file-entrypoint traversal
   now remain iterative for a 1024-level valid outline, while parser-owned tree
   construction avoids quadratic immutable-ancestor copies. Derived metadata is
