@@ -149,6 +149,7 @@ def test_guarded_read_rejects_unsafe_or_unreadable_files(
         path.mkdir()
     elif kind == "outside":
         path = tmp_path / "outside.md"
+        path.write_text("- outside\n", encoding="utf-8")
     elif kind == "open_failure":
         monkeypatch.setattr(local_graph_assurance.os, "open", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError()))
 
