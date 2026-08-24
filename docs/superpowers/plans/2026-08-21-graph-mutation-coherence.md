@@ -4,7 +4,7 @@
 
 **Goal:** Serialize one-process graph mutations and publish complete graph-index versions so writers, watchers, and readers cannot lose updates or observe mixed state.
 
-**Architecture:** Add a private frozen `_GraphSnapshot` candidate and one `RLock` per `LogseqGraph`. Build every incremental delta against copied mappings, publish all fields under the lock, make readers capture one version, wrap the writer's complete transaction in the same re-entrant scope, and move user callbacks to an ordered daemon dispatcher. Preserve synchronous APIs and targeted backlink repair.
+**Architecture:** Add a private frozen `_GraphSnapshot` candidate, a private source-path page inventory, and one `RLock` per `LogseqGraph`. Rebuild public page routing and diagnostics from retained parsed source pages, repair only changed backlink contributions, publish every field under the lock, wrap the writer's complete transaction in the same re-entrant scope, and move user callbacks to an ordered daemon dispatcher behind a quiescent debounce boundary. Preserve synchronous APIs and avoid unrelated file reparsing.
 
 **Tech Stack:** Python 3.12+, standard-library `dataclasses`, `threading`, and `queue`, Pydantic v2 private attributes, pytest, existing watchdog mocks, Ruff, mypy, and repository Make targets.
 
@@ -16,9 +16,11 @@
 - Use one private `threading.RLock` per `LogseqGraph`; never add a process-global lock.
 - Preserve all synchronous public signatures and package-root exports.
 - Never mutate a published pages dictionary, registry dictionary, or backlink list while constructing a candidate.
+- Preserve every parsed physical page in a private resolved-source-path mapping so collision losers remain recoverable.
 - Preserve targeted incremental backlink repair; do not call `_build_backlink_registry()` from incremental reload.
 - Keep writer path, symlink, `file://`, size, identity, permission, `fsync`, temporary-file, and `os.replace()` protections unchanged.
 - Callbacks run only after successful publication, in publication order, outside the graph lock.
+- Watcher shutdown rejects new debounce routes and quiesces a route already in publication processing before returning.
 - Use `Barrier`, `Event`, and bounded future waits; do not add `time.sleep()` to concurrency tests.
 - Keep all documentation and operator messages in English and use neutral `audit code` terminology.
 - Do not push, mark ready, merge, close #103, publish, or release without the separately required maintainer gate.
@@ -29,7 +31,7 @@
 
 | Path | Responsibility |
 | --- | --- |
-| `src/logseq_matryca_parser/graph.py` | Snapshot candidate, per-instance coordination, coherent readers, incremental publication, watcher callback dispatcher. |
+| `src/logseq_matryca_parser/graph.py` | Source-page inventory, snapshot candidate, per-instance coordination, targeted backlink repair, coherent readers, incremental publication, debounce shutdown, and callback dispatcher. |
 | `src/logseq_matryca_parser/agent_writer.py` | Complete writer transaction under the graph mutation scope. |
 | `tests/test_graph_concurrency.py` | Deterministic rollback, reader, rename, convergence, callback, and per-instance-lock tests. |
 | `tests/test_agent_writer.py` | Concurrent append regression and normal writer refresh behavior. |
@@ -569,6 +571,350 @@ live `main`. Link #103 without a closing keyword until hosted checks and review
 are terminal. Record AI assistance and exact validation. Do not mark ready,
 merge, close #103, or release without separate authorization.
 
+## Review-correction checkpoint
+
+The initial implementation reached local commit `b6f926865b799e7c0e3ca3cae3d58fe9a9c4b181`
+with 709 passing tests and 90.03% coverage. Independent Sol review returned
+`NEEDS_CORRECTION` for collision-loser recovery, stale incremental collision
+diagnostics, a debounce route that could outlive `stop()`, and a writer test
+whose child-order assertion depended on scheduler order. Commit
+`31f18eb` records the maintainer-approved architecture for the correction.
+Tasks 7-10 are the required continuation; they supersede Task 6 publication
+until a new exact head passes every gate.
+
+## Task 7: Preserve physical pages and repair collision transitions
+
+**Files:**
+
+- Modify: `src/logseq_matryca_parser/graph.py`
+- Test: `tests/test_graph_concurrency.py`
+
+**Interfaces:**
+
+- Consumes: `_GraphSnapshot`, `LogseqGraph.invalidate_and_reload_page()`,
+  `_enrich_pages_index()`, `_node_backlink_keys()`, and the rule forbidding
+  `_build_backlink_registry()` during incremental reload.
+- Produces: `_build_pages_index_from_source_pages(source_pages, graph_path)`,
+  `_repair_changed_backlink_contributions(...)`, `_GraphSnapshot.source_pages`,
+  and `LogseqGraph._source_pages`.
+
+- [ ] **Step 1: Add deterministic collision-transition tests**
+
+Add a parameterized regression over `collision_kind in {"canonical", "alias"}`
+and `operation in {"edit", "delete", "rename"}`. Build an incremental graph
+with two colliding physical files, perform the operation against the current
+winner, call incremental invalidation for every filesystem path affected by the
+operation, and cold-load the final vault. Compare `_public_graph_projection()`
+for the collision title plus every post-operation title.
+
+Use canonical fixtures from both `journals/Shared.md` and `pages/Shared.md` so
+one derived title initially displaces the other. Use alias fixtures
+`pages/A-Canonical.md` with `title:: Claimed` and `pages/Z-Alias.md` with
+`alias:: Claimed` so the alias winner initially displaces the canonical page.
+For rename, invalidate both the old and new paths. The final assertion must
+include exact `index_diagnostics` equality with the cold graph.
+
+- [ ] **Step 2: Run the collision tests to verify RED**
+
+Run:
+
+```bash
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+  uv run pytest -q tests/test_graph_concurrency.py -k collision_transition
+```
+
+Expected: at least one canonical and one alias case fail because the current
+public `pages` mapping no longer contains every displaced physical page and the
+published diagnostics tuple is copied unchanged.
+
+- [ ] **Step 3: Add the private source-page inventory**
+
+Extend the snapshot and graph with these exact shapes:
+
+```python
+@dataclass(frozen=True, slots=True)
+class _GraphSnapshot:
+    source_pages: dict[str, LogseqPage]
+    pages: dict[str, LogseqPage]
+    node_registry: dict[str, LogseqNode]
+    backlink_registry: dict[str, list[str]]
+    lower_title_map: dict[str, str]
+    index_diagnostics: tuple[Diagnostic, ...]
+
+_source_pages: dict[str, LogseqPage] = PrivateAttr(default_factory=dict)
+```
+
+Use resolved source-path strings as keys. `load_directory()` must retain every
+parsed worker result in this mapping before title, alias, or collision winner
+selection. Capture and publish `_source_pages` with the other snapshot fields;
+never expose it from the package root.
+
+- [ ] **Step 4: Derive pages and diagnostics from retained source pages**
+
+Add this private interface:
+
+```python
+def _build_pages_index_from_source_pages(
+    source_pages: dict[str, LogseqPage],
+    graph_path: Path,
+) -> tuple[dict[str, LogseqPage], tuple[Diagnostic, ...]]:
+    ...
+```
+
+Iterate source pages in resolved-path order, reproduce the cold-load
+canonical-title winner rule and its diagnostics, then call
+`_enrich_pages_index(pages, graph_path=graph_path, diagnostics=diagnostics)`.
+Return a fresh public mapping and a fresh diagnostics tuple. Incremental reload
+must copy `_source_pages`, remove the touched key, parse and replace only that
+file when it exists, and invoke this helper before publication.
+
+- [ ] **Step 5: Repair only changed backlink contributions**
+
+Add this private interface:
+
+```python
+def _repair_changed_backlink_contributions(
+    *,
+    old_pages: dict[str, LogseqPage],
+    old_nodes: dict[str, LogseqNode],
+    old_backlinks: dict[str, list[str]],
+    candidate_pages: dict[str, LogseqPage],
+    candidate_nodes: dict[str, LogseqNode],
+) -> dict[str, list[str]]:
+    ...
+```
+
+Clone every old backlink list. For each UUID in the union of old and candidate
+node registries, compare the tuples from `_node_backlink_keys(old_pages,
+old_node)` and `_node_backlink_keys(candidate_pages, candidate_node)`. Remove
+only UUIDs whose contribution changed or whose node disappeared from their old
+keys; append candidate contributions for changed or newly visible nodes. Sort
+every affected key with `_backlink_source_order_from(candidate_nodes, uuid)` and
+delete empty keys. Do not call `_build_backlink_registry()`.
+
+- [ ] **Step 6: Verify collision GREEN and incremental guard compatibility**
+
+Run:
+
+```bash
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+  uv run pytest -q \
+  tests/test_graph_concurrency.py -k 'collision_transition or incremental_lifecycle' \
+  tests/test_graph.py::test_incremental_rename_reindexes_backlinks_without_a_global_rebuild \
+  tests/test_graph.py::test_incremental_deletion_rebuilds_backlinks_like_cold_load
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+  uv run ruff check src/logseq_matryca_parser/graph.py tests/test_graph_concurrency.py
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+  uv run mypy src/logseq_matryca_parser/graph.py tests/test_graph_concurrency.py
+```
+
+Expected: every collision transition matches cold load, the global-backlink
+rebuild sentinel remains untouched, Ruff passes, and mypy reports no issues.
+
+- [ ] **Step 7: Commit collision recovery**
+
+```bash
+rtk git add -- src/logseq_matryca_parser/graph.py tests/test_graph_concurrency.py
+rtk git commit -m "fix(graph): recover incremental collision participants"
+```
+
+## Task 8: Quiesce debounce routes during watcher shutdown
+
+**Files:**
+
+- Modify: `src/logseq_matryca_parser/graph.py`
+- Test: `tests/test_graph_concurrency.py`
+
+**Interfaces:**
+
+- Consumes: `_DebouncedGraphEventRouter.schedule()`, `_fire()`, and
+  `LogseqGraphWatcher.stop()`.
+- Produces: `_DebouncedGraphEventRouter.close() -> None`; after it returns, no
+  route owned by that router can begin or remain in progress.
+
+- [ ] **Step 1: Add the in-flight route shutdown regression**
+
+Start a watcher with `debounce_seconds=0`. Monkeypatch
+`graph.invalidate_and_reload_page` with a wrapper that sets `route_entered`,
+waits on `allow_route`, and then calls the original method. Route one modified
+event on a worker, wait for `route_entered`, and invoke `watcher.stop()` on a
+second worker. Make the mock observer's `stop()` set `stop_entered`; after that
+event, assert a `stop_finished` event is still clear. Release `allow_route`,
+await both futures, record the resulting public projection, and assert it does
+not change after `stop()` returns.
+
+- [ ] **Step 2: Run the shutdown test to verify RED**
+
+Run:
+
+```bash
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+  uv run pytest -q \
+  tests/test_graph_concurrency.py::test_watcher_stop_quiesces_an_inflight_route
+```
+
+Expected: FAIL because `_fire()` or zero-delay `schedule()` does not currently
+share a close boundary with `cancel_all()`.
+
+- [ ] **Step 3: Add a closed, quiescent debounce boundary**
+
+Add `_closed = False` under the router lock. Execute both the zero-delay route
+and timer `_fire()` while holding that lock. `_fire()` must remove its timer,
+check `_closed`, and return without routing when shutdown already closed the
+router. Add:
+
+```python
+def close(self) -> None:
+    with self._lock:
+        self._closed = True
+        for timer in self._timers.values():
+            timer.cancel()
+        self._timers.clear()
+```
+
+Because an active route holds the same lock, `close()` waits for trusted graph
+publication but never waits for user callback execution. Make `schedule()`
+return immediately when `_closed` is true. Use `close()` in watcher startup
+failure, observer-timeout, and normal-stop paths; preserve the existing bounded
+dispatcher close and retained-ownership behavior.
+
+- [ ] **Step 4: Verify watcher lifecycle GREEN**
+
+Run:
+
+```bash
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+  uv run pytest -q tests/test_graph_concurrency.py -k 'watcher or callback or dispatcher'
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+  uv run pytest -q tests/test_graph.py -k watcher
+```
+
+Expected: in-flight publication completes before shutdown returns, pending or
+later routes are rejected, callbacks remain FIFO/nonblocking, and existing
+bounded lifecycle tests pass.
+
+- [ ] **Step 5: Commit watcher quiescence**
+
+```bash
+rtk git add -- src/logseq_matryca_parser/graph.py tests/test_graph_concurrency.py
+rtk git commit -m "fix(graph): quiesce watcher routes at shutdown"
+```
+
+## Task 9: Remove scheduler order from writer evidence
+
+**Files:**
+
+- Modify: `tests/test_agent_writer.py`
+
+**Interfaces:**
+
+- Consumes: `test_simultaneous_appends_preserve_both_children()` and the writer
+  serialization already implemented in `append_child_to_node()`.
+- Produces: deterministic evidence that both requested children are committed,
+  without promising which thread acquires the graph lock first.
+
+- [ ] **Step 1: Make the final child assertion order-independent**
+
+Replace the ordered list comparison with:
+
+```python
+children = [child.clean_text for child in cold_parent.children]
+assert len(children) == 2
+assert set(children) == {"first child", "second child"}
+```
+
+Keep the source-read barrier assertion proving that two writer transactions do
+not enter the validated source-read phase together.
+
+- [ ] **Step 2: Stress the focused test**
+
+Run:
+
+```bash
+rtk zsh -c 'for run in {1..20}; do
+  rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+    uv run pytest -q \
+    tests/test_agent_writer.py::test_simultaneous_appends_preserve_both_children || exit 1
+done'
+```
+
+Expected: twenty passes; the loop exits immediately on the first failure.
+
+- [ ] **Step 3: Commit deterministic writer evidence**
+
+```bash
+rtk git add -- tests/test_agent_writer.py
+rtk git commit -m "test(writer): remove scheduler order assumption"
+```
+
+## Task 10: Requalify, review, and publish the corrected draft
+
+**Files:**
+
+- Modify when implementation details changed: `docs/ARCHITECTURE.md`,
+  `docs/CLEAN_CODE_ARCHITECTURE.md`, and this plan's checkbox state.
+- Verify: complete branch and draft PR #180.
+
+**Interfaces:**
+
+- Consumes: Tasks 7-9 and the approved design at commit `31f18eb`.
+- Produces: one exact qualified remote head and hosted-CI evidence; no merge,
+  ready-for-review transition, issue closure, or release authorization.
+
+- [ ] **Step 1: Align maintained architecture documentation**
+
+Document the private source-page recovery inventory, fresh incremental
+diagnostics, targeted changed-contribution backlink repair, and quiescent
+debounce shutdown in the existing English architecture sections. Do not expose
+private types as stable API and do not add product-specific audit-tool names.
+
+- [ ] **Step 2: Run focused and complete local gates**
+
+Run:
+
+```bash
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+  uv run pytest -q tests/test_graph_concurrency.py tests/test_graph.py \
+  tests/test_agent_writer.py tests/test_writer_security.py \
+  tests/test_runtime_evidence.py tests/test_compat_corpus.py
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache make all
+rtk make vendor-name-check
+rtk git diff --check origin/main...HEAD
+rtk git status --short --branch
+```
+
+Expected: every test and quality gate passes at one clean exact head.
+
+- [ ] **Step 3: Refresh structural evidence**
+
+Refresh the local audit-code index at the exact head, verify zero source import
+cycles, rerun upstream impact for `invalidate_and_reload_page`,
+`append_child_to_node`, and `start_watching`, and inspect all direct dependents.
+Record exact head SHA and counts in the continuity checkpoint; do not treat a
+stale index as evidence.
+
+- [ ] **Step 4: Obtain fresh independent Sol approval**
+
+Provide exact base/head SHAs, the approved spec, the complete three-dot diff,
+RED/GREEN receipts for Tasks 7-9, local gate output, and structural evidence.
+The required verdict is `APPROVE` with no correctness, concurrency, security,
+or compatibility blocker. Any `NEEDS_CORRECTION` restarts focused TDD and full
+qualification before another review.
+
+- [ ] **Step 5: Push and qualify draft PR #180**
+
+Push `feat/graph-mutation-coherence-103` without force. Update the draft PR body
+with the exact head, architecture summary, tests, coverage, audit-code risk, Sol
+verdict, and explicit statement that the PR remains draft. Verify the hosted PR
+head equals the local SHA and wait for every required GitHub check to reach a
+terminal successful state.
+
+- [ ] **Step 6: Update durable coordination state**
+
+Update the ignored continuity/progress notes and GitHub Project #5 item for
+issue #103 to `In Progress`, `Risk: High`, with the next gate stated as the
+maintainer decision to mark PR #180 ready. Do not merge PR #180 or close #103.
+
 ## Final review checklist
 
 - [ ] All three original failure modes were RED before implementation and GREEN afterward.
@@ -576,9 +922,10 @@ merge, close #103, or release without separate authorization.
 - [ ] Every supported reader captures one version.
 - [ ] Concurrent appends preserve both updates.
 - [ ] Delete, rename, writer replay, and title/alias changes converge to cold-load behavior.
+- [ ] Canonical/canonical and alias/canonical collision resolution restores displaced physical pages and fresh diagnostics.
 - [ ] Callback execution is ordered, isolated, nonblocking, and bounded at stop.
+- [ ] No accepted or firing debounce route mutates the graph after watcher shutdown returns.
 - [ ] Existing writer security and incremental backlink guards remain unchanged and green.
 - [ ] Focused, full, docs, vendor, diff, cycle, impact, and independent-review gates are terminal at one exact head.
 - [ ] Public documentation states the one-process boundary accurately.
 - [ ] Merge, issue closure, release, and #104/#111 claims remain separate gates.
-
