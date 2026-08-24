@@ -29,6 +29,9 @@ superseded_by: null
 - Closed the obsolete v1.0 GUI and completed v1.6 Clean Architecture GitHub
   milestones. Issue #3 remains an adoption-gated RFC; the new
   **Evidence-gated improvements** milestone contains #185 and #186.
+- Expanded public GitHub Project #5 into the operational Evidence-Gated Roadmap
+  board, added #185, #186, and PR #187, and retained this versioned roadmap as
+  the canonical programme contract.
 - Preserved the existing generated-document classification and compact
   one-line release-history conventions while clarifying that FORGE exports
   derived artifacts and source-vault writes remain explicit and opt-in.
