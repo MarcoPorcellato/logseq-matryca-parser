@@ -4,6 +4,7 @@ import json
 import math
 import socket
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from typer.testing import CliRunner
@@ -17,6 +18,7 @@ from logseq_matryca_parser.local_graph_assurance import (
     run_local_graph_assurance,
     run_local_graph_assurance_self_test,
 )
+from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 
 runner = CliRunner()
 
@@ -128,6 +130,124 @@ def test_assurance_rechecks_total_bytes_while_reading(
 
     assert report["status"] == "limit_exceeded"
     assert _finding_codes(report) == {"vault.max_total_bytes_exceeded"}
+
+
+@pytest.mark.parametrize("kind", ["symlink", "non_regular", "outside", "open_failure"])
+def test_guarded_read_rejects_unsafe_or_unreadable_files(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, kind: str
+) -> None:
+    root = _vault(tmp_path)
+    path = root / "pages" / "entry.md"
+    path.write_text("- safe\n", encoding="utf-8")
+    if kind == "symlink":
+        target = tmp_path / "outside.md"
+        target.write_text("- outside\n", encoding="utf-8")
+        path.unlink()
+        path.symlink_to(target)
+    elif kind == "non_regular":
+        path.unlink()
+        path.mkdir()
+    elif kind == "outside":
+        path = tmp_path / "outside.md"
+    elif kind == "open_failure":
+        monkeypatch.setattr(local_graph_assurance.os, "open", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError()))
+
+    assert local_graph_assurance._read_regular_file(root, path, 100) is None
+
+
+def test_guarded_read_rejects_descriptor_identity_change(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = _vault(tmp_path)
+    path = root / "pages" / "entry.md"
+    path.write_text("- safe\n", encoding="utf-8")
+    original_fstat = local_graph_assurance.os.fstat
+    calls = 0
+
+    def changed_identity(descriptor: int):
+        nonlocal calls
+        calls += 1
+        result = original_fstat(descriptor)
+        return result if calls == 1 else SimpleNamespace(
+            st_mode=result.st_mode, st_ino=result.st_ino + 1, st_dev=result.st_dev
+        )
+
+    monkeypatch.setattr(local_graph_assurance.os, "fstat", changed_identity)
+    assert local_graph_assurance._read_regular_file(root, path, 100) is None
+
+
+def test_guarded_read_rejects_post_read_size_change(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = _vault(tmp_path)
+    path = root / "pages" / "entry.md"
+    path.write_text("- safe\n", encoding="utf-8")
+    calls = 0
+
+    def changed_size(_descriptor: int, _size: int) -> bytes:
+        nonlocal calls
+        calls += 1
+        return b"- safe\nx\n" if calls == 1 else b""
+
+    monkeypatch.setattr(local_graph_assurance.os, "read", changed_size)
+    assert local_graph_assurance._read_regular_file(root, path, 100) is None
+
+
+def test_parser_findings_are_aggregated_without_exception_or_source_text(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _vault(tmp_path)
+    secret = "private-parser-content"
+    (root / "pages" / "one.md").write_text(f"- {secret}\n", encoding="utf-8")
+    (root / "pages" / "two.md").write_bytes(b"\xff\xfe")
+    (root / "pages" / "three.md").write_text("- third\n", encoding="utf-8")
+    parsed = LogseqPage(
+        title="controlled",
+        raw_content="",
+        root_nodes=[LogseqNode(uuid="synthetic", content="", indent_level=0)],
+    )
+    parser_calls = 0
+
+    def parse(*_args: object, **_kwargs: object) -> LogseqPage:
+        nonlocal parser_calls
+        parser_calls += 1
+        if parser_calls == 1:
+            return parsed
+        raise RuntimeError(secret)
+
+    monkeypatch.setattr(local_graph_assurance.StackMachineParser, "parse", parse)
+    report = local_graph_assurance._assure(str(root), AssuranceLimits())
+    encoded = json.dumps(report, sort_keys=True)
+    findings = report["findings"]
+    assert isinstance(findings, list)
+    assert report["status"] == "findings"
+    assert "parse.invalid_utf8" in _finding_codes(report)
+    assert "parse.unclassified_failure" in _finding_codes(report)
+    assert secret not in encoded
+    assert report["observed"]["parsed_pages"] == 1  # type: ignore[index]
+
+
+def test_parser_aggregates_structure_duplicate_and_unresolved_findings(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = _vault(tmp_path)
+    (root / "pages" / "one.md").write_text("- one\n", encoding="utf-8")
+    (root / "pages" / "two.md").write_text("- two\n", encoding="utf-8")
+    node = LogseqNode(
+        uuid="same",
+        source_uuid="source",
+        content="",
+        indent_level=0,
+        properties={"id": "source-id"},
+        parent_id="wrong",
+        block_refs=["missing-a", "missing-b"],
+        path=["wrong"],
+    )
+    page = LogseqPage(title="same-title", raw_content="", root_nodes=[node])
+    monkeypatch.setattr(local_graph_assurance.StackMachineParser, "parse", lambda *_args, **_kwargs: page)
+    report = local_graph_assurance._assure(str(root), AssuranceLimits())
+    findings = report["findings"]
+    assert isinstance(findings, list)
+    counts = {item["code"]: item["count"] for item in findings if isinstance(item, dict)}
+    assert counts["graph.page_title_collision"] == 1
+    assert counts["graph.structure_invariant_violation"] == 2
+    assert counts["graph.duplicate_synthetic_identity"] == 1
+    assert counts["graph.duplicate_source_identity"] == 2
+    assert counts["graph.unresolved_block_reference"] == 4
 
 
 def test_assurance_reports_only_directory_read_error(
