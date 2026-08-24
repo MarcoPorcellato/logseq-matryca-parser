@@ -145,6 +145,23 @@ make check
 
 **Rule:** new index mutations belong here or in `logos_parser.py`, not in KINETIC or SYNAPSE.
 
+The graph is a one-vault, one-graph, one-process boundary. Every physical
+Markdown page is retained privately by resolved source path before public
+title, alias, and collision selection. Cold and incremental loads derive fresh
+public indexes and diagnostics from that inventory; incremental reload reparses
+only the touched file and compares all old and candidate node UUID
+contributions for backlink repair. This covers target-routing and ordering
+changes elsewhere without a global rebuild. Source inventory, pages, nodes,
+backlinks, lowercase routing, and diagnostics publish together under the
+per-graph coordinator, while published containers remain untouched during
+candidate construction. Watcher debounce shutdown closes later routes, cancels
+pending timers, and waits for admitted routes to finish; callbacks stay FIFO,
+isolated, outside graph coordination, and use a separate bounded dispatcher
+close.
+
+The private inventory and snapshot representations are implementation details,
+not stable public API.
+
 ### `kinetic.py` (~230 lines) — KINETIC app factory
 
 | Area | Responsibility | Module |
