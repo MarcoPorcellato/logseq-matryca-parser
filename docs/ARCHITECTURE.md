@@ -316,7 +316,7 @@ In the **LLM OS** metaphor, **LOGOS** is the **read path** into the hierarchical
 
 2. **Headless Markdown splicer (`append_child_to_node`).** For **in-place graph mutation** under an existing parent block, the engine resolves `target_uuid` via `LogseqGraph.get_node_by_uuid`, walks to the **deepest last descendant** to obtain a **1-based `line_end` insertion index**, and computes child indentation as **`(target_node.indent_level + 1) × graph.tab_size`** spaces before the `- {content}` bullet prefix. The raw file is split into lines (normalizing a missing final newline first so the last logical row is not concatenated with the splice), the new row is inserted at that index, and the result is flushed through a **same-directory `tempfile.mkstemp` + `os.replace`** — an atomic swap that avoids torn reads during concurrent tooling. **KINETIC** exposes this as **`matryca-parse agent-write`**, resolving parent blocks by **`--alias`** (from the X-Ray state file) or **`--target-uuid`**.
 
-Both paths keep **existing topology intact** relative to their contract: append-only journaling never truncates prior bytes; the splicer only inserts one new child line at an AST-derived coordinate so a subsequent **LOGOS** parse remains deterministic.
+Both paths keep **existing topology intact** relative to their contract: append-only journaling never truncates prior bytes; the splicer only inserts one new child line at an AST-derived coordinate so a subsequent **LOGOS** parse remains deterministic. For a loaded `LogseqGraph`, the complete headless-splice transaction is serialized with the graph's incremental reload, so concurrent appends to the same parent do not overwrite one another.
 
 ### 3.5 FORGE — multi-target serialization (JSON, Markdown, Obsidian)
 
@@ -328,10 +328,10 @@ The **in-memory graph** ([`graph.py`](../src/logseq_matryca_parser/graph.py)) is
 
 #### Page title overrides and alias indexing (`_enrich_pages_index`)
 
-After every bulk or incremental parse, the graph applies a **post-parse enrichment pass** before backlink construction:
+Every parsed physical Markdown page is first retained in a private source inventory keyed by its resolved source path, before title, alias, or collision selection. Cold and incremental paths derive a fresh public page index and fresh collision diagnostics from that inventory before backlink construction. This preserves displaced collision losers so an edit, delete, or rename can make them public again.
 
 1. **Filename → canonical title.** Each markdown file is first keyed by **`derive_page_title_from_source_path`** (see §3.9).
-2. **`title::` override.** If page frontmatter contains a non-empty string **`title`**, the `LogseqPage` is updated via **`model_copy(update={"title": custom})`**, the old filename key is removed from **`pages`**, and the page is re-inserted under the custom title (collision with another file’s title is skipped with a debug log).
+2. **`title::` override.** If page frontmatter contains a non-empty string **`title`**, the `LogseqPage` is updated via **`model_copy(update={"title": custom})`**, the old filename key is removed from **`pages`**, and the page is re-inserted under the custom title (collision with another file’s title is skipped with a debug log; permissive mode also records a fresh collision diagnostic).
 3. **Alias injection.** For each canonical dict entry where **`dict_key == page.title`**, values from **`alias::`** and **`aliases::`** are normalized (comma-separated strings or Python lists; `[[Page]]` / `#tag` adornments stripped using the same rules as [`logseq_markdown.py`](../src/logseq_matryca_parser/logseq_markdown.py)) and registered as **additional keys** pointing at the **same `LogseqPage` instance** — e.g. `pages["Dev"]` and `pages["Development"]` share identity.
 4. **Backlinks.** **`_build_backlink_registry`** walks **unique pages** (`id(page)` deduplication) so alias keys do not double-count outgoing links. Incoming wikilinks such as **`[[Dev]]`** normalize to lowercase registry keys and resolve through **`get_backlinks("Dev")`** like any other page title.
 
@@ -343,7 +343,7 @@ After every bulk or incremental parse, the graph applies a **post-parse enrichme
 
 **`LogseqPage.refs`** merges wikilinks and tags harvested from page-level properties (native `key::` frontmatter and **YAML `---` blocks** at parse time). **`page-tags::`** is treated like **`tags::`** for implicit injection. Block-level list-shaped **`tags::`** / **`page-tags::`** values also contribute tokens to **`LogseqNode.refs`** so list bullets and comma-separated strings stay aligned with Logseq’s graph indexing semantics.
 
-**Incremental parity:** **`invalidate_and_reload_page`** drops **all** `pages` keys tied to the file’s `source_path` (not only the first alias hit), merges the freshly parsed page, re-runs **`_enrich_pages_index`**, then re-registers nodes and appends backlinks for the enriched instance. **`_page_title_for_source_path`** returns the canonical **`page.title`**, not an arbitrary alias key.
+**Incremental parity:** **`invalidate_and_reload_page`** reparses only the touched physical file and builds a complete candidate for the graph. The candidate refreshes the source inventory, public page index, lowercase routing, nodes, backlinks, and diagnostics together. **`_page_title_for_source_path`** returns the canonical **`page.title`**, not an arbitrary alias key.
 
 ```python
 graph = LogseqGraph.load_directory("/vault")
@@ -361,10 +361,9 @@ Relative page resolution follows **Logseq-style longest-prefix wins**: for a cur
 Full-directory loads are expensive for always-on agents. **`invalidate_and_reload_page(path)`** implements **page-level surgical refresh**:
 
 1. Ignore paths outside tracked **`pages/*.md`** and **`journals/*.md`**.
-2. If the file **no longer exists** on disk, purge every **`pages`** key tied to that **`source_path`**, remove stale UUIDs from **`_node_registry`**, and scrub **`_backlink_registry`** entries — then return (no **`FileNotFoundError`**).
-3. Re-parse existing files with **`StackMachineParser.parse_page_file`**, producing a fresh `LogseqPage`.
-4. If the path previously mapped to a page, collect **all synthetic UUIDs** from the old tree and call **`_purge_stale_page_uuids`**: remove each UUID from **`_node_registry`**, scrub those UUIDs from every **`_backlink_registry`** source list, and delete backlink keys that become empty.
-5. Remove every **`pages`** key whose value shares the file’s **`source_path`**, insert the freshly parsed page under its filename title, run **`_enrich_pages_index`** (title + aliases), then **`_register_page_nodes`** and **`_append_page_backlinks`** for the enriched page.
+2. Reparse only the touched file when it exists; when it is deleted, remove its source-inventory entry. Build a complete candidate from the resulting inventory, including fresh title/alias collision diagnostics, page routing, nodes, and backlink state.
+3. Repair backlink state by comparing **all old and candidate node UUID contributions**, not only those from the touched page. This repairs target-routing and ordering changes elsewhere without a global rebuild. The incremental path never invokes the global backlink rebuild.
+4. Publish the candidate atomically under the per-graph coordinator. Published containers are not mutated while the candidate is being built.
 
 **`append_child_to_node`** (headless splice) invokes **`invalidate_and_reload_page`** after a successful write so agent tooling sees the same graph state as on-disk Markdown.
 
@@ -375,11 +374,42 @@ unified-diff previews through `dry_run=True`. Configurable source-size,
 content-size, and outline-depth limits support untrusted vault use. The canonical
 policy is the [filesystem safety contract](reference/FILESYSTEM_SAFETY.md).
 
-This keeps **global indexes consistent** without rebuilding the entire graph — including alias keys and custom titles declared in frontmatter.
+This keeps indexes consistent without reparsing the vault or globally rebuilding backlinks — including alias keys and custom titles declared in frontmatter.
+
+#### One-process coherent mutation contract
+
+`LogseqGraph` provides a **one vault, one graph instance, one process**
+coordination contract. A private re-entrant coordinator serializes supported
+incremental reloads, headless writer transactions, and supported graph reads.
+Each cold load or reload constructs copied page and index candidates from the
+private source inventory, then publishes source inventory, pages, nodes,
+backlinks, lowercase routing, and diagnostics together as one complete
+in-memory version. Published containers are never mutated while a candidate is
+built. If parsing or candidate construction fails, the previous complete
+version remains published.
+
+Supported graph reader methods observe one complete version. Iterators capture
+their pages or nodes before yielding, so an iteration does not mix pre- and
+post-reload indexes. `graph.pages` remains a point-in-time compatibility
+mapping for existing integrations; callers must not mutate it directly and
+should use `iter_canonical_pages()` for deterministic, de-aliased traversal.
+
+This contract is intentionally in-process only. Cross-process file locking,
+distributed coordination, and a persistent graph store are deferred rather
+than implied by the API.
 
 #### Live filesystem watcher (`start_watching`)
 
 **`LogseqGraph.start_watching(callback=None, debounce_seconds=0.5)`** (optional **`watchdog`** install) returns a **`LogseqGraphWatcher`** that schedules a recursive **`Observer`** on the graph root. **`on_modified` / `on_created` / `on_deleted` / `on_moved`** events for tracked Markdown call **`invalidate_and_reload_page`**, then optionally invoke **`callback(path)`** — the intended hook for **vector store patch**, **re-embedding**, or UI refresh. **`_DebouncedGraphEventRouter`** coalesces rapid save bursts (~500ms default) and ignores editor temp/swap artifacts (`.swp`, `~`, `.tmp`, `.DS_Store`). Event routing ignores directories and non-tracked extensions so the hot path stays tight.
+
+Callbacks run only after successful graph publication. They are delivered by a
+separate bounded dispatcher in FIFO order, isolated and outside graph
+coordination; one callback failure is logged and cannot block later deliveries.
+The debounce router closes admission to later routes, cancels pending timers,
+and waits for admitted routes to finish before `stop()` returns. The
+dispatcher has its own bounded close. A watcher that is still starting or
+stopping rejects a second `start()` call rather than creating competing
+observers.
 
 #### Parse-time reference validation (`strict_refs`)
 
@@ -387,7 +417,8 @@ This keeps **global indexes consistent** without rebuilding the entire graph —
 
 #### Title-collision policy (`strict_title_collisions`)
 
-Full-directory loading sorts physical files by resolved path before indexing.
+Cold and incremental loading retain every physical page in the private
+resolved-source inventory, then deterministically derive the public index.
 When canonical titles collide, the later path remains the historical winner.
 Alias insertion retains its historical remap policy: the alias owner replaces
 the previous key. Permissive loading exposes every conflict as

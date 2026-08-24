@@ -107,7 +107,7 @@ flowchart TB
 | Flat module layout (no `domain/` package) | Library shipped as one PyPI package; low ceremony for contributors | This doc — incremental slices only |
 | `kinetic.py` ~230 lines | Typer app factory + `export` orchestration | **Shipped** — handlers in `kinetic_export.py`, subcommands in `kinetic_commands.py` |
 | Monolithic SYNAPSE embed `while` loop | Deterministic expansion with cycle guards | **Shipped** — `synapse_embed.py` strategy ([#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70)) |
-| `LogseqGraph.pages` dict with alias keys | Logseq `alias::` / `title::` parity | Consumers must use `iter_canonical_pages()` — DEBT-001 **shipped** |
+| `LogseqGraph.pages` dict with alias keys | Logseq `alias::` / `title::` parity | Point-in-time compatibility mapping; consumers must not mutate it and must use `iter_canonical_pages()` — DEBT-001 **shipped** |
 
 Audit backlog: [`quality/CLEAN_ARCH_BACKLOG.md`](quality/CLEAN_ARCH_BACKLOG.md). Historical runtime evidence: [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md).
 
@@ -139,10 +139,28 @@ make check
 |------|----------------|
 | Bulk load | `load_directory`, `_enrich_pages_index` |
 | Incremental | `invalidate_and_reload_page`, watcher |
+| Coherence | Per-graph in-process coordinator shared by readers, writer splices, and watcher reloads |
 | Query | `GraphQuery`, `search_content`, backlinks |
 | Public iteration | `iter_canonical_pages`, `page_for_node`, `iter_attached_nodes`, `is_tracked_markdown_path` |
 
 **Rule:** new index mutations belong here or in `logos_parser.py`, not in KINETIC or SYNAPSE.
+
+The graph is a one-vault, one-graph, one-process boundary. Every physical
+Markdown page is retained privately by resolved source path before public
+title, alias, and collision selection. Cold and incremental loads derive fresh
+public indexes and diagnostics from that inventory; incremental reload reparses
+only the touched file and compares all old and candidate node UUID
+contributions for backlink repair. This covers target-routing and ordering
+changes elsewhere without a global rebuild. Source inventory, pages, nodes,
+backlinks, lowercase routing, and diagnostics publish together under the
+per-graph coordinator, while published containers remain untouched during
+candidate construction. Watcher debounce shutdown closes later routes, cancels
+pending timers, and waits for admitted routes to finish; callbacks stay FIFO,
+isolated, outside graph coordination, and use a separate bounded dispatcher
+close.
+
+The private inventory and snapshot representations are implementation details,
+not stable public API.
 
 ### `kinetic.py` (~230 lines) — KINETIC app factory
 
@@ -199,6 +217,7 @@ Residual debt table: [`quality/CLEAN_ARCH_BACKLOG.md`](quality/CLEAN_ARCH_BACKLO
 |--------------|---------------|
 | Adapter calls `graph._node_registry` or `graph._page_for_node` | Public `get_node_by_uuid`, `page_for_node` |
 | Driver iterates `graph.pages.values()` for export stats | `graph.iter_canonical_pages()` |
+| Caller mutates `graph.pages` or private graph indexes | Request a documented graph operation; direct mapping mutation is unsupported |
 | Use case imports `typer` / `rich` / `langchain` | Move to `kinetic` or adapter |
 | Inline parse loop in KINETIC | `LogseqGraph.load_directory` |
 | `assert` in production CLI or adapter paths | Explicit guard + `typer.Exit` or raised domain error |

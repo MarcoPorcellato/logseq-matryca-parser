@@ -7,9 +7,12 @@ import os
 import re
 import threading
 import uuid
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
+from queue import Queue
 from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
@@ -57,14 +60,17 @@ class _DebouncedGraphEventRouter:
         self._debounce_seconds = debounce_seconds
         self._timers: dict[str, threading.Timer] = {}
         self._lock = threading.Lock()
+        self._closed = False
 
     def schedule(self, path: Path) -> None:
         resolved = path.expanduser().resolve()
-        if self._debounce_seconds <= 0:
-            self._route(resolved)
-            return
-        key = str(resolved)
         with self._lock:
+            if self._closed:
+                return
+            if self._debounce_seconds <= 0:
+                self._route(resolved)
+                return
+            key = str(resolved)
             existing = self._timers.pop(key, None)
             if existing is not None:
                 existing.cancel()
@@ -76,13 +82,74 @@ class _DebouncedGraphEventRouter:
     def _fire(self, key: str, path: Path) -> None:
         with self._lock:
             self._timers.pop(key, None)
-        self._route(path)
+            if self._closed:
+                return
+            self._route(path)
 
-    def cancel_all(self) -> None:
+    def close(self) -> None:
+        """Reject future routes and wait for any admitted route to finish."""
         with self._lock:
+            self._closed = True
             for timer in self._timers.values():
                 timer.cancel()
             self._timers.clear()
+
+    def cancel_all(self) -> None:
+        """Backward-compatible adapter for the quiescent shutdown operation."""
+        self.close()
+
+
+class _OrderedCallbackDispatcher:
+    """Deliver watcher callbacks in FIFO order without blocking graph mutation."""
+
+    def __init__(self, callback: Callable[[Path], None]) -> None:
+        self._callback = callback
+        self._queue: Queue[Path | None] = Queue()
+        self._closed = False
+        self._lock = threading.Lock()
+        self._thread: threading.Thread | None = None
+
+    def start(self) -> Self:
+        """Start the daemon dispatcher once and return it for watcher ownership."""
+        with self._lock:
+            if self._thread is None:
+                self._thread = threading.Thread(
+                    target=self._run,
+                    name="logseq-matryca-callbacks",
+                    daemon=True,
+                )
+                self._thread.start()
+        return self
+
+    def submit(self, path: Path) -> None:
+        """Queue one published path unless callback admission has closed."""
+        with self._lock:
+            if self._closed:
+                logger.debug("Stack-Machine watcher: callback admission closed")
+                return
+            self._queue.put(path)
+
+    def close(self, *, timeout: float = 5.0) -> bool:
+        """Stop admissions, drain accepted callbacks, and report bounded join completion."""
+        with self._lock:
+            if not self._closed:
+                self._closed = True
+                self._queue.put(None)
+            thread = self._thread
+        if thread is not None:
+            thread.join(timeout=timeout)
+            return not thread.is_alive()
+        return True
+
+    def _run(self) -> None:
+        while True:
+            path = self._queue.get()
+            if path is None:
+                return
+            try:
+                self._callback(path)
+            except Exception:
+                logger.exception("Stack-Machine watcher callback failed for path=%s", path)
 
 
 def _normalize_tag_query(tag: str) -> str:
@@ -187,14 +254,21 @@ def _append_backlink(registry: dict[str, list[str]], key: str, source_uuid: str)
 
 
 def iter_canonical_pages_from_dict(pages: dict[str, LogseqPage]) -> Iterator[LogseqPage]:
-    """Yield each physical ``LogseqPage`` once (dedupe alias keys in ``pages``)."""
+    """Yield each physical ``LogseqPage`` once in deterministic source-path order."""
     seen_page_ids: set[int] = set()
+    canonical_pages: list[LogseqPage] = []
     for page in pages.values():
         page_id = id(page)
         if page_id in seen_page_ids:
             continue
         seen_page_ids.add(page_id)
-        yield page
+        canonical_pages.append(page)
+    canonical_pages.sort(
+        key=lambda page: str(Path(page.source_path).resolve())
+        if page.source_path
+        else page.title,
+    )
+    yield from canonical_pages
 
 
 def _resolve_page_by_title(pages: dict[str, LogseqPage], title: str) -> LogseqPage | None:
@@ -395,6 +469,30 @@ def _enrich_pages_index(
             pages[alias] = page
 
 
+def _build_pages_index_from_source_pages(
+    source_pages: dict[str, LogseqPage],
+    graph_path: Path,
+) -> tuple[dict[str, LogseqPage], tuple[Diagnostic, ...]]:
+    """Derive the public page index and collision diagnostics from physical pages."""
+    pages: dict[str, LogseqPage] = {}
+    diagnostics: list[Diagnostic] = []
+    for _source_path, page in sorted(source_pages.items()):
+        existing = pages.get(page.title)
+        if existing is not None and existing.source_path != page.source_path:
+            diagnostics.append(
+                _collision_diagnostic(
+                    graph_path=graph_path,
+                    title=page.title,
+                    winner=page,
+                    loser=existing,
+                    reason=_collision_reason(page, existing),
+                )
+            )
+        pages[page.title] = page
+    _enrich_pages_index(pages, graph_path=graph_path, diagnostics=diagnostics)
+    return pages, tuple(diagnostics)
+
+
 def _remove_page_keys_for_source_path(
     pages: dict[str, LogseqPage],
     resolved_file: Path,
@@ -468,6 +566,198 @@ def _parse_page_file_worker(path: Path) -> LogseqPage:
     return StackMachineParser().parse_page_file(path)
 
 
+@dataclass(frozen=True, slots=True)
+class _GraphSnapshot:
+    """One complete in-memory graph version, private to one ``LogseqGraph``."""
+
+    source_pages: dict[str, LogseqPage]
+    pages: dict[str, LogseqPage]
+    node_registry: dict[str, LogseqNode]
+    backlink_registry: dict[str, list[str]]
+    lower_title_map: dict[str, str]
+    index_diagnostics: tuple[Diagnostic, ...]
+
+
+def _clone_backlink_registry(registry: dict[str, list[str]]) -> dict[str, list[str]]:
+    """Copy backlink keys and source lists before an incremental candidate mutates them."""
+    return {key: list(sources) for key, sources in registry.items()}
+
+
+def _repair_changed_backlink_contributions(
+    *,
+    old_pages: dict[str, LogseqPage],
+    old_nodes: dict[str, LogseqNode],
+    old_backlinks: dict[str, list[str]],
+    candidate_pages: dict[str, LogseqPage],
+    candidate_nodes: dict[str, LogseqNode],
+) -> dict[str, list[str]]:
+    """Repair changed node backlink contributions without a global rebuild."""
+    backlinks = _clone_backlink_registry(old_backlinks)
+    affected_keys: set[str] = set()
+    for source_uuid in old_nodes.keys() | candidate_nodes.keys():
+        old_node = old_nodes.get(source_uuid)
+        candidate_node = candidate_nodes.get(source_uuid)
+        old_keys = tuple(_node_backlink_keys(old_pages, old_node)) if old_node else ()
+        candidate_keys = (
+            tuple(_node_backlink_keys(candidate_pages, candidate_node))
+            if candidate_node
+            else ()
+        )
+        if old_keys == candidate_keys:
+            if (
+                old_node is not None
+                and candidate_node is not None
+                and _backlink_source_order_from(old_nodes, source_uuid)
+                != _backlink_source_order_from(candidate_nodes, source_uuid)
+            ):
+                affected_keys.update(old_keys)
+            continue
+        affected_keys.update(old_keys)
+        affected_keys.update(candidate_keys)
+        for key in old_keys:
+            sources = backlinks.get(key, [])
+            remaining = [uuid for uuid in sources if uuid != source_uuid]
+            if remaining:
+                backlinks[key] = remaining
+            else:
+                backlinks.pop(key, None)
+        for key in candidate_keys:
+            _append_backlink(backlinks, key, source_uuid)
+
+    for key in affected_keys:
+        sources = backlinks.get(key, [])
+        if sources:
+            sources.sort(
+                key=lambda source_uuid: _backlink_source_order_from(candidate_nodes, source_uuid)
+            )
+        else:
+            backlinks.pop(key, None)
+    return backlinks
+
+
+def _purge_stale_page_uuids_from(
+    node_registry: dict[str, LogseqNode],
+    backlink_registry: dict[str, list[str]],
+    stale: set[str],
+) -> None:
+    """Remove stale nodes and backlink sources from candidate mappings only."""
+    for uid in stale:
+        node_registry.pop(uid, None)
+    dead_keys: list[str] = []
+    for key, sources in backlink_registry.items():
+        filtered = [source_uuid for source_uuid in sources if source_uuid not in stale]
+        if filtered:
+            backlink_registry[key] = filtered
+        else:
+            dead_keys.append(key)
+    for key in dead_keys:
+        del backlink_registry[key]
+    logger.debug(
+        "Stack-Machine incremental candidate purge: stale_uuids=%s dead_backlink_keys=%s",
+        len(stale),
+        len(dead_keys),
+    )
+
+
+def _register_page_nodes_in(registry: dict[str, LogseqNode], page: LogseqPage) -> None:
+    """Add one page's nodes to a candidate UUID registry."""
+    for node in _flatten_nodes(page.root_nodes):
+        registry[node.uuid] = node
+
+
+def _append_page_backlinks_in(
+    pages: dict[str, LogseqPage],
+    registry: dict[str, list[str]],
+    page: LogseqPage,
+) -> None:
+    """Add one page's backlink contributions to a candidate registry."""
+    for node in _flatten_nodes(page.root_nodes):
+        for key in _node_backlink_keys(pages, node):
+            _append_backlink(registry, key, node.uuid)
+
+
+def _capture_incoming_page_wikilinks_from(
+    pages: dict[str, LogseqPage],
+    node_registry: dict[str, LogseqNode],
+    backlink_registry: dict[str, list[str]],
+    page: LogseqPage,
+) -> list[tuple[str, str, tuple[str, ...]]]:
+    """Capture candidate sources whose wikilinks resolve to ``page``."""
+    canonical_key = _normalize_backlink_key(page.title)
+    page_keys = [canonical_key]
+    page_keys.extend(
+        _normalize_backlink_key(alias) for alias in _collect_page_alias_tokens(page.properties)
+    )
+    source_uuids: list[str] = []
+    seen_source_uuids: set[str] = set()
+    for key in page_keys:
+        for source_uuid in backlink_registry.get(key, []):
+            if source_uuid not in seen_source_uuids:
+                seen_source_uuids.add(source_uuid)
+                source_uuids.append(source_uuid)
+    captured: list[tuple[str, str, tuple[str, ...]]] = []
+    for source_uuid in source_uuids:
+        node = node_registry.get(source_uuid)
+        if node is None:
+            continue
+        for link in node.wikilinks:
+            keys = tuple(_wikilink_backlink_keys(pages, link))
+            if canonical_key in keys:
+                captured.append((source_uuid, link, keys))
+    return captured
+
+
+def _backlink_source_order_from(
+    node_registry: dict[str, LogseqNode], source_uuid: str
+) -> tuple[str, int, tuple[int, ...], str]:
+    """Return the deterministic cold-load order key for a candidate source node."""
+    node = node_registry[source_uuid]
+    return (
+        node.source_path or "",
+        node.line_start or 0,
+        tuple(node.outline_path),
+        source_uuid,
+    )
+
+
+def _reindex_incoming_page_wikilinks_in(
+    pages: dict[str, LogseqPage],
+    node_registry: dict[str, LogseqNode],
+    backlink_registry: dict[str, list[str]],
+    captured: list[tuple[str, str, tuple[str, ...]]],
+) -> None:
+    """Repair only candidate sources whose target page identity changed."""
+    if not captured:
+        return
+    source_uuids = {source_uuid for source_uuid, _link, _keys in captured}
+    affected_keys = {key for _source_uuid, _link, keys in captured for key in keys}
+    for _source_uuid, link, _keys in captured:
+        affected_keys.update(_wikilink_backlink_keys(pages, link))
+
+    for key in affected_keys:
+        sources = backlink_registry.get(key, [])
+        remaining = [source_uuid for source_uuid in sources if source_uuid not in source_uuids]
+        if remaining:
+            backlink_registry[key] = remaining
+        else:
+            backlink_registry.pop(key, None)
+
+    for source_uuid in source_uuids:
+        node = node_registry.get(source_uuid)
+        if node is None:
+            continue
+        for key in _node_backlink_keys(pages, node):
+            if key in affected_keys:
+                _append_backlink(backlink_registry, key, source_uuid)
+
+    for key in affected_keys:
+        sources = backlink_registry.get(key, [])
+        if sources:
+            sources.sort(
+                key=lambda source_uuid: _backlink_source_order_from(node_registry, source_uuid)
+            )
+
+
 class LogseqGraph(BaseModel):
     """Bulk-loaded Logseq vault: pages plus O(1) node lookup by synthetic UUID."""
 
@@ -480,16 +770,19 @@ class LogseqGraph(BaseModel):
     _backlink_registry: dict[str, list[str]] = PrivateAttr(default_factory=dict)
     _lower_title_map: dict[str, str] = PrivateAttr(default_factory=dict)
     _index_diagnostics: tuple[Diagnostic, ...] = PrivateAttr(default_factory=tuple)
+    _source_pages: dict[str, LogseqPage] = PrivateAttr(default_factory=dict)
+    _coordination_lock: Any = PrivateAttr(default_factory=threading.RLock)
 
     def __init__(
         self,
         graph_path: Path,
         pages: dict[str, LogseqPage],
         *,
+        source_pages: dict[str, LogseqPage] | None = None,
         node_registry: dict[str, LogseqNode] | None = None,
         backlink_registry: dict[str, list[str]] | None = None,
         lower_title_map: dict[str, str] | None = None,
-        diagnostics: list[Diagnostic] | None = None,
+        diagnostics: Sequence[Diagnostic] | None = None,
     ) -> None:
         super().__init__(graph_path=graph_path, pages=pages)
         self._node_registry = dict(node_registry) if node_registry is not None else {}
@@ -502,6 +795,21 @@ class LogseqGraph(BaseModel):
             else _build_lower_title_map(pages)
         )
         self._index_diagnostics = tuple(diagnostics or ())
+        self._source_pages = (
+            dict(source_pages)
+            if source_pages is not None
+            else {
+                str(Path(page.source_path).resolve()): page
+                for page in iter_canonical_pages_from_dict(pages)
+                if page.source_path
+            }
+        )
+
+    @contextmanager
+    def _mutation_scope(self) -> Iterator[None]:
+        """Serialize one graph's supported reads and mutations without a global lock."""
+        with self._coordination_lock:
+            yield
 
     @classmethod
     def load_directory(
@@ -520,16 +828,15 @@ class LogseqGraph(BaseModel):
         """
         resolved = graph_path.expanduser().resolve()
         files = discover_graph_files(resolved)
-        pages: dict[str, LogseqPage] = {}
-        diagnostics: list[Diagnostic] = []
-        node_registry: dict[str, LogseqNode] = {}
+        source_pages: dict[str, LogseqPage] = {}
 
         if not files:
             logger.debug("LogseqGraph.load_directory: no markdown files under %s", resolved)
             return cls(
                 graph_path=resolved,
-                pages=pages,
-                node_registry=node_registry,
+                pages={},
+                source_pages=source_pages,
+                node_registry={},
                 backlink_registry={},
             )
 
@@ -549,21 +856,10 @@ class LogseqGraph(BaseModel):
                 path_page_pairs.append((source_path, page))
 
         path_page_pairs.sort(key=lambda item: str(item[0].resolve()))
-        for _path, page in path_page_pairs:
-            existing = pages.get(page.title)
-            if existing is not None and existing.source_path != page.source_path:
-                diagnostics.append(
-                    _collision_diagnostic(
-                        graph_path=resolved,
-                        title=page.title,
-                        winner=page,
-                        loser=existing,
-                        reason=_collision_reason(page, existing),
-                    )
-                )
-            pages[page.title] = page
-
-        _enrich_pages_index(pages, graph_path=resolved, diagnostics=diagnostics)
+        source_pages = {
+            str(path.resolve()): page for path, page in path_page_pairs
+        }
+        pages, diagnostics = _build_pages_index_from_source_pages(source_pages, resolved)
         node_registry = _build_node_registry_from_pages(pages)
         backlink_registry = _build_backlink_registry(pages)
         lower_title_map = _build_lower_title_map(pages)
@@ -576,6 +872,7 @@ class LogseqGraph(BaseModel):
         graph = cls(
             graph_path=resolved,
             pages=pages,
+            source_pages=source_pages,
             node_registry=node_registry,
             backlink_registry=backlink_registry,
             lower_title_map=lower_title_map,
@@ -594,21 +891,26 @@ class LogseqGraph(BaseModel):
 
     def tab_size_for_node(self, node: LogseqNode) -> int:
         """Return the detected tab width for the page that owns ``node``."""
-        page = self._page_for_node(node)
-        return page.tab_size if page is not None else self.tab_size
+        with self._mutation_scope():
+            page = self._page_for_node(node)
+            return page.tab_size if page is not None else self.tab_size
 
     def get_node_by_uuid(self, uuid: str) -> LogseqNode | None:
         """Return the node for ``uuid`` if present in the global registry."""
-        return self._node_registry.get(uuid)
+        with self._mutation_scope():
+            return self._node_registry.get(uuid)
 
     def iter_canonical_pages(self) -> Iterator[LogseqPage]:
         """Yield each physical page once (dedupe ``pages`` alias keys)."""
-        yield from iter_canonical_pages_from_dict(self.pages)
+        with self._mutation_scope():
+            pages = tuple(iter_canonical_pages_from_dict(self.pages))
+        yield from pages
 
     @property
     def index_diagnostics(self) -> tuple[Diagnostic, ...]:
         """Return immutable diagnostics produced while building the graph index."""
-        return self._index_diagnostics
+        with self._mutation_scope():
+            return self._index_diagnostics
 
     def iter_attached_nodes(self) -> Iterator[LogseqNode]:
         """Yield registry nodes that still belong to an indexed page (no collision ghosts)."""
@@ -616,214 +918,231 @@ class LogseqGraph(BaseModel):
 
     def _iter_attached_nodes(self) -> Iterator[LogseqNode]:
         """Internal alias for :meth:`iter_attached_nodes` (backward-compatible call sites)."""
-        for node in self._node_registry.values():
-            if self._page_for_node(node) is not None:
-                yield node
+        with self._mutation_scope():
+            nodes = tuple(
+                node
+                for node in self._node_registry.values()
+                if self._page_for_node(node) is not None
+            )
+        yield from nodes
 
     def get_broken_references(self) -> list[LogseqNode]:
         """Return nodes whose ``block_refs`` point at UUIDs missing from the node registry."""
-        broken: list[LogseqNode] = []
-        for node in self._iter_attached_nodes():
-            if not node.block_refs:
-                continue
-            for ref in node.block_refs:
-                if self.get_node_by_embed_ref(ref) is None:
-                    broken.append(node)
-                    logger.debug(
-                        "get_broken_references origin=%s missing_ref=%s",
-                        node.uuid,
-                        ref,
-                    )
-                    break
-        return broken
+        with self._mutation_scope():
+            broken: list[LogseqNode] = []
+            for node in self._iter_attached_nodes():
+                if not node.block_refs:
+                    continue
+                for ref in node.block_refs:
+                    if self.get_node_by_embed_ref(ref) is None:
+                        broken.append(node)
+                        logger.debug(
+                            "get_broken_references origin=%s missing_ref=%s",
+                            node.uuid,
+                            ref,
+                        )
+                        break
+            return broken
 
     def raise_if_broken_references(self) -> None:
         """Raise :class:`BlockReferenceError` when any vault block reference is unresolved."""
-        broken = self.get_broken_references()
-        if not broken:
-            return
-        node = broken[0]
-        missing_ref = next(
-            ref for ref in node.block_refs if self.get_node_by_embed_ref(ref) is None
-        )
-        raise BlockReferenceError(
-            f"Unresolved block reference (({missing_ref})) on node {node.uuid}"
-        )
+        with self._mutation_scope():
+            broken = self.get_broken_references()
+            if not broken:
+                return
+            node = broken[0]
+            missing_ref = next(
+                ref for ref in node.block_refs if self.get_node_by_embed_ref(ref) is None
+            )
+            raise BlockReferenceError(
+                f"Unresolved block reference (({missing_ref})) on node {node.uuid}"
+            )
 
     def page_for_node(self, node: LogseqNode) -> LogseqPage | None:
         """Return the indexed page that owns ``node`` (public API for adapters)."""
-        return self._page_for_node(node)
+        with self._mutation_scope():
+            return self._page_for_node(node)
 
     def get_node_by_embed_ref(self, block_ref: str) -> LogseqNode | None:
         """Resolve a Logseq block id: synthetic registry UUID, ``source_uuid``, or ``properties['id']``."""
-        stripped = block_ref.strip()
-        if not stripped:
-            return None
-        direct = self.get_node_by_uuid(stripped)
-        if direct is not None:
-            return direct
-        try:
-            canonical_uuid = str(uuid.UUID(stripped))
-        except ValueError:
-            canonical_uuid = None
-        if canonical_uuid is not None:
-            by_canonical = self.get_node_by_uuid(canonical_uuid)
-            if by_canonical is not None:
-                return by_canonical
-        for node in self._node_registry.values():
-            if node.source_uuid == stripped:
-                return node
-            if node.properties.get("id") == stripped:
-                return node
+        with self._mutation_scope():
+            stripped = block_ref.strip()
+            if not stripped:
+                return None
+            direct = self.get_node_by_uuid(stripped)
+            if direct is not None:
+                return direct
+            try:
+                canonical_uuid = str(uuid.UUID(stripped))
+            except ValueError:
+                canonical_uuid = None
             if canonical_uuid is not None:
-                try:
-                    if node.source_uuid and str(uuid.UUID(node.source_uuid)) == canonical_uuid:
-                        return node
-                except ValueError:
-                    pass
-                prop_id = node.properties.get("id")
-                if isinstance(prop_id, str):
+                by_canonical = self.get_node_by_uuid(canonical_uuid)
+                if by_canonical is not None:
+                    return by_canonical
+            for node in self._node_registry.values():
+                if node.source_uuid == stripped:
+                    return node
+                if node.properties.get("id") == stripped:
+                    return node
+                if canonical_uuid is not None:
                     try:
-                        if str(uuid.UUID(prop_id)) == canonical_uuid:
+                        if node.source_uuid and str(uuid.UUID(node.source_uuid)) == canonical_uuid:
                             return node
                     except ValueError:
                         pass
-        logger.debug("get_node_by_embed_ref: no node for ref=%s", stripped)
-        return None
+                    prop_id = node.properties.get("id")
+                    if isinstance(prop_id, str):
+                        try:
+                            if str(uuid.UUID(prop_id)) == canonical_uuid:
+                                return node
+                        except ValueError:
+                            pass
+            logger.debug("get_node_by_embed_ref: no node for ref=%s", stripped)
+            return None
 
     def query(self) -> GraphQuery:
         """Return a fluent query over all nodes registered in the graph."""
-        return GraphQuery(self, list(self._iter_attached_nodes()))
+        with self._mutation_scope():
+            return GraphQuery(self, list(self._iter_attached_nodes()))
 
     def get_page(self, title: str) -> LogseqPage | None:
         """Return a page by title, using case-insensitive routing when needed."""
-        stripped = title.strip()
-        if not stripped:
-            return None
-        direct = self.pages.get(stripped)
-        if direct is not None:
-            return direct
-        canonical = self._lower_title_map.get(stripped.lower())
-        if canonical is None:
-            return None
-        return self.pages.get(canonical)
+        with self._mutation_scope():
+            stripped = title.strip()
+            if not stripped:
+                return None
+            direct = self.pages.get(stripped)
+            if direct is not None:
+                return direct
+            canonical = self._lower_title_map.get(stripped.lower())
+            if canonical is None:
+                return None
+            return self.pages.get(canonical)
 
     def get_backlinks(self, target: str) -> list[LogseqNode]:
         """Return nodes that reference ``target`` via wikilinks, tags, or block refs.
 
         Page-title targets are matched case-insensitively (Datomic / Logseq parity).
         """
-        key = _normalize_backlink_key(target)
-        if not key:
-            return []
-        source_ids = self._backlink_registry.get(key, [])
-        ordered_unique: list[str] = list(dict.fromkeys(source_ids))
-        result: list[LogseqNode] = []
-        for sid in ordered_unique:
-            node = self._node_registry.get(sid)
-            if node is not None:
-                result.append(node)
-        logger.debug("get_backlinks target=%s resolved=%s nodes", key, len(result))
-        return result
+        with self._mutation_scope():
+            key = _normalize_backlink_key(target)
+            if not key:
+                return []
+            source_ids = self._backlink_registry.get(key, [])
+            ordered_unique: list[str] = list(dict.fromkeys(source_ids))
+            result: list[LogseqNode] = []
+            for sid in ordered_unique:
+                node = self._node_registry.get(sid)
+                if node is not None:
+                    result.append(node)
+            logger.debug("get_backlinks target=%s resolved=%s nodes", key, len(result))
+            return result
 
     def _page_for_node(self, node: LogseqNode) -> LogseqPage | None:
         """Resolve the parsed page that owns ``node`` (same source file)."""
-        if not node.source_path:
-            return None
-        return _page_for_source_path(self.pages, Path(node.source_path).resolve())
+        with self._mutation_scope():
+            if not node.source_path:
+                return None
+            return _page_for_source_path(self.pages, Path(node.source_path).resolve())
 
     def get_effective_properties(self, node_uuid: str) -> dict[str, Any]:
         """Merge page frontmatter with outline ancestors top-down; deeper blocks override."""
-        node = self.get_node_by_uuid(node_uuid)
-        if node is None:
-            return {}
-        merged: dict[str, Any] = {}
-        page = self._page_for_node(node)
-        if page is not None:
-            merged.update(page.properties)
-        for path_uuid in node.path:
-            ancestor = self._node_registry.get(path_uuid)
-            if ancestor is not None:
-                merged = {**merged, **ancestor.properties}
-        logger.debug(
-            "get_effective_properties node_uuid=%s keys=%s",
-            node_uuid,
-            tuple(merged.keys()),
-        )
-        return merged
+        with self._mutation_scope():
+            node = self.get_node_by_uuid(node_uuid)
+            if node is None:
+                return {}
+            merged: dict[str, Any] = {}
+            page = self._page_for_node(node)
+            if page is not None:
+                merged.update(page.properties)
+            for path_uuid in node.path:
+                ancestor = self._node_registry.get(path_uuid)
+                if ancestor is not None:
+                    merged = {**merged, **ancestor.properties}
+            logger.debug(
+                "get_effective_properties node_uuid=%s keys=%s",
+                node_uuid,
+                tuple(merged.keys()),
+            )
+            return merged
 
     def get_nodes_by_tag(self, tag: str) -> list[LogseqNode]:
         """Return all nodes whose ``tags`` contain ``tag`` (case-insensitive, ``#`` optional)."""
-        needle = _normalize_tag_query(tag)
-        matches: list[LogseqNode] = []
-        for node in self._iter_attached_nodes():
-            if any(_normalize_tag_query(t) == needle for t in node.tags):
-                matches.append(node)
-        return matches
+        with self._mutation_scope():
+            needle = _normalize_tag_query(tag)
+            matches: list[LogseqNode] = []
+            for node in self._iter_attached_nodes():
+                if any(_normalize_tag_query(t) == needle for t in node.tags):
+                    matches.append(node)
+            return matches
 
     def search_content(self, query: str) -> list[LogseqNode]:
         """Linear scan of ``clean_text`` for substring ``query`` (case-insensitive)."""
-        if not query:
-            return []
-        needle = query.casefold()
-        hits: list[LogseqNode] = []
-        for node in self._iter_attached_nodes():
-            if needle in node.clean_text.casefold():
-                hits.append(node)
-        return hits
+        with self._mutation_scope():
+            if not query:
+                return []
+            needle = query.casefold()
+            hits: list[LogseqNode] = []
+            for node in self._iter_attached_nodes():
+                if needle in node.clean_text.casefold():
+                    hits.append(node)
+            return hits
 
     def resolve_relative_page_link(self, current_page_title: str, link_target: str) -> str | None:
         """Resolve a relative page title like Logseq OG: nested namespace shadowing beats global."""
-        target = _normalize_relative_link_target(current_page_title, link_target.strip())
-        if not target:
-            return None
-        segments = [part for part in current_page_title.split("/") if part]
-        for prefix_len in range(len(segments), 0, -1):
-            candidate = "/".join([*segments[:prefix_len], target])
-            page = self.get_page(candidate)
+        with self._mutation_scope():
+            target = _normalize_relative_link_target(current_page_title, link_target.strip())
+            if not target:
+                return None
+            segments = [part for part in current_page_title.split("/") if part]
+            for prefix_len in range(len(segments), 0, -1):
+                candidate = "/".join([*segments[:prefix_len], target])
+                page = self.get_page(candidate)
+                if page is not None:
+                    logger.debug(
+                        "resolve_relative_page_link: contextual hit current=%s target=%s -> %s",
+                        current_page_title,
+                        link_target,
+                        page.title,
+                    )
+                    return page.title
+            page = self.get_page(target)
             if page is not None:
                 logger.debug(
-                    "resolve_relative_page_link: contextual hit current=%s target=%s -> %s",
+                    "resolve_relative_page_link: global fallback current=%s target=%s",
                     current_page_title,
                     link_target,
-                    page.title,
                 )
                 return page.title
-        page = self.get_page(target)
-        if page is not None:
-            logger.debug(
-                "resolve_relative_page_link: global fallback current=%s target=%s",
-                current_page_title,
-                link_target,
-            )
-            return page.title
-        return None
+            return None
 
     def get_namespace_children(self, namespace_prefix: str) -> list[LogseqPage]:
         """Return direct child pages under ``namespace_prefix`` (one extra path segment only)."""
-        prefix = namespace_prefix.strip().rstrip("/")
-        if not prefix:
-            return []
-        prefix_lower = prefix.lower()
-        needle_lower = f"{prefix_lower}/"
-        children: list[LogseqPage] = []
-        for page in self.iter_canonical_pages():
-            title = page.title
-            title_lower = title.lower()
-            if title_lower == prefix_lower:
-                continue
-            if not title_lower.startswith(needle_lower):
-                continue
-            remainder = title_lower[len(needle_lower) :]
-            if remainder and "/" not in remainder:
-                children.append(page)
-        children.sort(key=lambda p: p.title)
-        logger.debug(
-            "get_namespace_children prefix=%s count=%s",
-            prefix,
-            len(children),
-        )
-        return children
+        with self._mutation_scope():
+            prefix = namespace_prefix.strip().rstrip("/")
+            if not prefix:
+                return []
+            prefix_lower = prefix.lower()
+            needle_lower = f"{prefix_lower}/"
+            children: list[LogseqPage] = []
+            for page in self.iter_canonical_pages():
+                title = page.title
+                title_lower = title.lower()
+                if title_lower == prefix_lower:
+                    continue
+                if not title_lower.startswith(needle_lower):
+                    continue
+                remainder = title_lower[len(needle_lower) :]
+                if remainder and "/" not in remainder:
+                    children.append(page)
+            children.sort(key=lambda p: p.title)
+            logger.debug(
+                "get_namespace_children prefix=%s count=%s",
+                prefix,
+                len(children),
+            )
+            return children
 
     def _resolved_path_is_tracked_markdown(self, path: Path) -> bool:
         """True when ``path`` is a ``.md`` file under this graph's ``pages/`` or ``journals/``."""
@@ -850,143 +1169,120 @@ class LogseqGraph(BaseModel):
 
     def _page_title_for_source_path(self, resolved_file: Path) -> str | None:
         """Return the canonical page title for ``resolved_file``, if indexed."""
-        page = _page_for_source_path(self.pages, resolved_file)
-        return page.title if page is not None else None
+        with self._mutation_scope():
+            page = _page_for_source_path(self.pages, resolved_file)
+            return page.title if page is not None else None
 
     def _purge_stale_page_uuids(self, stale: set[str]) -> None:
-        """Remove stale node UUIDs from the node registry and scrub backlink source lists."""
-        for uid in stale:
-            self._node_registry.pop(uid, None)
-        dead_keys: list[str] = []
-        for key, sources in self._backlink_registry.items():
-            filtered = [s for s in sources if s not in stale]
-            if filtered:
-                self._backlink_registry[key] = filtered
-            else:
-                dead_keys.append(key)
-        for key in dead_keys:
-            del self._backlink_registry[key]
-        logger.debug(
-            "Stack-Machine incremental purge: stale_uuids=%s dead_backlink_keys=%s",
-            len(stale),
-            len(dead_keys),
-        )
+        """Backward-compatible wrapper for live mutation under graph coordination."""
+        with self._mutation_scope():
+            _purge_stale_page_uuids_from(
+                self._node_registry,
+                self._backlink_registry,
+                stale,
+            )
 
     def _register_page_nodes(self, page: LogseqPage) -> None:
-        for node in _flatten_nodes(page.root_nodes):
-            self._node_registry[node.uuid] = node
+        with self._mutation_scope():
+            _register_page_nodes_in(self._node_registry, page)
 
     def _append_page_backlinks(self, page: LogseqPage) -> None:
-        for node in _flatten_nodes(page.root_nodes):
-            for key in _node_backlink_keys(self.pages, node):
-                _append_backlink(self._backlink_registry, key, node.uuid)
+        with self._mutation_scope():
+            _append_page_backlinks_in(self.pages, self._backlink_registry, page)
 
     def _capture_incoming_page_wikilinks(
         self, page: LogseqPage
     ) -> list[tuple[str, str, tuple[str, ...]]]:
-        """Capture existing wikilinks that resolve to ``page`` before its index changes."""
-        canonical_key = _normalize_backlink_key(page.title)
-        page_keys = [canonical_key]
-        page_keys.extend(
-            _normalize_backlink_key(alias) for alias in _collect_page_alias_tokens(page.properties)
-        )
-        source_uuids: list[str] = []
-        seen_source_uuids: set[str] = set()
-        for key in page_keys:
-            for source_uuid in self._backlink_registry.get(key, []):
-                if source_uuid not in seen_source_uuids:
-                    seen_source_uuids.add(source_uuid)
-                    source_uuids.append(source_uuid)
-        captured: list[tuple[str, str, tuple[str, ...]]] = []
-        for source_uuid in source_uuids:
-            node = self._node_registry.get(source_uuid)
-            if node is None:
-                continue
-            for link in node.wikilinks:
-                keys = tuple(_wikilink_backlink_keys(self.pages, link))
-                if canonical_key in keys:
-                    captured.append((source_uuid, link, keys))
-        return captured
+        """Capture live wikilinks under coordination for compatible internal callers."""
+        with self._mutation_scope():
+            return _capture_incoming_page_wikilinks_from(
+                self.pages,
+                self._node_registry,
+                self._backlink_registry,
+                page,
+            )
 
     def _backlink_source_order(self, source_uuid: str) -> tuple[str, int, tuple[int, ...], str]:
         """Return the deterministic cold-load order key for an indexed source node."""
-        node = self._node_registry[source_uuid]
-        return (
-            node.source_path or "",
-            node.line_start or 0,
-            tuple(node.outline_path),
-            source_uuid,
-        )
+        with self._mutation_scope():
+            return _backlink_source_order_from(self._node_registry, source_uuid)
 
     def _reindex_incoming_page_wikilinks(
         self, captured: list[tuple[str, str, tuple[str, ...]]]
     ) -> None:
-        """Reindex only sources whose wikilinks targeted a changed page identity."""
-        if not captured:
-            return
-        source_uuids = {source_uuid for source_uuid, _link, _keys in captured}
-        affected_keys = {key for _source_uuid, _link, keys in captured for key in keys}
-        for _source_uuid, link, _keys in captured:
-            affected_keys.update(_wikilink_backlink_keys(self.pages, link))
+        """Reindex live state under coordination for compatible internal callers."""
+        with self._mutation_scope():
+            _reindex_incoming_page_wikilinks_in(
+                self.pages,
+                self._node_registry,
+                self._backlink_registry,
+                captured,
+            )
 
-        for key in affected_keys:
-            sources = self._backlink_registry.get(key, [])
-            remaining = [source_uuid for source_uuid in sources if source_uuid not in source_uuids]
-            if remaining:
-                self._backlink_registry[key] = remaining
-            else:
-                self._backlink_registry.pop(key, None)
+    def _capture_snapshot_locked(self) -> _GraphSnapshot:
+        """Capture the currently published graph-version references while coordinated."""
+        return _GraphSnapshot(
+            source_pages=self._source_pages,
+            pages=self.pages,
+            node_registry=self._node_registry,
+            backlink_registry=self._backlink_registry,
+            lower_title_map=self._lower_title_map,
+            index_diagnostics=self._index_diagnostics,
+        )
 
-        for source_uuid in source_uuids:
-            node = self._node_registry.get(source_uuid)
-            if node is None:
-                continue
-            for key in _node_backlink_keys(self.pages, node):
-                if key in affected_keys:
-                    _append_backlink(self._backlink_registry, key, source_uuid)
+    def _build_incremental_candidate_locked(self, resolved: Path) -> _GraphSnapshot:
+        """Build one complete incremental graph version without touching published mappings."""
+        current = self._capture_snapshot_locked()
+        source_pages = dict(current.source_pages)
+        source_pages.pop(str(resolved), None)
+        if resolved.exists():
+            source_pages[str(resolved)] = StackMachineParser().parse_page_file(resolved)
+        pages, diagnostics = _build_pages_index_from_source_pages(source_pages, self.graph_path)
+        node_registry = _build_node_registry_from_pages(pages)
+        backlink_registry = _repair_changed_backlink_contributions(
+            old_pages=current.pages,
+            old_nodes=current.node_registry,
+            old_backlinks=current.backlink_registry,
+            candidate_pages=pages,
+            candidate_nodes=node_registry,
+        )
+        return _GraphSnapshot(
+            source_pages=source_pages,
+            pages=pages,
+            node_registry=node_registry,
+            backlink_registry=backlink_registry,
+            lower_title_map=_build_lower_title_map(pages),
+            index_diagnostics=diagnostics,
+        )
 
-        for key in affected_keys:
-            sources = self._backlink_registry.get(key, [])
-            if sources:
-                sources.sort(key=self._backlink_source_order)
+    def _publish_snapshot_locked(self, candidate: _GraphSnapshot) -> None:
+        """Publish all graph-version fields at one coordinated assignment point."""
+        self._source_pages = candidate.source_pages
+        self.pages = candidate.pages
+        self._node_registry = candidate.node_registry
+        self._backlink_registry = candidate.backlink_registry
+        self._lower_title_map = candidate.lower_title_map
+        self._index_diagnostics = candidate.index_diagnostics
 
     def invalidate_and_reload_page(self, file_path: Path) -> None:
-        """Re-parse a single file, purge its old nodes/backlinks, and merge fresh indexes."""
-        resolved = Path(file_path).expanduser().resolve()
-        if not self._resolved_path_is_tracked_markdown(resolved):
-            logger.debug("invalidate_and_reload_page: skip non-tracked path=%s", resolved)
-            return
-        new_pages = dict(self.pages)
-        old_page = _remove_page_keys_for_source_path(new_pages, resolved)
-        stale: set[str] = set()
-        if old_page is not None:
-            stale = {n.uuid for n in _flatten_nodes(old_page.root_nodes)}
-            self._purge_stale_page_uuids(stale)
-        incoming_wikilinks = (
-            self._capture_incoming_page_wikilinks(old_page) if old_page is not None else []
-        )
-        if not resolved.exists():
-            self.pages = new_pages
-            self._lower_title_map = _build_lower_title_map(new_pages)
-            self._reindex_incoming_page_wikilinks(incoming_wikilinks)
-            logger.debug("invalidate_and_reload_page: purged deleted path=%s", resolved)
-            return
-        fresh = StackMachineParser().parse_page_file(resolved)
-        new_pages[fresh.title] = fresh
-        _enrich_pages_index(new_pages)
-        enriched = _page_for_source_path(new_pages, resolved) or fresh
-        self.pages = new_pages
-        self._lower_title_map = _build_lower_title_map(new_pages)
-        incoming_wikilinks.extend(self._capture_incoming_page_wikilinks(enriched))
-        self._register_page_nodes(enriched)
-        self._append_page_backlinks(enriched)
-        self._reindex_incoming_page_wikilinks(incoming_wikilinks)
-        logger.debug(
-            "Stack-Machine incremental re-hydrate: path=%s title=%s nodes=%s",
-            resolved,
-            enriched.title,
-            len(list(_flatten_nodes(enriched.root_nodes))),
-        )
+        """Re-parse one file and atomically publish a complete incremental graph version."""
+        with self._mutation_scope():
+            resolved = Path(file_path).expanduser().resolve()
+            if not self._resolved_path_is_tracked_markdown(resolved):
+                logger.debug("invalidate_and_reload_page: skip non-tracked path=%s", resolved)
+                return
+            candidate = self._build_incremental_candidate_locked(resolved)
+            self._publish_snapshot_locked(candidate)
+            if not resolved.exists():
+                logger.debug("invalidate_and_reload_page: purged deleted path=%s", resolved)
+                return
+            enriched = _page_for_source_path(candidate.pages, resolved)
+            logger.debug(
+                "Stack-Machine incremental re-hydrate: path=%s title=%s nodes=%s",
+                resolved,
+                enriched.title if enriched is not None else "<unresolved>",
+                len(list(_flatten_nodes(enriched.root_nodes))) if enriched is not None else 0,
+            )
 
     def start_watching(
         self,
@@ -1013,22 +1309,45 @@ class LogseqGraphWatcher:
         self._debounce_seconds = debounce_seconds
         self._observer: Any = None
         self._debouncer: _DebouncedGraphEventRouter | None = None
+        self._callback_dispatcher: _OrderedCallbackDispatcher | None = None
+        self._lifecycle_lock = threading.Lock()
+        self._starting = False
+        self._stopping = False
 
     def start(self) -> LogseqGraphWatcher:
         from watchdog.events import FileSystemEventHandler
         from watchdog.observers import Observer
 
+        with self._lifecycle_lock:
+            if self._starting or self._stopping or any(
+                value is not None
+                for value in (self._observer, self._debouncer, self._callback_dispatcher)
+            ):
+                raise RuntimeError("LogseqGraphWatcher is already started or still stopping")
+            self._starting = True
+
         graph = self._graph
-        user_callback = self._callback
+        try:
+            callback_dispatcher = (
+                _OrderedCallbackDispatcher(self._callback).start()
+                if self._callback is not None
+                else None
+            )
+        except Exception:
+            with self._lifecycle_lock:
+                self._starting = False
+            raise
+        self._callback_dispatcher = callback_dispatcher
 
         def _route_event(path: Path) -> None:
             if not graph._resolved_path_is_tracked_markdown(path):
                 logger.debug("Stack-Machine watcher: ignore path=%s", path)
                 return
             logger.debug("Stack-Machine watcher: invalidate path=%s", path)
-            graph.invalidate_and_reload_page(path)
-            if user_callback is not None:
-                user_callback(path)
+            with graph._mutation_scope():
+                graph.invalidate_and_reload_page(path)
+                if callback_dispatcher is not None:
+                    callback_dispatcher.submit(path)
 
         debouncer = _DebouncedGraphEventRouter(
             _route_event,
@@ -1069,23 +1388,62 @@ class LogseqGraphWatcher:
                     if not _is_ignored_watcher_path(dest_path):
                         debouncer.schedule(dest_path)
 
-        observer = Observer()
-        observer.schedule(
-            _MarkdownGraphHandler(),
-            str(graph.graph_path.resolve()),
-            recursive=True,
-        )
-        observer.start()
+        observer: Any = None
+        try:
+            observer = Observer()
+            observer.schedule(
+                _MarkdownGraphHandler(),
+                str(graph.graph_path.resolve()),
+                recursive=True,
+            )
+            observer.start()
+        except Exception:
+            debouncer.close()
+            self._debouncer = None
+            if observer is not None:
+                observer.stop()
+                if observer.is_alive():
+                    observer.join(timeout=5)
+            if callback_dispatcher is not None:
+                callback_dispatcher.close()
+            self._callback_dispatcher = None
+            with self._lifecycle_lock:
+                self._starting = False
+            raise
         self._observer = observer
+        with self._lifecycle_lock:
+            self._starting = False
         logger.debug("Stack-Machine watcher: started on graph_path=%s", graph.graph_path)
         return self
 
     def stop(self) -> None:
-        if self._debouncer is not None:
-            self._debouncer.cancel_all()
-            self._debouncer = None
-        if self._observer is not None:
-            self._observer.stop()
-            self._observer.join(timeout=5)
-            self._observer = None
-            logger.debug("Stack-Machine watcher: stopped")
+        with self._lifecycle_lock:
+            if self._starting:
+                raise RuntimeError("LogseqGraphWatcher is still starting")
+            if self._stopping:
+                raise RuntimeError("LogseqGraphWatcher is already stopping")
+            self._stopping = True
+        try:
+            if self._observer is not None:
+                self._observer.stop()
+                self._observer.join(timeout=5)
+                if self._observer.is_alive():
+                    if self._debouncer is not None:
+                        self._debouncer.close()
+                    logger.warning("Stack-Machine watcher: observer is still stopping after timeout")
+                    return
+                self._observer = None
+                logger.debug("Stack-Machine watcher: stopped")
+            if self._debouncer is not None:
+                self._debouncer.close()
+                self._debouncer = None
+            if self._callback_dispatcher is not None:
+                if self._callback_dispatcher.close():
+                    self._callback_dispatcher = None
+                else:
+                    logger.warning(
+                        "Stack-Machine watcher: callback dispatcher is still draining after stop"
+                    )
+        finally:
+            with self._lifecycle_lock:
+                self._stopping = False

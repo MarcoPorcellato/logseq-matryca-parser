@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from threading import Event
 
 import pytest
 
@@ -371,11 +372,14 @@ def test_graph_watcher_filesystem_events(tmp_path: Path) -> None:
     old_uuid = graph.pages["Live"].root_nodes[0].uuid
 
     callback_paths: list[Path] = []
+    callback_delivered = Event()
 
     def cb(p: Path) -> None:
         callback_paths.append(p.resolve())
+        callback_delivered.set()
 
     mock_observer = MagicMock()
+    mock_observer.is_alive.return_value = False
     with patch("watchdog.observers.Observer", return_value=mock_observer):
         watcher = graph.start_watching(callback=cb, debounce_seconds=0)
         handler = mock_observer.schedule.call_args[0][0]
@@ -390,18 +394,23 @@ def test_graph_watcher_filesystem_events(tmp_path: Path) -> None:
     handler.on_modified(_Ev())
     assert old_uuid != graph.pages["Live"].root_nodes[0].uuid
     assert "v2" in graph.pages["Live"].root_nodes[0].clean_text
+    assert callback_delivered.wait(timeout=3), "watcher callback was not delivered"
     assert callback_paths == [path_doc.resolve()]
 
     callback_paths.clear()
+    callback_delivered.clear()
     handler.on_created(_Ev())
+    assert callback_delivered.wait(timeout=3), "watcher callback was not delivered"
     assert callback_paths == [path_doc.resolve()]
 
     callback_paths.clear()
+    callback_delivered.clear()
     class _DirEv:
         is_directory = True
         src_path = str(pages)
 
     handler.on_modified(_DirEv())
+    assert not callback_delivered.wait(timeout=0.1)
     assert callback_paths == []
 
     watcher.stop()
@@ -431,6 +440,7 @@ def test_watcher_ignores_temp_and_swap_files(tmp_path: Path) -> None:
     routed: list[Path] = []
 
     mock_observer = MagicMock()
+    mock_observer.is_alive.return_value = False
     with patch("watchdog.observers.Observer", return_value=mock_observer):
         watcher = graph.start_watching(
             callback=lambda p: routed.append(p.resolve()),
@@ -652,6 +662,7 @@ def test_watcher_on_deleted_purges_page(tmp_path: Path) -> None:
     stale_uuid = graph.pages["Ephemeral"].root_nodes[0].uuid
 
     mock_observer = MagicMock()
+    mock_observer.is_alive.return_value = False
     with patch("watchdog.observers.Observer", return_value=mock_observer):
         watcher = graph.start_watching(debounce_seconds=0)
         handler = mock_observer.schedule.call_args[0][0]

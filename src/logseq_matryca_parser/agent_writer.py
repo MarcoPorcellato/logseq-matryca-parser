@@ -310,7 +310,30 @@ def append_child_to_node(
     max_content_bytes: int = DEFAULT_MAX_CONTENT_BYTES,
     max_target_depth: int = DEFAULT_MAX_TARGET_DEPTH,
 ) -> WriteProposal:
-    """Build or apply a fail-closed, vault-contained child splice."""
+    """Build or apply one serialized, fail-closed child splice."""
+    with graph._mutation_scope():
+        return _append_child_to_node_locked(
+            graph,
+            target_uuid,
+            content,
+            dry_run=dry_run,
+            max_source_bytes=max_source_bytes,
+            max_content_bytes=max_content_bytes,
+            max_target_depth=max_target_depth,
+        )
+
+
+def _append_child_to_node_locked(
+    graph: LogseqGraph,
+    target_uuid: str,
+    content: str,
+    *,
+    dry_run: bool = False,
+    max_source_bytes: int = DEFAULT_MAX_SOURCE_BYTES,
+    max_content_bytes: int = DEFAULT_MAX_CONTENT_BYTES,
+    max_target_depth: int = DEFAULT_MAX_TARGET_DEPTH,
+) -> WriteProposal:
+    """Build or apply a fail-closed child splice while graph coordination is held."""
     target_node = graph.get_node_by_uuid(target_uuid)
     if target_node is None:
         msg = f"No node registered for uuid={target_uuid}"

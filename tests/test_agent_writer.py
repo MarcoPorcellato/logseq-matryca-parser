@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import os
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
+from threading import Barrier, BrokenBarrierError, Event
 from unittest.mock import patch
 
 import pytest
 
+import logseq_matryca_parser.agent_writer as agent_writer_module
 from logseq_matryca_parser.agent_writer import (
     LogseqConfigReader,
     append_child_to_node,
@@ -118,6 +122,69 @@ def test_append_child_to_node_refreshes_in_memory_graph(tmp_path: Path) -> None:
     refreshed_parent = graph.pages["Splice"].root_nodes[0]
     assert len(refreshed_parent.children) == 1
     assert refreshed_parent.children[0].clean_text == "new child"
+
+
+def test_simultaneous_appends_preserve_both_children(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Concurrent appends to one parent must commit both complete transactions."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    page_path = pages / "Splice.md"
+    page_path.write_text("- Parent block\n", encoding="utf-8")
+
+    graph = LogseqGraph.load_directory(graph_root)
+    parent_uuid = graph.pages["Splice"].root_nodes[0].uuid
+    source_read_barrier = Barrier(2)
+    simultaneous_reads = Event()
+    original_read = agent_writer_module._read_validated_target
+
+    def synchronize_after_read(
+        reader_graph: LogseqGraph,
+        source_path: Path,
+        expected_stat: os.stat_result,
+        *,
+        target_uuid: str,
+    ) -> tuple[str, os.stat_result]:
+        result = original_read(
+            reader_graph,
+            source_path,
+            expected_stat,
+            target_uuid=target_uuid,
+        )
+        try:
+            source_read_barrier.wait(timeout=1)
+        except BrokenBarrierError:
+            pass
+        else:
+            simultaneous_reads.set()
+        return result
+
+    monkeypatch.setattr(
+        agent_writer_module,
+        "_read_validated_target",
+        synchronize_after_read,
+    )
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first = pool.submit(append_child_to_node, graph, parent_uuid, "first child")
+        second = pool.submit(append_child_to_node, graph, parent_uuid, "second child")
+        first.result(timeout=5)
+        second.result(timeout=5)
+
+    assert not simultaneous_reads.is_set(), (
+        "two writer transactions reached their validated source reads together"
+    )
+    written = page_path.read_text(encoding="utf-8")
+    assert written.count("- first child") == 1
+    assert written.count("- second child") == 1
+
+    cold_graph = LogseqGraph.load_directory(graph_root)
+    cold_parent = cold_graph.pages["Splice"].root_nodes[0]
+    children = [child.clean_text for child in cold_parent.children]
+    assert len(children) == 2
+    assert set(children) == {"first child", "second child"}
 
 
 def test_append_child_to_node_respects_four_space_tab_size(tmp_path: Path) -> None:
