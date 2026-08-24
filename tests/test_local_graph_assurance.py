@@ -561,6 +561,7 @@ def test_runner_handles_no_report_and_invalid_report_with_cleanup(
     report = run_local_graph_assurance(Path("/vault"))
     assert _finding_codes(report) == {expected_code}
     assert process.started
+    assert process.joined == [AssuranceLimits().timeout_seconds]
     assert context.process_target is local_graph_assurance._worker
     assert context.process_args is not None and context.process_args[0] == "/vault"
     assert result_queue.closed and result_queue.joined
