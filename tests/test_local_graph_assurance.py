@@ -177,9 +177,14 @@ def test_assurance_reports_only_entry_stat_error(
 
     assert report["status"] == "error"
     assert _finding_codes(report) == {"vault.entry_stat_error"}
-    observed = report["observed"]
-    assert isinstance(observed, dict)
-    assert observed["markdown_files"] == 0
+    assert report["observed"] == {
+        "markdown_files": 0,
+        "total_bytes": 0,
+        "parsed_pages": 0,
+        "parsed_nodes": 0,
+        "root_nodes": 0,
+        "block_references": 0,
+    }
 
 
 def test_assurance_ignores_excluded_directories_and_non_markdown_entries(tmp_path: Path) -> None:
@@ -224,8 +229,9 @@ def test_assurance_enforces_max_file_bytes_during_traversal(tmp_path: Path) -> N
 def test_assurance_enforces_max_total_bytes_during_traversal(tmp_path: Path) -> None:
     root = _vault(tmp_path)
     (root / "pages" / "One.md").write_text("- one\n", encoding="utf-8")
+    (root / "pages" / "Two.md").write_text("- two\n", encoding="utf-8")
 
-    report = run_local_graph_assurance(root, AssuranceLimits(max_total_bytes=1))
+    report = run_local_graph_assurance(root, AssuranceLimits(max_total_bytes=7, max_file_bytes=6))
 
     assert report["status"] == "limit_exceeded"
     assert _finding_codes(report) == {"vault.max_total_bytes_exceeded"}
