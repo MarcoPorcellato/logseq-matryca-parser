@@ -58,6 +58,15 @@ works after downloading all release assets into one clean directory.
 6. VCS dependencies must retain their resolved revision in the PURL. A mutable
    branch or unpinned VCS source is a release blocker.
 
+The declaration and the lock are separate evidence layers. A lock file that
+records an immutable commit does not cure a top-level dependency declaration
+that still names a mutable branch or tag: re-resolution begins from the
+declaration. Prefer a qualified registry release; when a VCS dependency remains
+necessary, declare its full commit and require the lock and generated PURL to
+resolve to that same revision. Issue
+[#186](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/186)
+tracks the current NLTK declaration debt.
+
 The inventory is evidence, not legal advice and not an automatic compatibility
 opinion. A license change, new copyleft obligation, unknown direct license,
 vendored source, or intended relicensing requires maintainer review and, when

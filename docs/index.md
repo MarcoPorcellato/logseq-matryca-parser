@@ -38,9 +38,9 @@ navigation layers only.
 | [Dependency, license, SBOM, and provenance policy](reference/DEPENDENCY_LICENSE_POLICY.md) | Release evidence, override, checksum, and attestation contract |
 | [Daily metrics threat model](security/DAILY_METRICS_THREAT_MODEL.md) | Security boundary for the self-mutating repository traffic archive |
 | [Architecture](CLEAN_CODE_ARCHITECTURE.md) | Canonical architecture and public graph API |
-| [Repository roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Current evidence-backed improvement plan |
+| [Stellar audit baseline](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Dated evidence-backed audit and original improvement sequence |
 | [GitHub and AAIF readiness study](REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md) | Governance, supply-chain, agent, and AAIF-readiness study |
-| [Public roadmap](ROADMAP_2026-2027.md) | Current milestones, dependencies, owners, and exit evidence |
+| [Public roadmap](ROADMAP_2026-2027.md) | Canonical current milestones, evidence-gated improvements, dependencies, owners, and exit evidence |
 | [Issue triage policy](ISSUE_TRIAGE_POLICY.md) | Labels, priorities, contributor handoff, stale work, and closure policy |
 | [AAIF alignment](AAIF_ALIGNMENT.md) | Interoperability alignment without AAIF membership or conformance claims |
 | [Protocol adapter decision](decisions/ADR-0001-PROTOCOL_ADAPTER_BOUNDARY.md) | Conditions for any future networked agent protocol adapter |

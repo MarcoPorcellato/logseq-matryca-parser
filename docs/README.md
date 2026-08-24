@@ -51,7 +51,7 @@ entry points.
 | [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) | Maintainers | Semver, tag, and PyPI publish checklist |
 | [`CODEQL.md`](CODEQL.md) | Maintainers | CodeQL default setup notes |
 | [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) | Maintainers, contributors | Local static analysis bug audit (Clean Architecture lens, runtime evidence) |
-| [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Maintainers, contributors | Evidence-backed repository audit, confirmed defects, issue map, and sequenced improvement roadmap |
+| [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Maintainers, contributors | Dated evidence-backed audit baseline, confirmed defects, and original issue map; the public roadmap is the current execution view |
 | [`REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md`](REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md) | Maintainers | GitHub governance, supply-chain, agent interoperability, and AAIF-readiness study |
 | [`LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md`](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | Maintainers, parser contributors | License-safe comparative study and execution plan for semantic, complexity, and source-location assurance |
 | [`README_READABILITY_REPORT_2026-08-08.md`](README_READABILITY_REPORT_2026-08-08.md) | Maintainers | Measured human and AI README assessment with a phased simplification proposal |
