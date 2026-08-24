@@ -4,6 +4,7 @@ import json
 import math
 import queue
 import socket
+import stat
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -142,10 +143,14 @@ def test_guarded_read_rejects_unsafe_or_unreadable_files(
     path = root / "pages" / "entry.md"
     path.write_text("- safe\n", encoding="utf-8")
     if kind == "symlink":
-        target = tmp_path / "outside.md"
-        target.write_text("- outside\n", encoding="utf-8")
-        path.unlink()
-        path.symlink_to(target)
+        original_lstat = Path.lstat
+        monkeypatch.setattr(
+            Path,
+            "lstat",
+            lambda candidate: SimpleNamespace(st_mode=stat.S_IFLNK)
+            if candidate == path
+            else original_lstat(candidate),
+        )
     elif kind == "non_regular":
         path.unlink()
         path.mkdir()
@@ -267,7 +272,7 @@ def test_assurance_reports_only_directory_read_error(
 
     def fail_pages(directory: Path):
         if directory == root / "pages":
-            raise OSError("unavailable")
+            raise OSError()
         return original_iterdir(directory)
 
     monkeypatch.setattr(Path, "iterdir", fail_pages)
@@ -296,7 +301,7 @@ def test_assurance_reports_only_entry_stat_error(
 
     def fail_entry(path: Path):
         if path == entry:
-            raise OSError("unavailable")
+            raise OSError()
         return original_lstat(path)
 
     monkeypatch.setattr(Path, "lstat", fail_entry)
@@ -479,6 +484,7 @@ class _FakeQueue:
         self.result = result
         self.error = error
         self.closed = False
+        self.cancelled = False
         self.joined = False
 
     def put(self, value: object) -> None:
@@ -494,7 +500,11 @@ class _FakeQueue:
         self.closed = True
 
     def join_thread(self) -> None:
+        assert not self.cancelled
         self.joined = True
+
+    def cancel_join_thread(self) -> None:
+        self.cancelled = True
 
 
 class _FakeProcess:
@@ -586,7 +596,7 @@ def test_runner_timeout_terminates_and_cleans_up(monkeypatch: pytest.MonkeyPatch
     assert process.started
     assert context.process_target is local_graph_assurance._worker
     assert process.terminated and process.joined == [1, None]
-    assert result_queue.closed and result_queue.joined
+    assert result_queue.closed and result_queue.cancelled and not result_queue.joined
 
 
 def test_worker_converts_unexpected_failure_to_safe_report(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -594,7 +604,7 @@ def test_worker_converts_unexpected_failure_to_safe_report(monkeypatch: pytest.M
     monkeypatch.setattr(
         local_graph_assurance,
         "_assure",
-        lambda *_args: (_ for _ in ()).throw(RuntimeError("worker failed")),
+        lambda *_args: (_ for _ in ()).throw(RuntimeError()),
     )
     local_graph_assurance._worker("/vault", AssuranceLimits(), result_queue)
     assert isinstance(result_queue.result, dict)
