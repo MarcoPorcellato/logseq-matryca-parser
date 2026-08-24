@@ -598,7 +598,7 @@ until a new exact head passes every gate.
   `_repair_changed_backlink_contributions(...)`, `_GraphSnapshot.source_pages`,
   and `LogseqGraph._source_pages`.
 
-- [ ] **Step 1: Add deterministic collision-transition tests**
+- [x] **Step 1: Add deterministic collision-transition tests**
 
 Add a parameterized regression over `collision_kind in {"canonical", "alias"}`
 and `operation in {"edit", "delete", "rename"}`. Build an incremental graph
@@ -614,7 +614,7 @@ one derived title initially displaces the other. Use alias fixtures
 For rename, invalidate both the old and new paths. The final assertion must
 include exact `index_diagnostics` equality with the cold graph.
 
-- [ ] **Step 2: Run the collision tests to verify RED**
+- [x] **Step 2: Run the collision tests to verify RED**
 
 Run:
 
@@ -627,7 +627,7 @@ Expected: at least one canonical and one alias case fail because the current
 public `pages` mapping no longer contains every displaced physical page and the
 published diagnostics tuple is copied unchanged.
 
-- [ ] **Step 3: Add the private source-page inventory**
+- [x] **Step 3: Add the private source-page inventory**
 
 Extend the snapshot and graph with these exact shapes:
 
@@ -649,7 +649,7 @@ parsed worker result in this mapping before title, alias, or collision winner
 selection. Capture and publish `_source_pages` with the other snapshot fields;
 never expose it from the package root.
 
-- [ ] **Step 4: Derive pages and diagnostics from retained source pages**
+- [x] **Step 4: Derive pages and diagnostics from retained source pages**
 
 Add this private interface:
 
@@ -668,7 +668,7 @@ Return a fresh public mapping and a fresh diagnostics tuple. Incremental reload
 must copy `_source_pages`, remove the touched key, parse and replace only that
 file when it exists, and invoke this helper before publication.
 
-- [ ] **Step 5: Repair only changed backlink contributions**
+- [x] **Step 5: Repair only changed backlink contributions**
 
 Add this private interface:
 
@@ -692,7 +692,7 @@ keys; append candidate contributions for changed or newly visible nodes. Sort
 every affected key with `_backlink_source_order_from(candidate_nodes, uuid)` and
 delete empty keys. Do not call `_build_backlink_registry()`.
 
-- [ ] **Step 6: Verify collision GREEN and incremental guard compatibility**
+- [x] **Step 6: Verify collision GREEN and incremental guard compatibility**
 
 Run:
 
@@ -711,7 +711,7 @@ rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cach
 Expected: every collision transition matches cold load, the global-backlink
 rebuild sentinel remains untouched, Ruff passes, and mypy reports no issues.
 
-- [ ] **Step 7: Commit collision recovery**
+- [x] **Step 7: Commit collision recovery**
 
 ```bash
 rtk git add -- src/logseq_matryca_parser/graph.py tests/test_graph_concurrency.py
@@ -732,7 +732,7 @@ rtk git commit -m "fix(graph): recover incremental collision participants"
 - Produces: `_DebouncedGraphEventRouter.close() -> None`; after it returns, no
   route owned by that router can begin or remain in progress.
 
-- [ ] **Step 1: Add the in-flight route shutdown regression**
+- [x] **Step 1: Add the in-flight route shutdown regression**
 
 Start a watcher with `debounce_seconds=0`. Monkeypatch
 `graph.invalidate_and_reload_page` with a wrapper that sets `route_entered`,
@@ -743,7 +743,7 @@ event, assert a `stop_finished` event is still clear. Release `allow_route`,
 await both futures, record the resulting public projection, and assert it does
 not change after `stop()` returns.
 
-- [ ] **Step 2: Run the shutdown test to verify RED**
+- [x] **Step 2: Run the shutdown test to verify RED**
 
 Run:
 
@@ -756,7 +756,7 @@ rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cach
 Expected: FAIL because `_fire()` or zero-delay `schedule()` does not currently
 share a close boundary with `cancel_all()`.
 
-- [ ] **Step 3: Add a closed, quiescent debounce boundary**
+- [x] **Step 3: Add a closed, quiescent debounce boundary**
 
 Add `_closed = False` under the router lock. Execute both the zero-delay route
 and timer `_fire()` while holding that lock. `_fire()` must remove its timer,
@@ -778,7 +778,7 @@ return immediately when `_closed` is true. Use `close()` in watcher startup
 failure, observer-timeout, and normal-stop paths; preserve the existing bounded
 dispatcher close and retained-ownership behavior.
 
-- [ ] **Step 4: Verify watcher lifecycle GREEN**
+- [x] **Step 4: Verify watcher lifecycle GREEN**
 
 Run:
 
@@ -793,7 +793,7 @@ Expected: in-flight publication completes before shutdown returns, pending or
 later routes are rejected, callbacks remain FIFO/nonblocking, and existing
 bounded lifecycle tests pass.
 
-- [ ] **Step 5: Commit watcher quiescence**
+- [x] **Step 5: Commit watcher quiescence**
 
 ```bash
 rtk git add -- src/logseq_matryca_parser/graph.py tests/test_graph_concurrency.py
@@ -813,7 +813,7 @@ rtk git commit -m "fix(graph): quiesce watcher routes at shutdown"
 - Produces: deterministic evidence that both requested children are committed,
   without promising which thread acquires the graph lock first.
 
-- [ ] **Step 1: Make the final child assertion order-independent**
+- [x] **Step 1: Make the final child assertion order-independent**
 
 Replace the ordered list comparison with:
 
@@ -826,7 +826,7 @@ assert set(children) == {"first child", "second child"}
 Keep the source-read barrier assertion proving that two writer transactions do
 not enter the validated source-read phase together.
 
-- [ ] **Step 2: Stress the focused test**
+- [x] **Step 2: Stress the focused test**
 
 Run:
 
@@ -840,7 +840,7 @@ done'
 
 Expected: twenty passes; the loop exits immediately on the first failure.
 
-- [ ] **Step 3: Commit deterministic writer evidence**
+- [x] **Step 3: Commit deterministic writer evidence**
 
 ```bash
 rtk git add -- tests/test_agent_writer.py
@@ -861,7 +861,7 @@ rtk git commit -m "test(writer): remove scheduler order assumption"
 - Produces: one exact qualified remote head and hosted-CI evidence; no merge,
   ready-for-review transition, issue closure, or release authorization.
 
-- [ ] **Step 1: Align maintained architecture documentation**
+- [x] **Step 1: Align maintained architecture documentation**
 
 Document the private source-page recovery inventory, fresh incremental
 diagnostics, targeted changed-contribution backlink repair, and quiescent
