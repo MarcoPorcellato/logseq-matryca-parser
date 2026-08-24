@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Stable NLTK supply-chain source (#186)** — the optional AI and development
+  dependency graph now constrains NLTK to the patched PyPI release line at
+  `>=3.10.3`, replacing the mutable `v3.10.0-rc1` VCS tag declaration. The
+  lightweight base installation remains unchanged.
+
 ### Fixed
 
 - **Incremental graph reloads (#103)** — backlink indexes are rebuilt from the
