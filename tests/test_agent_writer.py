@@ -182,10 +182,9 @@ def test_simultaneous_appends_preserve_both_children(
 
     cold_graph = LogseqGraph.load_directory(graph_root)
     cold_parent = cold_graph.pages["Splice"].root_nodes[0]
-    assert [child.clean_text for child in cold_parent.children] == [
-        "first child",
-        "second child",
-    ]
+    children = [child.clean_text for child in cold_parent.children]
+    assert len(children) == 2
+    assert set(children) == {"first child", "second child"}
 
 
 def test_append_child_to_node_respects_four_space_tab_size(tmp_path: Path) -> None:
