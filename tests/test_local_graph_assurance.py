@@ -15,6 +15,7 @@ from logseq_matryca_parser.kinetic import app
 from logseq_matryca_parser.local_graph_assurance import (
     AssuranceLimits,
     _network_denied,
+    _report,
     _safe_report,
     run_local_graph_assurance,
     run_local_graph_assurance_self_test,
@@ -370,6 +371,7 @@ def test_assurance_enforces_max_total_bytes_during_traversal(tmp_path: Path) -> 
         {"max_files": True},
         {"max_total_bytes": "1024"},
         {"max_file_bytes": 0},
+        {"timeout_seconds": 0},
         {"timeout_seconds": True},
         {"timeout_seconds": math.inf},
         {"timeout_seconds": math.nan},
@@ -405,7 +407,7 @@ def test_network_guard_rejects_socket_entry_points() -> None:
 def test_safe_report_rejects_top_level_schema_and_type_failures(
     field: str, replacement: object
 ) -> None:
-    report = run_local_graph_assurance_self_test()
+    report = _report(AssuranceLimits())
     report[field] = replacement
     assert not _safe_report(report)
 
@@ -421,22 +423,54 @@ def test_safe_report_rejects_top_level_schema_and_type_failures(
 def test_safe_report_rejects_invalid_status_schema_and_numeric_values(
     field: str, replacement: object
 ) -> None:
-    report = run_local_graph_assurance_self_test()
+    report = _report(AssuranceLimits())
     report[field] = replacement
     assert not _safe_report(report)
 
 
-def test_safe_report_requires_findings_to_match_status_and_json_safety() -> None:
-    report = run_local_graph_assurance_self_test()
+@pytest.mark.parametrize(
+    ("section", "key", "value"),
+    [
+        ("limits", "max_files", 0),
+        ("limits", "max_files", True),
+        ("limits", "max_files", "10"),
+        ("limits", "timeout_seconds", 0),
+        ("limits", "timeout_seconds", True),
+        ("limits", "timeout_seconds", math.inf),
+        ("observed", "parsed_nodes", -1),
+        ("observed", "parsed_nodes", True),
+        ("observed", "parsed_nodes", "0"),
+    ],
+)
+def test_safe_report_rejects_representative_numeric_failures(
+    section: str, key: str, value: object
+) -> None:
+    report = _report(AssuranceLimits())
+    values = report[section]
+    assert isinstance(values, dict)
+    values[key] = value
+    assert not _safe_report(report)
+
+
+def test_safe_report_requires_findings_to_match_status_and_json_safety(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    report = _report(AssuranceLimits())
     report["status"] = "findings"
     assert not _safe_report(report)
 
-    report = run_local_graph_assurance_self_test()
+    report = _report(AssuranceLimits())
     report["findings"] = [{"code": "runner.no_report", "count": 1}]
     assert not _safe_report(report)
 
-    report = run_local_graph_assurance_self_test()
+    report = _report(AssuranceLimits())
     report["runtime"] = {"python": "3.12", "platform": float("nan")}
+    assert not _safe_report(report)
+
+    report = _report(AssuranceLimits())
+    def fail_dumps(*_args: object, **_kwargs: object) -> str:
+        raise TypeError("serialization failure")
+    monkeypatch.setattr(local_graph_assurance.json, "dumps", fail_dumps)
     assert not _safe_report(report)
 
 
@@ -464,14 +498,14 @@ class _FakeQueue:
 
 
 class _FakeProcess:
-    def __init__(self, alive: bool = False, result: object = None) -> None:
+    def __init__(self, alive: bool = False) -> None:
         self.alive = alive
+        self.started = False
         self.terminated = False
         self.joined: list[float | None] = []
-        self.result = result
 
     def start(self) -> None:
-        return None
+        self.started = True
 
     def join(self, timeout: float | None = None) -> None:
         self.joined.append(timeout)
@@ -488,13 +522,16 @@ class _FakeContext:
     def __init__(self, process: _FakeProcess, result_queue: _FakeQueue) -> None:
         self.process = process
         self.result_queue = result_queue
+        self.process_target: object | None = None
+        self.process_args: tuple[object, ...] | None = None
 
     def Queue(self, maxsize: int) -> _FakeQueue:
         assert maxsize == 1
         return self.result_queue
 
     def Process(self, target: object, args: tuple[object, ...]) -> _FakeProcess:
-        del target, args
+        self.process_target = target
+        self.process_args = args
         return self.process
 
 
@@ -508,70 +545,87 @@ class _FakeContext:
 def test_runner_handles_no_report_and_invalid_report_with_cleanup(
     monkeypatch: pytest.MonkeyPatch, queue_error: BaseException | None, expected_code: str
 ) -> None:
-    process = _FakeProcess(result=None)
+    process = _FakeProcess()
     result_queue = _FakeQueue(error=queue_error)
+    context = _FakeContext(process, result_queue)
+
+    def get_context(name: str) -> _FakeContext:
+        assert name == "spawn"
+        return context
+
     monkeypatch.setattr(
         local_graph_assurance.multiprocessing,
         "get_context",
-        lambda _name: _FakeContext(process, result_queue),
+        get_context,
     )
     report = run_local_graph_assurance(Path("/vault"))
     assert _finding_codes(report) == {expected_code}
+    assert process.started
+    assert context.process_target is local_graph_assurance._worker
+    assert context.process_args is not None and context.process_args[0] == "/vault"
     assert result_queue.closed and result_queue.joined
 
 
 def test_runner_timeout_terminates_and_cleans_up(monkeypatch: pytest.MonkeyPatch) -> None:
     process = _FakeProcess(alive=True)
     result_queue = _FakeQueue()
+    context = _FakeContext(process, result_queue)
+
+    def get_context(name: str) -> _FakeContext:
+        assert name == "spawn"
+        return context
+
     monkeypatch.setattr(
         local_graph_assurance.multiprocessing,
         "get_context",
-        lambda _name: _FakeContext(process, result_queue),
+        get_context,
     )
     report = run_local_graph_assurance(Path("/vault"), AssuranceLimits(timeout_seconds=1))
     assert _finding_codes(report) == {"runner.timeout"}
+    assert process.started
+    assert context.process_target is local_graph_assurance._worker
     assert process.terminated and process.joined == [1, None]
     assert result_queue.closed and result_queue.joined
 
 
-def test_worker_converts_unexpected_failure_to_safe_report() -> None:
+def test_worker_converts_unexpected_failure_to_safe_report(monkeypatch: pytest.MonkeyPatch) -> None:
     result_queue = _FakeQueue()
-    original_assure = local_graph_assurance._assure
-    local_graph_assurance._assure = lambda *_args: (_ for _ in ()).throw(RuntimeError("worker failed"))
-    try:
-        local_graph_assurance._worker("/vault", AssuranceLimits(), result_queue)
-    finally:
-        local_graph_assurance._assure = original_assure
+    monkeypatch.setattr(
+        local_graph_assurance,
+        "_assure",
+        lambda *_args: (_ for _ in ()).throw(RuntimeError("worker failed")),
+    )
+    local_graph_assurance._worker("/vault", AssuranceLimits(), result_queue)
     assert isinstance(result_queue.result, dict)
     assert _finding_codes(result_queue.result) == {"runner.unexpected_failure"}
 
 
 def test_safe_report_rejects_nested_extra_fields_and_unknown_codes() -> None:
-    report = run_local_graph_assurance_self_test()
+    report = _report(AssuranceLimits())
     limits = report["limits"]
     assert isinstance(limits, dict)
     limits["private_markdown"] = "do-not-disclose"
     assert not _safe_report(report)
 
-    report = run_local_graph_assurance_self_test()
+    report = _report(AssuranceLimits())
     findings = report["findings"]
     assert isinstance(findings, list)
     findings.append({"code": "do-not-disclose", "count": 1})
     assert not _safe_report(report)
 
-    report = run_local_graph_assurance_self_test()
+    report = _report(AssuranceLimits())
     runtime = report["runtime"]
     assert isinstance(runtime, dict)
     runtime["platform"] = "private-vault-content"
     assert not _safe_report(report)
 
-    report = run_local_graph_assurance_self_test()
+    report = _report(AssuranceLimits())
     limits = report["limits"]
     assert isinstance(limits, dict)
     limits["max_files"] = 1
     assert not _safe_report(report, expected_limits=AssuranceLimits())
 
-    report = run_local_graph_assurance_self_test()
+    report = _report(AssuranceLimits())
     findings = report["findings"]
     assert isinstance(findings, list)
     findings.append({"code": "runner.no_report", "count": 1})
