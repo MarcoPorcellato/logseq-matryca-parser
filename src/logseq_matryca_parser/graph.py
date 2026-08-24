@@ -60,14 +60,17 @@ class _DebouncedGraphEventRouter:
         self._debounce_seconds = debounce_seconds
         self._timers: dict[str, threading.Timer] = {}
         self._lock = threading.Lock()
+        self._closed = False
 
     def schedule(self, path: Path) -> None:
         resolved = path.expanduser().resolve()
-        if self._debounce_seconds <= 0:
-            self._route(resolved)
-            return
-        key = str(resolved)
         with self._lock:
+            if self._closed:
+                return
+            if self._debounce_seconds <= 0:
+                self._route(resolved)
+                return
+            key = str(resolved)
             existing = self._timers.pop(key, None)
             if existing is not None:
                 existing.cancel()
@@ -79,13 +82,21 @@ class _DebouncedGraphEventRouter:
     def _fire(self, key: str, path: Path) -> None:
         with self._lock:
             self._timers.pop(key, None)
-        self._route(path)
+            if self._closed:
+                return
+            self._route(path)
 
-    def cancel_all(self) -> None:
+    def close(self) -> None:
+        """Reject future routes and wait for any admitted route to finish."""
         with self._lock:
+            self._closed = True
             for timer in self._timers.values():
                 timer.cancel()
             self._timers.clear()
+
+    def cancel_all(self) -> None:
+        """Backward-compatible adapter for the quiescent shutdown operation."""
+        self.close()
 
 
 class _OrderedCallbackDispatcher:
@@ -1387,7 +1398,7 @@ class LogseqGraphWatcher:
             )
             observer.start()
         except Exception:
-            debouncer.cancel_all()
+            debouncer.close()
             self._debouncer = None
             if observer is not None:
                 observer.stop()
@@ -1418,13 +1429,13 @@ class LogseqGraphWatcher:
                 self._observer.join(timeout=5)
                 if self._observer.is_alive():
                     if self._debouncer is not None:
-                        self._debouncer.cancel_all()
+                        self._debouncer.close()
                     logger.warning("Stack-Machine watcher: observer is still stopping after timeout")
                     return
                 self._observer = None
                 logger.debug("Stack-Machine watcher: stopped")
             if self._debouncer is not None:
-                self._debouncer.cancel_all()
+                self._debouncer.close()
                 self._debouncer = None
             if self._callback_dispatcher is not None:
                 if self._callback_dispatcher.close():

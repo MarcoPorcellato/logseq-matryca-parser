@@ -222,6 +222,74 @@ def test_watcher_callbacks_are_nonblocking_ordered_and_isolated(tmp_path: Path) 
     assert delivered == [first_path.resolve(), second_path.resolve()]
 
 
+def test_watcher_stop_quiesces_an_inflight_route(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Watcher shutdown waits for an admitted route, then rejects later publication."""
+    pytest.importorskip("watchdog")
+    from unittest.mock import MagicMock, patch
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    page_path = pages / "Live.md"
+    page_path.write_text("- live v1\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    targets = ("Live",)
+
+    route_entered = Event()
+    allow_route = Event()
+    stop_entered = Event()
+    stop_finished = Event()
+    original_invalidate = LogseqGraph.invalidate_and_reload_page
+
+    def pause_route(self: LogseqGraph, path: Path) -> None:
+        route_entered.set()
+        assert allow_route.wait(timeout=5), "in-flight route did not resume"
+        original_invalidate(self, path)
+
+    monkeypatch.setattr(LogseqGraph, "invalidate_and_reload_page", pause_route)
+    observer = MagicMock()
+    observer.is_alive.return_value = False
+    observer.stop.side_effect = stop_entered.set
+    with patch("watchdog.observers.Observer", return_value=observer):
+        watcher = graph.start_watching(debounce_seconds=0)
+        handler = observer.schedule.call_args[0][0]
+
+    class _Event:
+        is_directory = False
+        src_path = str(page_path)
+
+    page_path.write_text("- live v2\n", encoding="utf-8")
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            route_future = pool.submit(handler.on_modified, _Event())
+            assert route_entered.wait(timeout=3), "route did not begin"
+
+            def stop_watcher() -> None:
+                watcher.stop()
+                stop_finished.set()
+
+            stop_future = pool.submit(stop_watcher)
+            assert stop_entered.wait(timeout=3), "observer stop did not begin"
+            assert not stop_finished.wait(timeout=0.2), (
+                "watcher stop returned while its route was still in flight"
+            )
+            allow_route.set()
+            route_future.result(timeout=3)
+            stop_future.result(timeout=3)
+    finally:
+        allow_route.set()
+        if not stop_finished.is_set():
+            watcher.stop()
+
+    projection = _public_graph_projection(graph, targets)
+    assert "live v2" in graph.pages["Live"].root_nodes[0].clean_text
+    handler.on_modified(_Event())
+    assert _public_graph_projection(graph, targets) == projection
+
+
 def test_concurrent_watcher_callbacks_follow_publication_order(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
