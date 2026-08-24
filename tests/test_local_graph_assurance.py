@@ -150,6 +150,11 @@ def test_guarded_read_rejects_unsafe_or_unreadable_files(
     elif kind == "outside":
         path = tmp_path / "outside.md"
         path.write_text("- outside\n", encoding="utf-8")
+
+        def reject_outside_open(*_args: object, **_kwargs: object) -> int:
+            raise AssertionError("outside-root file must not be opened")
+
+        monkeypatch.setattr(local_graph_assurance.os, "open", reject_outside_open)
     elif kind == "open_failure":
         monkeypatch.setattr(local_graph_assurance.os, "open", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError()))
 
