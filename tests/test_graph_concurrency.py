@@ -222,6 +222,85 @@ def test_watcher_callbacks_are_nonblocking_ordered_and_isolated(tmp_path: Path) 
     assert delivered == [first_path.resolve(), second_path.resolve()]
 
 
+def test_concurrent_watcher_callbacks_follow_publication_order(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Concurrent watcher routes cannot enqueue callbacks out of publication order."""
+    pytest.importorskip("watchdog")
+    from unittest.mock import MagicMock, patch
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    first_path = pages / "First.md"
+    second_path = pages / "Second.md"
+    first_path.write_text("- first v1\n", encoding="utf-8")
+    second_path.write_text("- second v1\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+
+    first_submit_entered = Event()
+    second_submitted = Event()
+    simultaneous_submissions = Event()
+    callbacks_delivered = Event()
+    delivered: list[Path] = []
+    original_submit = graph_module._OrderedCallbackDispatcher.submit
+
+    def coordinate_submission(
+        dispatcher: graph_module._OrderedCallbackDispatcher,
+        path: Path,
+    ) -> None:
+        resolved = path.resolve()
+        if resolved == first_path.resolve():
+            first_submit_entered.set()
+            if second_submitted.wait(timeout=3):
+                simultaneous_submissions.set()
+        original_submit(dispatcher, path)
+        if resolved == second_path.resolve():
+            second_submitted.set()
+
+    monkeypatch.setattr(
+        graph_module._OrderedCallbackDispatcher,
+        "submit",
+        coordinate_submission,
+    )
+
+    def callback(path: Path) -> None:
+        delivered.append(path.resolve())
+        if len(delivered) == 2:
+            callbacks_delivered.set()
+
+    mock_observer = MagicMock()
+    mock_observer.is_alive.return_value = False
+    with patch("watchdog.observers.Observer", return_value=mock_observer):
+        watcher = graph.start_watching(callback=callback, debounce_seconds=0)
+        handler = mock_observer.schedule.call_args[0][0]
+
+    class _Event:
+        is_directory = False
+
+        def __init__(self, path: Path) -> None:
+            self.src_path = str(path)
+
+    first_path.write_text("- first v2\n", encoding="utf-8")
+    second_path.write_text("- second v2\n", encoding="utf-8")
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            first_future = pool.submit(handler.on_modified, _Event(first_path))
+            assert first_submit_entered.wait(timeout=3), "first callback submit did not begin"
+            second_future = pool.submit(handler.on_modified, _Event(second_path))
+            first_future.result(timeout=5)
+            second_future.result(timeout=5)
+        assert callbacks_delivered.wait(timeout=3), "watcher callbacks were not delivered"
+    finally:
+        watcher.stop()
+
+    assert not simultaneous_submissions.is_set(), (
+        "a later publication reached callback submission before the earlier publication enqueued"
+    )
+    assert delivered == [first_path.resolve(), second_path.resolve()]
+
+
 def test_watcher_start_failure_cleans_dispatcher_and_rejects_reentry(tmp_path: Path) -> None:
     """Watcher startup cannot leak a callback worker or create a second observer."""
     pytest.importorskip("watchdog")
@@ -267,6 +346,40 @@ def test_watcher_start_failure_cleans_dispatcher_and_rejects_reentry(tmp_path: P
         finally:
             allow_start_to_finish.set()
             watcher.stop()
+
+
+def test_callback_dispatcher_start_failure_restores_restartable_watcher_state(
+    tmp_path: Path,
+) -> None:
+    """A callback worker startup failure cannot leave the watcher permanently starting."""
+    pytest.importorskip("watchdog")
+    from unittest.mock import MagicMock, patch
+
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Live.md").write_text("- live\n", encoding="utf-8")
+    graph = LogseqGraph.load_directory(graph_root)
+    watcher = LogseqGraphWatcher(graph, callback=lambda _path: None, debounce_seconds=0)
+
+    with patch.object(
+        graph_module._OrderedCallbackDispatcher,
+        "start",
+        side_effect=RuntimeError("synthetic dispatcher start failure"),
+    ):
+        with pytest.raises(RuntimeError, match="synthetic dispatcher start failure"):
+            watcher.start()
+
+    assert watcher._observer is None
+    assert watcher._debouncer is None
+    assert watcher._callback_dispatcher is None
+    assert not watcher._starting
+
+    observer = MagicMock()
+    observer.is_alive.return_value = False
+    with patch("watchdog.observers.Observer", return_value=observer):
+        watcher.start()
+        watcher.stop()
 
 
 def test_callback_dispatcher_reports_a_callback_that_outlives_bounded_close(

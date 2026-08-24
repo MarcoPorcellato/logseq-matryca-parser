@@ -1276,11 +1276,16 @@ class LogseqGraphWatcher:
             self._starting = True
 
         graph = self._graph
-        callback_dispatcher = (
-            _OrderedCallbackDispatcher(self._callback).start()
-            if self._callback is not None
-            else None
-        )
+        try:
+            callback_dispatcher = (
+                _OrderedCallbackDispatcher(self._callback).start()
+                if self._callback is not None
+                else None
+            )
+        except Exception:
+            with self._lifecycle_lock:
+                self._starting = False
+            raise
         self._callback_dispatcher = callback_dispatcher
 
         def _route_event(path: Path) -> None:
@@ -1288,9 +1293,10 @@ class LogseqGraphWatcher:
                 logger.debug("Stack-Machine watcher: ignore path=%s", path)
                 return
             logger.debug("Stack-Machine watcher: invalidate path=%s", path)
-            graph.invalidate_and_reload_page(path)
-            if callback_dispatcher is not None:
-                callback_dispatcher.submit(path)
+            with graph._mutation_scope():
+                graph.invalidate_and_reload_page(path)
+                if callback_dispatcher is not None:
+                    callback_dispatcher.submit(path)
 
         debouncer = _DebouncedGraphEventRouter(
             _route_event,
