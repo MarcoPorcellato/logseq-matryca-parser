@@ -21,6 +21,12 @@ superseded_by: null
 
 ## 2026-08-24
 
+- Prepared the v1.8.1 release candidate from
+  `main@2c919fcdef1cb187c30b70b9dd130fa571738b72`, reconciled the changelog
+  with the merged parser, graph-coherence, local-assurance, and NLTK work, and
+  restored reader-focused v1.8.0 highlights that were missing from the release
+  archive. Historical receipts remain bound to their original versions and
+  commits.
 - Reconciled the public roadmap with live GitHub state and established an
   evidence-gated sequence: finish #103/#180, qualify the mutable NLTK
   declaration in #186, extend existing semantic assurance through #104, make

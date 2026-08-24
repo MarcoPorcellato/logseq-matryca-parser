@@ -282,6 +282,7 @@ Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
 [changelog](CHANGELOG.md), or the signed artifacts on
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
+- **v1.8.1** — Hardened deep-outline parsing, coherent incremental graph mutations, bounded assurance cleanup, and stable provenance for optional NLTK.
 - **v1.8.0** — Added bounded privacy-safe local graph assurance, source-location contracts, and the first internal parser line-classification phase.
 - **v1.7.1** — Added the runnable offline SYNAPSE RAG example and tightened release-note and optional-dependency security checks.
 - **v1.7.0** — Hardened parser correctness, graph diagnostics, writer safety, API stability, documentation governance, and release provenance.
