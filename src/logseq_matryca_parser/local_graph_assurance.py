@@ -447,7 +447,10 @@ def run_local_graph_assurance(
     if process.is_alive():
         process.terminate()
         process.join()
-        return _failed(selected, "timeout", "runner.timeout")
+        result = _failed(selected, "timeout", "runner.timeout")
+        result_queue.cancel_join_thread()
+        result_queue.close()
+        return result
     try:
         result = result_queue.get(timeout=0.5)
     except queue.Empty:
