@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import queue
 import socket
 from pathlib import Path
 from types import SimpleNamespace
@@ -380,8 +381,169 @@ def test_limits_reject_invalid_runtime_values(limits: dict[str, object]) -> None
 
 
 def test_network_guard_rejects_socket_entry_points() -> None:
-    with _network_denied(), pytest.raises(RuntimeError, match="network disabled"):
-        socket.create_connection(("127.0.0.1", 1))
+    originals = socket.socket, socket.create_connection, socket.getaddrinfo
+    with pytest.raises(RuntimeError, match="exit through exception"):
+        with _network_denied():
+            for operation in (socket.socket, socket.create_connection, socket.getaddrinfo):
+                with pytest.raises(RuntimeError, match="network disabled"):
+                    operation()  # type: ignore[call-arg]
+            raise RuntimeError("exit through exception")
+    assert (socket.socket, socket.create_connection, socket.getaddrinfo) == originals
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        ("schema_version", "1"),
+        ("status", object()),
+        ("limits", []),
+        ("observed", "counts"),
+        ("findings", {}),
+        ("runtime", []),
+    ],
+)
+def test_safe_report_rejects_top_level_schema_and_type_failures(
+    field: str, replacement: object
+) -> None:
+    report = run_local_graph_assurance_self_test()
+    report[field] = replacement
+    assert not _safe_report(report)
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        ("status", "unknown"),
+        ("schema_version", 2),
+        ("limits", {"max_files": 1, "max_total_bytes": 1, "max_file_bytes": 1, "timeout_seconds": math.inf}),
+    ],
+)
+def test_safe_report_rejects_invalid_status_schema_and_numeric_values(
+    field: str, replacement: object
+) -> None:
+    report = run_local_graph_assurance_self_test()
+    report[field] = replacement
+    assert not _safe_report(report)
+
+
+def test_safe_report_requires_findings_to_match_status_and_json_safety() -> None:
+    report = run_local_graph_assurance_self_test()
+    report["status"] = "findings"
+    assert not _safe_report(report)
+
+    report = run_local_graph_assurance_self_test()
+    report["findings"] = [{"code": "runner.no_report", "count": 1}]
+    assert not _safe_report(report)
+
+    report = run_local_graph_assurance_self_test()
+    report["runtime"] = {"python": "3.12", "platform": float("nan")}
+    assert not _safe_report(report)
+
+
+class _FakeQueue:
+    def __init__(self, result: object = None, error: BaseException | None = None) -> None:
+        self.result = result
+        self.error = error
+        self.closed = False
+        self.joined = False
+
+    def put(self, value: object) -> None:
+        self.result = value
+
+    def get(self, timeout: float) -> object:
+        del timeout
+        if self.error:
+            raise self.error
+        return self.result
+
+    def close(self) -> None:
+        self.closed = True
+
+    def join_thread(self) -> None:
+        self.joined = True
+
+
+class _FakeProcess:
+    def __init__(self, alive: bool = False, result: object = None) -> None:
+        self.alive = alive
+        self.terminated = False
+        self.joined: list[float | None] = []
+        self.result = result
+
+    def start(self) -> None:
+        return None
+
+    def join(self, timeout: float | None = None) -> None:
+        self.joined.append(timeout)
+
+    def is_alive(self) -> bool:
+        return self.alive
+
+    def terminate(self) -> None:
+        self.terminated = True
+        self.alive = False
+
+
+class _FakeContext:
+    def __init__(self, process: _FakeProcess, result_queue: _FakeQueue) -> None:
+        self.process = process
+        self.result_queue = result_queue
+
+    def Queue(self, maxsize: int) -> _FakeQueue:
+        assert maxsize == 1
+        return self.result_queue
+
+    def Process(self, target: object, args: tuple[object, ...]) -> _FakeProcess:
+        del target, args
+        return self.process
+
+
+@pytest.mark.parametrize(
+    ("queue_error", "expected_code"),
+    [
+        (queue.Empty(), "runner.no_report"),
+        (None, "runner.invalid_report"),
+    ],
+)
+def test_runner_handles_no_report_and_invalid_report_with_cleanup(
+    monkeypatch: pytest.MonkeyPatch, queue_error: BaseException | None, expected_code: str
+) -> None:
+    process = _FakeProcess(result=None)
+    result_queue = _FakeQueue(error=queue_error)
+    monkeypatch.setattr(
+        local_graph_assurance.multiprocessing,
+        "get_context",
+        lambda _name: _FakeContext(process, result_queue),
+    )
+    report = run_local_graph_assurance(Path("/vault"))
+    assert _finding_codes(report) == {expected_code}
+    assert result_queue.closed and result_queue.joined
+
+
+def test_runner_timeout_terminates_and_cleans_up(monkeypatch: pytest.MonkeyPatch) -> None:
+    process = _FakeProcess(alive=True)
+    result_queue = _FakeQueue()
+    monkeypatch.setattr(
+        local_graph_assurance.multiprocessing,
+        "get_context",
+        lambda _name: _FakeContext(process, result_queue),
+    )
+    report = run_local_graph_assurance(Path("/vault"), AssuranceLimits(timeout_seconds=1))
+    assert _finding_codes(report) == {"runner.timeout"}
+    assert process.terminated and process.joined == [1, None]
+    assert result_queue.closed and result_queue.joined
+
+
+def test_worker_converts_unexpected_failure_to_safe_report() -> None:
+    result_queue = _FakeQueue()
+    original_assure = local_graph_assurance._assure
+    local_graph_assurance._assure = lambda *_args: (_ for _ in ()).throw(RuntimeError("worker failed"))
+    try:
+        local_graph_assurance._worker("/vault", AssuranceLimits(), result_queue)
+    finally:
+        local_graph_assurance._assure = original_assure
+    assert isinstance(result_queue.result, dict)
+    assert _finding_codes(result_queue.result) == {"runner.unexpected_failure"}
 
 
 def test_safe_report_rejects_nested_extra_fields_and_unknown_codes() -> None:
