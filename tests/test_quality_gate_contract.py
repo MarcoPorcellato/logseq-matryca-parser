@@ -4,9 +4,32 @@ from __future__ import annotations
 
 import re
 import subprocess
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_nltk_security_floor_uses_a_stable_registry_constraint() -> None:
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    constraints = pyproject["tool"]["uv"]["constraint-dependencies"]
+
+    assert "nltk>=3.10.3" in constraints
+
+
+def test_nltk_is_not_declared_as_a_vcs_override() -> None:
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    overrides = pyproject["tool"]["uv"].get("override-dependencies", [])
+
+    assert not any(dependency.startswith("nltk") for dependency in overrides)
+
+
+def test_nltk_lock_uses_a_patched_registry_release() -> None:
+    lock = tomllib.loads((ROOT / "uv.lock").read_text(encoding="utf-8"))
+    nltk = next(package for package in lock["package"] if package["name"] == "nltk")
+
+    assert nltk["source"] == {"registry": "https://pypi.org/simple"}
+    assert tuple(int(part) for part in nltk["version"].split(".")) >= (3, 10, 3)
 
 
 def _dry_run(target: str) -> list[str]:
