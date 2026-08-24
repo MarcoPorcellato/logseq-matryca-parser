@@ -11,6 +11,7 @@ import pytest
 
 import logseq_matryca_parser.graph as graph_module
 from logseq_matryca_parser.agent_writer import append_child_to_node
+from logseq_matryca_parser.diagnostics import collect_graph_diagnostics
 from logseq_matryca_parser.graph import LogseqGraph, LogseqGraphWatcher
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 
@@ -61,6 +62,72 @@ def _graph_with_reload_target(tmp_path: Path) -> tuple[LogseqGraph, Path]:
     reload_path = pages / "Refresh.md"
     reload_path.write_text("- Original source [[Target]]\n", encoding="utf-8")
     return LogseqGraph.load_directory(graph_root), reload_path
+
+
+def test_collect_graph_diagnostics_reads_one_snapshot_during_incremental_reload(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Diagnostics collection keeps every subread in one graph version."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Target.md").write_text("- target\n", encoding="utf-8")
+    reload_path = pages / "Refresh.md"
+    reload_path.write_text(
+        "- old ((00000000-0000-0000-0000-000000000001))\n",
+        encoding="utf-8",
+    )
+    graph = LogseqGraph.load_directory(graph_root)
+    old_diagnostics = collect_graph_diagnostics(graph)
+    reload_path.write_text(
+        "alias:: Target\n\n- new ((00000000-0000-0000-0000-000000000002))\n",
+        encoding="utf-8",
+    )
+
+    diagnostics_captured = Event()
+    allow_collection_to_continue = Event()
+    candidate_build_entered = Event()
+    original_index_diagnostics = LogseqGraph.index_diagnostics
+    original_build_candidate = LogseqGraph._build_incremental_candidate_locked
+
+    def pause_after_index_diagnostics(self: LogseqGraph) -> tuple[object, ...]:
+        diagnostics = original_index_diagnostics.__get__(self, LogseqGraph)
+        diagnostics_captured.set()
+        assert allow_collection_to_continue.wait(timeout=5), "collector did not resume"
+        return diagnostics
+
+    def record_candidate_build(self: LogseqGraph, resolved: Path) -> object:
+        candidate_build_entered.set()
+        return original_build_candidate(self, resolved)
+
+    monkeypatch.setattr(
+        LogseqGraph,
+        "index_diagnostics",
+        property(pause_after_index_diagnostics),
+    )
+    monkeypatch.setattr(
+        LogseqGraph,
+        "_build_incremental_candidate_locked",
+        record_candidate_build,
+    )
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        collector_future = pool.submit(collect_graph_diagnostics, graph)
+        assert diagnostics_captured.wait(timeout=3), "collector did not capture diagnostics"
+        reload_future = pool.submit(graph.invalidate_and_reload_page, reload_path)
+        try:
+            assert not candidate_build_entered.wait(timeout=1), (
+                "reload entered candidate construction while diagnostics collection was active"
+            )
+        finally:
+            allow_collection_to_continue.set()
+        observed_diagnostics = collector_future.result(timeout=3)
+        reload_future.result(timeout=3)
+
+    new_diagnostics = collect_graph_diagnostics(graph)
+    assert old_diagnostics != new_diagnostics
+    assert observed_diagnostics == old_diagnostics
+    assert observed_diagnostics in (old_diagnostics, new_diagnostics)
 
 
 def test_failed_refresh_preserves_complete_prior_version(

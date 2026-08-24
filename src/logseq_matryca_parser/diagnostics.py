@@ -106,8 +106,8 @@ def _vault_relative_source(graph_path: Path, source_path: str | None) -> str | N
         return None
 
 
-def collect_graph_diagnostics(graph: _GraphDiagnosticsSource) -> list[Diagnostic]:
-    """Collect deterministic graph diagnostics without changing graph behavior."""
+def _collect_graph_diagnostics(graph: _GraphDiagnosticsSource) -> list[Diagnostic]:
+    """Collect deterministic graph diagnostics from the current graph state."""
     diagnostics = list(graph.index_diagnostics)
     for node in graph.get_broken_references():
         page = graph.page_for_node(node)
@@ -139,3 +139,12 @@ def collect_graph_diagnostics(graph: _GraphDiagnosticsSource) -> list[Diagnostic
             tuple(item.context.items()),
         ),
     )
+
+
+def collect_graph_diagnostics(graph: _GraphDiagnosticsSource) -> list[Diagnostic]:
+    """Collect deterministic graph diagnostics without changing graph behavior."""
+    mutation_scope = getattr(graph, "_mutation_scope", None)
+    if callable(mutation_scope):
+        with mutation_scope():
+            return _collect_graph_diagnostics(graph)
+    return _collect_graph_diagnostics(graph)
