@@ -10,7 +10,7 @@ DONE
   requested traversal failures, filtering, root validation, and byte limits.
 - `.superpowers/sdd/2026-08-24-local-assurance-coverage/task-1-report.md`:
   this report.
-- Commit SHA: `0b56c28`.
+- Commit SHA: `af7a98b9d6f635e037840344598e44528bb787e1` (implementation commit).
 
 No production file was changed because the tests demonstrated no contract
 defect.
