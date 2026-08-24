@@ -7,7 +7,7 @@ import os
 import re
 import threading
 import uuid
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -458,6 +458,30 @@ def _enrich_pages_index(
             pages[alias] = page
 
 
+def _build_pages_index_from_source_pages(
+    source_pages: dict[str, LogseqPage],
+    graph_path: Path,
+) -> tuple[dict[str, LogseqPage], tuple[Diagnostic, ...]]:
+    """Derive the public page index and collision diagnostics from physical pages."""
+    pages: dict[str, LogseqPage] = {}
+    diagnostics: list[Diagnostic] = []
+    for _source_path, page in sorted(source_pages.items()):
+        existing = pages.get(page.title)
+        if existing is not None and existing.source_path != page.source_path:
+            diagnostics.append(
+                _collision_diagnostic(
+                    graph_path=graph_path,
+                    title=page.title,
+                    winner=page,
+                    loser=existing,
+                    reason=_collision_reason(page, existing),
+                )
+            )
+        pages[page.title] = page
+    _enrich_pages_index(pages, graph_path=graph_path, diagnostics=diagnostics)
+    return pages, tuple(diagnostics)
+
+
 def _remove_page_keys_for_source_path(
     pages: dict[str, LogseqPage],
     resolved_file: Path,
@@ -535,6 +559,7 @@ def _parse_page_file_worker(path: Path) -> LogseqPage:
 class _GraphSnapshot:
     """One complete in-memory graph version, private to one ``LogseqGraph``."""
 
+    source_pages: dict[str, LogseqPage]
     pages: dict[str, LogseqPage]
     node_registry: dict[str, LogseqNode]
     backlink_registry: dict[str, list[str]]
@@ -545,6 +570,51 @@ class _GraphSnapshot:
 def _clone_backlink_registry(registry: dict[str, list[str]]) -> dict[str, list[str]]:
     """Copy backlink keys and source lists before an incremental candidate mutates them."""
     return {key: list(sources) for key, sources in registry.items()}
+
+
+def _repair_changed_backlink_contributions(
+    *,
+    old_pages: dict[str, LogseqPage],
+    old_nodes: dict[str, LogseqNode],
+    old_backlinks: dict[str, list[str]],
+    candidate_pages: dict[str, LogseqPage],
+    candidate_nodes: dict[str, LogseqNode],
+) -> dict[str, list[str]]:
+    """Repair changed node backlink contributions without a global rebuild."""
+    backlinks = _clone_backlink_registry(old_backlinks)
+    affected_keys: set[str] = set()
+    for source_uuid in old_nodes.keys() | candidate_nodes.keys():
+        old_node = old_nodes.get(source_uuid)
+        candidate_node = candidate_nodes.get(source_uuid)
+        old_keys = tuple(_node_backlink_keys(old_pages, old_node)) if old_node else ()
+        candidate_keys = (
+            tuple(_node_backlink_keys(candidate_pages, candidate_node))
+            if candidate_node
+            else ()
+        )
+        if old_keys == candidate_keys:
+            continue
+        affected_keys.update(old_keys)
+        affected_keys.update(candidate_keys)
+        for key in old_keys:
+            sources = backlinks.get(key, [])
+            remaining = [uuid for uuid in sources if uuid != source_uuid]
+            if remaining:
+                backlinks[key] = remaining
+            else:
+                backlinks.pop(key, None)
+        for key in candidate_keys:
+            _append_backlink(backlinks, key, source_uuid)
+
+    for key in affected_keys:
+        sources = backlinks.get(key, [])
+        if sources:
+            sources.sort(
+                key=lambda source_uuid: _backlink_source_order_from(candidate_nodes, source_uuid)
+            )
+        else:
+            backlinks.pop(key, None)
+    return backlinks
 
 
 def _purge_stale_page_uuids_from(
@@ -682,6 +752,7 @@ class LogseqGraph(BaseModel):
     _backlink_registry: dict[str, list[str]] = PrivateAttr(default_factory=dict)
     _lower_title_map: dict[str, str] = PrivateAttr(default_factory=dict)
     _index_diagnostics: tuple[Diagnostic, ...] = PrivateAttr(default_factory=tuple)
+    _source_pages: dict[str, LogseqPage] = PrivateAttr(default_factory=dict)
     _coordination_lock: Any = PrivateAttr(default_factory=threading.RLock)
 
     def __init__(
@@ -689,10 +760,11 @@ class LogseqGraph(BaseModel):
         graph_path: Path,
         pages: dict[str, LogseqPage],
         *,
+        source_pages: dict[str, LogseqPage] | None = None,
         node_registry: dict[str, LogseqNode] | None = None,
         backlink_registry: dict[str, list[str]] | None = None,
         lower_title_map: dict[str, str] | None = None,
-        diagnostics: list[Diagnostic] | None = None,
+        diagnostics: Sequence[Diagnostic] | None = None,
     ) -> None:
         super().__init__(graph_path=graph_path, pages=pages)
         self._node_registry = dict(node_registry) if node_registry is not None else {}
@@ -705,6 +777,15 @@ class LogseqGraph(BaseModel):
             else _build_lower_title_map(pages)
         )
         self._index_diagnostics = tuple(diagnostics or ())
+        self._source_pages = (
+            dict(source_pages)
+            if source_pages is not None
+            else {
+                str(Path(page.source_path).resolve()): page
+                for page in iter_canonical_pages_from_dict(pages)
+                if page.source_path
+            }
+        )
 
     @contextmanager
     def _mutation_scope(self) -> Iterator[None]:
@@ -729,16 +810,15 @@ class LogseqGraph(BaseModel):
         """
         resolved = graph_path.expanduser().resolve()
         files = discover_graph_files(resolved)
-        pages: dict[str, LogseqPage] = {}
-        diagnostics: list[Diagnostic] = []
-        node_registry: dict[str, LogseqNode] = {}
+        source_pages: dict[str, LogseqPage] = {}
 
         if not files:
             logger.debug("LogseqGraph.load_directory: no markdown files under %s", resolved)
             return cls(
                 graph_path=resolved,
-                pages=pages,
-                node_registry=node_registry,
+                pages={},
+                source_pages=source_pages,
+                node_registry={},
                 backlink_registry={},
             )
 
@@ -758,21 +838,10 @@ class LogseqGraph(BaseModel):
                 path_page_pairs.append((source_path, page))
 
         path_page_pairs.sort(key=lambda item: str(item[0].resolve()))
-        for _path, page in path_page_pairs:
-            existing = pages.get(page.title)
-            if existing is not None and existing.source_path != page.source_path:
-                diagnostics.append(
-                    _collision_diagnostic(
-                        graph_path=resolved,
-                        title=page.title,
-                        winner=page,
-                        loser=existing,
-                        reason=_collision_reason(page, existing),
-                    )
-                )
-            pages[page.title] = page
-
-        _enrich_pages_index(pages, graph_path=resolved, diagnostics=diagnostics)
+        source_pages = {
+            str(path.resolve()): page for path, page in path_page_pairs
+        }
+        pages, diagnostics = _build_pages_index_from_source_pages(source_pages, resolved)
         node_registry = _build_node_registry_from_pages(pages)
         backlink_registry = _build_backlink_registry(pages)
         lower_title_map = _build_lower_title_map(pages)
@@ -785,6 +854,7 @@ class LogseqGraph(BaseModel):
         graph = cls(
             graph_path=resolved,
             pages=pages,
+            source_pages=source_pages,
             node_registry=node_registry,
             backlink_registry=backlink_registry,
             lower_title_map=lower_title_map,
@@ -1134,6 +1204,7 @@ class LogseqGraph(BaseModel):
     def _capture_snapshot_locked(self) -> _GraphSnapshot:
         """Capture the currently published graph-version references while coordinated."""
         return _GraphSnapshot(
+            source_pages=self._source_pages,
             pages=self.pages,
             node_registry=self._node_registry,
             backlink_registry=self._backlink_registry,
@@ -1144,69 +1215,31 @@ class LogseqGraph(BaseModel):
     def _build_incremental_candidate_locked(self, resolved: Path) -> _GraphSnapshot:
         """Build one complete incremental graph version without touching published mappings."""
         current = self._capture_snapshot_locked()
-        pages = dict(current.pages)
-        node_registry = dict(current.node_registry)
-        backlink_registry = _clone_backlink_registry(current.backlink_registry)
-        old_page = _remove_page_keys_for_source_path(pages, resolved)
-        incoming_wikilinks = (
-            _capture_incoming_page_wikilinks_from(
-                current.pages,
-                current.node_registry,
-                current.backlink_registry,
-                old_page,
-            )
-            if old_page is not None
-            else []
-        )
-        if old_page is not None:
-            stale = {node.uuid for node in _flatten_nodes(old_page.root_nodes)}
-            _purge_stale_page_uuids_from(node_registry, backlink_registry, stale)
-
-        if not resolved.exists():
-            _reindex_incoming_page_wikilinks_in(
-                pages,
-                node_registry,
-                backlink_registry,
-                incoming_wikilinks,
-            )
-            return _GraphSnapshot(
-                pages=pages,
-                node_registry=node_registry,
-                backlink_registry=backlink_registry,
-                lower_title_map=_build_lower_title_map(pages),
-                index_diagnostics=current.index_diagnostics,
-            )
-
-        fresh = StackMachineParser().parse_page_file(resolved)
-        pages[fresh.title] = fresh
-        _enrich_pages_index(pages)
-        enriched = _page_for_source_path(pages, resolved) or fresh
-        incoming_wikilinks.extend(
-            _capture_incoming_page_wikilinks_from(
-                pages,
-                node_registry,
-                backlink_registry,
-                enriched,
-            )
-        )
-        _register_page_nodes_in(node_registry, enriched)
-        _append_page_backlinks_in(pages, backlink_registry, enriched)
-        _reindex_incoming_page_wikilinks_in(
-            pages,
-            node_registry,
-            backlink_registry,
-            incoming_wikilinks,
+        source_pages = dict(current.source_pages)
+        source_pages.pop(str(resolved), None)
+        if resolved.exists():
+            source_pages[str(resolved)] = StackMachineParser().parse_page_file(resolved)
+        pages, diagnostics = _build_pages_index_from_source_pages(source_pages, self.graph_path)
+        node_registry = _build_node_registry_from_pages(pages)
+        backlink_registry = _repair_changed_backlink_contributions(
+            old_pages=current.pages,
+            old_nodes=current.node_registry,
+            old_backlinks=current.backlink_registry,
+            candidate_pages=pages,
+            candidate_nodes=node_registry,
         )
         return _GraphSnapshot(
+            source_pages=source_pages,
             pages=pages,
             node_registry=node_registry,
             backlink_registry=backlink_registry,
             lower_title_map=_build_lower_title_map(pages),
-            index_diagnostics=current.index_diagnostics,
+            index_diagnostics=diagnostics,
         )
 
     def _publish_snapshot_locked(self, candidate: _GraphSnapshot) -> None:
         """Publish all graph-version fields at one coordinated assignment point."""
+        self._source_pages = candidate.source_pages
         self.pages = candidate.pages
         self._node_registry = candidate.node_registry
         self._backlink_registry = candidate.backlink_registry

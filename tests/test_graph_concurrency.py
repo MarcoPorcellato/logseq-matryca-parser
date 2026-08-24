@@ -609,6 +609,81 @@ def test_incremental_lifecycle_operations_match_a_cold_graph(
     )
 
 
+@pytest.mark.parametrize("collision_kind", ["canonical", "alias"])
+@pytest.mark.parametrize("operation", ["edit", "delete", "rename"])
+def test_collision_transition_incremental_reload_matches_a_cold_graph(
+    tmp_path: Path, collision_kind: str, operation: str
+) -> None:
+    """Changing a collision winner restores every retained physical-page participant."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    journals = graph_root / "journals"
+    pages.mkdir(parents=True)
+    journals.mkdir()
+
+    if collision_kind == "canonical":
+        (journals / "Shared.md").write_text(
+            "- journal contender [[Anchor]]\n",
+            encoding="utf-8",
+        )
+        winner_path = pages / "Shared.md"
+        winner_path.write_text("- page winner [[Anchor]]\n", encoding="utf-8")
+        collision_title = "Shared"
+        if operation == "edit":
+            post_operation_title = "Updated"
+        elif operation == "rename":
+            post_operation_title = "Renamed"
+        else:
+            post_operation_title = "Shared"
+    else:
+        (pages / "A-Canonical.md").write_text(
+            "title:: Claimed\n\n- canonical contender [[Anchor]]\n",
+            encoding="utf-8",
+        )
+        winner_path = pages / "Z-Alias.md"
+        winner_path.write_text(
+            "alias:: Claimed\n\n- alias winner [[Anchor]]\n",
+            encoding="utf-8",
+        )
+        collision_title = "Claimed"
+        if operation == "edit":
+            post_operation_title = "Replacement"
+        elif operation == "rename":
+            post_operation_title = "Z-Renamed"
+        else:
+            post_operation_title = "Claimed"
+
+    incremental = LogseqGraph.load_directory(graph_root)
+
+    if operation == "edit":
+        if collision_kind == "canonical":
+            winner_path.write_text(
+                "title:: Updated\n\n- updated winner [[Anchor]]\n",
+                encoding="utf-8",
+            )
+        else:
+            winner_path.write_text(
+                "alias:: Replacement\n\n- updated winner [[Anchor]]\n",
+                encoding="utf-8",
+            )
+        incremental.invalidate_and_reload_page(winner_path)
+    elif operation == "delete":
+        winner_path.unlink()
+        incremental.invalidate_and_reload_page(winner_path)
+    else:
+        renamed_path = winner_path.with_name(f"{post_operation_title}.md")
+        winner_path.rename(renamed_path)
+        incremental.invalidate_and_reload_page(winner_path)
+        incremental.invalidate_and_reload_page(renamed_path)
+
+    cold_graph = LogseqGraph.load_directory(graph_root)
+    targets = (collision_title, post_operation_title, "Anchor")
+    assert _public_graph_projection(incremental, targets) == _public_graph_projection(
+        cold_graph,
+        targets,
+    )
+
+
 def test_unrelated_graph_instances_do_not_share_mutation_coordination(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
