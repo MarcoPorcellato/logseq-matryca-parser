@@ -20,7 +20,7 @@
 
 [👉 **TRY THE LIVE INTERACTIVE DEMO**](https://MarcoPorcellato.github.io/logseq-matryca-parser/)
 
-[Quickstart](#quickstart) · [Documentation](docs/README.md) · [Cookbook](docs/COOKBOOK.md) · [Release highlights](RELEASE_HIGHLIGHTS.md) · [AI / LLM index](llms.txt)
+[Quickstart](#quickstart) · [Documentation](docs/README.md) · [Roadmap](docs/ROADMAP_2026-2027.md) · [Cookbook](docs/COOKBOOK.md) · [Release highlights](RELEASE_HIGHLIGHTS.md) · [AI / LLM index](llms.txt)
 
 </div>
 
@@ -39,6 +39,10 @@ The scan reports pages, blocks, references, and graph diagnostics without
 changing the vault. Continue with the [CLI and Python examples](#usage), or use
 the [Cookbook](docs/COOKBOOK.md) for RAG, graph-query, watcher, and agent recipes.
 
+Parsing and scanning are read-only. Source-vault writes are explicit, opt-in,
+confined, and reviewable; exporters write derived artifacts to destinations
+selected by the caller.
+
 ### Choose your workflow
 
 - **Parse and query:** load one page or a complete vault as a typed AST and graph.
@@ -55,7 +59,11 @@ The PKM (Personal Knowledge Management) world is currently forcing users to make
 
 * **Vanilla Logseq / Obsidian** is a "Forest" of decentralized Markdown files. It guarantees the Lindy effect (plain-text lasts forever) and perfect Git versioning, but standard AI chunkers treat it like a blender, destroying the outliner hierarchy.
 * **Tana** is a centralized "Tree". It offers incredible semantic power, but traps your brain in a proprietary cloud database.
-* **The new Logseq DB (SQLite)** aims for database speed, but at a huge cost: it locks your notes inside a binary `.db` file. You lose human-readable files, you lose line-by-line Git diffs, and you lose the immortality of plain-text.
+* **The new Logseq DB (SQLite)** uses a local database and provides official
+  export paths. Its primary working state is not line-diffable Markdown,
+  however, and the semantic fidelity of exported Markdown remains a separate
+  interoperability question. Matryca does not currently claim to read or
+  replace Logseq DB graphs.
 
 ### 🔱 The Matryca Solution: The Best of Both Worlds
 **Logseq Matryca Parser** is the ultimate bridge. It allows you to **keep your sovereign, future-proof Markdown files**, while synthesizing a **Virtual Global Graph** in RAM at runtime.
@@ -70,11 +78,11 @@ It acts as the strict **File System Driver** for your LLM OS. By using a determi
 
 | Feature | Vanilla Markdown | **Matryca Parser** | Logseq DB (SQLite) | Tana |
 | :--- | :--- | :--- | :--- | :--- |
-| **Data Format** | Plain-text (.md) | **Plain-text (.md)** | Binary (.db) | Proprietary Cloud |
-| **Version Control** | Perfect (Git) | **Perfect (Git)** | Poor (Binary blob) | None |
+| **Data Format** | Plain-text (.md) | **Plain-text (.md)** | Local SQLite database with official exports | Proprietary Cloud |
+| **Version Control** | Perfect (Git) | **Perfect (Git)** | Database backup/export; no native line-by-line graph diff | None |
 | **Data Structure** | Decentralized Forest | **Virtually Centralized Graph** | Relational Database | Centralized Tree |
-| **AI Readiness** | Low (Linear Chunks) | **High (Topological AST)** | TBD (Requires SQL) | High (Proprietary) |
-| **Sovereignty** | 100% Local | **100% Local (Sovereign AI)** | 100% Local | Cloud-Only |
+| **AI Readiness** | Low (Linear Chunks) | **High (Topological AST)** | DB-native; external semantic mapping remains tool-specific | High (Proprietary) |
+| **Sovereignty** | 100% Local | **100% Local (Sovereign AI)** | Local database plus official export paths | Cloud-Only |
 
 ---
 

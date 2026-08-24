@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-21
-verified: 2026-08-21
+last_verified: 2026-08-24
+verified: 2026-08-24
 stale_after: 2027-02-17
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,26 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-08-24
+
+- Reconciled the public roadmap with live GitHub state and established an
+  evidence-gated sequence: finish #103/#180, qualify the mutable NLTK
+  declaration in #186, extend existing semantic assurance through #104, make
+  cache/executor choices only from #111 comparative evidence, and run the
+  synthetic read-only Logseq DB export-conformance study in #185.
+- Closed the obsolete v1.0 GUI and completed v1.6 Clean Architecture GitHub
+  milestones. Issue #3 remains an adoption-gated RFC; the new
+  **Evidence-gated improvements** milestone contains #185 and #186.
+- Preserved the existing generated-document classification and compact
+  one-line release-history conventions while clarifying that FORGE exports
+  derived artifacts and source-vault writes remain explicit and opt-in.
+- Replaced absolute DB lock-in language with a precise boundary: Logseq DB has
+  official export paths, Matryca does not currently read DB graphs, and future
+  interoperability claims require synthetic conformance evidence.
+- Added the declaration-versus-lock immutability rule to the dependency policy;
+  a resolved commit in `uv.lock` does not make a mutable top-level VCS tag an
+  acceptable release declaration.
 
 ## 2026-08-21
 
