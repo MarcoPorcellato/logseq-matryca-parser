@@ -130,6 +130,107 @@ def test_assurance_rechecks_total_bytes_while_reading(
     assert _finding_codes(report) == {"vault.max_total_bytes_exceeded"}
 
 
+def test_assurance_reports_only_directory_read_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _vault(tmp_path)
+    (root / "pages" / "Visible.md").write_text("- visible\n", encoding="utf-8")
+    original_iterdir = Path.iterdir
+
+    def fail_pages(directory: Path):
+        if directory == root / "pages":
+            raise OSError("unavailable")
+        return original_iterdir(directory)
+
+    monkeypatch.setattr(Path, "iterdir", fail_pages)
+
+    report = local_graph_assurance._assure(str(root), AssuranceLimits())
+
+    assert report["status"] == "error"
+    assert _finding_codes(report) == {"vault.directory_read_error"}
+    assert report["observed"] == {
+        "markdown_files": 0,
+        "total_bytes": 0,
+        "parsed_pages": 0,
+        "parsed_nodes": 0,
+        "root_nodes": 0,
+        "block_references": 0,
+    }
+
+
+def test_assurance_reports_only_entry_stat_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _vault(tmp_path)
+    entry = root / "pages" / "Visible.md"
+    entry.write_text("- visible\n", encoding="utf-8")
+    original_lstat = Path.lstat
+
+    def fail_entry(path: Path):
+        if path == entry:
+            raise OSError("unavailable")
+        return original_lstat(path)
+
+    monkeypatch.setattr(Path, "lstat", fail_entry)
+
+    report = local_graph_assurance._assure(str(root), AssuranceLimits())
+
+    assert report["status"] == "error"
+    assert _finding_codes(report) == {"vault.entry_stat_error"}
+    observed = report["observed"]
+    assert isinstance(observed, dict)
+    assert observed["markdown_files"] == 0
+
+
+def test_assurance_ignores_excluded_directories_and_non_markdown_entries(tmp_path: Path) -> None:
+    root = _vault(tmp_path)
+    for directory in (".git", ".recycle", "logseq"):
+        (root / "pages" / directory).mkdir()
+        (root / "pages" / directory / "Hidden.md").write_text("- hidden\n", encoding="utf-8")
+    (root / "pages" / "Visible.md").write_text("- visible\n", encoding="utf-8")
+    (root / "pages" / "notes.txt").write_text("not markdown\n", encoding="utf-8")
+
+    report = run_local_graph_assurance(root)
+
+    assert report["status"] == "passed"
+    observed = report["observed"]
+    assert isinstance(observed, dict)
+    assert observed["markdown_files"] == 1
+    assert observed["parsed_pages"] == 1
+
+
+@pytest.mark.parametrize("root_name", ["pages", "journals"])
+def test_assurance_rejects_non_directory_roots(tmp_path: Path, root_name: str) -> None:
+    root = tmp_path / "vault"
+    root.mkdir()
+    (root / root_name).write_text("not a directory\n", encoding="utf-8")
+
+    report = run_local_graph_assurance(root)
+
+    assert report["status"] == "findings"
+    assert _finding_codes(report) == {"vault.root_directory_rejected"}
+
+
+def test_assurance_enforces_max_file_bytes_during_traversal(tmp_path: Path) -> None:
+    root = _vault(tmp_path)
+    (root / "pages" / "Too large.md").write_text("- too large\n", encoding="utf-8")
+
+    report = run_local_graph_assurance(root, AssuranceLimits(max_file_bytes=1))
+
+    assert report["status"] == "limit_exceeded"
+    assert _finding_codes(report) == {"vault.max_file_bytes_exceeded"}
+
+
+def test_assurance_enforces_max_total_bytes_during_traversal(tmp_path: Path) -> None:
+    root = _vault(tmp_path)
+    (root / "pages" / "One.md").write_text("- one\n", encoding="utf-8")
+
+    report = run_local_graph_assurance(root, AssuranceLimits(max_total_bytes=1))
+
+    assert report["status"] == "limit_exceeded"
+    assert _finding_codes(report) == {"vault.max_total_bytes_exceeded"}
+
+
 @pytest.mark.parametrize(
     "limits",
     [
