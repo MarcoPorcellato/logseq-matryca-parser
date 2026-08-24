@@ -593,6 +593,13 @@ def _repair_changed_backlink_contributions(
             else ()
         )
         if old_keys == candidate_keys:
+            if (
+                old_node is not None
+                and candidate_node is not None
+                and _backlink_source_order_from(old_nodes, source_uuid)
+                != _backlink_source_order_from(candidate_nodes, source_uuid)
+            ):
+                affected_keys.update(old_keys)
             continue
         affected_keys.update(old_keys)
         affected_keys.update(candidate_keys)

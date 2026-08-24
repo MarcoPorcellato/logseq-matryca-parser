@@ -521,6 +521,55 @@ def test_watcher_rename_orders_converge_to_a_cold_graph(
     )
 
 
+def test_renamed_stable_uuid_resorts_shared_backlink_key(tmp_path: Path) -> None:
+    """A renamed source with stable IDs keeps cold-load backlink order."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    pages.mkdir(parents=True)
+    (pages / "Target.md").write_text("- target\n", encoding="utf-8")
+    contributor_uuid = "11111111-1111-1111-1111-111111111111"
+    renamed_uuid = "22222222-2222-2222-2222-222222222222"
+    (pages / "Middle.md").write_text(
+        f"- contributor [[Target]]\n  id:: {contributor_uuid}\n",
+        encoding="utf-8",
+    )
+    source = pages / "Zulu.md"
+    source.write_text(
+        f"- renamed [[Target]]\n  id:: {renamed_uuid}\n",
+        encoding="utf-8",
+    )
+    old_graph = LogseqGraph.load_directory(graph_root)
+
+    destination = pages / "Alpha.md"
+    source.rename(destination)
+    cold_graph = LogseqGraph.load_directory(graph_root)
+    old_contributor = old_graph.pages["Middle"].root_nodes[0].model_copy(
+        update={"uuid": contributor_uuid}
+    )
+    old_renamed = old_graph.pages["Zulu"].root_nodes[0].model_copy(
+        update={"uuid": renamed_uuid}
+    )
+    candidate_contributor = cold_graph.pages["Middle"].root_nodes[0].model_copy(
+        update={"uuid": contributor_uuid}
+    )
+    candidate_renamed = cold_graph.pages["Alpha"].root_nodes[0].model_copy(
+        update={"uuid": renamed_uuid}
+    )
+
+    repaired = graph_module._repair_changed_backlink_contributions(
+        old_pages=old_graph.pages,
+        old_nodes={contributor_uuid: old_contributor, renamed_uuid: old_renamed},
+        old_backlinks={"target": [contributor_uuid, renamed_uuid]},
+        candidate_pages=cold_graph.pages,
+        candidate_nodes={
+            contributor_uuid: candidate_contributor,
+            renamed_uuid: candidate_renamed,
+        },
+    )
+
+    assert repaired["target"] == [renamed_uuid, contributor_uuid]
+
+
 def test_watcher_replay_after_writer_append_converges_to_a_cold_graph(tmp_path: Path) -> None:
     """A watcher replay after a serialized append leaves the same graph as cold load."""
     pytest.importorskip("watchdog")
