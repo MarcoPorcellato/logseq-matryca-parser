@@ -124,7 +124,7 @@ def test_release_publishes_and_verifies_supply_chain_evidence() -> None:
     assert "scripts/generate_supply_chain_evidence.py" in workflow
     assert "release-bundle/SBOM.cdx.json" in workflow
     assert "release-bundle/DEPENDENCY_LICENSES.json" in workflow
-    assert workflow.count("actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d") == 2
+    assert workflow.count("actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6") == 2
     assert "id-token: write" in workflow
     assert "attestations: write" in workflow
     assert "gh attestation verify" in workflow
