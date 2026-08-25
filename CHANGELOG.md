@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Static-analysis adoption record** — document the current quality baseline,
+  non-overlapping candidate tools, ranked pilots, explicit unknowns, and
+  maintainer gates without installing or enabling new analysis software.
 - **Code-aligned human and agent documentation** — reconcile the CLI command
   surface, default `scan` behavior, contributor task navigation, architecture
   claims, and diagrams with the current implementation.

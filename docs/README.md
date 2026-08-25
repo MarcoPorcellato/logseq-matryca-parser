@@ -56,6 +56,8 @@ entry points.
 | [`LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md`](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | Maintainers, parser contributors | License-safe comparative study and execution plan for semantic, complexity, and source-location assurance |
 | [`README_READABILITY_REPORT_2026-08-08.md`](README_READABILITY_REPORT_2026-08-08.md) | Maintainers | Measured human and AI README assessment with a phased simplification proposal |
 | [`quality/ISSUE_RECONCILIATION_2026-08-06.md`](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Maintainers, contributors | Evidence-backed disposition of every issue open at the audit baseline |
+| [`quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md`](quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md) | Maintainers | Static-analysis coverage, ranked candidates, adoption protocol, and approval checklist |
+| [`goals/STATIC_ANALYSIS_ADOPTION_GOAL.md`](goals/STATIC_ANALYSIS_ADOPTION_GOAL.md) | Maintainers | Persistent execution pointer for approved static-analysis pilots |
 | [`decisions/index.md`](decisions/index.md) | Maintainers | Canonical decision registry, including the external-oracle boundary |
 | [`reference/index.md`](reference/index.md) | Maintainers, integrators | Provenance and Matryca ecosystem relations |
 | [`reference/DIAGNOSTICS.md`](reference/DIAGNOSTICS.md) | Integrators, contributors | Stable diagnostic codes, payload schema, path safety, CLI rendering, and escalation |

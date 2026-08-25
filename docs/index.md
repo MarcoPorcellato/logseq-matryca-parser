@@ -49,6 +49,8 @@ navigation layers only.
 | [Parser assurance extension](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | License-safe comparative study and dependency-ordered semantic and complexity plan |
 | [README readability report](README_READABILITY_REPORT_2026-08-08.md) | Measured human and AI readability assessment and phased proposal |
 | [Issue reconciliation](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Current GitHub backlog decisions |
+| [Static analysis evaluation](quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md) | Coverage baseline, ranked candidates, adoption protocol, and approval gates |
+| [Static analysis adoption goal](goals/STATIC_ANALYSIS_ADOPTION_GOAL.md) | Persistent execution pointer for approved tool pilots and integration decisions |
 | [Decision index](decisions/index.md) | Architectural decisions, including the external-oracle boundary |
 | [Reference index](reference/index.md) | Provenance and external relations |
 | [Structured diagnostics](reference/DIAGNOSTICS.md) | Stable diagnostic schema, codes, path safety, rendering, and escalation |

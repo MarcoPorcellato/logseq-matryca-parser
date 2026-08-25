@@ -21,6 +21,14 @@ superseded_by: null
 
 ## 2026-08-25
 
+- Added the maintained
+  [static analysis evaluation](quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md)
+  and its [persistent adoption goal](goals/STATIC_ANALYSIS_ADOPTION_GOAL.md).
+  Four independent read-only research tranches and live repository inspection
+  identified workflow semantics, dependency declaration correctness, portable
+  architecture enforcement, phased Ruff/Mypy strictness, and support-surface
+  coverage as the highest-value gaps. No tool was installed or enabled; each
+  pilot and integration tier remains an explicit maintainer gate.
 - Published v1.8.1 at
   `bb8ec6b758e0e7b3429de49ca252ae8b62f97689` after the coherent graph,
   bounded parser, local-assurance, runtime-evidence, stable NLTK, package,
