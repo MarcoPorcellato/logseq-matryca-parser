@@ -100,13 +100,17 @@ The starting pull-request portfolio received these dispositions:
   as `9a3b58dcb5dd71c229b70b01f5049ad0ac78b302`;
 - #183: rebased after #182, exact-head checks passed, and the `setup-uv` action
   update was squash-merged as `c43218a8c8527ef31cedf7335de6fcd6fdab97ae`;
-- #184: update required because its immutable attestation-action pin changed
-  without the matching release-contract expectation.
+- #184: rebased onto `main`, updated with the matching release-contract
+  expectation, fully requalified, and squash-merged as
+  `9ba89162205624f910f630d2cd5eb6f63130072e`.
 
-Issue #92 was disproved as a current production bug on the frozen base. The
-remaining work is one graph-aware LENS regression test that proves alias
-wikilinks resolve to the canonical page node. No production-code change is
-justified unless that test fails against the current implementation.
+Issue #92 was disproved as a current production bug on the frozen base. A
+separate test-only tranche then added the missing graph-aware LENS regression,
+proved that the historical literal-reference behavior creates a duplicate
+alias node, and confirmed that the current implementation preserves only the
+canonical page node. PR #192 was squash-merged as
+`2e3e3689df68d8ab134422f4202f5814a447618d` and closed #92 without a production
+or user-documentation change.
 
 Remote-branch cleanup completed with an explicit, no-wildcard deletion of 36
 branches whose work was merged or superseded. The recovery source is the
@@ -162,8 +166,47 @@ synchronized: its README now records the `#104 -> #111 -> #108` sequence;
 #104 is **In Progress**; #111 and residual #108 are **Todo**, with #108 marked
 blocked on its prerequisites; completed M5, M6, #87, and #186 gates were
 corrected; and #92, #109, #110, and #191 were added with explicit evidence,
-risk, status, and next-gate fields. Both open milestone descriptions were also
-updated to the same post-v1.8.1 boundaries.
+risk, status, and next-gate fields. After PR #192 merged, #92 moved to **Done**
+with an E2 maintained-corpus receipt. Both open milestone descriptions were
+also updated to the same post-v1.8.1 boundaries.
+
+## Final implementation receipts — 2026-08-25
+
+### PR #184 — immutable attestation action
+
+- Branch base before the corrective commit:
+  `8852bab86628112b626d589759720034bdf9a8de`.
+- Corrective head: `c8e4dac56e0cdbfddd39aea611c51d0c6d3a6dd2`.
+- RED: the focused release-evidence contract failed because it still required
+  the v4.2.1 pin while the workflow used the qualified v4.2.2 pin twice.
+- GREEN: the one-line contract update passed; `make all` passed with 761 tests
+  and 91.20% statement coverage; the wheel contract and Twine 6.2.0 checks
+  accepted both distributions.
+- Hosted receipt: all eight checks succeeded on the corrective head, including
+  Python 3.12, Python 3.13, dependency review, CodeQL, and package-contract.
+- Result: [PR #184](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/184)
+  squash-merged as `9ba89162205624f910f630d2cd5eb6f63130072e`.
+
+### PR #192 — canonical LENS alias regression
+
+- Exact base: `9ba89162205624f910f630d2cd5eb6f63130072e`.
+- Test head: `64e550ba9ece8b1e0b3c59a574adfcdcc5249caf`.
+- Historical mutation RED: literal reference handling produced node set
+  `{"P", "Alt"}` instead of the required `{"P"}`.
+- Current implementation GREEN: 12 focused LENS and alias tests passed; the
+  complete gate passed with 762 tests and 91.20% statement coverage; the wheel
+  contract and Twine 6.2.0 checks accepted both distributions.
+- Final diff: 18 added test lines in `tests/test_lens.py`; no production,
+  changelog, or user-documentation change.
+- Hosted receipt: all eight checks succeeded on the test head.
+- Result: [PR #192](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/192)
+  squash-merged as `2e3e3689df68d8ab134422f4202f5814a447618d`,
+  automatically closing #92.
+
+Final branch readback retained only `main`, `gh-pages`, and the open #191
+documentation branch. The temporary #192 branch was explicitly deleted after
+the merge and the remote readback confirmed its absence. At this checkpoint,
+`origin/main` is `2e3e3689df68d8ab134422f4202f5814a447618d`.
 
 ## Work packages and completion gates
 
@@ -242,8 +285,8 @@ Implementation gate:
 - run focused LENS/graph tests and the complete quality gate;
 - update user documentation only if supported behavior changes.
 
-Issue #92 remains separate from #104 and cannot delay documentation-only
-backlog reconciliation.
+Issue #92 was delivered separately from #104 and did not alter the
+documentation-only backlog reconciliation diff.
 
 ### R5 — Next implementation sequence
 
@@ -308,7 +351,8 @@ deletion.
 Prefer independently reviewable pull requests:
 
 1. roadmap, goal, and backlog reconciliation record;
-2. issue #92 code fix, if the approved design and reproduction support it;
+2. issue #92 regression tranche, with production changes only if required by
+   the approved RED/GREEN result;
 3. #104 implementation design and plan, followed by its own TDD branch;
 4. #111 design only after #104 stabilizes;
 5. branch cleanup receipt, if a public record adds durable value.
