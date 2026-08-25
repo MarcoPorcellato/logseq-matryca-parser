@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-21
-verified: 2026-08-21
+last_verified: 2026-08-25
+verified: 2026-08-25
 stale_after: 2027-02-17
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -90,7 +90,17 @@ and ignored global graph input in self-test mode. These corrections are now
 published through PR #168; the M5 privacy and non-retention boundary remains
 part of the supported contract.
 
-The v1.8.0 release gates are complete. Release preparation merged through
+The v1.8.1 release gates are complete. The release commit and tag are
+`bb8ec6b758e0e7b3429de49ca252ae8b62f97689`. The release closes the bounded
+#87 pathological-depth and refresh work, publishes #103's coherent
+single-process graph mutation boundary, includes the accepted #108 lexical-state
+slice and #111 runtime-evidence foundation, and replaces #186's mutable NLTK tag
+with the patched stable registry constraint. Issues #104, #108, and #111 remain
+open for their explicitly residual scopes; the release does not promote a
+persistent cache, process-pool default, universal performance budget, parser
+rewrite, or external oracle.
+
+The v1.8.0 release gates are also complete. Release preparation merged through
 [PR #171](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/171) as
 `06a1d6cb3dcbb215c6aa108ce82d37da530d52a5`, and tag `v1.8.0` published through
 the exact [release workflow run](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/32324328464).
@@ -98,8 +108,9 @@ The run passed both Python pre-flight jobs, package contract, SBOM and license
 evidence, checksum verification, GitHub attestations, PyPI publication, and
 GitHub Release creation. The public [GitHub Release](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.8.0)
 and [PyPI package](https://pypi.org/project/logseq-matryca-parser/1.8.0/)
-were checked after publication. The broader #104, #103, #87, #111, and #108
-acceptance work remains open where the plan still marks it incomplete.
+were checked after publication. At that release boundary, the broader #104,
+#103, #87, #111, and #108 work remained open; the v1.8.1 record above
+supersedes that operational status without rewriting the v1.8.0 receipt.
 
 Post-release #87 work has two bounded stages. PR #174 delivered iterative
 1024-level traversal and a linear model-copy budget after the v1.8.0 source had
@@ -112,11 +123,12 @@ growth at 3 and 300 continuations; the full gate passed 691 tests with 89.82%
 coverage, and the focused parser suite passed 33 tests. On the privacy-clean
 1,148-line seed (`sha256:4c2b1e87367d2b7b9c16ee62441f05c21c46c86c954703c5f7892789ca148a5d`),
 the final local 3-warm-up/21-sample observation had a 0.02702-second median and
-0.02739-second p95 with one canonical result in-process. These measurements are
-diagnostic on one host, not a hosted-validation, release, cross-machine,
-universal-speedup, or vault-scale claim. #111 still owns wall-time, p95, RSS,
-reload, search, and RAG-chunk benchmark evidence. Hosted validation, merge,
-release, and issue closure for local commit `c188556` remain separate gates.
+0.02739-second p95 with one canonical result in-process. These measurements
+remain diagnostic on one host, not a cross-machine, universal-speedup, or
+vault-scale claim. The corrected implementation was subsequently merged,
+qualified, released in v1.8.1, and issue #87 was closed. #111 still owns
+comparative wall-time, p95, RSS, repeated-load, executor, search, and RAG-chunk
+benchmark decisions.
 
 The initial checkpoint `8806205c35b104ed65d00a273acc9eeca572ae38` is rejected
 pre-correction evidence. Corrective implementation

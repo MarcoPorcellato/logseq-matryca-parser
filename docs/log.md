@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-24
-verified: 2026-08-24
+last_verified: 2026-08-25
+verified: 2026-08-25
 stale_after: 2027-02-17
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,45 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-08-25
+
+- Published v1.8.1 at
+  `bb8ec6b758e0e7b3429de49ca252ae8b62f97689` after the coherent graph,
+  bounded parser, local-assurance, runtime-evidence, stable NLTK, package,
+  supply-chain, and release gates completed.
+- Reconciled the active roadmap after release: #103, #186, and the bounded #87
+  work are complete; #104 is the next semantic-assurance tranche, followed by
+  #111; #108 retains only reducer, semantic-enrichment, equivalence, and
+  benchmark work; #185 remains research-only.
+- Added the internal
+  [post-v1.8.1 backlog execution record](internal/POST_V1_8_1_BACKLOG_EXECUTION_2026-08-25.md)
+  with exact source, baseline, authority boundaries, issue and PR gates,
+  cost-aware delegation, branch-cleanup proof requirements, and restart
+  instructions.
+- Reconciled the five strategic issue checklists and the seven-PR starting
+  portfolio, published the programme record in PR #191, and deleted 36
+  explicitly enumerated merged or superseded remote branches. GitHub readback
+  retained only `main`, `gh-pages`, the #191 branch, and the three open
+  Dependabot branches. Synchronized Project #5 and both active milestone
+  descriptions with the `#104 -> #111 -> #108` sequence, corrected stale
+  completed gates, and added #92, #109, #110, and #191 with explicit status,
+  evidence, risk, and next-gate fields.
+- Rebased, requalified, and merged dependency PRs #182, #183, and #184 in order
+  as `9a3b58dc`, `c43218a8`, and `9ba89162`; then refreshed contributor PR #147,
+  dismissed its satisfied change request, recorded a fresh approval, and
+  merged it as `8852bab8`, automatically closing #130. The #184 correction
+  synchronized the immutable attestation-action pin and release-contract
+  expectation, passed 761 local tests at 91.20% coverage plus the package
+  contract, and received eight successful hosted checks on its exact head.
+- Delivered the bounded LENS alias regression in test-only
+  [PR #192](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/192).
+  A historical literal-reference mutation produced duplicate nodes `P` and
+  `Alt` (RED); the current graph-aware implementation retained only canonical
+  `P` (GREEN). Twelve focused tests, 762 full-suite tests at 91.20% coverage,
+  wheel and Twine contracts, and eight hosted checks passed. The PR merged as
+  `2e3e3689`, closed #92, and moved its Project #5 item to **Done** with E2
+  maintained-corpus evidence.
 
 ## 2026-08-24
 
