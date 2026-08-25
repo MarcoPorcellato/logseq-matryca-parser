@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.1] - 2026-08-25
+
 ### Security
 
 - **Stable NLTK supply-chain source (#186)** — the optional AI and development
@@ -14,12 +16,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `>=3.10.3`, replacing the mutable `v3.10.0-rc1` VCS tag declaration. The
   lightweight base installation remains unchanged.
 
+### Added
+
+- **Reproducible runtime evidence foundation (#111)** — add a deterministic,
+  offline synthetic-vault generator and a source-free measurement runner for
+  parser, cold-load, reload, search, and optional SYNAPSE scenarios. The runner
+  records semantic validity and bounded runtime observations outside the
+  default CI gate. It establishes a measurement protocol, not vault-scale
+  budgets or a universal performance claim; #111 remains open.
+
+### Changed
+
+- **Private lexical-state extraction (#108 M9)** — move YAML, code, query,
+  drawer, frontmatter, and block-property eligibility transitions into a
+  private standard-library-only state object. `StackMachineParser.parse()`
+  retains line classification, reduction, AST construction, identities,
+  semantic enrichment, and public behavior. The broader #108 epic remains
+  open.
+
 ### Fixed
 
-- **Incremental graph reloads (#103)** — backlink indexes are rebuilt from the
-  current page set after a tracked page is deleted or reloaded. Title and alias
-  changes delivered through a filesystem move now match a cold load; no public
-  API or performance claim changes.
+- **Coherent incremental graph mutations (#103)** — reloads, deletions, and
+  filesystem moves now publish page routing, node and backlink registries, and
+  collision diagnostics as one coherent graph snapshot. Conflicting title or
+  alias participants can recover deterministically, bounded writes serialize
+  their source read and reload transaction, and watcher callbacks observe the
+  published state in order. Stable public APIs remain unchanged.
 - **Pathological nested outlines (#87)** — parse and file-entrypoint traversal
   now remain iterative for a 1024-level valid outline, while parser-owned tree
   construction avoids quadratic immutable-ancestor copies. Derived metadata is
@@ -30,6 +52,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   source paths, semantic snapshots, and the stable public API are preserved.
   Deterministic tests bound refresh growth; local timing observations remain
   diagnostic only and do not add a vault-scale performance claim.
+- **Bounded local-assurance timeout cleanup (#188)** — a timed-out isolated
+  assurance worker is terminated and joined before its result queue is closed,
+  preventing queue-thread cleanup from extending the bounded failure path.
+
+### Tests
+
+- Expand privacy-safe local-assurance regression coverage across traversal and
+  byte limits, guarded reads, parser aggregation, report validation, denied
+  network entry points, worker lifecycle, and failure cleanup without exposing
+  vault content or weakening the repository coverage floor.
 
 ## [1.8.0] - 2026-08-20
 

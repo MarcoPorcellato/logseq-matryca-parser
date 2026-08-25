@@ -5,6 +5,34 @@ For the exhaustive change history, see the [changelog](CHANGELOG.md). For
 published artifacts and attestations, see
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
+## v1.8.1
+
+Patch release — hardens deep-outline parsing, coherent incremental graph
+updates, local assurance cleanup, and optional dependency provenance. **No
+intentional breaking changes** to stable package imports or CLI behavior.
+
+| Area | Change |
+| :--- | :--- |
+| **Parser resilience** | Valid 1024-level outlines stay iterative; derived metadata is finalized once per node; strict-reference state is page-local; returned-node registry identity is preserved. |
+| **Graph coherence** | Reloads, deletions, moves, bounded writes, collision recovery, diagnostics, and watcher callbacks share a serialized publication boundary so readers observe a coherent in-memory snapshot. |
+| **Parser internals** | A private lexical-state object now owns syntax-region eligibility transitions while AST construction, identities, semantics, dependencies, and public behavior remain unchanged. |
+| **Local evidence** | A deterministic offline synthetic-vault harness produces source-free diagnostic observations; expanded assurance tests cover filesystem, validation, isolation, and timeout paths without creating a universal performance claim. |
+| **Dependency security** | Optional AI and development installs use the patched NLTK `>=3.10.3` release from the stable package registry; the lightweight base install is unchanged. |
+| **Test suite** | **760** pytest cases with **91.20%** statement coverage on the release candidate. |
+
+## v1.8.0
+
+Minor release — adds project-owned parser assurance, bounded local graph checks,
+and stronger release supply-chain evidence. **No intentional breaking changes**
+to stable package imports or CLI behavior.
+
+| Area | Change |
+| :--- | :--- |
+| **Parser assurance** | Versioned compatibility fixtures, deterministic adversarial cases, work-growth evidence, and one-based source-line contracts protect semantics without adopting an external parser oracle. |
+| **Local graph assurance** | New bounded `matryca-parse assure` command runs in a fresh worker and emits aggregate-only results without retaining vault content, paths, titles, UUIDs, or exception text. |
+| **Parser internals** | The first private line-classification phase preserves parser reduction, identities, public imports, and dependencies. |
+| **Supply chain** | Release jobs produce a CycloneDX SBOM, dependency/license inventory, checksums, and provenance attestations for the exact published distributions. |
+
 ## v1.7.1
 
 Patch release — completes the promised SYNAPSE example and closes the security
