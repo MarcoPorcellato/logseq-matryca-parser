@@ -84,6 +84,24 @@ def test_graph_visualizer_skips_unresolved_wikilinks_with_graph(
     assert "GhostPage" not in visualizer.graph
 
 
+def test_graph_visualizer_resolves_alias_wikilink_to_canonical_page(
+    tmp_path: Path,
+) -> None:
+    pages_dir = tmp_path / "pages"
+    pages_dir.mkdir()
+    (pages_dir / "P.md").write_text(
+        "alias:: Alt\n- See [[Alt]]\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(tmp_path)
+    visualizer = GraphVisualizer(list(graph.iter_canonical_pages()), graph=graph)
+    visualizer.build_network()
+
+    assert set(visualizer.graph.nodes) == {"P"}
+    assert "Alt" not in visualizer.graph
+
+
 def test_lens_module_imports_without_viz_dependencies() -> None:
     import importlib
 
