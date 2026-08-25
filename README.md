@@ -35,9 +35,11 @@ uv pip install logseq-matryca-parser
 matryca-parse scan /path/to/logseq/graph
 ```
 
-The scan reports pages, blocks, references, and graph diagnostics without
-changing the vault. Continue with the [CLI and Python examples](#usage), or use
-the [Cookbook](docs/COOKBOOK.md) for RAG, graph-query, watcher, and agent recipes.
+The default scan reports aggregate page, block, tag, and task statistics
+without changing the vault. Add `--diagnostics` or `--diagnostics-json` to
+collect graph diagnostics. Continue with the [CLI and Python examples](#usage),
+or use the [Cookbook](docs/COOKBOOK.md) for RAG, graph-query, watcher, and agent
+recipes.
 
 Parsing and scanning are read-only. Source-vault writes are explicit, opt-in,
 confined, and reviewable; exporters write derived artifacts to destinations
@@ -142,7 +144,7 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 | **Parse faithfully — LOGOS** | Deterministic AST parsing for outlines, YAML and native properties, tasks, temporal markers, references, assets, code/math/query shields, stable UUIDs, line ranges, and format-preserving round trips. |
 | **Understand the vault — Graph** | Canonical pages, aliases, backlinks, inherited properties, case-insensitive lookup, namespace resolution, fluent queries, broken-reference diagnostics, and optional per-file live reloads. |
 | **Export and integrate — SYNAPSE, FORGE, LENS** | Lineage-aware LangChain and LlamaIndex exports, context-enriched chunks, JSON and Markdown serialization, Obsidian vault generation, and interactive graph visualization. |
-| **Automate safely — KINETIC and agent tools** | CLI parse, scan, export, and visualization; token-efficient X-Ray reads; append-only logging; bounded AST writes; vault containment, dry-run patches, and atomic replacement. |
+| **Automate safely — KINETIC and agent tools** | CLI-backed parsing through scan and export, local assurance, visualization, token-efficient X-Ray reads, append-only logging, bounded AST writes, vault containment, dry-run patches, and atomic replacement. |
 
 The base parser is local-first and has zero telemetry. Optional AI, watcher, and
 visualization dependencies remain lazy. See the [architecture](docs/ARCHITECTURE.md)
@@ -193,6 +195,22 @@ matryca-parse export /path/to/logseq/graph output --format obsidian
 # Global options (all subcommands): --verbose, --graph /path/to/vault
 matryca-parse --graph /path/to/logseq/graph --verbose export output --format json
 ```
+
+### CLI command and side-effect map
+
+There is no separate `parse` subcommand: commands that need a graph parse it as
+part of their documented workflow.
+
+| Command | Primary result | Side effect |
+| :--- | :--- | :--- |
+| `scan` | Aggregate statistics; optional diagnostics | Reads the vault; writes nothing |
+| `export` | JSON, Markdown, LangChain, enriched, or Obsidian output | Writes only to the selected output directory |
+| `assure` | Aggregate-only bounded assurance JSON | Reads the selected vault, or uses a temporary synthetic vault with `--self-test`; persists no report |
+| `visualize` | Interactive network HTML | Writes only the selected HTML file |
+| `demo` | Synthetic showcase HTML | Reads no user vault; writes only the selected HTML file |
+| `append` | Weekly agent log entry | Appends to the explicitly selected pages directory |
+| `agent-read` | Token-efficient X-Ray text | Reads the vault and stores `.matryca_xray_state.json` in its root |
+| `agent-write` | Child-block patch | `--dry-run` writes nothing; otherwise performs one validated atomic vault update |
 
 ### Python API
 
@@ -264,7 +282,7 @@ We welcome issues, pull requests, and constructive feedback.
 
 | Resource | Link |
 | :--- | :--- |
-| **Good first issues** | [docs/GOOD_FIRST_ISSUES.md](docs/GOOD_FIRST_ISSUES.md) — starter tasks ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) |
+| **Good first issues** | [docs/GOOD_FIRST_ISSUES.md](docs/GOOD_FIRST_ISSUES.md) — maintained starter-task catalog and current GitHub label |
 | **Contributing** | [CONTRIBUTING.md](CONTRIBUTING.md) — setup, tests, PR workflow |
 | **Cookbook** | [docs/COOKBOOK.md](docs/COOKBOOK.md) — integration recipes (Synapse, graph query, watcher) |
 | **Documentation index** | [docs/README.md](docs/README.md) — active vs historical docs |

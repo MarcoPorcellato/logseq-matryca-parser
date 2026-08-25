@@ -105,7 +105,7 @@ flowchart TB
 | Pattern | Why it exists | Tracking |
 |---------|---------------|----------|
 | Flat module layout (no `domain/` package) | Library shipped as one PyPI package; low ceremony for contributors | This doc — incremental slices only |
-| `kinetic.py` ~230 lines | Typer app factory + `export` orchestration | **Shipped** — handlers in `kinetic_export.py`, subcommands in `kinetic_commands.py` |
+| `kinetic.py` orchestration surface | Typer app factory + `export` orchestration | **Shipped** — handlers in `kinetic_export.py`, subcommands in `kinetic_commands.py` |
 | Monolithic SYNAPSE embed `while` loop | Deterministic expansion with cycle guards | **Shipped** — `synapse_embed.py` strategy ([#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70)) |
 | `LogseqGraph.pages` dict with alias keys | Logseq `alias::` / `title::` parity | Point-in-time compatibility mapping; consumers must not mutate it and must use `iter_canonical_pages()` — DEBT-001 **shipped** |
 
@@ -115,7 +115,7 @@ Audit backlog: [`quality/CLEAN_ARCH_BACKLOG.md`](quality/CLEAN_ARCH_BACKLOG.md).
 
 ## Module maps (fat modules)
 
-### `logos_parser.py` (~1,440 lines) — LOGOS stack machine
+### `logos_parser.py` — LOGOS stack machine
 
 | Area | Responsibility |
 |------|----------------|
@@ -133,7 +133,7 @@ uv run pytest tests/test_logos_parser.py -q
 make check
 ```
 
-### `graph.py` (~920 lines) — in-memory graph RAM image
+### `graph.py` — in-memory graph RAM image
 
 | Area | Responsibility |
 |------|----------------|

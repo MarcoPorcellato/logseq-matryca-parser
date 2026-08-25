@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-07
-verified: 2026-08-07
-stale_after: 2027-02-03
+last_verified: 2026-08-25
+verified: 2026-08-25
+stale_after: 2027-02-21
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null

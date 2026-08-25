@@ -18,6 +18,27 @@ Filter open good-first issues on GitHub: [good first issue label](https://github
 
 ---
 
+## Wave 5 starter pack
+
+These ten scoped tasks were published together as wave 5. Always check the
+linked issue before starting because contributors may claim or close work
+faster than this catalog changes.
+
+| Issue | Scope | Primary area |
+| :--- | :--- | :--- |
+| [#149](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/149) | YAML frontmatter quoting for special property values | FORGE tests |
+| [#150](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/150) | Deterministic anchor suffixes for duplicate block identities | FORGE tests |
+| [#151](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/151) | Empty and mixed block-property values | Markdown tests |
+| [#152](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/152) | Invalid wheel archives and CLI failure output | Packaging tests |
+| [#153](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/153) | Reference-style links in the documentation gate | Documentation tests |
+| [#154](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/154) | Page titles, filenames, and namespaces | Documentation |
+| [#155](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/155) | Minimal Python library quickstart | Cookbook |
+| [#156](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/156) | Safe `agent-write --dry-run` walkthrough | Agent documentation |
+| [#157](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/157) | Supported Logseq Markdown compatibility table | Reference documentation |
+| [#158](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/158) | Focused test-contribution guide | Contributor documentation |
+
+---
+
 ## Tier 1 — Tests only (~1–3 hours)
 
 Ideal first PR: no production code changes, copy patterns from nearby tests.
@@ -113,7 +134,7 @@ make check
 
 ---
 
-## Recommended starter pack (wave 4)
+## Earlier starter pack (wave 4, historical)
 
 Post–v1.6 backlog — tests and docs with clear acceptance criteria:
 
@@ -147,7 +168,9 @@ Post–v1.6 backlog — tests and docs with clear acceptance criteria:
 | Release helpers | `tests/test_extract_changelog.py`, `tests/test_package_version.py` |
 | Exceptions | `tests/test_exceptions.py` |
 
-Full gate: `make all` (**462+** pytest cases as of **v1.6.0+**, including layer boundary tests and Clean Architecture slices).
+Full gate: `make all` runs Ruff, Mypy, documentation checks, the complete
+Pytest suite, and the maintained coverage floor. Exact totals belong in dated
+audit or release evidence rather than this contributor guide.
 
 Run `make vendor-name-check` before docs PRs to ensure Ghost Tooling policy (no vendor AST indexer names in the tree).
 

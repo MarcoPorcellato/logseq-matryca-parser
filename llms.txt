@@ -37,7 +37,7 @@ boundaries. Read AGENTS.md before changing the repository.
 
 - [Offline SYNAPSE RAG example](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/examples/run_synapse_rag.py): LangChain, LlamaIndex, enriched chunks, and page-embed expansion without a user vault.
 - [Demo example](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/examples/run_demo.py): Small end-to-end parser demonstration.
-- [CLI implementation](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/src/logseq_matryca_parser/kinetic.py): Parse, scan, export, visualize, agent-read, agent-write, append, and demo commands.
+- [CLI implementation](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/src/logseq_matryca_parser/kinetic.py): The exact `scan`, `export`, `assure`, `visualize`, `demo`, `append`, `agent-read`, and `agent-write` commands; there is no separate `parse` subcommand.
 - [Public package API](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/src/logseq_matryca_parser/__init__.py): Supported package-root exports.
 
 ## Build, test, and contribute

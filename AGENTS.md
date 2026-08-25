@@ -19,7 +19,7 @@ backlinks, exports, visualizations, and AI chunks are derived views.
 | **Graph** | Load a vault, resolve pages and aliases, query nodes, inspect backlinks | `LogseqGraph` |
 | **SYNAPSE** | Export lineage-aware LangChain documents, LlamaIndex nodes, and enriched chunks | `SynapseAdapter` |
 | **FORGE** | Serialize JSON, clean Markdown, Logseq pages, and Obsidian-compatible output | `ForgeExporter`, `serialize_logseq_page` |
-| **KINETIC** | Run CLI parse, export, scan, visualize, agent-read, and agent-write workflows | `matryca-parse` |
+| **KINETIC** | Run CLI-backed parsing through scan/export, local assurance, visualization, demo, append, agent-read, and agent-write workflows | `matryca-parse` |
 | **LENS** | Build an interactive graph visualization | `GraphVisualizer` |
 | **Agent access** | Read a token-efficient X-Ray outline or perform bounded writes | `agent-read`, `agent-write`, `logseq_agent_write` |
 

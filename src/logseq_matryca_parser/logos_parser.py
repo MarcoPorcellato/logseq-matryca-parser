@@ -653,7 +653,7 @@ class PageRegistry:
 
 
 class StackMachineParser:
-    """O(N) indentation parser that builds a strict immutable AST."""
+    """Deterministic indentation parser that builds a strict immutable AST."""
 
     def __init__(self, tab_size: int = 2, *, strict_refs: bool = False) -> None:
         """Parse Logseq markdown into AST pages.

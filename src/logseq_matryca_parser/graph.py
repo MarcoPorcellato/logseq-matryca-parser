@@ -814,19 +814,19 @@ class LogseqGraph(BaseModel):
     @classmethod
     def load_directory(
         cls,
-        graph_path: Path,
+        graph_path: Path | str,
         *,
         strict_refs: bool = False,
         strict_title_collisions: bool = False,
     ) -> LogseqGraph:
-        """Discover markdown under ``pages/`` and ``journals/``, parse concurrently, build indexes.
+        """Load a ``Path`` or string graph root and build its in-memory indexes.
 
         When ``strict_refs`` is True, raise :class:`BlockReferenceError` if any block reference
         in the vault cannot be resolved against the loaded node registry (cross-page validation).
         When ``strict_title_collisions`` is True, raise :class:`PageTitleCollisionError` instead
         of accepting the historical deterministic winner for an ambiguous title or alias.
         """
-        resolved = graph_path.expanduser().resolve()
+        resolved = Path(graph_path).expanduser().resolve()
         files = discover_graph_files(resolved)
         source_pages: dict[str, LogseqPage] = {}
 

@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-07
-verified: 2026-08-07
-stale_after: 2027-02-03
+last_verified: 2026-08-25
+verified: 2026-08-25
+stale_after: 2027-02-21
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -51,7 +51,8 @@ The exact package-root export manifest and the signatures of the parser and
 graph entry points are regression-tested. Adding a new stable symbol requires
 updating this table and those tests in the same PR.
 
-`LogseqGraph.load_directory` accepts keyword-only `strict_refs=False` and
+`LogseqGraph.load_directory` accepts either a `pathlib.Path` or string graph
+root plus keyword-only `strict_refs=False` and
 `strict_title_collisions=False`. Both strict modes are opt-in, preserving the
 permissive default.
 

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Documented graph-path compatibility** — `LogseqGraph.load_directory`
+  accepts both `pathlib.Path` and string graph roots, matching the stable
+  copy-paste examples without changing path resolution or vault discovery.
+
+### Changed
+
+- **Code-aligned human and agent documentation** — reconcile the CLI command
+  surface, default `scan` behavior, contributor task navigation, architecture
+  claims, and diagrams with the current implementation.
+
 ## [1.8.1] - 2026-08-25
 
 ### Security

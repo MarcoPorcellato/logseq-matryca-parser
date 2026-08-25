@@ -26,20 +26,26 @@ Full contributor contract: [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTUR
 
 ## System Architecture
 
-High-level data flow from sovereign graph files through deterministic parsing to AST-backed exporters and adapters.
+High-level data flow from sovereign graph files through deterministic parsing,
+graph indexing, exporters, and optional adapters. KINETIC orchestrates these
+paths; it is not a second parser.
 
 ```mermaid
 flowchart LR
-    FS[(Local Logseq\nGraph .md)] --> Logos[LOGOS Engine\nParser]
-    Logos --> AST((Abstract\nSyntax Tree))
-    
-    AST --> Forge[FORGE Exporter]
-    AST --> Synapse[SYNAPSE Adapter]
-    AST --> Lens[LENS Visualizer]
-    
-    Forge --> JSON[JSON / Markdown\nPayloads]
-    Synapse --> AI[LangChain /\nLlamaIndex Nodes]
-    Lens --> HTML[Interactive\n3D Graph]
+    FS[(Logseq Markdown\npages and journals)] --> Logos[LOGOS\nParser]
+    Logos --> AST[(Typed page and\nblock AST)]
+    AST --> Graph[LogseqGraph\npages, nodes, backlinks]
+    AST --> Forge[FORGE\nSerializers]
+    AST --> Synapse[SYNAPSE\nAdapters]
+    Graph --> Synapse
+    Graph --> Lens[LENS\nVisualizer]
+    Forge --> Artifacts[JSON / Markdown /\nObsidian artifacts]
+    Synapse --> AI[LangChain documents /\nLlamaIndex nodes]
+    Lens --> HTML[Interactive\nnetwork HTML]
+    Kinetic[KINETIC CLI] -. orchestrates .-> Logos
+    Kinetic -. orchestrates .-> Graph
+    Kinetic -. orchestrates .-> Forge
+    Kinetic -. orchestrates .-> Lens
 ```
 
 ## 1. Title & High-Level Philosophy
@@ -60,7 +66,7 @@ The Matryca Parser is the **deterministic translation layer**: it reads the hier
 
 **Naive / standard RAG** routinely applies **recursive or fixed-size chunkers** to raw Markdown. For Logseq-style graphs this behaves like dropping the disk into a blender: contiguous bytes are diced by character budgets, sibling blocks are fused with unrelated parents, and indentation semantics are erased. The result is embeddings of **ambiguous fragments** disconnected from lineage — a lossy projection of structured storage into unstructured bags of text.
 
-The **Matryca (Logos) approach** rejects that erosion of structure. Implementation-wise, **`StackMachineParser` (alias `LogosParser`)** performs **O(N) deterministic parsing** using spatial indentation as the sole arbiter of parent–child linkage, yielding a rigorous **Abstract Syntax Tree (AST)** (`LogseqPage`, `LogseqNode`). **`SYNAPSE`** acts as driver-level output: adapters emit **LangChain `Document`** and **LlamaIndex `TextNode`** objects whose **metadata encodes lineage** (`parent_id`, `path`, `left_id`, graph tokens), preserving the **exact topological semantics** expected by Sovereign AI and local pipelines.
+The **Matryca (Logos) approach** rejects that erosion of structure. Implementation-wise, **`StackMachineParser` (alias `LogosParser`)** uses spatial indentation as the arbiter of parent–child linkage, then performs explicit metadata, reference, indentation, and registry finalization before returning a rigorous **Abstract Syntax Tree (AST)** (`LogseqPage`, `LogseqNode`). **`SYNAPSE`** acts as driver-level output: adapters emit **LangChain `Document`** and **LlamaIndex `TextNode`** objects whose **metadata encodes lineage** (`parent_id`, `path`, `left_id`, graph tokens), preserving the **exact topological semantics** expected by Sovereign AI and local pipelines. Performance claims remain governed by the reproducible evidence protocol rather than this architectural overview.
 
 Together, LOGOS + SYNAPSE implement **Document-Driven Development** principles. Historical specifications and blueprints are preserved in [`/docs/design-docs/`](./design-docs/) to constrain behavior, while the runtime code enforces deterministic invariants matching those documents.
 
@@ -68,7 +74,7 @@ Together, LOGOS + SYNAPSE implement **Document-Driven Development** principles. 
 
 ## 2. System Context Diagram
 
-This section pairs a **C4 Model** view (Levels 1–2) with a **logical data-plane** flowchart. Together they document how Sovereign AI pipelines move from raw Spatial Markdown through deterministic parsing to structured context for retrieval and inference — and how **append-only, sandboxed writes** (Agent Writer / KINETIC) can extend the vault without re-parsing or rewriting existing structure on behalf of agents.
+This section pairs a **C4 Model** view (Levels 1–2) with a **logical data-plane** flowchart. Together they document how Sovereign AI pipelines move from raw Spatial Markdown through deterministic parsing to structured context for retrieval and inference — and how explicit bounded writes use either weekly append-only logging or a validated atomic child splice.
 
 ### 2.1 C4 Level 1 — System context
 
@@ -90,14 +96,14 @@ Rel(knowledgeWorker, logseqVault, "Authors and curates Spatial Markdown locally"
 
 Rel(knowledgeWorker, matryca, "Invokes ingestion, exports, and visualization")
 
-Rel(matryca, logseqVault, "Reads topologically intact graph files; append-only Agent Writer preserves AST invariants")
+Rel(matryca, logseqVault, "Reads graph files; explicit writes are weekly append or one validated atomic child splice")
 
 Rel(matryca, aiPlane, "Emits context-rich, lineage-aware documents for RAG")
 ```
 
 ### 2.2 C4 Level 2 — Containers
 
-Containers live inside the **Matryca.ai Ecosystem** boundary: **KINETIC** is the operator entry point (including **append-only** agent writes to the vault); **LOGOS** rebuilds the AST; **SYNAPSE** projects the AST into framework-native AI types; **LENS** renders topology for human inspection.
+Containers live inside the **Matryca.ai Ecosystem** boundary: **KINETIC** is the operator entry point; **LOGOS** rebuilds the AST; **Graph** owns vault-wide routing and indexes; **FORGE** serializes derived artifacts; **SYNAPSE** projects AST and graph context into framework-native AI types; **LENS** renders topology for human inspection.
 
 ```mermaid
 C4Container
@@ -108,6 +114,8 @@ Person(knowledgeWorker, "Knowledge Worker", "Local operator of a sovereign Logse
 System_Boundary(matrycaEcosystem, "Matryca.ai Ecosystem") {
     Container(kinetic, "KINETIC", "Typer / Rich CLI", "CLI — global `--verbose` / `--graph` callback; export (json, markdown, langchain, langchain-enriched, obsidian), visualize, demo, graph scans, `agent-read` / `agent-write` (X-Ray + headless splice), weekly append (`append`).")
     Container(logos, "LOGOS", "Python / Pydantic", "Stack-Machine AST engine — LogseqPage and LogseqNode models.")
+    Container(graph, "Graph", "Python / Pydantic", "Canonical pages, aliases, nodes, backlinks, diagnostics, queries, and incremental reload state.")
+    Container(forge, "FORGE", "Python", "JSON, Markdown, Logseq, and Obsidian serialization.")
     Container(synapse, "SYNAPSE", "LangChain / LlamaIndex", "Framework-native exporters with parent-child metadata.")
     Container(lens, "LENS", "NetworkX / PyVis", "Reference-topology visualization to interactive HTML.")
 }
@@ -120,15 +128,23 @@ Rel(knowledgeWorker, kinetic, "Runs matryca-parse workflows")
 
 Rel(kinetic, logos, "Orchestrates parsing pipelines")
 
+Rel(logos, graph, "Supplies parsed pages for vault-wide indexes")
+
+Rel(kinetic, graph, "Runs load, scan, query, assurance, and agent workflows")
+
+Rel(kinetic, forge, "Writes selected derived export formats")
+
 Rel(kinetic, lens, "Builds visualization outputs")
 
 Rel(logos, logseqVault, "Reads Spatial Markdown deterministically")
 
-Rel(kinetic, logseqVault, "KINETIC / LOGOS: append-only Agent Writer — safe vault append, topology preserved")
+Rel(kinetic, logseqVault, "Reads the vault; explicit writes are weekly append or one validated atomic child splice")
 
-Rel(logos, synapse, "Hands off immutable AST subgraphs")
+Rel(logos, forge, "Supplies typed AST trees")
 
-Rel(logos, lens, "Supplies semantic references for graph layout")
+Rel(graph, synapse, "Supplies canonical graph context for enriched chunks")
+
+Rel(graph, lens, "Supplies canonical pages and resolved references")
 
 Rel(synapse, aiPlane, "Supplies lineage-injected Documents / TextNodes")
 
@@ -162,6 +178,10 @@ flowchart LR
     REG["PageRegistry (UUID ⇄ Node)"]:::logos
   end
 
+  subgraph GRAPH["GRAPH — Vault-wide derived indexes"]
+    GI["LogseqGraph pages, aliases, nodes, backlinks"]:::logos
+  end
+
   subgraph FORGE_SIDE["FORGE — Serialization (JSON / Markdown / Obsidian)"]
     FJ["JSON + flat list visitors"]:::logos
     FO["Obsidian YAML + ^ anchors"]:::logos
@@ -185,11 +205,14 @@ flowchart LR
 
   G --> MD --> P --> AST
   P --- REG
+  AST --> GI
   AST --> FJ
   AST --> FO
   AST --> LC
   AST --> LI
-  AST --> NX --> PV
+  GI --> LC
+  GI --> LI
+  GI --> NX --> PV
   LC --> VS
   LI --> VS
   VS --> RAG --> LLM
@@ -209,7 +232,7 @@ Auxiliary **FORGE** serialization (JSON / flat Markdown / Obsidian) appears as a
   - **Pop** ancestors while `stack_columns[-1] >= indent_level` (exit deeper subtrees).
   - **Maintain or nest** relative to the remaining top-of-stack (`stack[-1]`).
   - **Push** the freshly built `LogseqNode` onto the stack and register its UUID with `PageRegistry` for deterministic identity and future block-reference linkage.
-  This yields **finite-state, linear-time** traversal with explicit ascend/descend behavior — not regex-driven whole-document guessing.
+  This yields finite-state traversal with explicit ascend/descend behavior — not regex-driven whole-document guessing. A finalization pass then refreshes derived metadata, validates references, normalizes stored depths, and rebuilds the parser registry from the returned nodes.
 
 - **Spatial indentation rules.** In Logseq, **indentation defines the AST**, not list decoration. Heading blocks and bullets both participate as first-class structural lines. The bullet detector accepts **unordered markers** (`-`, `*`) and **ordered-list markers** (`1. `, `12. `, …) via a shared `BULLET_PATTERN`, so numbered outlines participate in the stack machine like standard bullets. Levels are **normalized post-pass** to tree depth (`_normalize_indent_levels`) so persisted `indent_level` reflects hierarchical depth independent of authoring quirks after stack repair.
 
@@ -306,7 +329,7 @@ The KINETIC **`export --format langchain-enriched`** path serializes these docum
 
 When LENS receives a loaded **`LogseqGraph`**, wikilinks resolve through `get_page`: canonical pages and aliases are included, unresolved page links are omitted, and tag nodes remain visible independently of page resolution.
 
-Visualization export uses **`pyvis`** with **`force_atlas_2based`** physics, fullscreen canvas, HUD filters, glassmorphism control chrome, and stabilized layout configuration suitable for **large graphs at interactive frame rates** in the browser (product positioning targets fluid exploration of graphs on the order of **10⁴ nodes**).
+Visualization export uses **`pyvis`** with **`force_atlas_2based`** physics, a fullscreen canvas, HUD filters, glassmorphism control chrome, and stabilization settings. The repository does not promise a universal browser node limit or frame-rate budget; reproducible performance decisions belong to the maintained runtime-evidence protocol.
 
 ### 3.4 AGENT WRITER — Append-Only Sandboxing & Headless Splicer
 
@@ -560,50 +583,49 @@ When scanning a vault root, **`discover_graph_files`** (in [`logseq_paths.py`](.
 
 ## 4. Data Flow Sequence
 
-Lifecycle of introducing **one structural block line** after prior context established (bullet path; heading path symmetrically analogous).
+Lifecycle of parsing one page, including the finalization steps that make the
+returned nodes and parser registry agree.
 
 ```mermaid
 ---
-title: LOGOS — Lifecycle of Parsing One Structural Block Line
+title: LOGOS — Page Parsing and Finalization
 ---
 sequenceDiagram
   autonumber
   participant LR as Line Reader
-  participant INV as Indent & Line Classifier<br/>(bullet / heading / property / continuation)
-  participant PSI as Content & UUID Builder<br/>_build_node (+ clean_text derivation)
-  participant STK as Stack Machine<br/>pop · push · attach
-  participant AST as Immutable LogseqNode<br/>(registered in PageRegistry)
+  participant CLS as Line Classifier<br/>_classify_line
+  participant STK as Stack Reducer<br/>pop · attach · push
+  participant AST as Node Snapshots<br/>roots + active stack
+  participant FIN as Finalization Pipeline
+  participant REG as Final PageRegistry
 
-  LR->>INV: Deliver raw_line (spatial text + leading whitespace)
-
-  alt Structural bullet or heading prefix
-    INV->>INV: Compute indentation level<br/>(_compute_indent_level)
-    INV->>STK: While deeper/equal indentation exhausted → pop ascend
-    PSI->>PSI: Resolve UUID (id:: for source_uuid / deterministic hash for synthetic uuid)
-    PSI->>PSI: Harvest inline tokens (wikilinks, tags, SCHEDULED/DEADLINE, headings)
-    PSI->>PSI: Produce clean_text excluding property/key noise
-    PSI->>AST: Instantiate LogseqNode shell
-    STK->>STK: _initialize_node_graph_fields (path, left_id)
-    alt Stack non-empty after pops
-      STK->>AST: Attach as child<br/>model_copy(update parent_id)
-      STK->>AST: Ripple immutable parent chain updates into stack tiers
-    else Empty stack ⇒ root-level block
-      STK->>AST: Append to LogseqPage.root_nodes
+  loop Each source line
+    LR->>CLS: Classify raw line and protected lexical state
+    alt Structural bullet or heading
+      CLS->>STK: Compute indentation and pop exhausted ancestors
+      STK->>AST: Build node and initialize path / parent / left fields
+      STK->>AST: Attach to parent or append as root
+      STK->>STK: Push active node and indentation state
+    else Block property or property-list item
+      CLS->>AST: Parse property and refresh active node snapshot
+      AST->>STK: Replace the active stack/root reference
+    else Continuation line with an active node
+      CLS->>AST: Merge content under lexical shielding state
+      AST->>STK: Replace the active stack/root reference
+    else Page property or ignored non-structural line
+      CLS->>AST: Update page metadata or lexical state only
     end
-    STK->>STK: push(node, indent_level)
-    AST-->>LR: Become current_node for continuation lines / properties
-
-  else key:: value property line following a block
-    INV->>PSI: Parse property key/value
-    PSI->>AST: Refresh current_node (+ optional uuid bridge for id property)
-    Note over PSI: clean_text regenerated via clean_node_content
-    PSI->>STK: _replace_stack_tail_node (immutable replace child slot)
-
-  else Neither structural nor property
-    INV->>PSI: Treat as soft-continuation merge into current_node
-    PSI->>AST: Expand content (+ code fence / drawers per state)
-    PSI->>STK: Replace tail references for nested immutables
   end
+
+  STK->>FIN: Finalize any pending property list
+  FIN->>AST: _finalize_node_metadata(root_nodes)
+  opt strict_refs=True
+    FIN->>FIN: _validate_references(root_nodes)
+  end
+  FIN->>AST: _normalize_indent_levels(root_nodes)
+  FIN->>REG: _rebuild_registry(final root_nodes)
+  FIN->>FIN: _collect_page_refs(root_nodes)
+  FIN-->>LR: Return LogseqPage with final roots and page metadata
 ```
 
 ---
@@ -636,19 +658,21 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 | [`quality/GITHUB_CLEAN_ARCH_ROADMAP.md`](quality/GITHUB_CLEAN_ARCH_ROADMAP.md) | v1.6 milestone, epic, and phase issues |
 | [`logseq_ast_primer.md`](logseq_ast_primer.md) | Before touching parser or serialization behavior |
 | [`COOKBOOK.md`](COOKBOOK.md) | Integration examples (Synapse, `LogseqGraph`, watcher) |
-| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | Picking a first PR ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)); wave 1 in **v1.4.1**, wave 2 in **v1.4.2**, **GFI-11** in **v1.5.0**, Clean Architecture v1 in **v1.6.0** |
+| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | Picking a first PR from the maintained starter-task catalog and current GitHub label |
 | [`README.md`](README.md) | Project overview and quickstart |
 | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | `uv` setup, quality target, coverage threshold, documentation check, PR checklist |
 | [`index.md`](index.md) | Canonical maintained knowledge-bundle entry point |
 | [`design-docs/README.md`](design-docs/README.md) | Warning before using historical DDD blueprints |
 
-### Quality gate (v1.8.1)
+### Quality gate (current)
 
-Local and CI parity: `uv sync --all-extras` → `make lint` → `make check` →
-`make test` → `make vendor-name-check` → `make docs-check`. These targets are
-non-mutating; CI then runs `make verify-clean` as an explicit checkout-integrity
-assertion. Local lint rewrites remain opt-in through `make lint-fix`. The test
-gate enforces **≥80%** coverage on `src/logseq_matryca_parser`. Exact totals
-belong to dated audit evidence rather than this maintained architecture
-contract. Dedicated modules include `tests/test_layer_boundary.py`,
-`tests/test_exceptions.py` and `tests/test_extract_changelog.py`.
+The local full gate is `uv sync --all-extras` followed by `make all`. The main
+CI job runs `make lint`, `make check`, `make test`, and `make docs-check`, then
+uses `make verify-clean` as an explicit checkout-integrity assertion. `make all`
+also runs `make vendor-name-check`; documentation changes must keep that local
+policy check green. These targets are non-mutating, while local lint rewrites
+remain opt-in through `make lint-fix`. The test gate enforces **≥80%** coverage
+on `src/logseq_matryca_parser`. Exact totals belong to dated audit evidence
+rather than this maintained architecture contract. Dedicated modules include
+`tests/test_layer_boundary.py`, `tests/test_exceptions.py` and
+`tests/test_extract_changelog.py`.
