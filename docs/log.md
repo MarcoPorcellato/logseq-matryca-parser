@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-24
-verified: 2026-08-24
+last_verified: 2026-08-25
+verified: 2026-08-25
 stale_after: 2027-02-17
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,26 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-08-25
+
+- Published v1.8.1 at
+  `bb8ec6b758e0e7b3429de49ca252ae8b62f97689` after the coherent graph,
+  bounded parser, local-assurance, runtime-evidence, stable NLTK, package,
+  supply-chain, and release gates completed.
+- Reconciled the active roadmap after release: #103, #186, and the bounded #87
+  work are complete; #104 is the next semantic-assurance tranche, followed by
+  #111; #108 retains only reducer, semantic-enrichment, equivalence, and
+  benchmark work; #185 remains research-only.
+- Added the internal
+  [post-v1.8.1 backlog execution record](internal/POST_V1_8_1_BACKLOG_EXECUTION_2026-08-25.md)
+  with exact source, baseline, authority boundaries, issue and PR gates,
+  cost-aware delegation, branch-cleanup proof requirements, and restart
+  instructions.
+- Began an evidence-only reconciliation of strategic issue checklists, seven
+  open pull requests, milestones, and Project #5. GitHub mutations and branch
+  deletions remain subject to exact-target readback and are not implied by this
+  documentation checkpoint.
 
 ## 2026-08-24
 
