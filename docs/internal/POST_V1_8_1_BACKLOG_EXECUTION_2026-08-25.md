@@ -76,6 +76,86 @@ At the starting point, GitHub reported:
 
 Every count is a dated snapshot and must be refreshed before final publication.
 
+## Execution update — 2026-08-25
+
+The documentation reconciliation was rebased from the frozen starting point
+onto `origin/main@bc601e11d93f634ced88451b42a7f9ab02a3d308`, committed as
+`c745b3da66295f21cfe3bfd27a58f29b153c28f9`, and published as pull request
+[#191](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/191).
+
+Live issue readback confirmed that #104, #108, #109, #110, and #111 retain
+only their evidence-supported residual scope. Milestone **Parser Assurance:
+M3-M7** therefore remains open with #104, #108, and #111; milestone
+**Evidence-gated improvements** remains open with research-only #185.
+
+The starting pull-request portfolio received these dispositions:
+
+- #84 and #99: contributor update and rebase required;
+- #147: merge candidate after a current-main refresh and fresh review;
+- #181: closed because Hatchling's Metadata 2.5 output is incompatible with
+  the repository's current Twine 6.2 package-contract toolchain;
+- #182 and #183: merge candidates after current-main refresh and controlled
+  exact-head verification;
+- #184: update required because its immutable attestation-action pin changed
+  without the matching release-contract expectation.
+
+Issue #92 was disproved as a current production bug on the frozen base. The
+remaining work is one graph-aware LENS regression test that proves alias
+wikilinks resolve to the canonical page node. No production-code change is
+justified unless that test fails against the current implementation.
+
+Remote-branch cleanup completed with an explicit, no-wildcard deletion of 36
+branches whose work was merged or superseded. The recovery source is the
+corresponding merged pull request, except `chore--enterprise-hardening`, whose
+head was already an ancestor of `main`, and `release/v1.8.1`, which was
+superseded by merged #190 and tag `v1.8.1`.
+
+Deleted branches:
+
+```text
+agent/api-stability-contract
+agent/docs-deterministic-gate
+agent/english-documentation
+agent/graph-title-collision-contract
+agent/lsdoc-reference-study
+agent/parser-adversarial-m3
+agent/parser-arbitrary-depth-refresh
+agent/parser-assurance-post-m9
+agent/parser-line-classifier-m7-next
+agent/parser-oracle-boundary-m2
+agent/parser-privacy-assurance-m5-next
+agent/parser-source-location-m6-next
+agent/parser-work-growth-m4
+agent/post-release-1.7.0
+agent/post-release-1.7.1
+agent/readme-release-highlights
+agent/release-1.7.0
+agent/release-1.8.0
+agent/security-lock-2026-08-08
+agent/stack-merge-readiness
+agent/stellar-repository-roadmap
+agent/structured-diagnostics-foundation
+agent/writer-vault-containment
+chore--enterprise-hardening
+docs/evidence-gated-roadmap-2026-08-24
+docs/performance-evidence-design
+docs/v1.8.0-release-receipt
+feat/graph-mutation-coherence-103
+fix/immutable-nltk-source-186
+fix/package-contract-validation
+fix/parser-pathological-depth
+fix/parser-pathological-refresh-87
+refactor/parser-lexical-state-m9
+release/v1.8.1-refresh
+release/v1.8.1
+test/meaningful-coverage-2026-08-24
+```
+
+Post-deletion GitHub readback returned only `main`, `gh-pages`, the #191
+documentation branch, and the three open Dependabot branches for #182-#184.
+Project #5 synchronization remains an external authentication gate until the
+maintainer grants `read:project` and `project` scopes.
+
 ## Work packages and completion gates
 
 ### R1 — Programme reconciliation

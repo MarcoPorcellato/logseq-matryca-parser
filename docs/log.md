@@ -34,10 +34,12 @@ superseded_by: null
   with exact source, baseline, authority boundaries, issue and PR gates,
   cost-aware delegation, branch-cleanup proof requirements, and restart
   instructions.
-- Began an evidence-only reconciliation of strategic issue checklists, seven
-  open pull requests, milestones, and Project #5. GitHub mutations and branch
-  deletions remain subject to exact-target readback and are not implied by this
-  documentation checkpoint.
+- Reconciled the five strategic issue checklists and the seven-PR starting
+  portfolio, published the programme record in PR #191, and deleted 36
+  explicitly enumerated merged or superseded remote branches. GitHub readback
+  retained only `main`, `gh-pages`, the #191 branch, and the three open
+  Dependabot branches; Project #5 synchronization remains gated on the
+  maintainer granting GitHub Projects scopes.
 
 ## 2026-08-24
 
