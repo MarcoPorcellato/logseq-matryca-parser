@@ -153,8 +153,13 @@ test/meaningful-coverage-2026-08-24
 
 Post-deletion GitHub readback returned only `main`, `gh-pages`, the #191
 documentation branch, and the three open Dependabot branches for #182-#184.
-Project #5 synchronization remains an external authentication gate until the
-maintainer grants `read:project` and `project` scopes.
+The maintainer then granted GitHub Projects scopes and Project #5 was
+synchronized: its README now records the `#104 -> #111 -> #108` sequence;
+#104 is **In Progress**; #111 and residual #108 are **Todo**, with #108 marked
+blocked on its prerequisites; completed M5, M6, #87, and #186 gates were
+corrected; and #92, #109, #110, and #191 were added with explicit evidence,
+risk, status, and next-gate fields. Both open milestone descriptions were also
+updated to the same post-v1.8.1 boundaries.
 
 ## Work packages and completion gates
 

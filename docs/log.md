@@ -38,8 +38,10 @@ superseded_by: null
   portfolio, published the programme record in PR #191, and deleted 36
   explicitly enumerated merged or superseded remote branches. GitHub readback
   retained only `main`, `gh-pages`, the #191 branch, and the three open
-  Dependabot branches; Project #5 synchronization remains gated on the
-  maintainer granting GitHub Projects scopes.
+  Dependabot branches. Synchronized Project #5 and both active milestone
+  descriptions with the `#104 -> #111 -> #108` sequence, corrected stale
+  completed gates, and added #92, #109, #110, and #191 with explicit status,
+  evidence, risk, and next-gate fields.
 
 ## 2026-08-24
 
