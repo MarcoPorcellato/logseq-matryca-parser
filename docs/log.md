@@ -42,6 +42,11 @@ superseded_by: null
   descriptions with the `#104 -> #111 -> #108` sequence, corrected stale
   completed gates, and added #92, #109, #110, and #191 with explicit status,
   evidence, risk, and next-gate fields.
+- Rebased, requalified, and merged dependency PRs #182 and #183 in order as
+  `9a3b58dc` and `c43218a8`; then refreshed contributor PR #147, dismissed its
+  satisfied change request, recorded a fresh approval, and merged it as
+  `8852bab8`, automatically closing #130. PR #184 remains open until its
+  immutable pin and release-contract expectation are updated together.
 
 ## 2026-08-24
 

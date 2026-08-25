@@ -91,11 +91,15 @@ M3-M7** therefore remains open with #104, #108, and #111; milestone
 The starting pull-request portfolio received these dispositions:
 
 - #84 and #99: contributor update and rebase required;
-- #147: merge candidate after a current-main refresh and fresh review;
+- #147: rebased by the maintainer, requalified, approved, and squash-merged as
+  `8852bab86628112b626d589759720034bdf9a8de`; its `Fixes #130` link closed the
+  associated issue;
 - #181: closed because Hatchling's Metadata 2.5 output is incompatible with
   the repository's current Twine 6.2 package-contract toolchain;
-- #182 and #183: merge candidates after current-main refresh and controlled
-  exact-head verification;
+- #182: exact-head checks passed and the CodeQL action update was squash-merged
+  as `9a3b58dcb5dd71c229b70b01f5049ad0ac78b302`;
+- #183: rebased after #182, exact-head checks passed, and the `setup-uv` action
+  update was squash-merged as `c43218a8c8527ef31cedf7335de6fcd6fdab97ae`;
 - #184: update required because its immutable attestation-action pin changed
   without the matching release-contract expectation.
 
