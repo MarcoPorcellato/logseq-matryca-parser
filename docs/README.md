@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-20
-verified: 2026-08-20
-stale_after: 2027-02-20
+last_verified: 2026-08-26
+verified: 2026-08-26
+stale_after: 2027-02-22
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -57,6 +57,7 @@ entry points.
 | [`README_READABILITY_REPORT_2026-08-08.md`](README_READABILITY_REPORT_2026-08-08.md) | Maintainers | Measured human and AI README assessment with a phased simplification proposal |
 | [`quality/ISSUE_RECONCILIATION_2026-08-06.md`](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Maintainers, contributors | Evidence-backed disposition of every issue open at the audit baseline |
 | [`quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md`](quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md) | Maintainers | Static-analysis coverage, ranked candidates, adoption protocol, and approval checklist |
+| [`quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md`](quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md) | Maintainers | Exact-revision results and integration dispositions for the first three static-analysis pilots |
 | [`goals/STATIC_ANALYSIS_ADOPTION_GOAL.md`](goals/STATIC_ANALYSIS_ADOPTION_GOAL.md) | Maintainers | Persistent execution pointer for approved static-analysis pilots |
 | [`decisions/index.md`](decisions/index.md) | Maintainers | Canonical decision registry, including the external-oracle boundary |
 | [`reference/index.md`](reference/index.md) | Maintainers, integrators | Provenance and Matryca ecosystem relations |

@@ -2,15 +2,15 @@
 type: StaticAnalysisEvaluation
 title: Static analysis evaluation and adoption plan
 description: Evidence-based comparison of static analysis coverage, gaps, candidates, and approval gates.
-status: draft
+status: stable
 classification: canonical
 audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-25
-verified: 2026-08-25
-stale_after: 2027-02-21
+last_verified: 2026-08-26
+verified: 2026-08-26
+stale_after: 2027-02-22
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -25,12 +25,16 @@ Logseq Matryca Parser already has a strong quality baseline. The next step
 should be a small, evidence-led expansion rather than a collection of
 overlapping linters.
 
-No candidate tool was installed or executed during this study. The proposed
-order is:
+The first three advisory pilots are complete. Their exact-revision evidence,
+finding classifications, runtime observations, and integration gates are in the
+[`static analysis pilot results`](STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md).
+The resulting order is:
 
-1. pilot `actionlint` for GitHub Actions correctness;
-2. pilot `zizmor` offline for GitHub Actions security;
-3. pilot `deptry` for declared dependency correctness;
+1. design a bounded blocking integration for the clean `actionlint` baseline;
+2. remediate and document the offline `zizmor` baseline before considering a
+   blocking gate;
+3. consider `deptry` first as a periodic non-blocking audit with two narrow,
+   measured scope rules;
 4. strengthen the existing Ruff and Mypy configurations in bounded slices;
 5. test whether Import Linter earns a tracked architecture gate;
 6. consider ShellCheck and a periodic external-link check as smaller follow-up
@@ -51,6 +55,9 @@ This evaluation is bound to:
 - last observed `origin/main`
   `b35f5d15952d7338f08abb37fdce94f256d3e4d9`;
 - source and workflow inspection on 2026-08-25;
+- advisory pilots on exact source commit
+  `1deebea5ed74969b3a3673cc45c29d849ea524bb` from 2026-08-25 through
+  2026-08-26;
 - four independent, read-only delegated research tranches covering Python
   analysis, security and supply chain, documentation and repository files, and
   repository-specific coverage gaps;
@@ -111,9 +118,9 @@ allowlist/install smoke test.
 
 | Candidate | Unique value | Overlap and burden | Proposed tier |
 |---|---|---|---|
-| [`actionlint`](https://github.com/rhysd/actionlint) | Semantic GitHub Actions checks for expressions, inputs, outputs, shell blocks, action metadata, and common injection risks. | Very low runtime and configuration cost. Complements `zizmor`; does not replace repository policy tests. | **Pilot first; target local check and blocking CI if clean.** |
-| [`zizmor`](https://docs.zizmor.sh/) | Workflow-security analysis for permissions, template injection, credential persistence, unpinned references, and related GitHub Actions risks. | Some overlap with immutable-pin tests and Scorecard. Offline, console-only operation avoids token and SARIF-permission expansion during the pilot. | **Pilot second; target offline blocking CI only after triage.** |
-| [`deptry`](https://deptry.com/) | Detects missing, unused, transitive, and development/runtime dependency mistakes; supports PEP 621 and uv projects. | Unique relative to `pip-audit`. Optional adapters and test-only imports may require narrow exceptions. Upstream maturity classification requires a cautious pilot. | **Periodic audit first; promote only with low-noise configuration.** |
+| [`actionlint`](https://github.com/rhysd/actionlint) | Semantic GitHub Actions checks for expressions, inputs, outputs, shell blocks, action metadata, and common injection risks. | Two deterministic runs were clean and effectively instantaneous. Complements `zizmor`; does not replace repository policy tests. ShellCheck integration remains unmeasured. | **Ready for a separately approved local and blocking-CI design.** |
+| [`zizmor`](https://docs.zizmor.sh/) | Workflow-security analysis for permissions, template injection, credential persistence, unpinned references, and related GitHub Actions risks. | Two offline runs produced the same 11 findings. Five checkout changes, two release-cache changes, two cooldown settings, one metrics exception, and one optional release-action migration require distinct treatment. | **Remediate and document the baseline before proposing a blocking gate.** |
+| [`deptry`](https://deptry.com/) | Detects missing, unused, transitive, and development/runtime dependency mistakes; supports PEP 621 and uv projects. | The no-config baseline produced 60 self-reference artifacts and two legacy-only findings. Two narrow scope rules produced a deterministic clean result in under one second. Upstream remains classified Alpha. | **Periodic non-blocking audit first; do not promote yet.** |
 | [Import Linter](https://import-linter.readthedocs.io/en/stable/) | Declarative forbidden, layered, independence, and protected import contracts, including indirect relationships. | Partly overlaps project-owned boundary tests. Contract design must follow the maintained flat-module architecture and must not create a second architectural truth. | **Proof of concept; tracked gate only if it replaces or materially strengthens existing tests.** |
 | [ShellCheck](https://github.com/koalaman/shellcheck) | Shell syntax, quoting, expansion, portability, and control-flow defects in tracked shell scripts. | Small target surface; actionlint can use ShellCheck for inline workflow shell but does not cover every external script by itself. GPL tool usage requires an explicit policy decision even though it is not shipped with the package. | **Small follow-up pilot; local and CI if clean.** |
 
@@ -185,13 +192,29 @@ For each approved candidate:
 - The tool, version, purpose, local command, CI command, and update procedure are
   documented.
 
+## Measured pilot outcome
+
+The approved pilots are complete. In summary:
+
+- `actionlint` 1.7.12: zero findings across two runs;
+- offline `zizmor` 1.29.0: 11 stable findings requiring remediation or a
+  narrow documented exception;
+- `deptry` 0.25.1: 62 baseline findings, all explained by the project
+  self-reference and historical `legacy/` scope; zero findings across two runs
+  with the minimum two scope rules.
+
+See the
+[`full pilot evidence and classifications`](STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md)
+before making an integration decision.
+
 ## Explicit unknowns
 
-- Candidate findings, false-positive counts, and runtimes are unmeasured because
-  no candidate was installed or run.
 - The exact strict-Mypy error volume and expanded-Ruff finding volume are
   unknown.
-- Optional integration behavior under `deptry` needs a live, bounded trial.
+- The post-remediation `zizmor` baseline, release-workflow runtime cost without
+  shared caches, and final metrics-workflow exception syntax are unmeasured.
+- `deptry` behavior across the full supported Python matrix and its long-term
+  maintenance cost remain unmeasured.
 - The final Import Linter contract design and whether it earns its maintenance
   cost remain unknown.
 - Hosted CodeQL settings and successful runs are GitHub-side facts that must be
@@ -200,9 +223,9 @@ For each approved candidate:
 
 ## Maintainer decision checklist
 
-- [ ] Approve a read-only local pilot of `actionlint`.
-- [ ] Approve a read-only offline pilot of `zizmor`.
-- [ ] Approve a read-only local pilot of `deptry`.
+- [x] Approve and complete a read-only local pilot of `actionlint`.
+- [x] Approve and complete a read-only offline pilot of `zizmor`.
+- [x] Approve and complete a read-only local pilot of `deptry`.
 - [ ] Approve a bounded Ruff rule-family and Mypy strictness audit.
 - [ ] Approve an Import Linter proof of concept or choose a project-owned
       standard-library architecture check instead.
@@ -210,7 +233,6 @@ For each approved candidate:
 - [ ] Select which successful pilots may become development dependencies,
       pre-commit hooks, CI jobs, or scheduled audits.
 
-Until these boxes are reviewed, this document authorizes no installation,
-download, configuration change, workflow change, push, pull request, or
-release.
-
+The completed boxes authorize only the recorded temporary pilots. The remaining
+boxes authorize no dependency, tracked configuration, workflow, pre-commit,
+push, pull request, merge, or release change.

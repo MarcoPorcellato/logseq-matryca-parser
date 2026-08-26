@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-20
-verified: 2026-08-20
-stale_after: 2027-02-20
+last_verified: 2026-08-26
+verified: 2026-08-26
+stale_after: 2027-02-22
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -50,6 +50,7 @@ navigation layers only.
 | [README readability report](README_READABILITY_REPORT_2026-08-08.md) | Measured human and AI readability assessment and phased proposal |
 | [Issue reconciliation](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Current GitHub backlog decisions |
 | [Static analysis evaluation](quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md) | Coverage baseline, ranked candidates, adoption protocol, and approval gates |
+| [Static analysis pilot results](quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md) | Exact-revision evidence, finding dispositions, limitations, and integration gates for the first three pilots |
 | [Static analysis adoption goal](goals/STATIC_ANALYSIS_ADOPTION_GOAL.md) | Persistent execution pointer for approved tool pilots and integration decisions |
 | [Decision index](decisions/index.md) | Architectural decisions, including the external-oracle boundary |
 | [Reference index](reference/index.md) | Provenance and external relations |

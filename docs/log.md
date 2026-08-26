@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-25
-verified: 2026-08-25
-stale_after: 2027-02-17
+last_verified: 2026-08-26
+verified: 2026-08-26
+stale_after: 2027-02-22
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -18,6 +18,18 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-08-26
+
+- Completed and documented the first three advisory static-analysis pilots on
+  exact source commit `1deebea5ed74969b3a3673cc45c29d849ea524bb`.
+  `actionlint` produced a clean deterministic baseline; offline `zizmor`
+  produced 11 classified workflow findings; `deptry` produced a clean,
+  deterministic result after two narrow scope rules explained by the project
+  self-reference and historical `legacy/` boundary. No tool was added to the
+  repository or project environment. Integration remains a separate
+  per-candidate maintainer decision recorded in the
+  [pilot results](quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md).
 
 ## 2026-08-25
 
@@ -27,8 +39,8 @@ superseded_by: null
   Four independent read-only research tranches and live repository inspection
   identified workflow semantics, dependency declaration correctness, portable
   architecture enforcement, phased Ruff/Mypy strictness, and support-surface
-  coverage as the highest-value gaps. No tool was installed or enabled; each
-  pilot and integration tier remains an explicit maintainer gate.
+  coverage as the highest-value gaps. No tool was integrated or enabled; each
+  pilot and integration tier remained an explicit maintainer gate.
 - Published v1.8.1 at
   `bb8ec6b758e0e7b3429de49ca252ae8b62f97689` after the coherent graph,
   bounded parser, local-assurance, runtime-evidence, stable NLTK, package,

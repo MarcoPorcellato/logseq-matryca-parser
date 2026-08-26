@@ -52,16 +52,50 @@ will necessarily postdate the saved implementation HEAD above.
   dead code, complexity, documentation, and supply-chain coverage.
 - Current state: the research is complete and synthesized in
   [`../quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md`](../quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md).
+- Measured pilot evidence:
+  [`../quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md`](../quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md).
 - Persistent execution pointer:
   [`../goals/STATIC_ANALYSIS_ADOPTION_GOAL.md`](../goals/STATIC_ANALYSIS_ADOPTION_GOAL.md).
 - Delegation: four independent read-only Luna tranches covered Python analysis,
   security and supply chain, documentation and repository files, and a local
   gap inventory. The primary review reconciled disagreements and retained only
   non-overlapping, evidence-led recommendations.
-- Leading pilots: `actionlint`, offline `zizmor`, and `deptry`; followed by a
-  bounded Ruff/Mypy strictness audit and an architecture-gate proof of concept.
-- Installation state: none. No dependency, configuration, workflow, or local
-  tool has been added by this study.
+- Approved pilot tranche: `actionlint`, offline `zizmor`, and `deptry`; followed
+  only after a separate decision by a bounded Ruff/Mypy strictness audit and an
+  architecture-gate proof of concept.
+- Pilot anchor: clean branch `fix/v1.8.2-path-docs` at
+  `1deebea5ed74969b3a3673cc45c29d849ea524bb`.
+- `actionlint` 1.7.12 completed twice against the tracked workflows with no
+  findings. The official macOS arm64 archive checksum and GitHub artifact
+  attestation verified before execution. The command completed effectively
+  instantaneously. ShellCheck was not installed, so the optional inline-shell
+  integration was outside this pilot.
+- Offline `zizmor` 1.29.0 completed twice with stable results in about 0.24
+  seconds: 11 findings across `artipacked` (6), `cache-poisoning` (2),
+  `dependabot-cooldown` (2), and `superfluous-actions` (1). No token was exposed,
+  no online audit ran, and no repository configuration or ignore file was used.
+- The six checkout findings split into five useful hardening candidates and one
+  intentional credential-persistence requirement in `daily-metrics.yml`, whose
+  job commits and pushes archived metrics. The two release-workflow cache
+  findings are credible release-hardening defects because the tag-triggered
+  pre-flight and build jobs consume shared dependency caches before producing
+  publication artifacts. The Dependabot cooldown findings are useful
+  supply-chain hardening; GitHub documents that cooldown affects version updates
+  but not security updates. Replacing the pinned release action with the runner's
+  `gh` CLI is an informational dependency-reduction option, not an urgent defect.
+- `deptry` 0.25.1 completed two identical baseline scans. Each scanned 34 files
+  in 0.36 seconds and produced the same 62 findings: 60 `DEP004` artifacts from
+  the project's development-group self-reference and two `DEP001` findings in
+  historical `legacy/` code. Two additional runs with only a rule-scoped
+  first-party exception and the existing legacy boundary produced identical
+  empty JSON outputs in 0.86 and 0.35 seconds. The project manifest and lockfile
+  digests remained unchanged.
+- The completed pilot synthesis passed `make all`: Ruff, Mypy across 78 source
+  files, vendor-name and maintained-documentation checks, and 763 tests at
+  91.20% coverage.
+- Installation state: temporary, isolated pilot artifacts only. No dependency,
+  lock, configuration, workflow, pre-commit, global tool, or project virtual
+  environment was changed.
 - Policy: standard permissively licensed open-source linters may be considered
   for repository integration. Restricted or experimental graph indexers remain
   local-only Ghost Tooling and must not be named in public artifacts.
@@ -73,11 +107,12 @@ will necessarily postdate the saved implementation HEAD above.
 2. Read `AGENTS.md`, `docs/internal/STATIC_ANALYSIS_POLICY.md`, this handoff,
    the static-analysis evaluation, and the persistent adoption goal.
 3. Confirm that no worker or heavy process is still active.
-4. Review the evidence matrix and choose which proposed tools, if any, may be
-   installed locally, added as development dependencies, or enabled in CI.
-5. Treat installation, dependency edits, CI mutation, push, PR, merge, and
-   release as separate approval gates.
-6. After an approved installation, run targeted checks first and `make all`
+4. Review the complete pilot results and choose separately whether to design an
+   `actionlint` gate, remediate and baseline `zizmor`, or introduce a periodic
+   non-blocking `deptry` audit.
+5. Treat dependency edits, tracked configuration, CI mutation, push, PR, merge,
+   and release as separate approval gates.
+6. After an approved integration, run targeted checks first and `make all`
    before claiming integration success.
 
 ## Boundaries that must survive the restart

@@ -34,6 +34,7 @@ maintained_documents = [
   "docs/README_READABILITY_REPORT_2026-08-08.md",
   "docs/quality/ISSUE_RECONCILIATION_2026-08-06.md",
   "docs/quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md",
+  "docs/quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md",
   "docs/quality/README.md",
   "docs/decisions/index.md",
   "docs/decisions/ADR-0001-PROTOCOL_ADAPTER_BOUNDARY.md",

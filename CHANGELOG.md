@@ -15,9 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Static-analysis adoption record** — document the current quality baseline,
-  non-overlapping candidate tools, ranked pilots, explicit unknowns, and
-  maintainer gates without installing or enabling new analysis software.
+- **Static-analysis adoption evidence** — document the current quality baseline
+  and complete isolated advisory pilots for `actionlint`, offline `zizmor`, and
+  `deptry`, including deterministic findings, narrow limitations, artifact
+  provenance, and separate maintainer gates without integrating new analysis
+  software into dependencies, pre-commit, or CI.
 - **Code-aligned human and agent documentation** — reconcile the CLI command
   surface, default `scan` behavior, contributor task navigation, architecture
   claims, and diagrams with the current implementation.
