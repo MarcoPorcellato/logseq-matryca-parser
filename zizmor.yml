@@ -1,0 +1,6 @@
+rules:
+  superfluous-actions:
+    ignore:
+      # The release action is immutable-SHA pinned and contract-tested. Replacing
+      # it with gh CLI remains a separate, non-security migration.
+      - pypi_publish.yml:205

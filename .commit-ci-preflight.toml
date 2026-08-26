@@ -1,0 +1,117 @@
+schema_version = "2.0"
+project = "MarcoPorcellato/logseq-matryca-parser"
+
+[receipt]
+output = ".ccp/receipt.json"
+freshness_seconds = 86400
+
+[environment]
+allow = []
+
+[[runtimes]]
+id = "python312"
+kind = "docker_compatible"
+image = "ghcr.io/astral-sh/uv@sha256:e5b65587bce7de595f299855d7385fe7fca39b8a74baa261ba1b7147afa78e58"
+cpu_count = 4
+memory_mib = 4096
+pids_limit = 512
+network = true
+
+[[runtimes]]
+id = "python313"
+kind = "docker_compatible"
+image = "ghcr.io/astral-sh/uv@sha256:531f855bda2c73cd6ef67d56b733b357cea384185b3022bd09f05e002cd144ca"
+cpu_count = 4
+memory_mib = 4096
+pids_limit = 512
+network = true
+
+[[caches]]
+id = "uv"
+mount_path = ".ccp-mounts/uv"
+
+[[caches]]
+id = "venv-py312"
+mount_path = ".ccp-mounts/venv-py312"
+
+[[caches]]
+id = "venv-py313"
+mount_path = ".ccp-mounts/venv-py313"
+
+[[caches]]
+id = "quality-py312"
+mount_path = ".ccp-mounts/quality-py312"
+
+[[caches]]
+id = "quality-py313"
+mount_path = ".ccp-mounts/quality-py313"
+
+[[checks]]
+id = "python312-sync"
+runtime_id = "python312"
+required = true
+argv = ["env", "UV_CACHE_DIR=/workspace/.ccp-mounts/uv", "UV_PROJECT_ENVIRONMENT=/workspace/.ccp-mounts/venv-py312", "UV_LINK_MODE=copy", "PYTHONDONTWRITEBYTECODE=1", "uv", "sync", "--locked", "--all-extras"]
+working_directory = "."
+timeout_seconds = 600
+
+[[checks]]
+id = "python312-lint"
+runtime_id = "python312"
+required = true
+argv = ["env", "UV_CACHE_DIR=/workspace/.ccp-mounts/uv", "UV_PROJECT_ENVIRONMENT=/workspace/.ccp-mounts/venv-py312", "UV_LINK_MODE=copy", "PYTHONDONTWRITEBYTECODE=1", "RUFF_CACHE_DIR=/workspace/.ccp-mounts/quality-py312/ruff", "uv", "run", "ruff", "check", "."]
+working_directory = "."
+timeout_seconds = 300
+depends_on = ["python312-sync"]
+
+[[checks]]
+id = "python312-types"
+runtime_id = "python312"
+required = true
+argv = ["env", "UV_CACHE_DIR=/workspace/.ccp-mounts/uv", "UV_PROJECT_ENVIRONMENT=/workspace/.ccp-mounts/venv-py312", "UV_LINK_MODE=copy", "PYTHONDONTWRITEBYTECODE=1", "uv", "run", "mypy", "--cache-dir", "/workspace/.ccp-mounts/quality-py312/mypy", "src/", "tests/", "examples/", "scripts/check_documentation.py", "scripts/check_release_contract.py", "scripts/check_wheel_contract.py", "scripts/generate_supply_chain_evidence.py", "scripts/update_compat_snapshots.py"]
+working_directory = "."
+timeout_seconds = 600
+depends_on = ["python312-sync"]
+
+[[checks]]
+id = "python312-vendor-policy"
+runtime_id = "python312"
+required = true
+argv = ["env", "PYTHONDONTWRITEBYTECODE=1", "bash", "scripts/check_vendor_free_docs.sh"]
+working_directory = "."
+timeout_seconds = 300
+depends_on = ["python312-sync"]
+
+[[checks]]
+id = "python312-docs"
+runtime_id = "python312"
+required = true
+argv = ["env", "UV_CACHE_DIR=/workspace/.ccp-mounts/uv", "UV_PROJECT_ENVIRONMENT=/workspace/.ccp-mounts/venv-py312", "UV_LINK_MODE=copy", "PYTHONDONTWRITEBYTECODE=1", "bash", "-c", "uv run python scripts/check_documentation.py --root . --profile docs/maintained.toml --as-of-date \"$(date -u +%F)\""]
+working_directory = "."
+timeout_seconds = 300
+depends_on = ["python312-sync"]
+
+[[checks]]
+id = "python312-tests"
+runtime_id = "python312"
+required = true
+argv = ["env", "UV_CACHE_DIR=/workspace/.ccp-mounts/uv", "UV_PROJECT_ENVIRONMENT=/workspace/.ccp-mounts/venv-py312", "UV_LINK_MODE=copy", "PYTHONDONTWRITEBYTECODE=1", "COVERAGE_FILE=/workspace/.ccp-mounts/quality-py312/.coverage", "uv", "run", "pytest", "-p", "no:cacheprovider", "--cov=src/logseq_matryca_parser", "--cov-report=term-missing", "--cov-fail-under=80", "-v", "tests/"]
+working_directory = "."
+timeout_seconds = 1200
+depends_on = ["python312-sync"]
+
+[[checks]]
+id = "python313-sync"
+runtime_id = "python313"
+required = true
+argv = ["env", "UV_CACHE_DIR=/workspace/.ccp-mounts/uv", "UV_PROJECT_ENVIRONMENT=/workspace/.ccp-mounts/venv-py313", "UV_LINK_MODE=copy", "PYTHONDONTWRITEBYTECODE=1", "uv", "sync", "--locked", "--all-extras"]
+working_directory = "."
+timeout_seconds = 600
+
+[[checks]]
+id = "python313-tests"
+runtime_id = "python313"
+required = true
+argv = ["env", "UV_CACHE_DIR=/workspace/.ccp-mounts/uv", "UV_PROJECT_ENVIRONMENT=/workspace/.ccp-mounts/venv-py313", "UV_LINK_MODE=copy", "PYTHONDONTWRITEBYTECODE=1", "COVERAGE_FILE=/workspace/.ccp-mounts/quality-py313/.coverage", "uv", "run", "pytest", "-p", "no:cacheprovider", "--cov=src/logseq_matryca_parser", "--cov-report=term-missing", "--cov-fail-under=80", "-v", "tests/"]
+working_directory = "."
+timeout_seconds = 1200
+depends_on = ["python313-sync"]

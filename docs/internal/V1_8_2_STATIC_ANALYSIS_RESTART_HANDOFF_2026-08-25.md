@@ -3,6 +3,10 @@
 This handoff records a restart checkpoint. It is not a release, publication, or
 static-analysis qualification receipt.
 
+The static-analysis pilot portion of this checkpoint continued on 2026-08-26.
+Its implemented state and CCP bootstrap are now governed by the
+[`static analysis and CCP integration record`](../quality/STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md).
+
 ## Safe resume point
 
 - Repository: `/Users/marco1/Documents/CODICE con VS CODE/logseq-matryca-parser`

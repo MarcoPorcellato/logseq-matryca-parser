@@ -104,6 +104,12 @@ skip_empty = true
 [tool.mypy]
 python_version = "3.12"
 
+[tool.deptry]
+extend_exclude = ["legacy"]
+
+[tool.deptry.per_rule_ignores]
+DEP004 = ["logseq_matryca_parser"]
+
 [[tool.mypy.overrides]]
 module = [
     "watchdog.*",

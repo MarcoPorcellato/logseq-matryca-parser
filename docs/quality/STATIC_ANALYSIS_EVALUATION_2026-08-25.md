@@ -28,7 +28,7 @@ overlapping linters.
 The first three advisory pilots are complete. Their exact-revision evidence,
 finding classifications, runtime observations, and integration gates are in the
 [`static analysis pilot results`](STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md).
-The resulting order is:
+The resulting order was:
 
 1. design a bounded blocking integration for the clean `actionlint` baseline;
 2. remediate and document the offline `zizmor` baseline before considering a
@@ -40,7 +40,9 @@ The resulting order is:
 6. consider ShellCheck and a periodic external-link check as smaller follow-up
    improvements.
 
-Every pilot must record findings, false positives, runtime, configuration,
+The first three steps are now implemented under the
+[`static analysis and CCP integration record`](STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md).
+Every later pilot must record findings, false positives, runtime, configuration,
 license, installation source, and overlap before it can become a blocking gate.
 Installation, dependency changes, pre-commit integration, CI integration, and
 publication are separate maintainer decisions.
@@ -205,14 +207,16 @@ The approved pilots are complete. In summary:
 
 See the
 [`full pilot evidence and classifications`](STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md)
-before making an integration decision.
+and the subsequent
+[`integration record`](STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md).
 
 ## Explicit unknowns
 
 - The exact strict-Mypy error volume and expanded-Ruff finding volume are
   unknown.
-- The post-remediation `zizmor` baseline, release-workflow runtime cost without
-  shared caches, and final metrics-workflow exception syntax are unmeasured.
+- Release-workflow runtime cost without shared caches remains unmeasured; the
+  post-remediation offline `zizmor` baseline is clean with two localized,
+  documented exceptions.
 - `deptry` behavior across the full supported Python matrix and its long-term
   maintenance cost remain unmeasured.
 - The final Import Linter contract design and whether it earns its maintenance
@@ -226,13 +230,17 @@ before making an integration decision.
 - [x] Approve and complete a read-only local pilot of `actionlint`.
 - [x] Approve and complete a read-only offline pilot of `zizmor`.
 - [x] Approve and complete a read-only local pilot of `deptry`.
+- [x] Approve and integrate actionlint, remediate and baseline offline zizmor,
+      and schedule deptry with the two measured scope rules.
+- [x] Approve a CCP matrix bootstrap for staged GitHub Actions savings without
+      activating hosted-job skipping.
 - [ ] Approve a bounded Ruff rule-family and Mypy strictness audit.
 - [ ] Approve an Import Linter proof of concept or choose a project-owned
       standard-library architecture check instead.
 - [ ] Approve ShellCheck and periodic link-checking follow-ups.
-- [ ] Select which successful pilots may become development dependencies,
-      pre-commit hooks, CI jobs, or scheduled audits.
+- [x] Select the first integration tiers without adding Python analyzers to the
+      project dependency lock.
 
-The completed boxes authorize only the recorded temporary pilots. The remaining
-boxes authorize no dependency, tracked configuration, workflow, pre-commit,
-push, pull request, merge, or release change.
+The completed boxes cover only the recorded pilot and first integration
+tranche. The remaining boxes authorize no additional dependency, tool tier,
+workflow routing, push, pull request, merge, or release change.

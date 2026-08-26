@@ -21,6 +21,20 @@ superseded_by: null
 
 ## 2026-08-26
 
+- Integrated the three approved static-analysis recommendations with narrow
+  tiers: path-scoped blocking actionlint and offline zizmor checks, plus a
+  monthly/manual deptry audit using only the measured self-reference and
+  historical-code scope rules. Remediated nine workflow findings and retained
+  two localized, documented exceptions without disabling an audit.
+- Added a digest-pinned Python 3.12/3.13 CCP matrix and exact policy, guarded by
+  the qualified local executable SHA-256. Planning, matrix runtime diagnosis,
+  and rendered argv validation completed. The integration remains in
+  observation mode: hosted CI is unconditional until exact-head parity,
+  rejection tests, fallback behavior, and measured savings support a separate
+  activation decision. See the
+  [integration record](quality/STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md).
+  The complete local gate passed 774 tests at 91.20% coverage, and the wheel,
+  source distribution, Twine metadata, and downstream typing checks passed.
 - Completed and documented the first three advisory static-analysis pilots on
   exact source commit `1deebea5ed74969b3a3673cc45c29d849ea524bb`.
   `actionlint` produced a clean deterministic baseline; offline `zizmor`

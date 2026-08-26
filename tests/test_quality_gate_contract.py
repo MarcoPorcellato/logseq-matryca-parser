@@ -168,3 +168,181 @@ def test_daily_metrics_write_job_is_main_only() -> None:
     assert "git push origin HEAD:main" in workflow
     assert "pull_request" not in workflow
     assert "pull_request_target" not in workflow
+
+
+def test_workflow_analysis_is_path_scoped_and_blocking() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "workflow-analysis.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "pull_request:" in workflow
+    assert "push:" in workflow
+    assert 'branches: ["main"]' in workflow
+    assert workflow.count("paths:") == 2
+    assert "contents: read" in workflow
+    assert "persist-credentials: false" in workflow
+    assert "actionlint_1.7.12_linux_amd64.tar.gz" in workflow
+    assert "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8" in workflow
+    assert "zizmor==1.29.0" in workflow
+    assert "--offline" in workflow
+    assert "--strict-collection" in workflow
+    assert "--format=github" in workflow
+    assert "GH_TOKEN" not in workflow
+
+
+def test_dependency_hygiene_is_periodic_and_not_a_pull_request_gate() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "dependency-hygiene.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "schedule:" in workflow
+    assert "workflow_dispatch:" in workflow
+    assert "pull_request:" not in workflow
+    assert "push:" not in workflow
+    assert "contents: read" in workflow
+    assert "persist-credentials: false" in workflow
+    assert "deptry==0.25.1" in workflow
+    assert "uv run --with deptry==0.25.1 deptry . --github-output" in workflow
+    assert "uvx --from deptry" not in workflow
+
+
+def test_actionlint_pre_commit_hook_is_pinned_to_the_qualified_commit() -> None:
+    config = (ROOT / ".pre-commit-config.yaml").read_text(encoding="utf-8")
+
+    assert "https://github.com/rhysd/actionlint" in config
+    assert "rev: 914e7df21a07ef503a81201c76d2b11c789d3fca" in config
+    assert "-   id: actionlint" in config
+
+
+def test_non_writing_checkouts_do_not_persist_credentials() -> None:
+    workflows = {
+        name: (ROOT / ".github" / "workflows" / name).read_text(encoding="utf-8")
+        for name in ("ci.yml", "parser-adversarial.yml", "pypi_publish.yml")
+    }
+
+    assert workflows["ci.yml"].count("persist-credentials: false") == 2
+    assert workflows["parser-adversarial.yml"].count("persist-credentials: false") == 1
+    assert workflows["pypi_publish.yml"].count("persist-credentials: false") == 2
+
+    daily_metrics = (ROOT / ".github" / "workflows" / "daily-metrics.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "persist-credentials: true" in daily_metrics
+    assert "zizmor: ignore[artipacked]" in daily_metrics
+
+
+def test_release_build_jobs_disable_dependency_caches() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "pypi_publish.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "enable-cache: true" not in workflow
+    assert workflow.count("enable-cache: false") == 2
+
+
+def test_dependabot_delays_version_updates_without_delaying_security_updates() -> None:
+    config = (ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")
+
+    assert config.count("cooldown:") == 2
+    assert config.count("default-days: 7") == 2
+
+
+def test_deptry_configuration_has_only_the_measured_scope_rules() -> None:
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    deptry = pyproject["tool"]["deptry"]
+
+    assert deptry["extend_exclude"] == ["legacy"]
+    assert deptry["per_rule_ignores"] == {"DEP004": ["logseq_matryca_parser"]}
+    assert "ignore" not in deptry
+
+
+def test_zizmor_configuration_uses_only_the_release_action_exception() -> None:
+    config = (ROOT / "zizmor.yml").read_text(encoding="utf-8")
+
+    assert config.count("ignore:") == 1
+    assert "artipacked:" not in config
+    assert "superfluous-actions:" in config
+    assert "pypi_publish.yml:205" in config
+    assert "disable: true" not in config
+
+
+def test_ccp_matrix_configuration_covers_both_supported_python_versions() -> None:
+    config = tomllib.loads((ROOT / ".commit-ci-preflight.toml").read_text(encoding="utf-8"))
+
+    assert config["schema_version"] == "2.0"
+    assert config["project"] == "MarcoPorcellato/logseq-matryca-parser"
+    assert config["receipt"] == {
+        "output": ".ccp/receipt.json",
+        "freshness_seconds": 86400,
+    }
+    assert config["environment"] == {"allow": []}
+
+    runtimes = {runtime["id"]: runtime for runtime in config["runtimes"]}
+    assert set(runtimes) == {"python312", "python313"}
+    for runtime in runtimes.values():
+        assert re.fullmatch(r"[^@]+@sha256:[0-9a-f]{64}", runtime["image"])
+        assert runtime["network"] is True
+
+    checks = config["checks"]
+    assert {check["runtime_id"] for check in checks} == set(runtimes)
+    assert all(check["required"] is True for check in checks)
+    assert all(check["argv"][0] not in {"bash", "sh", "zsh"} for check in checks)
+    assert all("make" not in check["argv"] for check in checks)
+    assert {check["id"] for check in checks} == {
+        "python312-sync",
+        "python312-lint",
+        "python312-types",
+        "python312-vendor-policy",
+        "python312-docs",
+        "python312-tests",
+        "python313-sync",
+        "python313-tests",
+    }
+
+
+def test_ccp_operator_targets_verify_the_qualified_binary_before_use() -> None:
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    launcher = (ROOT / "scripts" / "run_qualified_ccp.sh").read_text(encoding="utf-8")
+    gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+
+    for target in ("ccp-plan", "ccp-doctor", "ccp-dry-run", "ccp-verify"):
+        assert f"{target}:" in makefile
+    assert "ccp-run:" not in makefile
+    assert "command -v commit-ci-preflight" in launcher
+    assert "/Users/" not in launcher
+    assert "b8d26013800c99ba806506a0539a9ddc781bfab52f95c8f1dbdff1b65c2fcd4c" in launcher
+    assert ".ccp/receipt.json" in gitignore
+    assert ".ccp-mounts/" in gitignore
+
+
+def test_ccp_policy_binds_the_reviewed_matrix_and_required_checks() -> None:
+    policy = tomllib.loads((ROOT / ".commit-ci-policy.toml").read_text(encoding="utf-8"))
+
+    assert policy["schema_version"] == "2.0"
+    assert policy["project"] == "MarcoPorcellato/logseq-matryca-parser"
+    assert policy["configuration_digest"] == (
+        "sha256:4fb7f31095c8c74938df25f623cddb7feacc96d5fa9fe7364bf25b679a4796a2"
+    )
+    assert {(item["id"], item["runtime_id"]) for item in policy["required_checks"]} == {
+        ("python312-sync", "python312"),
+        ("python312-lint", "python312"),
+        ("python312-types", "python312"),
+        ("python312-vendor-policy", "python312"),
+        ("python312-docs", "python312"),
+        ("python312-tests", "python312"),
+        ("python313-sync", "python313"),
+        ("python313-tests", "python313"),
+    }
+
+    runtimes = {runtime["id"]: runtime for runtime in policy["runtimes"]}
+    assert runtimes["python312"]["configuration_digest"] == (
+        "sha256:28e8e38ea6eb7eef702b36f57f8c373ecc125896b3a3c30c021c501a0bc70a3f"
+    )
+    assert runtimes["python313"]["configuration_digest"] == (
+        "sha256:82ed2a348589b029b4feeb03f34c46d9c12039dd9f113691de706c39606cf9b3"
+    )
+    assert all(
+        runtime["platforms"]
+        == [{"host_os": "macos", "host_arch": "aarch64", "runtime_kind": "docker_compatible"}]
+        for runtime in runtimes.values()
+    )

@@ -58,6 +58,7 @@ entry points.
 | [`quality/ISSUE_RECONCILIATION_2026-08-06.md`](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Maintainers, contributors | Evidence-backed disposition of every issue open at the audit baseline |
 | [`quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md`](quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md) | Maintainers | Static-analysis coverage, ranked candidates, adoption protocol, and approval checklist |
 | [`quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md`](quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md) | Maintainers | Exact-revision results and integration dispositions for the first three static-analysis pilots |
+| [`quality/STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md`](quality/STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md) | Maintainers | Implemented analyzer tiers, workflow hardening, local CCP matrix, and staged GitHub Actions savings gate |
 | [`goals/STATIC_ANALYSIS_ADOPTION_GOAL.md`](goals/STATIC_ANALYSIS_ADOPTION_GOAL.md) | Maintainers | Persistent execution pointer for approved static-analysis pilots |
 | [`decisions/index.md`](decisions/index.md) | Maintainers | Canonical decision registry, including the external-oracle boundary |
 | [`reference/index.md`](reference/index.md) | Maintainers, integrators | Provenance and Matryca ecosystem relations |

@@ -48,6 +48,11 @@ version; use `vX.Y.Z` for the git tag).
 - [ ] Verify every file, command, issue disposition, and shipped capability
       named in the versioned changelog against the exact release commit
 - [ ] Run `make all` (Ruff, Mypy, documentation checks, and Pytest)
+- [ ] If producing local CCP observation evidence, review the
+      [static-analysis and CCP integration contract](quality/STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md),
+      verify the exact binary and policy, and follow the separately authorized
+      heavy-run envelope. A local receipt does not replace the exact-tag hosted
+      release workflow.
 - [ ] Run `python -m scripts.check_release_contract --tag vX.Y.Z`
 - [ ] Build wheel and sdist once locally, run `python scripts/check_wheel_contract.py path/to/wheel.whl`, `twine check`, and record SHA-256 digests; keep the build backend pin when metadata compatibility matters
 - [ ] Review [the dependency/license policy](reference/DEPENDENCY_LICENSE_POLICY.md),

@@ -26,6 +26,7 @@ Maintainer-facing triage and backlog for Clean Architecture / Clean Code work.
 | [`ISSUE_RECONCILIATION_2026-08-06.md`](ISSUE_RECONCILIATION_2026-08-06.md) | Current disposition of every open GitHub issue and stellar-roadmap integration |
 | [`STATIC_ANALYSIS_EVALUATION_2026-08-25.md`](STATIC_ANALYSIS_EVALUATION_2026-08-25.md) | Current static-analysis coverage, candidate comparison, adoption protocol, and maintainer decision gates |
 | [`STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md`](STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md) | Exact-revision results, finding classifications, limitations, and integration gates for the first three pilots |
+| [`STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md`](STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md) | Implemented analyzer tiers, workflow hardening, CCP matrix bootstrap, savings boundary, and next activation gate |
 | [`../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Current repository-wide evidence, priorities and MKQ-4 plan |
 | [`../DOCUMENTATION_SYSTEM.md`](../DOCUMENTATION_SYSTEM.md) | Canonical documentation authority, metadata, lifecycle, and federation contract |
 | [`GITHUB_CLEAN_ARCH_ROADMAP.md`](GITHUB_CLEAN_ARCH_ROADMAP.md) | Milestone, project board, epic + phase issues (v1.6) |

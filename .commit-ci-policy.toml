@@ -1,0 +1,48 @@
+schema_version = "2.0"
+project = "MarcoPorcellato/logseq-matryca-parser"
+configuration_digest = "sha256:4fb7f31095c8c74938df25f623cddb7feacc96d5fa9fe7364bf25b679a4796a2"
+max_age_seconds = 86400
+
+[[required_checks]]
+id = "python312-sync"
+runtime_id = "python312"
+
+[[required_checks]]
+id = "python312-lint"
+runtime_id = "python312"
+
+[[required_checks]]
+id = "python312-types"
+runtime_id = "python312"
+
+[[required_checks]]
+id = "python312-vendor-policy"
+runtime_id = "python312"
+
+[[required_checks]]
+id = "python312-docs"
+runtime_id = "python312"
+
+[[required_checks]]
+id = "python312-tests"
+runtime_id = "python312"
+
+[[required_checks]]
+id = "python313-sync"
+runtime_id = "python313"
+
+[[required_checks]]
+id = "python313-tests"
+runtime_id = "python313"
+
+[[runtimes]]
+id = "python312"
+image_reference = "ghcr.io/astral-sh/uv@sha256:e5b65587bce7de595f299855d7385fe7fca39b8a74baa261ba1b7147afa78e58"
+configuration_digest = "sha256:28e8e38ea6eb7eef702b36f57f8c373ecc125896b3a3c30c021c501a0bc70a3f"
+platforms = [{ host_os = "macos", host_arch = "aarch64", runtime_kind = "docker_compatible" }]
+
+[[runtimes]]
+id = "python313"
+image_reference = "ghcr.io/astral-sh/uv@sha256:531f855bda2c73cd6ef67d56b733b357cea384185b3022bd09f05e002cd144ca"
+configuration_digest = "sha256:82ed2a348589b029b4feeb03f34c46d9c12039dd9f113691de706c39606cf9b3"
+platforms = [{ host_os = "macos", host_arch = "aarch64", runtime_kind = "docker_compatible" }]

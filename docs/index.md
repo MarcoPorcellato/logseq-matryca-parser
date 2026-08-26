@@ -51,6 +51,7 @@ navigation layers only.
 | [Issue reconciliation](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Current GitHub backlog decisions |
 | [Static analysis evaluation](quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md) | Coverage baseline, ranked candidates, adoption protocol, and approval gates |
 | [Static analysis pilot results](quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md) | Exact-revision evidence, finding dispositions, limitations, and integration gates for the first three pilots |
+| [Static analysis and CCP integration](quality/STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md) | Implemented analyzer tiers, workflow hardening, local matrix policy, and staged hosted-CI savings gate |
 | [Static analysis adoption goal](goals/STATIC_ANALYSIS_ADOPTION_GOAL.md) | Persistent execution pointer for approved tool pilots and integration decisions |
 | [Decision index](decisions/index.md) | Architectural decisions, including the external-oracle boundary |
 | [Reference index](reference/index.md) | Provenance and external relations |

@@ -16,10 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Static-analysis adoption evidence** — document the current quality baseline
-  and complete isolated advisory pilots for `actionlint`, offline `zizmor`, and
-  `deptry`, including deterministic findings, narrow limitations, artifact
-  provenance, and separate maintainer gates without integrating new analysis
-  software into dependencies, pre-commit, or CI.
+  and progress the isolated advisory pilots into narrow tracked tiers:
+  path-scoped blocking `actionlint` and offline `zizmor`, a monthly/manual
+  `deptry` audit, workflow credential/cache hardening, and Dependabot cooldowns.
+- **Local CI qualification bootstrap** — add a digest-pinned Python 3.12/3.13
+  Commit CI Preflight matrix, exact policy, qualified-binary guard, and
+  non-heavy operator targets. Hosted CI remains authoritative until a separate
+  exact-head parity and receipt-routing gate proves that jobs can be skipped
+  safely.
 - **Code-aligned human and agent documentation** — reconcile the CLI command
   surface, default `scan` behavior, contributor task navigation, architecture
   claims, and diagrams with the current implementation.

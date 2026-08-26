@@ -1,0 +1,35 @@
+name: Dependency Hygiene Audit
+
+on:
+  schedule:
+    - cron: "23 4 1 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: dependency-hygiene-${{ github.repository }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deptry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv without a shared cache
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.12"
+          enable-cache: false
+
+      - name: Sync the locked project environment
+        run: uv sync --locked --all-extras
+
+      - name: Check dependency declarations
+        run: uv run --with deptry==0.25.1 deptry . --github-output

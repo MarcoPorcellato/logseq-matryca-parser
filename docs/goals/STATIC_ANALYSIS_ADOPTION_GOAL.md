@@ -22,12 +22,15 @@ superseded_by: null
 Execute only the maintainer-approved pilots from
 [`docs/quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md`](../quality/STATIC_ANALYSIS_EVALUATION_2026-08-25.md).
 
-The initial `actionlint`, offline `zizmor`, and `deptry` pilots are complete.
+The initial `actionlint`, offline `zizmor`, and `deptry` pilots and their first
+tracked integration tranche are complete.
 Their measured evidence and dispositions are in
 [`docs/quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md`](../quality/STATIC_ANALYSIS_PILOT_RESULTS_2026-08-26.md).
-The next gate is an explicit per-tool integration decision: bounded blocking
-design for `actionlint`, finding remediation and exception design for `zizmor`,
-and periodic non-blocking design for `deptry`.
+The implementation and staged local-CI savings boundary are recorded in the
+[`static analysis and CCP integration record`](../quality/STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md).
+The next decision gate is CCP exact-head parity and trusted receipt routing;
+Ruff/Mypy strictness, portable architecture enforcement, ShellCheck, and link
+checking remain separate future pilots.
 
 Start by re-verifying the exact repository state, candidate release, license,
 artifact provenance, platform support, and network behavior. Run each tool in
@@ -36,9 +39,10 @@ stop for an explicit integration decision. Prefer expanding Ruff and Mypy or a
 small project-owned deterministic check when they close the same gap with less
 burden.
 
-Do not retain or integrate a tool, modify dependencies, change pre-commit or CI,
-publish a branch, open or merge a pull request, or release a package unless the
-maintainer has authorized that exact gate. Preserve the Ghost Tooling boundary:
+Do not expand a tool's tier, activate hosted-CI skipping, publish a receipt,
+change branch protection, publish a branch, open or merge a pull request, or
+release a package unless the maintainer has authorized that exact gate.
+Preserve the Ghost Tooling boundary:
 restricted or experimental graph indexers remain local-only and unnamed in
 public artifacts.
 

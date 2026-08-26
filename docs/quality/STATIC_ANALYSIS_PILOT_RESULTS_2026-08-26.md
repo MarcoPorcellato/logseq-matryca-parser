@@ -31,9 +31,11 @@ pre-commit configuration, or tracked source file.
 | `zizmor` 1.29.0 offline | Eleven deterministic findings requiring four distinct dispositions | **High value, but not baseline-clean. Remediate or document every finding before integration.** |
 | `deptry` 0.25.1 | Sixty-two deterministic baseline findings; zero after two narrow, explained scope rules | **Adopt only as a periodic non-blocking audit first. Reconsider blocking status after repository and upstream experience.** |
 
-This record authorizes no integration. Dependency changes, tracked
-configuration, workflow edits, pre-commit hooks, push, pull request, merge, and
-release remain separate maintainer gates.
+The maintainer subsequently approved the three recommendations and a CCP
+bootstrap. The resulting tracked implementation is documented in the
+[`static analysis and CCP integration record`](STATIC_ANALYSIS_AND_CCP_INTEGRATION_2026-08-26.md).
+Push, pull request, merge, hosted-CI routing, receipt publication, and release
+remain separate maintainer gates.
 
 ## Evidence boundary
 
@@ -172,16 +174,19 @@ upstream maturity and update procedure.
 
 The next maintainer decision should be made separately for each candidate:
 
-- [ ] Approve a bounded `actionlint` integration design.
-- [ ] Approve remediation and exception design for the 11 `zizmor` findings.
-- [ ] Approve a periodic, non-blocking `deptry` integration design with only the
+- [x] Approve a bounded `actionlint` integration design.
+- [x] Approve remediation and exception design for the 11 `zizmor` findings.
+- [x] Approve a periodic, non-blocking `deptry` integration design with only the
       two measured scope rules.
-- [ ] Decide whether the three tools remain external pinned executables or any
+- [x] Decide whether the three tools remain external pinned executables or any
       Python tool becomes a development dependency.
-- [ ] Require focused workflow-contract tests for workflow changes and the full
+- [x] Require focused workflow-contract tests for workflow changes and the full
       repository/package gates before publication.
 
-Until those boxes are explicitly approved, the pilots remain evidence only.
+The selected implementation keeps the Python analyzers ephemeral, adds a
+commit-pinned local actionlint hook, and binds hosted execution to fixed tool
+versions and checksums. See the integration record for the exact boundary and
+the still-unapproved savings activation.
 
 ## Documentation checkpoint verification
 
