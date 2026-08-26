@@ -183,6 +183,7 @@ def test_workflow_analysis_is_path_scoped_and_blocking() -> None:
     assert "persist-credentials: false" in workflow
     assert "actionlint_1.7.12_linux_amd64.tar.gz" in workflow
     assert "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8" in workflow
+    assert 'run: |\n          "$RUNNER_TEMP/actionlint" -color' in workflow
     assert "zizmor==1.29.0" in workflow
     assert "--offline" in workflow
     assert "--strict-collection" in workflow

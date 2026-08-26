@@ -49,7 +49,8 @@ jobs:
           tar --extract --gzip --file "$archive" --directory "$RUNNER_TEMP" actionlint
 
       - name: Validate workflow semantics
-        run: $RUNNER_TEMP/actionlint -color
+        run: |
+          "$RUNNER_TEMP/actionlint" -color
 
       - name: Audit workflow security offline
         run: uvx --from zizmor==1.29.0 zizmor --offline --strict-collection --format=github .
