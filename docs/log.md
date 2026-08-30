@@ -19,6 +19,21 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-08-30 — v1.8.2 publication
+
+- Published v1.8.2 from PR #198 merge SHA
+  `976d5413df27330226d9b3a65b005d129de236b0` at tag `v1.8.2`.
+- Release workflow run [#33295184723](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/33295184723) completed successfully, creating the [GitHub Release](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.8.2) and [PyPI 1.8.2](https://pypi.org/project/logseq-matryca-parser/1.8.2/) publication.
+- Downloaded release assets matched `SHA256SUMS`, and GitHub attestation
+  verification passed for every listed artifact against this repository:
+
+  | Artifact | SHA-256 | Attestation |
+  | --- | --- | --- |
+  | `logseq_matryca_parser-1.8.2-py3-none-any.whl` | `1b3deb43466c63c46ca3b11cd35a2b4436b0ba3528a5f82bcc52fd0a10cd4820` | Verified |
+  | `logseq_matryca_parser-1.8.2.tar.gz` | `aa9a15ab43c1197724550fde121023da52d4ade49f9886eaa0c48df04c37be08` | Verified |
+  | `SBOM.cdx.json` | `67802e45427a76f0de1bd9ce544eb5199ac48aa00611fca807b5d5fd01c131e0` | Verified |
+  | `DEPENDENCY_LICENSES.json` | `fb75132dd4562d8b25dd8dda45ef41ff0fe64a7966d6967cd859071802f20834` | Verified |
+
 ## 2026-08-30 — v1.8.2 release candidate
 
 - Prepared the v1.8.2 release candidate from
