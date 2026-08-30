@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   receipt-routing experiment with SHA-pinned GitHub-hosted quality, packaging,
   dependency, CodeQL, Linux, macOS, and Windows checks. Local maintainer
   guidance now treats hosted Actions as the authoritative public CI path.
+- **Graph loader path-type acceptance** — `LogseqGraph.load_directory` accepts
+  `graph_path` as either `Path` or `str`, normalizes with
+  `Path(graph_path).expanduser().resolve()`, and preserves strict-mode defaults.
 
 ### Fixed
 

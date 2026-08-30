@@ -31,6 +31,23 @@ def test_load_directory_empty_graph(tmp_path: Path) -> None:
     assert graph.get_node_by_uuid("nonexistent") is None
 
 
+def test_load_directory_accepts_string_graph_path(tmp_path: Path) -> None:
+    """A textual graph path is accepted and normalized to the same resolved graph."""
+    graph_root = tmp_path / "vault"
+    pages = graph_root / "pages"
+    graph_root.mkdir()
+    pages.mkdir()
+    (pages / "Alpha.md").write_text("- Root alpha\n", encoding="utf-8")
+
+    graph_from_path = LogseqGraph.load_directory(graph_root)
+    graph_from_string = LogseqGraph.load_directory(str(graph_root))
+
+    assert graph_from_string.graph_path == graph_root.resolve()
+    assert graph_from_string.pages == graph_from_path.pages
+    assert graph_from_string.get_nodes_by_tag("shared") == []
+    assert graph_from_string.get_nodes_by_tag("project-x") == []
+
+
 def test_load_directory_bulk_parse_and_uuid_lookup(tmp_path: Path) -> None:
     """Multiple pages are indexed and nodes are reachable by synthetic UUID."""
     graph_root = tmp_path / "vault"
