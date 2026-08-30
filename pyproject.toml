@@ -123,3 +123,9 @@ ignore = ["E501"]
 "src/logseq_matryca_parser/kinetic.py" = ["B008", "E402"]
 "src/logseq_matryca_parser/kinetic_commands.py" = ["B008"]
 "tests/**" = ["SIM117"]
+
+[tool.deptry]
+extend_exclude = ["legacy"]
+
+[tool.deptry.per_rule_ignores]
+DEP004 = ["logseq_matryca_parser"]

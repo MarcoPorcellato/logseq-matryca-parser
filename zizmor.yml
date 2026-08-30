@@ -1,0 +1,3 @@
+# Workflow security findings must be fixed or narrowly justified in review.
+# No rule is globally disabled.
+rules: {}

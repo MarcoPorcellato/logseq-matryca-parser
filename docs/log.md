@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-25
-verified: 2026-08-25
-stale_after: 2027-02-17
+last_verified: 2026-08-30
+verified: 2026-08-30
+stale_after: 2027-02-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -18,6 +18,21 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-08-30
+
+- Added the maintained
+  [continuous integration assurance map](CI_ASSURANCE.md), separating
+  pull-request, scheduled, settings-managed, and release checks and defining
+  distinct local, hosted, settings, and publication evidence labels.
+- Documented the native GitHub Actions architecture: locked Python 3.12/3.13
+  quality and package gates, a six-cell Linux/macOS/Windows runtime matrix,
+  pull-request dependency review, path-scoped workflow analysis, monthly
+  dependency hygiene, scheduled parser and Scorecard assurance, and the
+  existing single-build release chain.
+- Reconciled contributor, agent, CodeQL, release, human-index, machine-index,
+  and quality navigation without claiming an unexecuted hosted run or an
+  unverified repository setting.
 
 ## 2026-08-25
 

@@ -1,0 +1,59 @@
+name: Workflow Static Analysis
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/**"
+      - ".github/dependabot.yml"
+      - ".pre-commit-config.yaml"
+      - "zizmor.yml"
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - ".github/dependabot.yml"
+      - ".pre-commit-config.yaml"
+      - "zizmor.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  workflow-analysis:
+    name: Validate workflow semantics and security
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pinned uv without a shared cache
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.11.7"
+          python-version: "3.12"
+          enable-cache: false
+
+      - name: Install checksum-verified actionlint 1.7.12
+        run: |
+          archive="${RUNNER_TEMP}/actionlint_1.7.12_linux_amd64.tar.gz"
+          curl --proto '=https' --tlsv1.2 --fail --location --silent --show-error \
+            --output "$archive" \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $archive" \
+            | sha256sum --check --strict
+          tar --extract --gzip --file "$archive" --directory "$RUNNER_TEMP" actionlint
+
+      - name: Validate workflow semantics
+        run: |
+          "$RUNNER_TEMP/actionlint" -color
+
+      - name: Audit workflow security
+        run: uvx --from zizmor==1.29.0 zizmor --strict-collection --format=github .

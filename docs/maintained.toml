@@ -21,6 +21,7 @@ maintained_documents = [
   "docs/index.md",
   "docs/README.md",
   "docs/DOCUMENTATION_SYSTEM.md",
+  "docs/CI_ASSURANCE.md",
   "docs/AI_CONTRIBUTION_POLICY.md",
   "docs/AAIF_ALIGNMENT.md",
   "docs/CLEAN_CODE_ARCHITECTURE.md",

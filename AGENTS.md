@@ -31,6 +31,8 @@ backlinks, exports, visualizations, and AI chunks are derived views.
   [`docs/reference/API_STABILITY.md`](docs/reference/API_STABILITY.md).
 - For architecture and ownership boundaries, use
   [`docs/CLEAN_CODE_ARCHITECTURE.md`](docs/CLEAN_CODE_ARCHITECTURE.md).
+- For pull-request, scheduled, settings-managed, and release checks, use
+  [`docs/CI_ASSURANCE.md`](docs/CI_ASSURANCE.md).
 - For the maintained machine-readable knowledge map, use
   [`docs/index.md`](docs/index.md).
 - For historical release capabilities, use
@@ -66,7 +68,7 @@ Protocol integrations remain optional and deferred under
 ## Repository working contract
 
 ```bash
-uv sync --all-extras
+uv sync --locked --all-extras
 make all
 make vendor-name-check
 ```
