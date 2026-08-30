@@ -5,13 +5,11 @@ For the exhaustive change history, see the [changelog](CHANGELOG.md). For
 published artifacts and attestations, see
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
-## v1.8.2 (release candidate)
+## v1.8.2
 
-Release candidate — strengthens the hosted assurance boundary, clarifies
+Patch release — strengthens the hosted assurance boundary, clarifies
 integration guidance, and makes the graph loader easier to call. **No
-intentional breaking changes** to stable package imports or CLI behavior. The
-v1.8.2 tag, PyPI publication, GitHub Release, hashes, and attestations remain
-pending the release workflow.
+intentional breaking changes** to stable package imports or CLI behavior.
 
 | Area | Change |
 | :--- | :--- |

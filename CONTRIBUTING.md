@@ -17,7 +17,7 @@ User-facing behavior is documented in:
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — LOGOS, SYNAPSE, `LogseqGraph`, agents, and data flow
 - [`docs/internal/LOCAL_CODE_STUDY.md`](docs/internal/LOCAL_CODE_STUDY.md) — maintainer local code audit runbook (not for public issues/CHANGELOG)
 - [`docs/logseq_ast_primer.md`](docs/logseq_ast_primer.md) — Logseq Spatial Markdown domain rules
-- [`CHANGELOG.md`](CHANGELOG.md) — release candidate **1.8.2**, latest published release **1.8.1**, and **Unreleased** changes (Keep a Changelog)
+- [`CHANGELOG.md`](CHANGELOG.md) — latest release **1.8.2** and **Unreleased** changes (Keep a Changelog)
 - [`docs/RELEASE_PROCESS.md`](docs/RELEASE_PROCESS.md) — version bump, tag, and PyPI publish checklist
 - [`docs/CI_ASSURANCE.md`](docs/CI_ASSURANCE.md) — pull-request, scheduled, settings-managed, and release checks
 - [`docs/CODEQL.md`](docs/CODEQL.md) — CodeQL default setup (no custom `codeql.yml`)
