@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import inspect
 from importlib.resources import files
+from pathlib import Path
+from typing import get_type_hints
 
 import logseq_matryca_parser as package
 
@@ -88,3 +90,7 @@ def test_stable_graph_loader_signature() -> None:
         is inspect.Parameter.KEYWORD_ONLY
     )
     assert signature.parameters["strict_title_collisions"].default is False
+    assert signature.parameters["graph_path"].annotation == "Path | str"
+    assert get_type_hints(package.LogseqGraph.load_directory).get("graph_path") == (
+        Path | str
+    )

@@ -814,7 +814,7 @@ class LogseqGraph(BaseModel):
     @classmethod
     def load_directory(
         cls,
-        graph_path: Path,
+        graph_path: Path | str,
         *,
         strict_refs: bool = False,
         strict_title_collisions: bool = False,
@@ -826,7 +826,7 @@ class LogseqGraph(BaseModel):
         When ``strict_title_collisions`` is True, raise :class:`PageTitleCollisionError` instead
         of accepting the historical deterministic winner for an ambiguous title or alias.
         """
-        resolved = graph_path.expanduser().resolve()
+        resolved = Path(graph_path).expanduser().resolve()
         files = discover_graph_files(resolved)
         source_pages: dict[str, LogseqPage] = {}
 

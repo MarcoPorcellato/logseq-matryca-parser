@@ -52,7 +52,9 @@ graph entry points are regression-tested. Adding a new stable symbol requires
 updating this table and those tests in the same PR.
 
 `LogseqGraph.load_directory` accepts keyword-only `strict_refs=False` and
-`strict_title_collisions=False`. Both strict modes are opt-in, preserving the
+`strict_title_collisions=False`. It also accepts `graph_path` as `Path` or `str`;
+the loader normalizes a textual path with `Path(graph_path).expanduser().resolve()`.
+Both strict modes are opt-in, preserving the
 permissive default.
 
 Diagnostic code compatibility, serialization, and path-safety rules are defined
