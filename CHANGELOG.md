@@ -7,15 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.2] - 2026-08-30
+
 ### Changed
 
 - **Native cross-platform GitHub assurance** — replace the public-repository
   receipt-routing experiment with SHA-pinned GitHub-hosted quality, packaging,
   dependency, CodeQL, Linux, macOS, and Windows checks. Local maintainer
-  guidance now treats hosted Actions as the authoritative public CI path.
+  guidance now treats hosted Actions as the authoritative public CI path (#194).
+- **Cookbook guidance** — add corrected broken-block-reference and LENS
+  visualization recipes, including their CLI outcome and optional dependency
+  boundaries (#195).
 - **Graph loader path-type acceptance** — `LogseqGraph.load_directory` accepts
   `graph_path` as either `Path` or `str`, normalizes with
-  `Path(graph_path).expanduser().resolve()`, and preserves strict-mode defaults.
+  `Path(graph_path).expanduser().resolve()`, and preserves strict-mode defaults
+  (#197).
 
 ### Fixed
 
@@ -23,7 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   mode so CRLF files retain their measured byte length, use platform-neutral
   byte and path fixtures, preserve POSIX permission assertions only where the
   operating system provides those semantics, and fold CLI diagnostic
-  identifiers instead of replacing their final characters with an ellipsis.
+  identifiers instead of replacing their final characters with an ellipsis
+  (#194).
+- **Optional AI dependency guidance** — use one consistent message when AI
+  export dependencies are unavailable: `uv sync --extra ai` (#196).
 
 ## [1.8.1] - 2026-08-25
 

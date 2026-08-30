@@ -5,6 +5,21 @@ For the exhaustive change history, see the [changelog](CHANGELOG.md). For
 published artifacts and attestations, see
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
+## v1.8.2 (release candidate)
+
+Release candidate — strengthens the hosted assurance boundary, clarifies
+integration guidance, and makes the graph loader easier to call. **No
+intentional breaking changes** to stable package imports or CLI behavior. The
+v1.8.2 tag, PyPI publication, GitHub Release, hashes, and attestations remain
+pending the release workflow.
+
+| Area | Change |
+| :--- | :--- |
+| **Hosted assurance** | Native GitHub-hosted quality, package, dependency, CodeQL, Linux, macOS, and Windows checks use reviewed SHA-pinned actions; Windows local-assurance inputs and fixtures are portable. |
+| **Cookbook and LENS** | Corrected broken-block-reference and graph-visualization recipes show the expected CLI result, `Path` usage, and optional dependency boundary. |
+| **Optional AI guidance** | Missing AI export dependencies now consistently direct users to `uv sync --extra ai`. |
+| **Graph API** | `LogseqGraph.load_directory` accepts either `Path` or `str` while preserving existing strict-mode defaults. |
+
 ## v1.8.1
 
 Patch release — hardens deep-outline parsing, coherent incremental graph

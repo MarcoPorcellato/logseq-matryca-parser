@@ -2,11 +2,12 @@
 
 ## Supported Versions
 
-Security fixes are provided **only for the latest released version** on [PyPI](https://pypi.org/project/logseq-matryca-parser/).
+Security fixes are provided **only for the latest released version** on [PyPI](https://pypi.org/project/logseq-matryca-parser/). Until the v1.8.2 tag workflow completes, that version remains v1.8.1.
 
 | Version | Supported |
 | ------- | --------- |
-| **1.8.1** (latest) | Yes |
+| 1.8.2 (release candidate; not published) | Pending publication |
+| **1.8.1** (latest released) | Yes |
 | 1.8.0 and older | No |
 
 We recommend always running the current release and upgrading promptly when a security advisory is published.
