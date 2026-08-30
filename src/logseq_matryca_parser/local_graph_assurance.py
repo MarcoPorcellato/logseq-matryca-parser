@@ -199,7 +199,7 @@ def _read_regular_file(root: Path, path: Path, max_bytes: int) -> bytes | None:
         resolved = path.resolve(strict=True)
         resolved.relative_to(root)
         before = resolved.stat()
-        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0)
         descriptor = os.open(resolved, flags)
     except (OSError, RuntimeError, ValueError):
         return None

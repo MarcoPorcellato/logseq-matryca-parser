@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Native cross-platform GitHub assurance** — replace the public-repository
+  receipt-routing experiment with SHA-pinned GitHub-hosted quality, packaging,
+  dependency, CodeQL, Linux, macOS, and Windows checks. Local maintainer
+  guidance now treats hosted Actions as the authoritative public CI path.
+
+### Fixed
+
+- **Windows assurance portability** — open local-assurance inputs in binary
+  mode so CRLF files retain their measured byte length, use platform-neutral
+  byte and path fixtures, preserve POSIX permission assertions only where the
+  operating system provides those semantics, and fold CLI diagnostic
+  identifiers instead of replacing their final characters with an ellipsis.
+
 ## [1.8.1] - 2026-08-25
 
 ### Security

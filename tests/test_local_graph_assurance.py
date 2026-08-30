@@ -168,6 +168,26 @@ def test_guarded_read_rejects_unsafe_or_unreadable_files(
     assert local_graph_assurance._read_regular_file(root, path, 100) is None
 
 
+def test_guarded_read_requests_binary_mode_when_the_platform_supports_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _vault(tmp_path)
+    path = root / "pages" / "entry.md"
+    path.write_bytes(b"- safe\r\n")
+    binary_flag = 1 << 29
+    real_open = local_graph_assurance.os.open
+
+    def require_binary_mode(candidate: Path, flags: int) -> int:
+        if not flags & binary_flag:
+            raise OSError("text-mode descriptor rejected")
+        return real_open(candidate, flags & ~binary_flag)
+
+    monkeypatch.setattr(local_graph_assurance.os, "O_BINARY", binary_flag, raising=False)
+    monkeypatch.setattr(local_graph_assurance.os, "open", require_binary_mode)
+
+    assert local_graph_assurance._read_regular_file(root, path, 100) == b"- safe\r\n"
+
+
 def test_guarded_read_rejects_descriptor_identity_change(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     root = _vault(tmp_path)
     path = root / "pages" / "entry.md"
