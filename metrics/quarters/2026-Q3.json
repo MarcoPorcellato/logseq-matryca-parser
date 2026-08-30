@@ -232,6 +232,14 @@
     "2026-08-27": {
       "count": 0,
       "uniques": 0
+    },
+    "2026-08-28": {
+      "count": 0,
+      "uniques": 0
+    },
+    "2026-08-29": {
+      "count": 7,
+      "uniques": 3
     }
   },
   "clones": {
@@ -466,6 +474,14 @@
     "2026-08-27": {
       "count": 11,
       "uniques": 6
+    },
+    "2026-08-28": {
+      "count": 13,
+      "uniques": 9
+    },
+    "2026-08-29": {
+      "count": 13,
+      "uniques": 5
     }
   },
   "releases": {
@@ -5806,6 +5822,168 @@
         "tag": "v0.2.0",
         "assets": []
       }
+    ],
+    "2026-08-30": [
+      {
+        "tag": "v1.8.2",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.2-py3-none-any.whl": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.2.tar.gz": 1
+          },
+          {
+            "SBOM.cdx.json": 1
+          },
+          {
+            "SHA256SUMS": 1
+          }
+        ]
+      },
+      {
+        "tag": "v1.8.1",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.1-py3-none-any.whl": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.1.tar.gz": 1
+          },
+          {
+            "SBOM.cdx.json": 1
+          },
+          {
+            "SHA256SUMS": 1
+          }
+        ]
+      },
+      {
+        "tag": "v1.8.0",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.0-py3-none-any.whl": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.0.tar.gz": 1
+          },
+          {
+            "SBOM.cdx.json": 1
+          },
+          {
+            "SHA256SUMS": 1
+          }
+        ]
+      },
+      {
+        "tag": "v1.7.1",
+        "assets": [
+          {
+            "logseq_matryca_parser-1.7.1-py3-none-any.whl": 1
+          },
+          {
+            "logseq_matryca_parser-1.7.1.tar.gz": 1
+          },
+          {
+            "SHA256SUMS": 2
+          }
+        ]
+      },
+      {
+        "tag": "v1.7.0",
+        "assets": [
+          {
+            "logseq_matryca_parser-1.7.0-py3-none-any.whl": 2
+          },
+          {
+            "logseq_matryca_parser-1.7.0.tar.gz": 3
+          },
+          {
+            "SHA256SUMS": 2
+          }
+        ]
+      },
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
     ]
   },
   "referrers": {
@@ -7492,6 +7670,28 @@
         "referrer": "github.com",
         "count": 43,
         "uniques": 7
+      },
+      {
+        "referrer": "Google",
+        "count": 3,
+        "uniques": 2
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-08-30": [
+      {
+        "referrer": "github.com",
+        "count": 31,
+        "uniques": 6
       },
       {
         "referrer": "Google",
@@ -11227,6 +11427,68 @@
       {
         "path": "/MarcoPorcellato/logseq-matryca-parser/compare/main...agent/parser-assurance-m1",
         "title": "/compare/main...agent/parser-assurance-m1",
+        "count": 2,
+        "uniques": 1
+      }
+    ],
+    "2026-08-30": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 18,
+        "uniques": 4
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 13,
+        "uniques": 9
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 5,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/161",
+        "title": "/pull/161",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/88",
+        "title": "/issues/88",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/176",
+        "title": "/pull/176",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 3,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/compare/main...agent/parser-assurance-m1",
+        "title": "/compare/main...agent/parser-assurance-m1",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/compare/main...refactor/parser-lexical-state-m9",
+        "title": "/compare/main...refactor/parser-lexical-state-m9",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/19",
+        "title": "/issues/19",
         "count": 2,
         "uniques": 1
       }
