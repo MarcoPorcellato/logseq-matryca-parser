@@ -140,6 +140,21 @@ if broken:
 
 **CLI tip:** `matryca-parse scan /path/to/graph --broken-refs` prints a Rich table of unresolved refs and exits `1` for CI (since v1.5.0). For programmatic checks, use `graph.get_broken_references()` as above.
 
+Expected failure output has a `Broken Block References` table; its vault-specific
+rows vary, but its exit status is `1`:
+
+```console
+$ matryca-parse scan /path/to/graph --broken-refs
+                         Broken Block References
+┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Page   ┃ Block UUID               ┃ Missing Block Ref        ┃
+┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ ...    │ ...                      │ ((...))                  │
+└────────┴──────────────────────────┴──────────────────────────┘
+$ echo $?
+1
+```
+
 For stable machine-readable findings, use `collect_graph_diagnostics(graph)` or
 `matryca-parse scan /path/to/graph --diagnostics-json`. The JSON command emits
 only the diagnostic array, uses vault-relative paths, and exits `1` when an
@@ -166,7 +181,32 @@ permission and ownership metadata. See the
 
 ---
 
-## Recipe 6 — Contributor test patterns
+## Recipe 6 — Interactive graph visualization (LENS)
+
+Generate an interactive HTML visualization from the in-memory graph. This
+requires the optional `[viz]` extra (`uv sync --extra viz`); `[ai]` is not
+required.
+
+```python
+from pathlib import Path
+
+from logseq_matryca_parser.graph import LogseqGraph
+from logseq_matryca_parser.lens import GraphVisualizer
+
+vault = Path("/path/to/logseq/graph")
+output = Path("/path/to/visualization.html")
+
+graph = LogseqGraph.load_directory(vault)
+visualizer = GraphVisualizer(pages=list(graph.iter_canonical_pages()), graph=graph)
+visualizer.build_network()
+visualizer.export_html(output)
+```
+
+`export_html()` writes the HTML file but does not open it automatically.
+
+---
+
+## Recipe 7 — Contributor test patterns
 
 Pick a scoped task from [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) (wave 2: [#43](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/43)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)), then mirror nearby tests:
 
