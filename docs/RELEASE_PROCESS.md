@@ -25,6 +25,9 @@ Every external action is pinned to a full commit SHA. The uploaded Actions
 artifact is transport only; `SHA256SUMS` is verified again before both public
 publication stages. The release workflow also pins the `uv` binary version so
 lock interpretation and SBOM generation do not float between tag runs.
+Release jobs use pinned standard runner images, explicit timeouts, no dependency
+cache, and credential-free read-only checkouts. The broader pull-request and
+settings boundary is documented in [`CI_ASSURANCE.md`](CI_ASSURANCE.md).
 
 ---
 
@@ -167,3 +170,4 @@ only explanatory text — are wrong.
 - [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) — contributor task index
 - [`scripts/extract_changelog.py`](../scripts/extract_changelog.py)
 - [`reference/DEPENDENCY_LICENSE_POLICY.md`](reference/DEPENDENCY_LICENSE_POLICY.md)
+- [`CI_ASSURANCE.md`](CI_ASSURANCE.md) — pull-request, scheduled, settings, and release evidence boundaries

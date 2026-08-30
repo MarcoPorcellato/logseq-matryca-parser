@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-20
-verified: 2026-08-20
-stale_after: 2027-02-20
+last_verified: 2026-08-30
+verified: 2026-08-30
+stale_after: 2027-02-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -37,6 +37,7 @@ entry points.
 | :--- | :--- | :--- |
 | [`index.md`](index.md) | Tools, maintainers | Canonical machine entry point for the maintained knowledge bundle |
 | [`DOCUMENTATION_SYSTEM.md`](DOCUMENTATION_SYSTEM.md) | Contributors, maintainers | Canonical documentation governance, metadata, lifecycle, validation, and federation workflow |
+| [`CI_ASSURANCE.md`](CI_ASSURANCE.md) | Contributors, maintainers, agents | Pull-request, scheduled, settings-managed, and release assurance map |
 | [`AI_CONTRIBUTION_POLICY.md`](AI_CONTRIBUTION_POLICY.md) | Contributors, maintainers | AI assistance disclosure, privacy, human accountability, and review rules |
 | [`ISSUE_TRIAGE_POLICY.md`](ISSUE_TRIAGE_POLICY.md) | Contributors, maintainers | Labels, priorities, good-first issue lifecycle, stale work, and closure policy |
 | [`ROADMAP_2026-2027.md`](ROADMAP_2026-2027.md) | Contributors, maintainers | Current milestones, dependencies, owners, and evidence gates |

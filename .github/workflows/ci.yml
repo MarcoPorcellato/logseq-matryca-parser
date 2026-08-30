@@ -2,8 +2,9 @@ name: Logos Protocol CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,68 +14,137 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  quality:
+    name: Quality (Python 3.12)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pinned uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.11.7"
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Sync locked dependencies
+        run: uv sync --locked --all-extras
+
+      - name: Lint
+        run: make lint
+
+      - name: Type check
+        run: make check
+
+      - name: Validate repository policy
+        run: make vendor-name-check
+
+      - name: Validate documentation
+        run: make docs-check
+
+      - name: Verify checkout unchanged
+        run: make verify-clean
+
+  tests:
+    name: Tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.12", "3.13" ]
-
+        os: [ubuntu-24.04, macos-15, windows-2025]
+        python-version: ["3.12", "3.13"]
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Checkout without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-      with:
-        python-version: ${{ matrix.python-version }}
-        enable-cache: true
+      - name: Install pinned uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.11.7"
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
 
-    - name: Sync dependencies
-      run: uv sync --all-extras
+      - name: Sync locked dependencies
+        run: uv sync --locked --all-extras
 
-    - name: Audit dependencies
-      run: |
-        uv export --no-dev --no-emit-workspace --no-hashes -o "${{ runner.temp }}/requirements-audit.txt"
-        uv run pip-audit -r "${{ runner.temp }}/requirements-audit.txt"
+      - name: Run complete test suite
+        run: >-
+          uv run pytest
+          --cov=src/logseq_matryca_parser
+          --cov-report=term-missing
+          --cov-fail-under=80
+          -v tests/
 
-    - name: Lint
-      run: make lint
+  dependency-audit:
+    name: Production dependency audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-    - name: Type check
-      run: make check
+      - name: Install pinned uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.11.7"
+          python-version: "3.12"
+          enable-cache: true
 
-    - name: Test
-      run: make test
+      - name: Sync locked dependencies
+        run: uv sync --locked --all-extras
 
-    - name: Documentation check (non-mutating)
-      run: make docs-check
+      - name: Export every production dependency
+        run: >-
+          uv export
+          --all-extras
+          --no-dev
+          --no-emit-workspace
+          --output-file "${{ runner.temp }}/requirements-audit.txt"
 
-    - name: Verify checkout unchanged
-      run: make verify-clean
+      - name: Audit exported dependencies
+        run: uv run pip-audit --no-deps --disable-pip -r "${{ runner.temp }}/requirements-audit.txt"
 
   package-contract:
-    runs-on: ubuntu-latest
-
+    name: Wheel and source distribution contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Checkout without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-      with:
-        python-version: "3.12"
-        enable-cache: true
+      - name: Install pinned uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.11.7"
+          python-version: "3.12"
+          enable-cache: true
 
-    - name: Build wheel and source distribution
-      run: uv build --out-dir dist-contract
+      - name: Sync locked dependencies
+        run: uv sync --locked --all-extras
 
-    - name: Verify wheel metadata and PEP 561 marker
-      run: uv run python scripts/check_wheel_contract.py dist-contract/*.whl
+      - name: Build wheel and source distribution
+        run: uv build --out-dir dist-contract
 
-    - name: Verify downstream typing from the wheel
-      run: |
-        uv venv "${{ runner.temp }}/typing-venv"
-        uv pip install --python "${{ runner.temp }}/typing-venv/bin/python" mypy dist-contract/*.whl
-        cd "${{ runner.temp }}"
-        "${{ runner.temp }}/typing-venv/bin/python" -m mypy --strict "${{ github.workspace }}/tests/typing_samples/public_api.py"
+      - name: Verify wheel metadata and PEP 561 marker
+        run: uv run python scripts/check_wheel_contract.py dist-contract/*.whl
+
+      - name: Validate distribution metadata
+        run: uvx --from twine==6.2.0 twine check dist-contract/*
+
+      - name: Verify downstream typing from the wheel
+        run: |
+          uv venv "${{ runner.temp }}/typing-venv"
+          uv pip install --python "${{ runner.temp }}/typing-venv/bin/python" mypy==1.20.2 dist-contract/*.whl
+          cd "${{ runner.temp }}"
+          "${{ runner.temp }}/typing-venv/bin/python" -m mypy --strict "${{ github.workspace }}/tests/typing_samples/public_api.py"

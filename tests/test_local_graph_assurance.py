@@ -43,7 +43,7 @@ def test_self_test_uses_the_isolated_worker_and_returns_only_safe_aggregates() -
     report = run_local_graph_assurance_self_test()
     encoded = json.dumps(report, sort_keys=True)
 
-    assert report["status"] == "passed"
+    assert report["status"] == "passed", report
     assert set(report) == {"schema_version", "status", "limits", "observed", "findings", "runtime"}
     assert "Alpha" not in encoded
     assert "11111111-1111-1111-1111-111111111111" not in encoded
@@ -166,6 +166,32 @@ def test_guarded_read_rejects_unsafe_or_unreadable_files(
         monkeypatch.setattr(local_graph_assurance.os, "open", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError()))
 
     assert local_graph_assurance._read_regular_file(root, path, 100) is None
+
+
+def test_guarded_read_requests_binary_mode_when_the_platform_supports_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _vault(tmp_path)
+    path = root / "pages" / "entry.md"
+    path.write_bytes(b"- safe\r\n")
+    binary_marker = 1 << 29
+    platform_binary_flag = getattr(local_graph_assurance.os, "O_BINARY", 0)
+    real_open = local_graph_assurance.os.open
+
+    def require_binary_mode(candidate: Path, flags: int) -> int:
+        if not flags & binary_marker:
+            raise OSError("text-mode descriptor rejected")
+        return real_open(candidate, flags & ~binary_marker)
+
+    monkeypatch.setattr(
+        local_graph_assurance.os,
+        "O_BINARY",
+        platform_binary_flag | binary_marker,
+        raising=False,
+    )
+    monkeypatch.setattr(local_graph_assurance.os, "open", require_binary_mode)
+
+    assert local_graph_assurance._read_regular_file(root, path, 100) == b"- safe\r\n"
 
 
 def test_guarded_read_rejects_descriptor_identity_change(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -361,8 +387,8 @@ def test_assurance_enforces_max_file_bytes_during_traversal(tmp_path: Path) -> N
 
 def test_assurance_enforces_max_total_bytes_during_traversal(tmp_path: Path) -> None:
     root = _vault(tmp_path)
-    (root / "pages" / "One.md").write_text("- one\n", encoding="utf-8")
-    (root / "pages" / "Two.md").write_text("- two\n", encoding="utf-8")
+    (root / "pages" / "One.md").write_bytes(b"- one\n")
+    (root / "pages" / "Two.md").write_bytes(b"- two\n")
 
     report = run_local_graph_assurance(root, AssuranceLimits(max_total_bytes=7, max_file_bytes=6))
 
@@ -573,7 +599,8 @@ def test_runner_handles_no_report_and_invalid_report_with_cleanup(
     assert process.started
     assert process.joined == [AssuranceLimits().timeout_seconds]
     assert context.process_target is local_graph_assurance._worker
-    assert context.process_args is not None and context.process_args[0] == "/vault"
+    assert context.process_args is not None
+    assert context.process_args[0] == str(Path("/vault").expanduser())
     assert result_queue.closed and result_queue.joined
 
 

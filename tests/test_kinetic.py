@@ -100,7 +100,9 @@ def test_scan_command_reports_broken_refs(tmp_path: Path) -> None:
 
     assert result.exit_code == 1
     assert "Broken Block References" in result.output
-    assert "((00000000-0000-0000-0000-00000" in result.output
+    assert f"(({fake_uuid[:23]}" in result.output
+    assert f"{fake_uuid[-6:]}))" in result.output
+    assert "…" not in result.output
 
 
 def test_scan_command_reports_machine_readable_diagnostics(tmp_path: Path) -> None:

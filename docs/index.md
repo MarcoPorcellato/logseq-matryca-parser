@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-20
-verified: 2026-08-20
-stale_after: 2027-02-20
+last_verified: 2026-08-30
+verified: 2026-08-30
+stale_after: 2027-02-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -32,6 +32,7 @@ navigation layers only.
 | [AI agent guide](../AGENTS.md) | Product map, execution contract, safety boundaries, and repository gates |
 | [LLM discovery index](../llms.txt) | Concise standard-format project and capability map for inference-time discovery |
 | [Documentation system](DOCUMENTATION_SYSTEM.md) | Canonical governance, lifecycle, metadata, and federation guide |
+| [Continuous integration assurance](CI_ASSURANCE.md) | Pull-request, scheduled, settings-managed, and release checks with evidence boundaries |
 | [AI contribution policy](AI_CONTRIBUTION_POLICY.md) | Human accountability, privacy, disclosure, and review rules for AI-assisted work |
 | [Agent action contract](reference/AGENT_ACTION_CONTRACT.md) | Read/write authority, provenance, prompt-injection boundary, and approval matrix |
 | [Support and compatibility matrix](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Supported runtimes, public API tiers, optional adapters, and explicit limits |

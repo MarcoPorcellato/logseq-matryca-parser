@@ -122,8 +122,10 @@ def test_atomic_replace_preserves_permission_bits(tmp_path: Path) -> None:
     proposal = append_child_to_node(graph, target_uuid, "written")
 
     assert proposal.applied is True
-    assert stat.S_IMODE(page_path.stat().st_mode) == 0o640
-    assert (page_path.stat().st_uid, page_path.stat().st_gid) == original_owner
+    assert page_path.read_text(encoding="utf-8") == "- Parent\n  - written\n"
+    if os.name != "nt":
+        assert stat.S_IMODE(page_path.stat().st_mode) == 0o640
+        assert (page_path.stat().st_uid, page_path.stat().st_gid) == original_owner
 
 
 @pytest.mark.parametrize(
