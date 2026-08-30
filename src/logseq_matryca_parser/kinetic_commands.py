@@ -65,8 +65,8 @@ def _build_stats_table(pages: list[LogseqPage]) -> Table:
 def _build_broken_references_table(diagnostics: list[Diagnostic]) -> Table:
     table = Table(title="Broken Block References")
     table.add_column("Page", style="cyan")
-    table.add_column("Block UUID", style="magenta")
-    table.add_column("Missing Block Ref", style="bold red")
+    table.add_column("Block UUID", style="magenta", overflow="fold")
+    table.add_column("Missing Block Ref", style="bold red", overflow="fold")
 
     for diagnostic in diagnostics:
         table.add_row(
