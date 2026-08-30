@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from re import escape
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -69,8 +70,9 @@ def build_ast() -> list[LogseqNode]:
 
 
 def test_to_langchain_documents_raises_when_dependency_missing() -> None:
+    expected = escape("Missing AI export dependencies. Install with: uv sync --extra ai")
     with patch("logseq_matryca_parser.synapse.Document", None):
-        with pytest.raises(ImportError, match="LangChain"):
+        with pytest.raises(ImportError, match=expected):
             SynapseAdapter.to_langchain_documents(build_ast(), source_name="test.md")
 
 
@@ -101,12 +103,13 @@ def test_to_langchain_documents_uses_visitor_and_graph_metadata() -> None:
 
 
 def test_to_llamaindex_nodes_raises_when_dependency_missing() -> None:
+    expected = escape("Missing AI export dependencies. Install with: uv sync --extra ai")
     with (
         patch("logseq_matryca_parser.synapse.TextNode", None),
         patch("logseq_matryca_parser.synapse.NodeRelationship", None),
         patch("logseq_matryca_parser.synapse.RelatedNodeInfo", None),
     ):
-        with pytest.raises(ImportError, match="LlamaIndex"):
+        with pytest.raises(ImportError, match=expected):
             SynapseAdapter.to_llamaindex_nodes(build_ast())
 
 
@@ -220,8 +223,9 @@ def test_to_llamaindex_nodes_wires_sibling_next_and_previous() -> None:
 
 
 def test_to_context_enriched_chunks_raises_when_dependency_missing(tmp_path: Path) -> None:
+    expected = escape("Missing AI export dependencies. Install with: uv sync --extra ai")
     with patch("logseq_matryca_parser.synapse.Document", None):
-        with pytest.raises(ImportError, match="LangChain"):
+        with pytest.raises(ImportError, match=expected):
             graph = LogseqGraph(graph_path=tmp_path, pages={})
             SynapseAdapter.to_context_enriched_chunks([], graph)
 
