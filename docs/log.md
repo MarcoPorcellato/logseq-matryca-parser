@@ -19,6 +19,17 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-08-30 — v1.8.2 release candidate
+
+- Prepared the v1.8.2 release candidate from
+  `main@e836f82b09784baf909bc3ec233bed06fa055fc7`, incorporating #194
+  (`347ee7a5e9b4a667a39c16699fa4fe868a8adfa2`), #195
+  (`7329c182f3df16fcba98328a33a4de7aadaad861`), #196
+  (`3e3c9f0cf9cee29c46a94343ff7f4c66a2623d5b`), and #197
+  (`e836f82b09784baf909bc3ec233bed06fa055fc7`).
+- Reconciled the version source, changelog, release history, reader highlights, security support status, contributor guidance, and maintained Clean Architecture metadata without rewriting historical release records.
+- The v1.8.2 tag, PyPI publication, GitHub Release, public hashes, and attestations are pending the ordered tag workflow. A post-publication entry must record the exact public evidence after that workflow succeeds.
+
 ## 2026-08-30
 
 - Added the maintained
