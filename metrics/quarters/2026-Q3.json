@@ -256,6 +256,14 @@
     "2026-09-02": {
       "count": 3,
       "uniques": 1
+    },
+    "2026-09-03": {
+      "count": 4,
+      "uniques": 2
+    },
+    "2026-09-04": {
+      "count": 6,
+      "uniques": 3
     }
   },
   "clones": {
@@ -514,6 +522,14 @@
     "2026-09-02": {
       "count": 32,
       "uniques": 13
+    },
+    "2026-09-03": {
+      "count": 11,
+      "uniques": 8
+    },
+    "2026-09-04": {
+      "count": 20,
+      "uniques": 9
     }
   },
   "releases": {
@@ -6826,6 +6842,168 @@
         "tag": "v0.2.0",
         "assets": []
       }
+    ],
+    "2026-09-05": [
+      {
+        "tag": "v1.8.2",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.2-py3-none-any.whl": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.2.tar.gz": 1
+          },
+          {
+            "SBOM.cdx.json": 1
+          },
+          {
+            "SHA256SUMS": 1
+          }
+        ]
+      },
+      {
+        "tag": "v1.8.1",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.1-py3-none-any.whl": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.1.tar.gz": 1
+          },
+          {
+            "SBOM.cdx.json": 1
+          },
+          {
+            "SHA256SUMS": 1
+          }
+        ]
+      },
+      {
+        "tag": "v1.8.0",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.0-py3-none-any.whl": 1
+          },
+          {
+            "logseq_matryca_parser-1.8.0.tar.gz": 1
+          },
+          {
+            "SBOM.cdx.json": 1
+          },
+          {
+            "SHA256SUMS": 1
+          }
+        ]
+      },
+      {
+        "tag": "v1.7.1",
+        "assets": [
+          {
+            "logseq_matryca_parser-1.7.1-py3-none-any.whl": 1
+          },
+          {
+            "logseq_matryca_parser-1.7.1.tar.gz": 1
+          },
+          {
+            "SHA256SUMS": 2
+          }
+        ]
+      },
+      {
+        "tag": "v1.7.0",
+        "assets": [
+          {
+            "logseq_matryca_parser-1.7.0-py3-none-any.whl": 2
+          },
+          {
+            "logseq_matryca_parser-1.7.0.tar.gz": 3
+          },
+          {
+            "SHA256SUMS": 2
+          }
+        ]
+      },
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
     ]
   },
   "referrers": {
@@ -8639,6 +8817,23 @@
         "referrer": "Google",
         "count": 3,
         "uniques": 2
+      }
+    ],
+    "2026-09-05": [
+      {
+        "referrer": "github.com",
+        "count": 17,
+        "uniques": 6
+      },
+      {
+        "referrer": "chatgpt.com",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "referrer": "Google",
+        "count": 1,
+        "uniques": 1
       }
     ]
   },
@@ -12732,6 +12927,68 @@
         "path": "/MarcoPorcellato/logseq-matryca-parser/pull/174",
         "title": "/pull/174",
         "count": 2,
+        "uniques": 1
+      }
+    ],
+    "2026-09-05": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/194",
+        "title": "/pull/194",
+        "count": 20,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 11,
+        "uniques": 11
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pulls",
+        "title": "/pulls",
+        "count": 8,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84",
+        "title": "/pull/84",
+        "count": 6,
+        "uniques": 2
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/pull/84/checks",
+        "title": "/pull/84/checks",
+        "count": 4,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/33290123822/job/99200187497",
+        "title": "/actions/runs/33290123822/job/99200187497",
+        "count": 2,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/29604246768/job/87972181155",
+        "title": "/actions/runs/29604246768/job/87972181155",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/33289172853/job/99197647784",
+        "title": "/actions/runs/33289172853/job/99197647784",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/33289172853/job/99197647813",
+        "title": "/actions/runs/33289172853/job/99197647813",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/33289769495/job/99199239891",
+        "title": "/actions/runs/33289769495/job/99199239891",
+        "count": 1,
         "uniques": 1
       }
     ]
