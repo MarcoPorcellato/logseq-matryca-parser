@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   owner, upstream advisory, and 2026-10-05 expiry for `PYSEC-2026-3740` while
   no patched NLTK registry release exists. CI and release audits ignore only
   that advisory; all other dependency findings remain fail-closed.
+### Changed
+
+- **Parser-Plumber boundary** — record Parser as the deterministic Logseq OG
+  parsing library and Plumber as the sole cross-product Logseq gateway to
+  Trama and Brain. Existing Parser APIs and LENS behavior remain compatible;
+  any Trama UI migration requires a later, separately reviewed compatible
+  deprecation plan (#203).
 
 ## [1.8.2] - 2026-08-30
 

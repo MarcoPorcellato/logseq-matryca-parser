@@ -5,7 +5,7 @@
 | Repository | Relationship |
 |---|---|
 | [Matryca Knowledge](https://github.com/MarcoPorcellato/matryca-knowledge) | Federated knowledge projection and MKQ governance; never the source authority for this repository |
-| [Matryca Plumber](https://github.com/MarcoPorcellato/matryca-plumber) | Downstream consumer of parser, graph and CLI contracts |
+| [Matryca Plumber](https://github.com/MarcoPorcellato/matryca-plumber) | May use Parser internally for deterministic OG parsing; it is the cross-product gateway, while Parser is not a cross-product gateway |
 
 ## Governance baseline
 

@@ -154,7 +154,7 @@ Run `make vendor-name-check` before docs PRs to ensure Ghost Tooling policy (no 
 ## Out of scope for a first PR
 
 - Changes to Pydantic models in `logos_core.py` (open a design issue first).
-- Desktop GUI ([#3](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/3)) — multi-sprint epic.
+- Trama graph-intelligence UI ([#3](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/3)) — cross-product work; Parser LENS remains compatible and no Parser GUI work belongs in a first PR.
 - Bulk mldoc parity work in `logos_parser.py` — high regression risk.
 - Obsidian namespace path alignment — cross-tool behavior, needs design.
 

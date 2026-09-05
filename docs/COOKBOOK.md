@@ -204,6 +204,11 @@ visualizer.export_html(output)
 
 `export_html()` writes the HTML file but does not open it automatically.
 
+LENS remains compatible for this reference-topology workflow. A future Trama
+migration may replace it for user-facing graph intelligence, but this recipe,
+command, and API remain unchanged until separately announced with compatibility
+guidance.
+
 ---
 
 ## Recipe 7 — Contributor test patterns
