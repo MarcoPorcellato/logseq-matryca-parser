@@ -68,6 +68,12 @@ _FORBIDDEN_USE_CASE_ADAPTER_IMPORTS = (
     "from .agent_press",
 )
 
+_FORBIDDEN_CROSS_REPOSITORY_RUNTIME_IMPORTS = (
+    "matryca_plumber",
+    "matryca_trama",
+    "matryca_brain",
+)
+
 
 def _module_text(name: str) -> str:
     return (_SRC / name).read_text(encoding="utf-8")
@@ -119,4 +125,14 @@ def test_use_cases_do_not_import_kinetic() -> None:
         for needle in _FORBIDDEN_INNER_ADAPTER_IMPORTS:
             if needle in text:
                 offenders.append(f"{name} imports kinetic via {needle!r}")
+    assert offenders == []
+
+
+def test_parser_runtime_does_not_import_cross_repository_products() -> None:
+    offenders: list[str] = []
+    for path in sorted(_SRC.rglob("*.py")):
+        text = path.read_text(encoding="utf-8")
+        for package in _FORBIDDEN_CROSS_REPOSITORY_RUNTIME_IMPORTS:
+            if f"import {package}" in text or f"from {package}" in text:
+                offenders.append(f"{path.name} imports {package}")
     assert offenders == []

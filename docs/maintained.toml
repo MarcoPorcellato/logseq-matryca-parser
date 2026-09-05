@@ -38,6 +38,7 @@ maintained_documents = [
   "docs/decisions/ADR-0001-PROTOCOL_ADAPTER_BOUNDARY.md",
   "docs/decisions/ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md",
   "docs/decisions/ADR-0003-AAIF-SUBMISSION-GATE.md",
+  "docs/decisions/ADR-0004-PARSER-PLUMBER-BOUNDARY.md",
   "docs/decisions/ADR-001-external-oracle-boundary.md",
   "docs/decisions/ADR-002-local-graph-assurance-boundary.md",
   "docs/reference/index.md",

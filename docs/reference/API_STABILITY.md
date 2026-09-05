@@ -8,8 +8,8 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-07
-verified: 2026-08-07
+last_verified: 2026-09-05
+verified: 2026-09-05
 stale_after: 2027-02-03
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -77,6 +77,12 @@ The following integrations remain public but experimental:
 
 Everything not exported from `logseq_matryca_parser.__all__` is internal unless
 another maintained contract explicitly promotes it.
+
+`GraphVisualizer` remains experimental and compatible in this release line. A
+future migration of user-facing graph intelligence to Trama may introduce a
+compatible deprecation only through a separately reviewed decision, release
+notes, and migration guidance. No deprecation warning or API change is made by
+the Parser-Plumber boundary decision.
 
 ## Version source
 

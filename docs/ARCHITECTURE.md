@@ -28,6 +28,22 @@ Full contributor contract: [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTUR
 
 High-level data flow from sovereign graph files through deterministic parsing to AST-backed exporters and adapters.
 
+## Cross-repository boundary
+
+For Logseq OG integration, Parser is the deterministic parsing stage in this
+data flow:
+
+```text
+Logseq OG -> Parser -> Plumber -> Trama/Brain
+```
+
+Parser owns the typed AST, in-memory graph, and parser-native serialization.
+Plumber owns source selection, host adapters, sessions, and public cross-product
+contracts. The flow does not add Python imports: Parser runtime does not import
+Plumber, Trama, or Brain, while Trama and Brain consume Plumber contracts and
+do not import or know Parser. Details and compatibility consequences are in
+[ADR-0004](decisions/ADR-0004-PARSER-PLUMBER-BOUNDARY.md).
+
 ```mermaid
 flowchart LR
     FS[(Local Logseq\nGraph .md)] --> Logos[LOGOS Engine\nParser]
@@ -307,6 +323,8 @@ The KINETIC **`export --format langchain-enriched`** path serializes these docum
 When LENS receives a loaded **`LogseqGraph`**, wikilinks resolve through `get_page`: canonical pages and aliases are included, unresolved page links are omitted, and tag nodes remain visible independently of page resolution.
 
 Visualization export uses **`pyvis`** with **`force_atlas_2based`** physics, fullscreen canvas, HUD filters, glassmorphism control chrome, and stabilized layout configuration suitable for **large graphs at interactive frame rates** in the browser (product positioning targets fluid exploration of graphs on the order of **10⁴ nodes**).
+
+LENS remains fully compatible as a Parser reference-topology tool. Trama owns future product-intelligence visualization. Any later migration must preserve compatibility through a separately reviewed deprecation plan. No migration, warning, removal, or changed command is part of this repository slice.
 
 ### 3.4 AGENT WRITER — Append-Only Sandboxing & Headless Splicer
 

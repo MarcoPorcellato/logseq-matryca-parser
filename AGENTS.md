@@ -20,7 +20,7 @@ backlinks, exports, visualizations, and AI chunks are derived views.
 | **SYNAPSE** | Export lineage-aware LangChain documents, LlamaIndex nodes, and enriched chunks | `SynapseAdapter` |
 | **FORGE** | Serialize JSON, clean Markdown, Logseq pages, and Obsidian-compatible output | `ForgeExporter`, `serialize_logseq_page` |
 | **KINETIC** | Run CLI parse, export, scan, visualize, agent-read, and agent-write workflows | `matryca-parse` |
-| **LENS** | Build an interactive graph visualization | `GraphVisualizer` |
+| **LENS** | Build a compatible reference-topology visualization; planned compatible deprecation follows a later Trama UI migration | `GraphVisualizer` |
 | **Agent access** | Read a token-efficient X-Ray outline or perform bounded writes | `agent-read`, `agent-write`, `logseq_agent_write` |
 
 ## Start here
