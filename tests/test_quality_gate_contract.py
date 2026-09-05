@@ -282,10 +282,9 @@ def test_ci_uses_locked_cross_platform_native_actions_jobs() -> None:
     assert '["3.12", "3.13"]' in workflow
     assert workflow.count("uv sync --locked --all-extras") == 4
     assert workflow.count("pip-audit") == 1
-    assert (
-        'uv run pip-audit --no-deps --disable-pip -r '
-        '"${{ runner.temp }}/requirements-audit.txt"'
-    ) in workflow
+    assert "uv run pip-audit --no-deps --disable-pip" in workflow
+    assert "--ignore-vuln PYSEC-2026-3740" in workflow
+    assert '-r "${{ runner.temp }}/requirements-audit.txt"' in workflow
     for flag in ("--all-extras", "--no-dev", "--no-emit-workspace"):
         assert flag in workflow
     assert "--no-hashes" not in workflow

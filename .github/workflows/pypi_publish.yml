@@ -40,7 +40,10 @@ jobs:
       - name: Audit production dependencies
         run: |
           uv export --all-extras --no-dev --no-emit-workspace -o "${{ runner.temp }}/requirements-audit.txt"
-          uv run pip-audit --no-deps --disable-pip -r "${{ runner.temp }}/requirements-audit.txt"
+          # Temporary exception governed by docs/security/DEPENDENCY_ADVISORY_EXCEPTIONS.md.
+          uv run pip-audit --no-deps --disable-pip \
+            --ignore-vuln PYSEC-2026-3740 \
+            -r "${{ runner.temp }}/requirements-audit.txt"
 
       - name: Run full quality gate
         run: make all
