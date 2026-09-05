@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Parser-Plumber boundary** — record Parser as the deterministic Logseq OG
+  parsing library and Plumber as the sole cross-product Logseq gateway to
+  Trama and Brain. Existing Parser APIs and LENS behavior remain compatible;
+  any Trama UI migration requires a later, separately reviewed compatible
+  deprecation plan (#203).
+
 ## [1.8.2] - 2026-08-30
 
 ### Changed

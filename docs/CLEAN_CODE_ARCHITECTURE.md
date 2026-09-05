@@ -8,8 +8,8 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-30
-verified: 2026-08-30
+last_verified: 2026-09-05
+verified: 2026-09-05
 stale_after: 2027-02-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -27,7 +27,14 @@ This document applies **Robert C. Martin's** *Clean Architecture* (dependency ru
 
 **Adoption model:** **incremental v1**. A full hexagonal package split (`domain/ports.py`, separate driver packages) is **out of scope** for routine PRs. Uncle Bob here is a **quality contract**, not a mandate to rewrite the flat `src/logseq_matryca_parser/` layout in one change.
 
-**Downstream consumer:** [Matryca Plumber](https://github.com/MarcoPorcellato/matryca-plumber) depends on this library as the inner AST ring. Public APIs (`LogseqGraph`, `StackMachineParser`, `SynapseAdapter`, agent write helpers) must stay stable and framework-agnostic.
+**Cross-repository boundary:** Parser owns deterministic OG parsing, typed ASTs,
+the in-memory graph, and parser-native serialization. [Matryca
+Plumber](https://github.com/MarcoPorcellato/matryca-plumber) may depend on it
+as an internal OG parser and is the sole cross-product Logseq gateway to Trama
+and Brain. Parser does not select sources, operate host adapters, or define
+public `plumber.*` contracts. Public APIs (`LogseqGraph`, `StackMachineParser`,
+`SynapseAdapter`, agent write helpers) stay stable and framework-agnostic; see
+[ADR-0004](decisions/ADR-0004-PARSER-PLUMBER-BOUNDARY.md).
 
 ---
 
@@ -53,6 +60,10 @@ This document applies **Robert C. Martin's** *Clean Architecture* (dependency ru
 | **Use cases** | `logos_parser.py`, `graph.py`, `logseq_markdown.py`, `logseq_paths.py` | Parse, index, serialize, path translation — **no** CLI or optional AI/viz imports |
 | **Adapters** | `synapse.py`, `forge.py`, `agent_writer.py`, `agent_press.py`, `lens.py` | Framework projections (LangChain, LlamaIndex, Obsidian, PyVis) |
 | **Drivers** | `kinetic.py`, `kinetic_commands.py`, `kinetic_export.py`, `__main__.py` | Operator CLI — orchestrates use cases and adapters |
+
+Parser runtime modules must not import Plumber, Trama, or Brain. Trama and Brain
+consume Plumber contracts and do not import or know Parser. This is a product
+boundary, not a reason to move existing Parser APIs or LENS behavior in place.
 
 ```mermaid
 flowchart TB
@@ -99,6 +110,7 @@ flowchart TB
 | Adapters must not import `kinetic` | same |
 | Import cycles between `src/` modules | `0` expected — verify via local graph study (`check` cycles) |
 | Adapters use **public** `LogseqGraph` APIs | Code review + audit SOP |
+| Parser runtime does not import Plumber, Trama, or Brain | [`tests/test_layer_boundary.py`](../tests/test_layer_boundary.py) |
 
 ### v1 by design (do not "fix" without an epic)
 
@@ -172,6 +184,10 @@ not stable public API.
 | Format handlers | JSON, markdown, obsidian, langchain | `kinetic_export.py` |
 
 **Rule:** no new parsing logic in KINETIC modules — call `LogseqGraph.load_directory` or `StackMachineParser`.
+
+LENS remains a compatible optional Parser adapter. A later, separately accepted
+Trama migration owns user-facing graph-intelligence UI; no LENS warning,
+removal, command, or API change is authorized by this boundary decision.
 
 ### `synapse.py` + `synapse_embed.py` — SYNAPSE adapters
 

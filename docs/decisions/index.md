@@ -15,6 +15,7 @@ introduced incrementally. Do not rewrite historical roadmaps into ADRs.
 | Privacy-safe local graph assurance | [`ADR-002-local-graph-assurance-boundary.md`](ADR-002-local-graph-assurance-boundary.md) | Accepted M5 aggregate-only local CLI boundary; no content retention or network operation |
 | Documentation lifecycle and MKQ | [`DOCUMENTATION_SYSTEM.md`](../DOCUMENTATION_SYSTEM.md) | Source contract recorded; MKQ-4 enforcement and private profile activation pending under issue #109 |
 | Protocol adapter boundary | [`ADR-0001-PROTOCOL_ADAPTER_BOUNDARY.md`](ADR-0001-PROTOCOL_ADAPTER_BOUNDARY.md) | Accepted: keep the core protocol-neutral until explicit schema, safety, permissions, and conformance gates are met |
+| Parser and Plumber boundary | [`ADR-0004-PARSER-PLUMBER-BOUNDARY.md`](ADR-0004-PARSER-PLUMBER-BOUNDARY.md) | Accepted: Parser owns deterministic OG parsing; Plumber is the sole cross-product Logseq gateway to Trama and Brain |
 | Official OKF v0.2 migration | [`ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md`](ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md) | Accepted: defer conformance while the measured 38-finding backlog and nested-index profile conflict remain |
 | AAIF submission | [`ADR-0003-AAIF-SUBMISSION-GATE.md`](ADR-0003-AAIF-SUBMISSION-GATE.md) | Accepted: NO-GO until governance, adoption, legal, live security, and release-evidence gates pass |
 

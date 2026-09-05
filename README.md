@@ -147,6 +147,9 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 The base parser is local-first and has zero telemetry. Optional AI, watcher, and
 visualization dependencies remain lazy. See the [architecture](docs/ARCHITECTURE.md)
 and [API stability reference](docs/reference/API_STABILITY.md) for exact boundaries.
+For cross-product Logseq OG use, Plumber is the gateway to Trama and Brain;
+Parser remains the deterministic parsing stage. LENS stays compatible while a
+future Trama graph-intelligence migration is separately designed and released.
 
 ### Data model — `LogseqNode` task fields
 
@@ -247,7 +250,9 @@ assert result["status"] == "success"
 ---
 
 ## 🗺️ Roadmap
-- [ ] **Desktop GUI:** Standalone app for non-technical users. [(Join the RFC)](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/3)
+- [ ] **Graph-intelligence UI:** A future Matryca Trama surface may succeed the
+  compatible Parser LENS workflow after a separately reviewed migration; Parser
+  does not commit to a standalone GUI. [(Track the historical RFC)](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/3)
 - [x] **Obsidian Adapter:** Native CLI export (`--format obsidian`) with YAML frontmatter and `^` block anchors.
 - [ ] **Ollama Integration:** One-click local RAG setup. [(RFC draft)](docs/rfc/OLLAMA_RAG.md) · [(Track progress #34)](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/34)
 
