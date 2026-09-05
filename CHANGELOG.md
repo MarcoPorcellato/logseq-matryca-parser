@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Time-bounded NLTK advisory exception** — document the exact optional AI
+  dependency exposure, non-reachability evidence, compensating controls,
+  owner, upstream advisory, and 2026-10-05 expiry for `PYSEC-2026-3740` while
+  no patched NLTK registry release exists. CI and release audits ignore only
+  that advisory; all other dependency findings remain fail-closed.
+
 ## [1.8.2] - 2026-08-30
 
 ### Changed
