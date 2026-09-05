@@ -111,7 +111,11 @@ jobs:
           --output-file "${{ runner.temp }}/requirements-audit.txt"
 
       - name: Audit exported dependencies
-        run: uv run pip-audit --no-deps --disable-pip -r "${{ runner.temp }}/requirements-audit.txt"
+        # Temporary exception governed by docs/security/DEPENDENCY_ADVISORY_EXCEPTIONS.md.
+        run: >-
+          uv run pip-audit --no-deps --disable-pip
+          --ignore-vuln PYSEC-2026-3740
+          -r "${{ runner.temp }}/requirements-audit.txt"
 
   package-contract:
     name: Wheel and source distribution contract

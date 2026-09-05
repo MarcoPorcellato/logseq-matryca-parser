@@ -65,6 +65,7 @@ entry points.
 | [`reference/CONFORMANCE_SUPPORT_MATRIX.md`](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Integrators, contributors | Supported runtimes, public contract tiers, optional adapters, and deprecation rules |
 | [`reference/DEPENDENCY_LICENSE_POLICY.md`](reference/DEPENDENCY_LICENSE_POLICY.md) | Maintainers, release reviewers | Release SBOM, dependency/license inventory, checksum, override, and attestation contract |
 | [`security/DAILY_METRICS_THREAT_MODEL.md`](security/DAILY_METRICS_THREAT_MODEL.md) | Maintainers, security reviewers | Trust boundaries and fail-closed controls for the self-mutating metrics archive |
+| [`security/DEPENDENCY_ADVISORY_EXCEPTIONS.md`](security/DEPENDENCY_ADVISORY_EXCEPTIONS.md) | Maintainers, security reviewers | Exact, time-bounded dependency advisory exceptions and compensating controls |
 | [`decisions/ADR-0001-PROTOCOL_ADAPTER_BOUNDARY.md`](decisions/ADR-0001-PROTOCOL_ADAPTER_BOUNDARY.md) | Maintainers, integrators | Decision to defer protocol endpoints until explicit safety and compatibility gates are met |
 | [`decisions/ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md`](decisions/ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md) | Maintainers, documentation reviewers | Decision to preserve the measured official OKF backlog until profile conflicts are resolved |
 | [`decisions/ADR-0003-AAIF-SUBMISSION-GATE.md`](decisions/ADR-0003-AAIF-SUBMISSION-GATE.md) | Maintainers, legal reviewers | Evidence-based NO-GO and reconsideration gate for any AAIF submission |

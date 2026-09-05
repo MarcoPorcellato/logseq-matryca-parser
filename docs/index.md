@@ -38,6 +38,7 @@ navigation layers only.
 | [Support and compatibility matrix](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Supported runtimes, public API tiers, optional adapters, and explicit limits |
 | [Dependency, license, SBOM, and provenance policy](reference/DEPENDENCY_LICENSE_POLICY.md) | Release evidence, override, checksum, and attestation contract |
 | [Daily metrics threat model](security/DAILY_METRICS_THREAT_MODEL.md) | Security boundary for the self-mutating repository traffic archive |
+| [Dependency advisory exceptions](security/DEPENDENCY_ADVISORY_EXCEPTIONS.md) | Exact, time-bounded security audit exceptions and compensating controls |
 | [Architecture](CLEAN_CODE_ARCHITECTURE.md) | Canonical architecture and public graph API |
 | [Stellar audit baseline](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Dated evidence-backed audit and original improvement sequence |
 | [GitHub and AAIF readiness study](REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md) | Governance, supply-chain, agent, and AAIF-readiness study |
