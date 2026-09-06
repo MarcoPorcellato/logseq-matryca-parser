@@ -204,10 +204,12 @@ visualizer.export_html(output)
 
 `export_html()` writes the HTML file but does not open it automatically.
 
-LENS remains compatible for this reference-topology workflow. A future Trama
-migration may replace it for user-facing graph intelligence, but this recipe,
-command, and API remain unchanged until separately announced with compatibility
-guidance.
+LENS is transitional and feature-frozen for this reference-topology workflow.
+`GraphVisualizer`, this recipe, `matryca-parse visualize`, and
+`matryca-parse demo` remain compatible and emit no deprecation warning in Stage
+0. Matryca Trama is the destination for future user-facing graph intelligence;
+a separately reviewed migration must provide compatibility guidance before any
+behavior change.
 
 ---
 

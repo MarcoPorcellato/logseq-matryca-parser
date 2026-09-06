@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import logging
+import subprocess
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -74,6 +76,38 @@ def test_per_command_help_renders_without_error(command: str) -> None:
     result = runner.invoke(app, [command, "--help"])
     assert result.exit_code == 0
     assert result.output.strip()
+
+
+@pytest.mark.parametrize("command", ["visualize", "demo"])
+def test_lens_command_help_marks_stage_zero_transition(command: str) -> None:
+    """LENS Stage 0 keeps commands while making their product boundary explicit."""
+    result = runner.invoke(app, [command, "--help"])
+
+    assert result.exit_code == 0
+    assert "transitional" in result.output.lower()
+    assert "feature-frozen" in result.output.lower()
+    assert "Matryca Trama" in result.output
+
+
+def test_package_import_is_silent_without_deprecation_warning(tmp_path: Path) -> None:
+    """Stage 0 adds no import-time output or deprecation warning."""
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-W",
+            "error::DeprecationWarning",
+            "-c",
+            "import logseq_matryca_parser",
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+    assert result.returncode == 0
+    assert result.stdout == ""
+    assert result.stderr == ""
 
 
 def test_verbose_flag_enables_debug_logging(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:

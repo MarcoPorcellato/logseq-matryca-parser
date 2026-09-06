@@ -236,7 +236,7 @@ def visualize(
     ),
     output_html: Path = typer.Argument(..., help="Output HTML path for network visualization."),
 ) -> None:
-    """Parse a graph, compute deep topology stats, and export an interactive HTML network."""
+    """LENS transitional, feature-frozen command; compatible reference topology for Matryca Trama migration."""
     resolved = _resolve_graph_path(ctx, graph_path)
 
     from logseq_matryca_parser.graph import LogseqGraph
@@ -278,7 +278,7 @@ def demo(
         help="Path for the standalone showcase HTML (default: showcase.html in cwd).",
     ),
 ) -> None:
-    """Build a sample graph from the official Logseq demo topology and write showcase HTML (no graph files read)."""
+    """LENS transitional, feature-frozen demo; compatible reference topology for Matryca Trama migration."""
     _ = ctx
     pages = _build_official_logseq_demo_pages()
     try:

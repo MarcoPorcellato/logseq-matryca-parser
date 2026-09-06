@@ -48,7 +48,8 @@ selected by the caller.
 - **Parse and query:** load one page or a complete vault as a typed AST and graph.
 - **Build RAG context:** export LangChain documents, LlamaIndex nodes, or enriched chunks.
 - **Move knowledge:** generate JSON, clean Markdown, or an Obsidian vault.
-- **Visualize:** render an interactive graph with LENS.
+- **Visualize:** render an interactive reference-topology graph with the transitional,
+  feature-frozen LENS adapter.
 - **Use an AI agent:** start from [`AGENTS.md`](AGENTS.md) or the concise [`llms.txt`](llms.txt) index.
 
 ---
@@ -150,6 +151,10 @@ and [API stability reference](docs/reference/API_STABILITY.md) for exact boundar
 For cross-product Logseq OG use, Plumber is the gateway to Trama and Brain;
 Parser remains the deterministic parsing stage. LENS stays compatible while a
 future Trama graph-intelligence migration is separately designed and released.
+Stage 0 marks LENS as transitional and feature-frozen: `GraphVisualizer`,
+`matryca-parse visualize`, and `matryca-parse demo` remain available without a
+deprecation warning. Matryca Trama is the destination for future user-facing
+graph intelligence.
 
 ### Data model — `LogseqNode` task fields
 
@@ -181,7 +186,7 @@ uv sync --all-extras
 ```
 
 ```bash
-# 1. Visualize your local graph (LENS)
+# 1. Visualize your local graph (LENS: transitional, feature-frozen)
 matryca-parse visualize /path/to/logseq/graph my-map.html
 
 # 2. Export for AI / RAG (SYNAPSE)
