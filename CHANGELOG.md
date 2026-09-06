@@ -7,13 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- **LENS Stage 0 transition** — mark the compatible `GraphVisualizer`,
-  `visualize`, and `demo` surfaces as transitional and feature-frozen, with
-  Matryca Trama as future user-facing graph-intelligence destination. This
-  release makes no API removal or deprecation-warning change (#213).
-
 ## [1.9.0] - 2026-09-06
 
 ### Added
@@ -36,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **LENS Stage 0 transition** — mark the compatible `GraphVisualizer`,
+  `visualize`, and `demo` surfaces as transitional and feature-frozen, with
+  Matryca Trama as future user-facing graph-intelligence destination. This
+  release makes no API removal or deprecation-warning change (#213).
 - **Parser-Plumber boundary** — record Parser as the deterministic Logseq OG
   parsing library and Plumber as the sole cross-product Logseq gateway to
   Trama and Brain. Existing Parser APIs and LENS behavior remain compatible;
