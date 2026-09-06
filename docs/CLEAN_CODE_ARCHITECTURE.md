@@ -19,7 +19,7 @@ superseded_by: null
 
 # Clean Code & Clean Architecture — Logseq Matryca Parser
 
-**Version:** documents **v1.8.2** maintainer contracts (v1 structural backlog complete; parser, graph-coherence, and local-assurance slices merged)
+**Version:** documents **v1.9.0** maintainer contracts (v1 structural backlog complete; parser, graph-coherence, local-assurance, and stable snapshot-graph slices merged)
 **Audience:** contributors and Cursor agents patching `src/logseq_matryca_parser/`  
 **Companion:** [`ARCHITECTURE.md`](ARCHITECTURE.md) (LOGOS domain contract) · [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) (audit evidence) · [`CONTRIBUTING.md`](../CONTRIBUTING.md)
 

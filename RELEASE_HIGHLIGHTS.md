@@ -7,9 +7,17 @@ published artifacts and attestations, see
 
 ## Unreleased
 
+## v1.9.0
+
+Minor release — adds a stable in-memory graph factory and clarifies the
+cross-product integration boundary. **No intentional breaking changes** to
+stable package imports or CLI behavior.
+
 | Area | Change |
 | :--- | :--- |
 | **Graph API** | `SnapshotPage` and `LogseqGraph.from_snapshot_pages()` build ordinary in-memory graph indexes from bounded caller-captured Markdown. The additive API never discovers, reopens, or inspects logical source paths or its graph-root label; source capture, revisions, and external DTO projection remain outside Parser. |
+| **Architecture** | Parser remains the deterministic Logseq OG library. Plumber is the sole cross-product gateway to Trama and Brain; existing Parser APIs and LENS behavior remain compatible. |
+| **Dependency security** | A time-bounded, evidence-backed exception governs `PYSEC-2026-3740` for optional AI dependency NLTK until a patched registry release exists; all other dependency findings remain fail-closed. |
 
 ## v1.8.2
 

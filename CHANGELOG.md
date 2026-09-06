@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-09-06
+
 ### Added
 
 - **In-memory snapshot graph factory** — `SnapshotPage` and
@@ -24,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   owner, upstream advisory, and 2026-10-05 expiry for `PYSEC-2026-3740` while
   no patched NLTK registry release exists. CI and release audits ignore only
   that advisory; all other dependency findings remain fail-closed.
+
 ### Changed
 
 - **Parser-Plumber boundary** — record Parser as the deterministic Logseq OG

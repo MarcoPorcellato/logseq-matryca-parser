@@ -295,6 +295,7 @@ Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
 [changelog](CHANGELOG.md), or the signed artifacts on
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
+- **v1.9.0** — Adds the stable in-memory snapshot graph factory, clarifies the Parser-Plumber boundary, and governs the temporary optional-NLTK advisory exception.
 - **v1.8.2** — Adds SHA-pinned hosted assurance, portable Windows local assurance, corrected cookbook recipes, consistent optional-AI guidance, and `Path | str` graph loading.
 - **v1.8.1** — Hardened deep-outline parsing, coherent incremental graph mutations, bounded assurance cleanup, and stable provenance for optional NLTK.
 - **v1.8.0** — Added bounded privacy-safe local graph assurance, source-location contracts, and the first internal parser line-classification phase.
