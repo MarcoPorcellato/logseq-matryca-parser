@@ -91,11 +91,11 @@ The following integrations remain public but experimental:
 Everything not exported from `logseq_matryca_parser.__all__` is internal unless
 another maintained contract explicitly promotes it.
 
-`GraphVisualizer` remains experimental and compatible in this release line. A
-future migration of user-facing graph intelligence to Trama may introduce a
-compatible deprecation only through a separately reviewed decision, release
-notes, and migration guidance. No deprecation warning or API change is made by
-the Parser-Plumber boundary decision.
+`GraphVisualizer` remains experimental, compatible, transitional, and
+feature-frozen in this release line. Stage 0 changes no API and emits no
+deprecation warning. Future user-facing graph intelligence belongs in Matryca
+Trama; a compatible deprecation may begin only through a separately reviewed
+decision, release notes, and migration guidance.
 
 ## Version source
 

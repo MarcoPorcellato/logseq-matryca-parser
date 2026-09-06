@@ -194,9 +194,11 @@ not stable public API.
 
 **Rule:** no new parsing logic in KINETIC modules — call `LogseqGraph.load_directory` or `StackMachineParser`.
 
-LENS remains a compatible optional Parser adapter. A later, separately accepted
-Trama migration owns user-facing graph-intelligence UI; no LENS warning,
-removal, command, or API change is authorized by this boundary decision.
+LENS remains a compatible optional Parser adapter. Stage 0 marks it
+transitional and feature-frozen while preserving its commands and API without a
+deprecation warning. A later, separately accepted Matryca Trama migration owns
+user-facing graph-intelligence UI; removal or behavior change requires its own
+compatibility decision.
 
 ### `synapse.py` + `synapse_embed.py` — SYNAPSE adapters
 
