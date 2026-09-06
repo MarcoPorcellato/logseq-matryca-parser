@@ -7,11 +7,11 @@ import os
 import re
 import threading
 import uuid
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from queue import Queue
 from typing import Any, Self
 
@@ -27,11 +27,18 @@ from logseq_matryca_parser.exceptions import BlockReferenceError, PageTitleColli
 from logseq_matryca_parser.logos_core import LogseqNode, LogseqPage
 from logseq_matryca_parser.logos_parser import StackMachineParser
 from logseq_matryca_parser.logseq_markdown import _normalize_logseq_ref_token
-from logseq_matryca_parser.logseq_paths import discover_graph_files, is_excluded_graph_path
+from logseq_matryca_parser.logseq_paths import (
+    decode_page_title_segment,
+    discover_graph_files,
+    filename_to_page_title,
+    is_excluded_graph_path,
+)
 
 logger = logging.getLogger(__name__)
 
 _DEFAULT_MAX_WORKERS = min(32, (os.cpu_count() or 1) + 4)
+_MAX_SNAPSHOT_PAGE_COUNT = 1_024
+_MAX_SNAPSHOT_TOTAL_BYTES = 16 * 1024 * 1024
 _WATCHER_DEBOUNCE_SECONDS = 0.5
 _WATCHER_IGNORE_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\.swp$"),
@@ -253,8 +260,19 @@ def _append_backlink(registry: dict[str, list[str]], key: str, source_uuid: str)
     logger.debug("backlink index: %s <- source=%s", key, source_uuid)
 
 
-def iter_canonical_pages_from_dict(pages: dict[str, LogseqPage]) -> Iterator[LogseqPage]:
+def _resolved_source_path_key(source_path: str) -> str:
+    """Return the historical filesystem-resolved ordering key for source pages."""
+    return str(Path(source_path).resolve())
+
+
+def iter_canonical_pages_from_dict(
+    pages: dict[str, LogseqPage],
+    *,
+    source_path_key: Callable[[str], str] | None = None,
+) -> Iterator[LogseqPage]:
     """Yield each physical ``LogseqPage`` once in deterministic source-path order."""
+    if source_path_key is None:
+        source_path_key = _resolved_source_path_key
     seen_page_ids: set[int] = set()
     canonical_pages: list[LogseqPage] = []
     for page in pages.values():
@@ -264,14 +282,17 @@ def iter_canonical_pages_from_dict(pages: dict[str, LogseqPage]) -> Iterator[Log
         seen_page_ids.add(page_id)
         canonical_pages.append(page)
     canonical_pages.sort(
-        key=lambda page: str(Path(page.source_path).resolve())
-        if page.source_path
-        else page.title,
+        key=lambda page: source_path_key(page.source_path) if page.source_path else page.title,
     )
     yield from canonical_pages
 
 
-def _resolve_page_by_title(pages: dict[str, LogseqPage], title: str) -> LogseqPage | None:
+def _resolve_page_by_title(
+    pages: dict[str, LogseqPage],
+    title: str,
+    *,
+    source_path_key: Callable[[str], str] | None = None,
+) -> LogseqPage | None:
     """Resolve a page title with case-insensitive fallback (pre-``lower_title_map``)."""
     stripped = title.strip()
     if not stripped:
@@ -280,13 +301,18 @@ def _resolve_page_by_title(pages: dict[str, LogseqPage], title: str) -> LogseqPa
     if direct is not None:
         return direct
     lower = stripped.lower()
-    for page in iter_canonical_pages_from_dict(pages):
+    for page in iter_canonical_pages_from_dict(pages, source_path_key=source_path_key):
         if page.title.lower() == lower:
             return page
     return None
 
 
-def _wikilink_backlink_keys(pages: dict[str, LogseqPage], link: str) -> list[str]:
+def _wikilink_backlink_keys(
+    pages: dict[str, LogseqPage],
+    link: str,
+    *,
+    source_path_key: Callable[[str], str] | None = None,
+) -> list[str]:
     """Normalized backlink index keys for a wikilink (literal + canonical title + aliases)."""
     keys: list[str] = []
     seen: set[str] = set()
@@ -294,7 +320,7 @@ def _wikilink_backlink_keys(pages: dict[str, LogseqPage], link: str) -> list[str
     if primary:
         keys.append(primary)
         seen.add(primary)
-    page = _resolve_page_by_title(pages, link)
+    page = _resolve_page_by_title(pages, link, source_path_key=source_path_key)
     if page is not None:
         for candidate in (page.title, *_collect_page_alias_tokens(page.properties)):
             key = _normalize_backlink_key(candidate)
@@ -304,10 +330,15 @@ def _wikilink_backlink_keys(pages: dict[str, LogseqPage], link: str) -> list[str
     return keys
 
 
-def _node_backlink_keys(pages: dict[str, LogseqPage], node: LogseqNode) -> Iterator[str]:
+def _node_backlink_keys(
+    pages: dict[str, LogseqPage],
+    node: LogseqNode,
+    *,
+    source_path_key: Callable[[str], str] | None = None,
+) -> Iterator[str]:
     """Yield every backlink index key contributed by one source node."""
     for link in node.wikilinks:
-        yield from _wikilink_backlink_keys(pages, link)
+        yield from _wikilink_backlink_keys(pages, link, source_path_key=source_path_key)
     for tag in node.tags:
         key = _normalize_backlink_key(tag)
         if key:
@@ -318,10 +349,14 @@ def _node_backlink_keys(pages: dict[str, LogseqPage], node: LogseqNode) -> Itera
             yield key
 
 
-def _build_node_registry_from_pages(pages: dict[str, LogseqPage]) -> dict[str, LogseqNode]:
+def _build_node_registry_from_pages(
+    pages: dict[str, LogseqPage],
+    *,
+    source_path_key: Callable[[str], str] | None = None,
+) -> dict[str, LogseqNode]:
     """Build the global node registry from indexed pages only (no title-collision ghosts)."""
     registry: dict[str, LogseqNode] = {}
-    for page in iter_canonical_pages_from_dict(pages):
+    for page in iter_canonical_pages_from_dict(pages, source_path_key=source_path_key):
         for node in _flatten_nodes(page.root_nodes):
             registry[node.uuid] = node
     return registry
@@ -550,12 +585,16 @@ def _build_lower_title_map(pages: dict[str, LogseqPage]) -> dict[str, str]:
     return title_map
 
 
-def _build_backlink_registry(pages: dict[str, LogseqPage]) -> dict[str, list[str]]:
+def _build_backlink_registry(
+    pages: dict[str, LogseqPage],
+    *,
+    source_path_key: Callable[[str], str] | None = None,
+) -> dict[str, list[str]]:
     """Map normalized targets (page title lower or block UUID) to source node UUIDs."""
     registry: dict[str, list[str]] = {}
-    for page in iter_canonical_pages_from_dict(pages):
+    for page in iter_canonical_pages_from_dict(pages, source_path_key=source_path_key):
         for node in _flatten_nodes(page.root_nodes):
-            for key in _node_backlink_keys(pages, node):
+            for key in _node_backlink_keys(pages, node, source_path_key=source_path_key):
                 _append_backlink(registry, key, node.uuid)
     logger.debug("backlink registry built: %s distinct targets", len(registry))
     return registry
@@ -564,6 +603,89 @@ def _build_backlink_registry(pages: dict[str, LogseqPage]) -> dict[str, list[str
 def _parse_page_file_worker(path: Path) -> LogseqPage:
     """Parse a single markdown file in isolation (thread-safe)."""
     return StackMachineParser().parse_page_file(path)
+
+
+@dataclass(frozen=True, slots=True)
+class SnapshotPage:
+    """One pre-captured Markdown page supplied to :meth:`LogseqGraph.from_snapshot_pages`.
+
+    ``logical_path`` is a graph-relative POSIX path under ``pages/`` or ``journals/``.
+    ``text`` is the already-captured Markdown source; this value never grants filesystem-read
+    authority to the graph factory.
+    """
+
+    logical_path: str
+    text: str
+
+
+def _normalize_snapshot_logical_path(logical_path: str) -> PurePosixPath:
+    """Return one safe, normalized graph-relative POSIX Markdown path."""
+    if not isinstance(logical_path, str):
+        raise TypeError("snapshot logical path must be a string")
+    if not logical_path or "\\" in logical_path:
+        raise ValueError("snapshot logical path must be a non-empty POSIX path")
+    candidate = PurePosixPath(logical_path)
+    if candidate.is_absolute() or any(part == ".." for part in candidate.parts):
+        raise ValueError("snapshot logical path escapes graph root")
+    parts = tuple(part for part in candidate.parts if part != ".")
+    if (
+        len(parts) < 2
+        or parts[0] not in {"pages", "journals"}
+        or PurePosixPath(*parts).suffix != ".md"
+        or is_excluded_graph_path(Path(*parts))
+    ):
+        raise ValueError("snapshot logical path is not tracked Markdown")
+    return PurePosixPath(*parts)
+
+
+def _derive_snapshot_page_title(logical_path: PurePosixPath) -> str:
+    """Derive a title with the normal path rules without resolving caller metadata."""
+    title_parts = logical_path.with_suffix("").parts[1:]
+    if len(title_parts) == 1:
+        return filename_to_page_title(title_parts[0])
+    return "/".join(decode_page_title_segment(part) for part in title_parts)
+
+
+def _normalize_snapshot_graph_path(graph_path: Path | str) -> Path:
+    """Return an absolute, normalized graph-root label without filesystem inspection."""
+    raw_path = os.fspath(graph_path)
+    if not isinstance(raw_path, str):
+        raise TypeError("snapshot graph path must be a string or Path")
+    return Path(os.path.abspath(raw_path))
+
+
+def _normalize_snapshot_pages(
+    snapshot_pages: Mapping[str, str] | Sequence[SnapshotPage],
+) -> tuple[tuple[PurePosixPath, str], ...]:
+    """Validate, bound, deduplicate, and canonically order caller-owned snapshots."""
+    if len(snapshot_pages) > _MAX_SNAPSHOT_PAGE_COUNT:
+        raise ValueError("snapshot page limit exceeded")
+    raw_pages: Iterator[SnapshotPage]
+    if isinstance(snapshot_pages, Mapping):
+        raw_pages = (
+            SnapshotPage(logical_path=logical_path, text=text)
+            for logical_path, text in snapshot_pages.items()
+        )
+    else:
+        raw_pages = iter(snapshot_pages)
+
+    normalized: dict[PurePosixPath, str] = {}
+    total_bytes = 0
+    for page_count, snapshot in enumerate(raw_pages, start=1):
+        if page_count > _MAX_SNAPSHOT_PAGE_COUNT:
+            raise ValueError("snapshot page limit exceeded")
+        if not isinstance(snapshot, SnapshotPage):
+            raise TypeError("snapshot pages must be SnapshotPage values")
+        if not isinstance(snapshot.text, str):
+            raise TypeError("snapshot text must be a string")
+        logical_path = _normalize_snapshot_logical_path(snapshot.logical_path)
+        if logical_path in normalized:
+            raise ValueError("duplicate snapshot logical path")
+        total_bytes += len(snapshot.text.encode("utf-8"))
+        if total_bytes > _MAX_SNAPSHOT_TOTAL_BYTES:
+            raise ValueError("snapshot aggregate byte limit exceeded")
+        normalized[logical_path] = snapshot.text
+    return tuple(sorted(normalized.items(), key=lambda item: item[0].as_posix()))
 
 
 @dataclass(frozen=True, slots=True)
@@ -832,12 +954,11 @@ class LogseqGraph(BaseModel):
 
         if not files:
             logger.debug("LogseqGraph.load_directory: no markdown files under %s", resolved)
-            return cls(
+            return cls._from_source_pages(
                 graph_path=resolved,
-                pages={},
                 source_pages=source_pages,
-                node_registry={},
-                backlink_registry={},
+                strict_refs=strict_refs,
+                strict_title_collisions=strict_title_collisions,
             )
 
         max_workers = min(_DEFAULT_MAX_WORKERS, len(files))
@@ -859,18 +980,71 @@ class LogseqGraph(BaseModel):
         source_pages = {
             str(path.resolve()): page for path, page in path_page_pairs
         }
-        pages, diagnostics = _build_pages_index_from_source_pages(source_pages, resolved)
-        node_registry = _build_node_registry_from_pages(pages)
-        backlink_registry = _build_backlink_registry(pages)
-        lower_title_map = _build_lower_title_map(pages)
-
-        logger.debug(
-            "LogseqGraph.load_directory: indexed %s pages, %s nodes",
-            len(pages),
-            len(node_registry),
-        )
-        graph = cls(
+        return cls._from_source_pages(
             graph_path=resolved,
+            source_pages=source_pages,
+            strict_refs=strict_refs,
+            strict_title_collisions=strict_title_collisions,
+        )
+
+    @classmethod
+    def from_snapshot_pages(
+        cls,
+        graph_path: Path | str,
+        snapshot_pages: Mapping[str, str] | Sequence[SnapshotPage],
+        *,
+        strict_refs: bool = False,
+        strict_title_collisions: bool = False,
+    ) -> LogseqGraph:
+        """Build a graph from bounded caller-captured Markdown without filesystem discovery or reads."""
+        resolved = _normalize_snapshot_graph_path(graph_path)
+        source_pages: dict[str, LogseqPage] = {}
+        for logical_path, text in _normalize_snapshot_pages(snapshot_pages):
+            source_path = resolved.joinpath(*logical_path.parts)
+            parser = StackMachineParser()
+            page = parser.parse(
+                text,
+                page_title=_derive_snapshot_page_title(logical_path),
+            )
+            source_pages[str(source_path)] = page.model_copy(
+                update={
+                    "source_path": str(source_path),
+                    "graph_root": str(resolved),
+                    "root_nodes": parser._apply_source_path(page.root_nodes, str(source_path)),
+                }
+            )
+        return cls._from_source_pages(
+            graph_path=resolved,
+            source_pages=source_pages,
+            strict_refs=strict_refs,
+            strict_title_collisions=strict_title_collisions,
+            source_paths_are_lexical=True,
+        )
+
+    @classmethod
+    def _from_source_pages(
+        cls,
+        *,
+        graph_path: Path,
+        source_pages: dict[str, LogseqPage],
+        strict_refs: bool,
+        strict_title_collisions: bool,
+        source_paths_are_lexical: bool = False,
+    ) -> LogseqGraph:
+        """Build and validate one complete graph index from already parsed physical pages."""
+        pages, diagnostics = _build_pages_index_from_source_pages(source_pages, graph_path)
+        source_path_key = str if source_paths_are_lexical else None
+        node_registry = _build_node_registry_from_pages(
+            pages,
+            source_path_key=source_path_key,
+        )
+        backlink_registry = _build_backlink_registry(
+            pages,
+            source_path_key=source_path_key,
+        )
+        lower_title_map = _build_lower_title_map(pages)
+        graph = cls(
+            graph_path=graph_path,
             pages=pages,
             source_pages=source_pages,
             node_registry=node_registry,

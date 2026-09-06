@@ -5,6 +5,12 @@ For the exhaustive change history, see the [changelog](CHANGELOG.md). For
 published artifacts and attestations, see
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
+## Unreleased
+
+| Area | Change |
+| :--- | :--- |
+| **Graph API** | `SnapshotPage` and `LogseqGraph.from_snapshot_pages()` build ordinary in-memory graph indexes from bounded caller-captured Markdown. The additive API never discovers, reopens, or inspects logical source paths or its graph-root label; source capture, revisions, and external DTO projection remain outside Parser. |
+
 ## v1.8.2
 
 Patch release — strengthens the hosted assurance boundary, clarifies

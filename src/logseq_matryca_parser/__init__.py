@@ -22,7 +22,7 @@ from .forge import (
     MarkdownForgeVisitor,
     ObsidianForgeVisitor,
 )
-from .graph import LogseqGraph
+from .graph import LogseqGraph, SnapshotPage
 from .logos_core import ASTVisitor, LogosNode, LogseqNode, LogseqPage, SovereignNotePackage
 from .logos_parser import (
     LOGSEQ_PATTERNS,
@@ -87,6 +87,7 @@ __all__ = [
     "PageRegistry",
     "PageTitleCollisionError",
     "SessionAliasRegistry",
+    "SnapshotPage",
     "SovereignNotePackage",
     "StackMachineParser",
     "SynapseAdapter",
