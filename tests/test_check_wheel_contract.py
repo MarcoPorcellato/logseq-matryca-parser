@@ -5,7 +5,9 @@ import io
 import zipfile
 from pathlib import Path
 
-from scripts.check_wheel_contract import MARKER, check_wheel, source_version
+import pytest
+
+from scripts.check_wheel_contract import MARKER, check_wheel, main, source_version
 
 
 def _wheel(
@@ -56,3 +58,35 @@ def test_wheel_contract_reports_version_mismatch(tmp_path: Path) -> None:
     assert check_wheel(wheel, "1.7.0") == [
         "wheel version '1.5.0' does not match source version '1.7.0'"
     ]
+
+
+def test_cli_reports_missing_wheel_path(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    missing = tmp_path / "absent.whl"
+
+    code = main([str(missing)])
+
+    assert code == 2
+    assert capsys.readouterr().out.startswith("wheel-contract:")
+
+
+def test_cli_reports_malformed_archive_without_raising(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    not_a_wheel = tmp_path / "package.whl"
+    not_a_wheel.write_text("this is not a zip archive", encoding="utf-8")
+
+    code = main([str(not_a_wheel)])
+
+    assert code == 2
+    assert capsys.readouterr().out.startswith("wheel-contract:")
+
+
+def test_cli_accepts_valid_wheel(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    wheel = _wheel(tmp_path / "package.whl", version=source_version())
+
+    code = main([str(wheel)])
+
+    assert code == 0
+    assert "wheel-contract: OK" in capsys.readouterr().out
