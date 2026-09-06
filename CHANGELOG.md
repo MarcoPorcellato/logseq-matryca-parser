@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **In-memory snapshot graph factory** — `SnapshotPage` and
+  `LogseqGraph.from_snapshot_pages()` build the existing parser graph indexes from
+  bounded, caller-captured Markdown without source discovery, file reopening, or
+  graph-root filesystem inspection.
+  The stable additive API preserves deterministic ordering, parser identities,
+  aliases, backlinks, diagnostics, and opt-in strict modes while keeping source
+  capture and cross-product projection outside Parser (#209).
+
 ### Security
 
 - **Time-bounded NLTK advisory exception** — document the exact optional AI

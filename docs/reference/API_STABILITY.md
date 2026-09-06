@@ -40,7 +40,7 @@ minor release unless a security issue makes that unsafe.
 |---|---|
 | Version | `__version__` |
 | Parser | `StackMachineParser`, `LogosParser`, `LogseqPage`, `LogseqNode`, `LogosNode`, `ASTVisitor` |
-| Graph | `LogseqGraph` |
+| Graph | `LogseqGraph`, `SnapshotPage` |
 | Diagnostics | `Diagnostic`, `DiagnosticCode`, `DiagnosticSeverity`, `collect_graph_diagnostics` |
 | Errors | `LogseqParserError`, `LogseqIndentationError`, `BlockReferenceError`, `PageTitleCollisionError`, `VaultWriteError` |
 | Writer preview | `WriteProposal` |
@@ -56,6 +56,19 @@ updating this table and those tests in the same PR.
 the loader normalizes a textual path with `Path(graph_path).expanduser().resolve()`.
 Both strict modes are opt-in, preserving the
 permissive default.
+
+`SnapshotPage(logical_path, text)` and
+`LogseqGraph.from_snapshot_pages(graph_path, snapshot_pages, *, strict_refs=False,
+strict_title_collisions=False)` are stable additive graph APIs. The factory accepts
+either a mapping of graph-relative POSIX Markdown paths to already-captured text or
+a sequence of `SnapshotPage` values. It normalizes and orders unique `pages/` and
+`journals/` paths deterministically, accepts at most 1,024 pages and 16 MiB of UTF-8
+text, parses with the existing in-memory parser, and reuses the ordinary graph index
+builders and strict modes. It never discovers or reopens logical source paths.
+Synthetic source paths on the resulting models are metadata for graph behavior, not
+filesystem-read authority; capture, source selection, hashing, and revisions remain
+the caller's responsibility. Its graph-root label is normalized lexically without
+expanding, resolving, or inspecting the caller path.
 
 Diagnostic code compatibility, serialization, and path-safety rules are defined
 in the [structured diagnostics contract](DIAGNOSTICS.md).

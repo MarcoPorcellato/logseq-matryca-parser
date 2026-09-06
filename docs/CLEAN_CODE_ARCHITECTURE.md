@@ -149,7 +149,7 @@ make check
 
 | Area | Responsibility |
 |------|----------------|
-| Bulk load | `load_directory`, `_enrich_pages_index` |
+| Bulk load | `load_directory`, `from_snapshot_pages`, `_enrich_pages_index` |
 | Incremental | `invalidate_and_reload_page`, watcher |
 | Coherence | Per-graph in-process coordinator shared by readers, writer splices, and watcher reloads |
 | Query | `GraphQuery`, `search_content`, backlinks |
@@ -170,6 +170,15 @@ candidate construction. Watcher debounce shutdown closes later routes, cancels
 pending timers, and waits for admitted routes to finish; callbacks stay FIFO,
 isolated, outside graph coordination, and use a separate bounded dispatcher
 close.
+
+`SnapshotPage` plus `LogseqGraph.from_snapshot_pages()` is the additive
+in-memory bulk-load boundary. It accepts caller-captured Markdown text and safe
+graph-relative logical paths, parses only through `StackMachineParser.parse()`, and
+then reuses the normal graph index builders. The factory neither discovers nor
+reopens or inspects source paths or the graph-root label; those synthetic paths are
+graph metadata only. Capture,
+filesystem authority, revisions, and cross-product DTO projection remain outside
+Parser.
 
 The private inventory and snapshot representations are implementation details,
 not stable public API.

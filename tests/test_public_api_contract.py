@@ -32,6 +32,7 @@ EXPECTED_ROOT_EXPORTS = {
     "PageRegistry",
     "PageTitleCollisionError",
     "SessionAliasRegistry",
+    "SnapshotPage",
     "SovereignNotePackage",
     "StackMachineParser",
     "SynapseAdapter",
@@ -94,3 +95,21 @@ def test_stable_graph_loader_signature() -> None:
     assert get_type_hints(package.LogseqGraph.load_directory).get("graph_path") == (
         Path | str
     )
+
+
+def test_stable_snapshot_graph_factory_signature() -> None:
+    signature = inspect.signature(package.LogseqGraph.from_snapshot_pages)
+
+    assert tuple(signature.parameters) == (
+        "graph_path",
+        "snapshot_pages",
+        "strict_refs",
+        "strict_title_collisions",
+    )
+    assert signature.parameters["strict_refs"].kind is inspect.Parameter.KEYWORD_ONLY
+    assert signature.parameters["strict_refs"].default is False
+    assert (
+        signature.parameters["strict_title_collisions"].kind
+        is inspect.Parameter.KEYWORD_ONLY
+    )
+    assert signature.parameters["strict_title_collisions"].default is False

@@ -220,6 +220,14 @@ graph = LogseqGraph.load_directory("/path/to/logseq/graph")
 page_obj = graph.get_page("My Page")  # case-insensitive
 effective = graph.get_effective_properties(page_obj.root_nodes[0].uuid)
 
+# Build the same in-memory indexes from caller-captured Markdown without filesystem access.
+from logseq_matryca_parser import SnapshotPage
+
+snapshot_graph = LogseqGraph.from_snapshot_pages(
+    "/path/to/logseq/graph",
+    [SnapshotPage("pages/Project.md", "- Captured block\n")],
+)
+
 # Export to LangChain with lineage metadata
 docs = SynapseAdapter.to_langchain_documents(page.root_nodes, source_name=page.title)
 
