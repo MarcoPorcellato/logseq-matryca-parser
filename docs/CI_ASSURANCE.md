@@ -101,6 +101,11 @@ make all
 make vendor-name-check
 ```
 
+The repository policy check scans Git-tracked and non-ignored untracked files,
+including hidden paths. It uses Python's standard library and Git's NUL-delimited
+file listing; enumeration or read failures are errors, not a successful empty
+scan. `uv.lock` and the checker source are explicit exemptions.
+
 When automation files change, also run actionlint and zizmor using the pinned
 versions documented in `workflow-analysis.yml`. When packaging changes, build
 wheel and sdist, run `scripts/check_wheel_contract.py`, Twine 6.2.0, and the

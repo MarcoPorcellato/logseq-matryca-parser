@@ -83,7 +83,7 @@ date expires.
 | [`AAIF_ALIGNMENT.md`](AAIF_ALIGNMENT.md) | Agentic-interoperability alignment and non-membership boundary |
 | [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) | Architecture rings, public graph API, and dependency rules |
 | [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Current evidence-backed repository roadmap |
-| [`quality/ISSUE_RECONCILIATION_2026-08-06.md`](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Dated GitHub backlog evidence |
+| [`quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md`](quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md) | Current dated GitHub issue and pull-request evidence |
 | [`quality/README.md`](quality/README.md) | Quality and architecture navigation |
 | [`decisions/index.md`](decisions/index.md) | Decision registry and ADR gaps |
 | [`reference/index.md`](reference/index.md) | Provenance and ecosystem relations |
@@ -112,6 +112,8 @@ Historical audits, executed roadmaps, and superseded specifications remain in
 place as evidence. They must be clearly labeled by navigation or metadata and
 must point to their successor when one exists. Do not rewrite historical
 claims, dates, or measured counts as though they described the present.
+The August 6 issue reconciliation remains historical; its successor is the
+September 24 live issue snapshot in the maintained quality bundle.
 
 ### 3.4 Generated documentation
 

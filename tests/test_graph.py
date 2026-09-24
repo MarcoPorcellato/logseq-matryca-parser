@@ -480,23 +480,72 @@ def test_watcher_ignores_temp_and_swap_files(tmp_path: Path) -> None:
     watcher.stop()
 
 
-def test_debounced_graph_event_router_coalesces_rapid_events(tmp_path: Path) -> None:
+def test_debounced_graph_event_router_coalesces_rapid_events(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Multiple schedules for the same path should invoke the route callback once."""
-    import time
+    from collections.abc import Callable
 
     from logseq_matryca_parser.graph import _DebouncedGraphEventRouter
+
+    class _ManualTimer:
+        def __init__(
+            self,
+            interval: float,
+            function: Callable[..., object],
+            *,
+            args: tuple[object, ...] = (),
+        ) -> None:
+            self.interval = interval
+            self.function = function
+            self.args = args
+            self.cancelled = False
+            self.started = False
+            self.daemon = False
+
+        def start(self) -> None:
+            self.started = True
+
+        def cancel(self) -> None:
+            self.cancelled = True
+
+        def fire(self) -> None:
+            if not self.cancelled:
+                self.function(*self.args)
+
+    timers: list[_ManualTimer] = []
+
+    def _make_timer(
+        interval: float,
+        function: Callable[..., object],
+        *,
+        args: tuple[object, ...] = (),
+    ) -> _ManualTimer:
+        timer = _ManualTimer(interval, function, args=args)
+        timers.append(timer)
+        return timer
+
+    monkeypatch.setattr(graph_module.threading, "Timer", _make_timer)
 
     target = tmp_path / "pages" / "Live.md"
     target.parent.mkdir(parents=True)
     hits: list[Path] = []
     router = _DebouncedGraphEventRouter(hits.append, debounce_seconds=0.05)
+    try:
+        router.schedule(target)
+        router.schedule(target)
 
-    router.schedule(target)
-    router.schedule(target)
-    time.sleep(0.12)
+        assert len(timers) == 2
+        assert timers[0].interval == timers[1].interval == 0.05
+        assert timers[0].started is True
+        assert timers[0].cancelled is True
+        assert timers[1].started is True
+        assert timers[1].cancelled is False
+        timers[1].fire()
 
-    assert hits == [target.resolve()]
-    router.cancel_all()
+        assert hits == [target.resolve()]
+    finally:
+        router.close()
 
 
 def test_get_broken_references_flags_missing_uuid(tmp_path: Path) -> None:
