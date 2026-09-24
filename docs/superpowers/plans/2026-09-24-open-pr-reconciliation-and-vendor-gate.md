@@ -139,6 +139,18 @@
   Python 3.12 observing an empty callback list after a fixed sleep; source
   review found the assertion races with the timer thread. No parser/runtime
   code change is planned; the unit test now uses a deterministic fake timer.
+- Follow-up exact-head run `35970787660` on `f744dbf`: the debounce test passed
+  on both macOS versions and Linux, but Windows 3.12 and 3.13 each failed two
+  scanner error-path tests. They invoked the Bash wrapper, whose `python3`
+  alias launched an uninstalled WSL distribution instead of the job's Python;
+  this returned exit 1 before the scanner could return its expected exit 2.
+  The scoped test fix invokes the Python checker with `sys.executable`, still
+  exercising its real CLI without depending on shell or WSL aliases.
+- Windows repair evidence: focused scanner tests 5/5 passed; final local
+  `make all` passed all 815 tests with 91.18% coverage, Ruff, Mypy, docs and
+  vendor checks. Sol reviewed the exact test diff `PASS_WITH_NOTES`; it notes
+  that the shell wrapper itself remains unverified on Windows, while Ubuntu
+  Quality exercises it.
 - Sol security review of #219 verified its exact registry artifact URLs and
   hashes for AnyIO 4.14.2 and confirmed the upstream advisory's fixed version.
   The approved specification explicitly forbids dependency changes; do not
@@ -172,9 +184,9 @@
   #222 still targets base SHA `ac91aca6a3d6bf3ad5f6f952ff4b8b366bdc9941`;
   the GitHub integration does not expose branch protection (403), and stored
   GitHub CLI authentication is invalid. No merge attempted.
-- [x] Push the reviewed follow-up to PR #222. Exact-head run
-  `35970490464` confirms the AnyIO production audit failure; cross-platform
-  matrix jobs were still running at last inspection. Hold #222 open.
+- [x] Push the reviewed follow-up to PR #222. Its exact head `f744dbf` exposed
+  the Windows test-launch issue and reconfirmed the production audit blocker;
+  the follow-on test-only repair is now locally verified and awaits push.
 - [x] Refresh all four original PRs. Hold #218 for `action_required`; hold
   #219 for failed Logos CI despite useful, independently reviewed security
   update; hold #220 and #221 for failed Logos CI and stale bases. Do not approve
@@ -191,9 +203,10 @@
 ### Current stop condition
 
 - The deterministic timer test and scanner patch pass local full quality gates
-  and Sol review. On the pushed exact head, Quality, package-contract, and
-  Dependency Review passed, but production dependency audit failed and the
-  platform matrix was still running when last checked.
+  and Sol review. On pushed head `f744dbf`, Quality, package-contract,
+  Dependency Review, Linux and macOS passed; Windows failed because the tests
+  selected a WSL alias. The corrected test launcher has focused and complete
+  local PASS evidence but requires a fresh Windows CI run.
 - The exact AnyIO 4.14.2 fix is present in PR #219 and independently confirmed
   by Sol's security review, but the approved specification forbids dependency
   changes. Stop for maintainer scope approval before combining that lockfile

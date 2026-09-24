@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import base64
 import subprocess
+import sys
 from pathlib import Path
 
-CHECKER = Path(__file__).resolve().parents[1] / "scripts" / "check_vendor_free_docs.sh"
+CHECKER = Path(__file__).resolve().parents[1] / "scripts" / "check_vendor_free_docs.py"
 FORBIDDEN_PATTERN_B64 = "Z2l0bmV4dXN8dXNlci1naXRuZXh1c3xcLmdpdG5leHVzcmN8XC5naXRuZXh1cy8="
 
 
@@ -18,7 +19,7 @@ def _git_repo(path: Path) -> None:
 
 def _check(root: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        ["bash", str(CHECKER), "--root", str(root)],
+        [sys.executable, str(CHECKER), "--root", str(root)],
         capture_output=True,
         check=False,
         text=True,
