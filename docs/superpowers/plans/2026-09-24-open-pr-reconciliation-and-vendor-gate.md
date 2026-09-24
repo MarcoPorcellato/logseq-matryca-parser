@@ -117,15 +117,35 @@
 
 - [x] Run focused scanner tests: 5 passed.
 - [x] Run `make vendor-name-check` and documentation validation.
-- [x] Final full `make all`: Ruff, Mypy, docs, vendor check, and tests passed;
-  815 tests passed with 91.20% coverage against an 80% floor.
+- [x] Re-run final full `make all` against the plan-approved AnyIO 4.13.0 lock:
+  Ruff, Mypy (83 source files), documentation validation, vendor check, and all
+  815 tests passed; coverage was 91.18% against an 80% floor.
 - [x] Run `git diff --check`; confirm only planned files changed.
-- [x] Sol review: final `PASS_WITH_NOTES`, no blocking finding. Added the
-  requested symlink and ignored-file regression coverage; the scanner skips
-  symlink entries instead of reading target text. A theoretical path-swap race
-  remains outside this static repository check's threat model.
-- [x] Run full `make all` after the final scanner and test changes; lint, type
-  check, docs, vendor check, tests, and coverage floor all passed.
+- [x] Initial Sol review: `PASS_WITH_NOTES`, no blocker; scanner now skips
+  symlink entries and tests ignored-file behavior.
+- [x] Final Sol review: `PASS_WITH_NOTES`; fake timer removes the observed
+  scheduler race without runtime changes. No merge approval; exact-head hosted
+  checks remain required.
+
+### Hosted CI findings and scope gate
+
+- Repair PR #222 was opened at 2026-09-24 07:03 UTC from commit
+  `5d9afe891514554320b6123a7c9fef6174595e4f`, based on live `main`
+  `ac91aca6a3d6bf3ad5f6f952ff4b8b366bdc9941`.
+- Exact-head Logos Protocol CI run `35967619072`: Quality and package-contract
+  jobs passed; production dependency audit failed on AnyIO 4.13.0
+  (`CVE-2026-63374`); both macOS jobs failed
+  `test_debounced_graph_event_router_coalesces_rapid_events`. CI logs show
+  Python 3.12 observing an empty callback list after a fixed sleep; source
+  review found the assertion races with the timer thread. No parser/runtime
+  code change is planned; the unit test now uses a deterministic fake timer.
+- Sol security review of #219 verified its exact registry artifact URLs and
+  hashes for AnyIO 4.14.2 and confirmed the upstream advisory's fixed version.
+  The approved specification explicitly forbids dependency changes; do not
+  incorporate #219's lock update without the maintainer's new scope approval.
+- Therefore #222 and #219–#221 are not mergeable now. #218 still requires
+  maintainer approval to execute hosted workflows; do not treat
+  `action_required` as PASS or approve it without a fresh exact-diff decision.
 - [ ] Confirm exact base/current refs, commit the reviewed patch, and verify
   clean worktree after commit.
 
@@ -134,9 +154,14 @@
 **Files:**
 - No local source changes unless review requires a scoped repair.
 
-- [ ] Reverify live `main`, target PR heads, auth and branch protection.
-- [ ] Commit and push the repair branch, then open a PR against current `main`.
-- [ ] Wait for repair PR checks and merge only after all required gates pass.
+- [x] Initial publication: PR #222 was opened against `main` and the first
+  patch was pushed. The working branch now contains a reviewed deterministic
+  test fix that still needs its own commit and push.
+- [ ] Reverify live `main`, target PR heads, auth and branch protection before
+  any merge decision. Branch protection remains unreadable through the current
+  GitHub integration.
+- [ ] Push the reviewed follow-up to PR #222 and wait for exact-head checks.
+  Merge only if all required gates pass; do not bypass dependency audit.
 - [ ] Refresh all four original PRs. Ask for or approve workflow execution for
   #218 only when GitHub requires maintainer approval and the exact diff remains
   the reviewed test-only contribution.
@@ -146,3 +171,13 @@
   are resolved, and branch protection allows it. Stop on any ambiguous,
   skipped, or failed gate.
 - [ ] Record merged PR SHAs or precise hold reasons in the current dated ledger.
+
+### Current stop condition
+
+- The deterministic timer test and scanner patch pass local full quality gates
+  and Sol review, but that does not clear the initial PR #222 CI failures.
+- Production dependency audit still blocks the current lockfile because of
+  AnyIO 4.13.0. The exact fix is present in PR #219, but the specification
+  forbids dependency changes. Stop for maintainer scope approval before
+  combining that lockfile change; do not merge or close #219/#222 on the basis
+  of local results.
