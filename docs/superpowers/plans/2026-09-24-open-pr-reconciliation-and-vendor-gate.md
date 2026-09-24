@@ -147,8 +147,8 @@
   maintainer approval to execute hosted workflows; do not treat
   `action_required` as PASS or approve it without a fresh exact-diff decision.
 - [x] Confirm exact base/current refs, commit the reviewed patch as
-  `4840d32` (`test: make graph debounce test deterministic`), and verify the
-  worktree is clean after the documentation receipt is committed.
+  `4840d32` (`test: make graph debounce test deterministic`) and its evidence
+  update as `71adef2`; verify the isolated worktree is clean.
 
 ### Task 6: Publish, rerun PR gates, and close only safe candidates
 
@@ -157,28 +157,44 @@
 
 - [x] Initial publication: PR #222 was opened against `main` and the first
   patch was pushed. The reviewed deterministic timer-test fix is committed as
-  `4840d32` and is awaiting push to the same PR branch.
-- [ ] Reverify live `main`, target PR heads, auth and branch protection before
-  any merge decision. Branch protection remains unreadable through the current
-  GitHub integration.
-- [ ] Push the reviewed follow-up to PR #222 and wait for exact-head checks.
-  Merge only if all required gates pass; do not bypass dependency audit.
-- [ ] Refresh all four original PRs. Ask for or approve workflow execution for
-  #218 only when GitHub requires maintainer approval and the exact diff remains
-  the reviewed test-only contribution.
+  `4840d32`; evidence update `71adef2` is pushed to the same PR branch.
+- [x] Refresh exact heads for #218–#222 after push. On #222 head
+  `71adef291f4849d91274e29b860322202d3fbfd2`, Dependency Review run
+  `35970490531` passed; Logos Protocol CI run `35970490464` has Quality and
+  package-contract jobs passed, but its production dependency audit failed on
+  AnyIO 4.13.0 while the platform test matrix is still running. Do not merge.
+- [x] Confirm all five PRs have no unresolved inline review threads. Current
+  original PR states remain: #218's two checks are `action_required`; #219's
+  Logos CI is failed and Dependency Review passed; #220 and #221 have failed
+  Logos CI with their Dependency Review and Workflow Static Analysis checks
+  passed. Their heads remain based on older `main` commits; preserve them open.
+- [x] Refresh live PR metadata, heads, workflow runs, and review threads. PR
+  #222 still targets base SHA `ac91aca6a3d6bf3ad5f6f952ff4b8b366bdc9941`;
+  the GitHub integration does not expose branch protection (403), and stored
+  GitHub CLI authentication is invalid. No merge attempted.
+- [x] Push the reviewed follow-up to PR #222. Exact-head run
+  `35970490464` confirms the AnyIO production audit failure; cross-platform
+  matrix jobs were still running at last inspection. Hold #222 open.
+- [x] Refresh all four original PRs. Hold #218 for `action_required`; hold
+  #219 for failed Logos CI despite useful, independently reviewed security
+  update; hold #220 and #221 for failed Logos CI and stale bases. Do not approve
+  #218 or close any original PR based on these states.
 - [ ] Update each stale branch to current `main` using a safe non-force path;
-  rerun required CI and dependency review.
+  rerun required CI and dependency review only after #222 is mergeable and
+  incorporated, or after separate explicit scope direction.
 - [ ] Merge one PR at a time only when its current head is green, review threads
   are resolved, and branch protection allows it. Stop on any ambiguous,
   skipped, or failed gate.
-- [ ] Record merged PR SHAs or precise hold reasons in the current dated ledger.
+- [x] Record the precise hold reasons and latest exact-head evidence here; the
+  07:00 UTC issue ledger remains a time-bound snapshot taken before #222.
 
 ### Current stop condition
 
 - The deterministic timer test and scanner patch pass local full quality gates
-  and Sol review, but that does not clear the initial PR #222 CI failures.
-- Production dependency audit still blocks the current lockfile because of
-  AnyIO 4.13.0. The exact fix is present in PR #219, but the specification
-  forbids dependency changes. Stop for maintainer scope approval before
-  combining that lockfile change; do not merge or close #219/#222 on the basis
-  of local results.
+  and Sol review. On the pushed exact head, Quality, package-contract, and
+  Dependency Review passed, but production dependency audit failed and the
+  platform matrix was still running when last checked.
+- The exact AnyIO 4.14.2 fix is present in PR #219 and independently confirmed
+  by Sol's security review, but the approved specification forbids dependency
+  changes. Stop for maintainer scope approval before combining that lockfile
+  change. No open PR is currently safe to merge or close.
