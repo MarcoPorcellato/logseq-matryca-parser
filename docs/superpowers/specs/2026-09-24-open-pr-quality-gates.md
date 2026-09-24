@@ -65,8 +65,13 @@ review gates.
 - Do not change parser/runtime behavior, dependency declarations, releases, or
   unrelated issues.
 - A review verdict does not authorize a merge. The user's request to execute
-  this plan authorizes only the scoped repair and controlled closure of the
-  four PRs when every stated merge gate passes.
+  this plan initially authorized the scoped repair and consideration of
+  closure only when every stated merge gate passed. On 2026-09-24, the
+  maintainer explicitly amended scope to integrate only the existing AnyIO
+  4.14.2 `uv.lock` update proposed in PR #219 into PR #222, then rerun the
+  exact checks. This supersedes the earlier dependency exclusion only for
+  that single lockfile record; it authorizes no other dependency change and
+  does not authorize merge or PR closure.
 - Do not use `gh` for writes while its stored token is invalid. Use verified
   SSH Git transport or an available GitHub connector after confirming the
   exact target branch and commit.

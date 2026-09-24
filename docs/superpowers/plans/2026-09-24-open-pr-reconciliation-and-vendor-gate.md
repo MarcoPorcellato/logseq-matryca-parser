@@ -117,9 +117,13 @@
 
 - [x] Run focused scanner tests: 5 passed.
 - [x] Run `make vendor-name-check` and documentation validation.
-- [x] Re-run final full `make all` against the plan-approved AnyIO 4.13.0 lock:
-  Ruff, Mypy (83 source files), documentation validation, vendor check, and all
-  815 tests passed; coverage was 91.18% against an 80% floor.
+- [x] Re-run final full `make all` after the maintainer-approved AnyIO 4.14.2
+  lock update: Ruff, Mypy (83 source files), documentation validation, vendor
+  check, and all 815 tests passed; coverage was 91.18% against an 80% floor.
+- [x] Verify dependency and package contracts: `uv lock --check`,
+  `uv sync --locked --all-extras`, production `pip-audit` (no known
+  vulnerabilities; one existing documented ignore), wheel/sdist build, wheel
+  contract, Twine check, and strict downstream typing all passed.
 - [x] Run `git diff --check`; confirm only planned files changed.
 - [x] Initial Sol review: `PASS_WITH_NOTES`, no blocker; scanner now skips
   symlink entries and tests ignored-file behavior.
@@ -160,8 +164,11 @@
   closed.
 - Sol security review of #219 verified its exact registry artifact URLs and
   hashes for AnyIO 4.14.2 and confirmed the upstream advisory's fixed version.
-  The approved specification explicitly forbids dependency changes; do not
-  incorporate #219's lock update without the maintainer's new scope approval.
+- On 2026-09-24, the maintainer explicitly amended the earlier no-dependency
+  boundary to authorize integrating only #219's existing AnyIO 4.14.2 lockfile
+  update into #222. No dependency declarations, other packages, or runtime
+  code are in scope; #219 remains open until the equivalent change reaches
+  `main`.
 - Therefore #222 and #219–#221 are not mergeable now. #218 still requires
   maintainer approval to execute hosted workflows; do not treat
   `action_required` as PASS or approve it without a fresh exact-diff decision.
@@ -209,11 +216,12 @@
 
 ### Current stop condition
 
-- The deterministic timer test and scanner patch pass local full quality gates
-  and Sol review. On exact code head `4268dfe`, Quality, package-contract,
-  Dependency Review, and all six OS/Python matrix jobs pass. Only the
-  production dependency audit fails on AnyIO 4.13.0.
-- The exact AnyIO 4.14.2 fix is present in PR #219 and independently confirmed
-  by Sol's security review, but the approved specification forbids dependency
-  changes. Stop for maintainer scope approval before combining that lockfile
-  change. No open PR is currently safe to merge or close.
+- The exact PR #219 lockfile delta is applied locally as the only change to
+  `uv.lock`; its wheel and sdist URLs, SHA-256 digests, sizes, and upload times
+  match official PyPI metadata. Sol security review: `PASS_WITH_NOTES`.
+- All local code, lock, package, and audit checks pass. Final Sol review:
+  `PASS_WITH_NOTES`; no blocker, but it correctly notes that fresh exact-head
+  hosted CI is still pending. Remaining gates: commit and push the lock update
+  plus evidence amendments to #222, then verify every hosted check against the
+  resulting exact head. Stop before merge; the maintainer authorized this
+  bounded integration and checks, not merge.
