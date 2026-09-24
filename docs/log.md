@@ -478,3 +478,14 @@ superseded_by: null
 Earlier release-specific documentation history remains in
 [`CHANGELOG.md`](../CHANGELOG.md). Historical counts there are release evidence,
 not current quality claims.
+
+## 2026-09-24
+
+- Added the current live issue reconciliation after GitHub search found 33 open
+  issues and four open pull requests; retained the August ledger as historical
+  evidence and linked the successor from maintained documentation indexes.
+- Replaced the repository policy scan's unavailable `rg` dependency with a
+  standard-library scanner that includes hidden and non-ignored untracked files,
+  and fails closed when Git cannot enumerate or read repository content.
+- Added regression tests for hidden-path detection, explicit exemptions,
+  binary files, untracked files, and Git-enumeration failure.

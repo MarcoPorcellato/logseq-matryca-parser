@@ -50,7 +50,7 @@ navigation layers only.
 | [AAIF submission gate](decisions/ADR-0003-AAIF-SUBMISSION-GATE.md) | Current NO-GO and evidence required before sponsor or submission discussion |
 | [Parser assurance extension](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | License-safe comparative study and dependency-ordered semantic and complexity plan |
 | [README readability report](README_READABILITY_REPORT_2026-08-08.md) | Measured human and AI readability assessment and phased proposal |
-| [Issue reconciliation](quality/ISSUE_RECONCILIATION_2026-08-06.md) | Current GitHub backlog decisions |
+| [Current issue reconciliation](quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md) | Live open-issue dispositions and PR next actions |
 | [Decision index](decisions/index.md) | Architectural decisions, including the external-oracle boundary |
 | [Reference index](reference/index.md) | Provenance and external relations |
 | [Structured diagnostics](reference/DIAGNOSTICS.md) | Stable diagnostic schema, codes, path safety, rendering, and escalation |

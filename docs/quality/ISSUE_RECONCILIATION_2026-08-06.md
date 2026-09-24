@@ -1,20 +1,20 @@
 ---
 type: IssueReconciliation
-title: GitHub issue reconciliation - 2026-08-06
+title: Historical GitHub issue reconciliation - 2026-08-06
 description: Evidence-backed disposition of every open repository issue after the stellar audit.
-status: stable
-classification: active
+status: deprecated
+classification: historical
 audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-08
-verified: 2026-08-08
-stale_after: 2026-09-07
+last_verified: 2026-09-24
+verified: 2026-09-24
+stale_after: 2026-09-24
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: docs/quality/ISSUE_TRIAGE_2026-07.md
-superseded_by: null
+superseded_by: docs/quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md
 publication_pr: 112
 ---
 

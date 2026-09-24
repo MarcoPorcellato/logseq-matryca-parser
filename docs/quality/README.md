@@ -23,7 +23,8 @@ Maintainer-facing triage and backlog for Clean Architecture / Clean Code work.
 
 | Document | Purpose |
 |----------|---------|
-| [`ISSUE_RECONCILIATION_2026-08-06.md`](ISSUE_RECONCILIATION_2026-08-06.md) | Current disposition of every open GitHub issue and stellar-roadmap integration |
+| [`OPEN_ISSUE_RECONCILIATION_2026-09-24.md`](OPEN_ISSUE_RECONCILIATION_2026-09-24.md) | Current disposition and maintainer next action for all 33 live open issues, plus four open PRs |
+| [`ISSUE_RECONCILIATION_2026-08-06.md`](ISSUE_RECONCILIATION_2026-08-06.md) | Historical issue snapshot superseded by the September 24 reconciliation |
 | [`../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Current repository-wide evidence, priorities and MKQ-4 plan |
 | [`../DOCUMENTATION_SYSTEM.md`](../DOCUMENTATION_SYSTEM.md) | Canonical documentation authority, metadata, lifecycle, and federation contract |
 | [`../CI_ASSURANCE.md`](../CI_ASSURANCE.md) | Canonical GitHub Actions and repository-settings assurance map |
