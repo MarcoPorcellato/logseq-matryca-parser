@@ -151,6 +151,13 @@
   vendor checks. Sol reviewed the exact test diff `PASS_WITH_NOTES`; it notes
   that the shell wrapper itself remains unverified on Windows, while Ubuntu
   Quality exercises it.
+- The Windows test-launch fix was committed as `4268dfe` and pushed. Exact-head
+  Logos Protocol CI run `35971538946` passed Quality, package contract, and
+  all six Linux/macOS/Windows Python 3.12/3.13 test jobs; Dependency Review
+  `35971538926` passed. The only failed job is production dependency audit,
+  which reports AnyIO 4.13.0 vulnerabilities `CVE-2026-63374` and
+  `CVE-2026-64847`, both fixed by 4.14.2. Keep the dependency boundary fail
+  closed.
 - Sol security review of #219 verified its exact registry artifact URLs and
   hashes for AnyIO 4.14.2 and confirmed the upstream advisory's fixed version.
   The approved specification explicitly forbids dependency changes; do not
@@ -184,9 +191,9 @@
   #222 still targets base SHA `ac91aca6a3d6bf3ad5f6f952ff4b8b366bdc9941`;
   the GitHub integration does not expose branch protection (403), and stored
   GitHub CLI authentication is invalid. No merge attempted.
-- [x] Push the reviewed follow-up to PR #222. Its exact head `f744dbf` exposed
-  the Windows test-launch issue and reconfirmed the production audit blocker;
-  the follow-on test-only repair is now locally verified and awaits push.
+- [x] Push the reviewed follow-up to PR #222. Exact code head `4268dfe`
+  resolves the Windows test-launch failure across Python 3.12/3.13; only the
+  AnyIO production audit remains failed. The PR remains open and unmerged.
 - [x] Refresh all four original PRs. Hold #218 for `action_required`; hold
   #219 for failed Logos CI despite useful, independently reviewed security
   update; hold #220 and #221 for failed Logos CI and stale bases. Do not approve
@@ -203,10 +210,9 @@
 ### Current stop condition
 
 - The deterministic timer test and scanner patch pass local full quality gates
-  and Sol review. On pushed head `f744dbf`, Quality, package-contract,
-  Dependency Review, Linux and macOS passed; Windows failed because the tests
-  selected a WSL alias. The corrected test launcher has focused and complete
-  local PASS evidence but requires a fresh Windows CI run.
+  and Sol review. On exact code head `4268dfe`, Quality, package-contract,
+  Dependency Review, and all six OS/Python matrix jobs pass. Only the
+  production dependency audit fails on AnyIO 4.13.0.
 - The exact AnyIO 4.14.2 fix is present in PR #219 and independently confirmed
   by Sol's security review, but the approved specification forbids dependency
   changes. Stop for maintainer scope approval before combining that lockfile
