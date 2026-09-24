@@ -219,9 +219,10 @@
 - The exact PR #219 lockfile delta is applied locally as the only change to
   `uv.lock`; its wheel and sdist URLs, SHA-256 digests, sizes, and upload times
   match official PyPI metadata. Sol security review: `PASS_WITH_NOTES`.
-- All local code, lock, package, and audit checks pass. Final Sol review:
-  `PASS_WITH_NOTES`; no blocker, but it correctly notes that fresh exact-head
-  hosted CI is still pending. Remaining gates: commit and push the lock update
-  plus evidence amendments to #222, then verify every hosted check against the
-  resulting exact head. Stop before merge; the maintainer authorized this
-  bounded integration and checks, not merge.
+- Local code, lock, package, and audit checks pass; final Sol review is
+  `PASS_WITH_NOTES` with no blocker. Commit `05f7bbbc104f71b1a8ba5ea367335047d464b1d2`
+  is pushed to PR #222. Exact-head Logos Protocol CI run `35974374802` and
+  Dependency Review run `35974374635` both completed successfully. Logos
+  Protocol CI passed Quality, production dependency audit, package contract,
+  and all six OS/Python test jobs. The maintainer authorized this bounded
+  integration and checks, not merge; stop before merging or closing any PR.
