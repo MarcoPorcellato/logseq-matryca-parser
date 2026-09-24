@@ -146,8 +146,9 @@
 - Therefore #222 and #219–#221 are not mergeable now. #218 still requires
   maintainer approval to execute hosted workflows; do not treat
   `action_required` as PASS or approve it without a fresh exact-diff decision.
-- [ ] Confirm exact base/current refs, commit the reviewed patch, and verify
-  clean worktree after commit.
+- [x] Confirm exact base/current refs, commit the reviewed patch as
+  `4840d32` (`test: make graph debounce test deterministic`), and verify the
+  worktree is clean after the documentation receipt is committed.
 
 ### Task 6: Publish, rerun PR gates, and close only safe candidates
 
@@ -155,8 +156,8 @@
 - No local source changes unless review requires a scoped repair.
 
 - [x] Initial publication: PR #222 was opened against `main` and the first
-  patch was pushed. The working branch now contains a reviewed deterministic
-  test fix that still needs its own commit and push.
+  patch was pushed. The reviewed deterministic timer-test fix is committed as
+  `4840d32` and is awaiting push to the same PR branch.
 - [ ] Reverify live `main`, target PR heads, auth and branch protection before
   any merge decision. Branch protection remains unreadable through the current
   GitHub integration.
