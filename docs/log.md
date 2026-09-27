@@ -489,3 +489,30 @@ not current quality claims.
   and fails closed when Git cannot enumerate or read repository content.
 - Added regression tests for hidden-path detection, explicit exemptions,
   binary files, untracked files, and Git-enumeration failure.
+
+## 2026-09-26
+
+- Recorded one partial local increment for parser assurance issue #104:
+  bounded, grammar-valid Hypothesis outline and semantic round-trip properties.
+  Validation used source `HEAD` `d85ea35ec2dbd37f5121d5052bf1e481bded973d`
+  plus the uncommitted Task 1–3 worktree changes; it is not a hosted CI or
+  released-artifact claim.
+- With CI-pinned uv 0.11.7 and Python 3.12.13, the focused parser/corpus tests
+  passed (70 tests), `make all` passed (821 tests, 91.18% coverage against the
+  unchanged 80% floor), and the wheel/sdist package contract passed, including
+  wheel metadata, pinned Twine 6.2.0, and downstream strict typing with mypy
+  1.20.2. Hypothesis 6.168.1 remains development-only; its locked dependency
+  `sortedcontainers` 2.4.0 was already present in the lock and both packages
+  are absent from the production dependency export. No separate high-example
+  CI job was added; the local full suite took 67.10 seconds, while hosted CI
+  duration and cost impact were not measured.
+- The isolated mypy pre-commit environment pins Hypothesis 6.168.1 so the
+  repository's test-tree check can resolve the new development-only import;
+  no hosted CI workflow or job was added.
+- The generated input is bounded by the recorded strategy limits, but Hypothesis
+  example count is a target rather than a hard execution cap. This slice adds
+  no hard timeout, general parser-correctness, or no-hang claim. Existing M3
+  adversarial, replay, and subprocess-timeout evidence remains separate and
+  authoritative. This work does not close issue #104; malformed-input strategies,
+  graph/filesystem behavior, and concurrency remain deferred Hypothesis-specific
+  expansions.
