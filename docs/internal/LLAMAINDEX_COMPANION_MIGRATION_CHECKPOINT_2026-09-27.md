@@ -10,7 +10,7 @@ type: Document
 - Parser code anchor before this checkpoint: `1d11d97e1806b534a74a82585fc1aec54e56a4fa` (`chore: prepare parser 1.10.0 release`). This documentation checkpoint postdates that code anchor; run `git rev-parse HEAD` on resume to bind the current branch HEAD.
 - Companion local clone: `/Users/marco1/Documents/CODICE con VS CODE/logseq-matryca-parser-llamaindex`
 - Companion branch/HEAD: `feat/native-llamaindex-adapter` at `bcf7576caa99cf884280cffdb05238358b6be2f3`; local `main` remains at bootstrap commit `47d954a713712b8a433970f9b0f23db070ee09b9`.
-- Companion clone is clean and has **no remote configured**. The staging source under `/private/tmp/logseq-llamaindex-companion.Cfq6w7` still exists. The durable clone is the safest local resume source; add a GitHub remote only after separate explicit authorization to create that exact public repository.
+- The companion clone was clean at the recorded commit before this repository-creation update. Its `origin` now points to `https://github.com/MarcoPorcellato/logseq-matryca-parser-llamaindex.git`. The staging source under `/private/tmp/logseq-llamaindex-companion.Cfq6w7` still exists; the durable clone remains the safest local resume source.
 - Parser primary checkout is not the work surface; preserve its existing dirty/stale state.
 
 ## Completed local evidence
@@ -25,8 +25,8 @@ type: Document
 ## Security and publication boundary
 
 - NLTK 3.10.3 remains in the current LlamaIndex dependency graph. GitHub advisory [GHSA-8mgp-746c-j5xp](https://github.com/advisories/GHSA-8mgp-746c-j5xp) reports affected versions `<=3.10.3` and no fixed release. The PyPA record [PYSEC-2026-3740](https://github.com/pypa/advisory-database/blob/main/vulns/nltk/PYSEC-2026-3740.yaml) has conflicting prose and machine-readable range. Treat the advisory as unresolved: no clean-audit claim, waiver, or release until authoritative records are reconciled and an accepted disposition exists. Security release gate: `BLOCKED`.
-- Automatic review rejected creating `MarcoPorcellato/logseq-matryca-parser-llamaindex` as public pending explicit authorization for the exact name and visibility. Do not retry through another route. No GitHub repository, push, PR, package publication, or release has occurred. Sol and security local-code reviews do not authorize these actions.
-- Public name lookup results from the earlier authenticated check were not a reservation. Recheck GitHub/PyPI availability only after authority to create/publish is resolved.
+- After explicit authorization, `MarcoPorcellato/logseq-matryca-parser-llamaindex` was created and verified `PUBLIC` and empty on GitHub. No push, PR, package publication, or release has occurred. Repository creation does not authorize those separate actions; Sol and security local-code reviews do not authorize them either.
+- The GitHub repository name is now occupied by the authorized public repository. Earlier PyPI HTTP 404 was not a name reservation; recheck package availability before any publication decision.
 
 ## Next gates, in order
 
@@ -34,6 +34,6 @@ type: Document
 2. Publish Parser 1.10.0 only through its separate reviewed release process; then install actual registry artifacts at the declared companion lower bound and verify the `<1.11.0` exclusion with packaging tests.
 3. After the dependency resolves, generate and review a portable lock, add hosted Python 3.12/3.13 CI, run the exact production export audit, and repeat distribution/shim acceptance.
 4. Reconcile the NLTK advisory from authoritative sources. Keep companion release blocked absent a fixed upstream release or a separately approved, narrowly scoped exception with compensating controls.
-5. Obtain explicit authorization before creating the exact public GitHub repository. Push, PR, and either package publication remain separate authorization gates.
+5. The exact public GitHub repository now exists and is empty. Push, PR, and either package publication remain separate authorization gates.
 
 See the [implementation plan](../superpowers/plans/2026-09-27-llamaindex-companion-separation.md) for task ownership and detailed acceptance criteria.

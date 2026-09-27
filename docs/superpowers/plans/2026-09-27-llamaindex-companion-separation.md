@@ -36,17 +36,16 @@
   testing and a portable lock are not yet possible; hosted Python 3.12/3.13 CI,
   production export audit, installed-release acceptance, and an advisory
   disposition remain unqualified. Security review marks release `BLOCKED`.
-- No GitHub companion repository has been created. The exact public repository
-  creation attempt was rejected by automatic review pending explicit exact
-  authorization; do not retry or use a workaround. No push, PR, or package
+- The exact public GitHub companion repository was created after explicit
+  authorization and verified `PUBLIC` and empty. No push, PR, or package
   publication occurred. See
   [`docs/internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md`](../../internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md)
   for restart facts and stop boundaries.
 
 ## Global Constraints
 
-- Design began from `main@1c28aa6ceb01ada0ed8f4838ffb58903dc56f6f4`. The current Parser worktree is now at `1d11d97e1806b534a74a82585fc1aec54e56a4fa`; rebind HEAD/status before resuming. Live Parser `main` was read as `fc2af61221ed2b8eb1026082987938a996b2d73f` during the companion investigation; this is a historical observation, not a current remote guarantee.
-- Candidate distribution/repository slug: `logseq-matryca-parser-llamaindex`; verify GitHub and PyPI name availability before creating or publishing anything. Python import module in this plan: `logseq_matryca_parser_llamaindex`.
+- Design began from `main@1c28aa6ceb01ada0ed8f4838ffb58903dc56f6f4`. Parser code was qualified at `1d11d97e1806b534a74a82585fc1aec54e56a4fa`; later documentation commits exist, so rebind HEAD/status before resuming. Live Parser `main` was read as `fc2af61221ed2b8eb1026082987938a996b2d73f` during the companion investigation; this is a historical observation, not a current remote guarantee.
+- Public repository slug: `logseq-matryca-parser-llamaindex`, now created on GitHub. The package distribution name remains a candidate until PyPI availability and publication gates are verified. Python import module in this plan: `logseq_matryca_parser_llamaindex`.
 - Keep `SynapseAdapter.to_llamaindex_nodes(nodes, *, page_title=None, page_source_id=None)` and the package-root `SynapseAdapter` export. Missing companion must produce an actionable installation command; no dictionary substitute for real LlamaIndex nodes.
 - Keep `[ai]` for LangChain export; `[all]` retains visualization and LangChain dependencies only. Remove the NLTK uv constraint only after confirming no remaining Parser dependency requires it.
 - Parser base, `[ai]`, `[all]`, root `uv.lock`, exported audit requirements, and built package metadata must contain neither `llama-index-core` nor `nltk`.
@@ -54,8 +53,8 @@
 - `PYSEC-2026-3740` remains a companion concern until an upstream fixed NLTK release is available and qualified. Remove Parser's waiver and exception test only after Parser dependency evidence is clean; never dismiss the Parser alert manually.
 - Companion's local manifest currently declares `logseq-matryca-parser>=1.10.0,<1.11.0` and `llama-index-core>=0.14.22,<0.15`. The former avoids the invalid 1.9.0 lower bound because released Parser 1.9.0 still includes the old adapter; it is a provisional compatibility window, not yet release-qualified. Do not widen the upper bound without testing each newly supported Parser minor. Recheck the advisory before any exception or release decision.
 - Parser user-facing docs and messages remain English. Existing Parser `requires-python = ">=3.12"`; CI supports Python 3.12 and 3.13. Preserve existing wheel, typing, docs, license, and release contracts.
-- No work in the dirty primary checkout. Public companion repository creation, branch push, PR, and either publication each need separate explicit authorization. The exact public repository creation attempt was rejected by automatic review and is blocked pending explicit authorization; do not retry by another route. Parser-only or local-companion green checks do not complete acceptance or authorize release.
-- Parser implementation and checkpoint commits are complete locally on the isolated branch. Reverify exact branch, HEAD, and diff before continuing. Push, PR, public companion repository creation, and either package publication remain separate external authorization gates.
+- No work in the dirty primary checkout. The public companion repository was created after explicit authorization. Branch push, PR, and either publication remain separate authorization gates. Parser-only or local-companion green checks do not complete acceptance or authorize release.
+- Parser implementation and checkpoint commits are complete locally on the isolated branch. Reverify exact branch, HEAD, and diff before continuing. The companion repository has been created; push, PR, and either package publication remain separate external authorization gates.
 - Every shell command starts with `rtk`. Do not run CCP heavy work without its separate exact-bound authorization; use standard public GitHub-hosted CI for the eventual public-repository gate.
 
 ## Review Focus
