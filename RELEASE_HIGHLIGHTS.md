@@ -7,6 +7,13 @@ published artifacts and attestations, see
 
 ## Unreleased
 
+The Parser is separating native LlamaIndex export into a companion package.
+The compatibility method remains, but the proposed companion is not yet
+published; Parser `[ai]` provides LangChain, while `[all]` also includes
+visualization dependencies. Neither extra installs LlamaIndex or NLTK. See
+the [support matrix](docs/reference/CONFORMANCE_SUPPORT_MATRIX.md) for the
+current boundary.
+
 ## v1.9.0
 
 Minor release — adds a stable in-memory graph factory and clarifies the

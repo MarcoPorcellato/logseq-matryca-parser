@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-24
-verified: 2026-08-24
-stale_after: 2026-11-22
+last_verified: 2026-09-27
+verified: 2026-09-27
+stale_after: 2027-03-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -63,9 +63,8 @@ records an immutable commit does not cure a top-level dependency declaration
 that still names a mutable branch or tag: re-resolution begins from the
 declaration. Prefer a qualified registry release; when a VCS dependency remains
 necessary, declare its full commit and require the lock and generated PURL to
-resolve to that same revision. The NLTK declaration uses a qualified stable
-registry release rather than a VCS source; the lock and generated inventory
-must preserve that registry provenance.
+resolve to that same revision. Apply the same provenance check to every direct
+and transitive runtime dependency in the base package and optional extras.
 
 The inventory is evidence, not legal advice and not an automatic compatibility
 opinion. A license change, new copyleft obligation, unknown direct license,

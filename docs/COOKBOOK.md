@@ -11,6 +11,22 @@ uv sync --all-extras
 
 Imports use the stable package root (`logseq_matryca_parser.__all__`). See [`ARCHITECTURE.md`](ARCHITECTURE.md) for module roles and [`logseq_ast_primer.md`](logseq_ast_primer.md) for Spatial Markdown rules.
 
+The Parser's `[ai]` extra installs LangChain; `[all]` also includes its
+visualization dependencies. Neither installs LlamaIndex or NLTK. Native
+LlamaIndex nodes are delegated by `SynapseAdapter.to_llamaindex_nodes()` to the
+separate `logseq-matryca-parser-llamaindex` companion, which is planned but not
+yet published on PyPI. The Parser lock and distributions exclude both
+`llama-index-core` and NLTK; this does not resolve the separate NLTK advisory
+for applications that install NLTK through another dependency.
+
+When published, install the companion separately with either command. Run
+`uv add` from your uv-managed consuming project, not from the Parser checkout:
+
+- `pip install logseq-matryca-parser-llamaindex`
+- `uv add logseq-matryca-parser-llamaindex`
+
+Do not use these commands before publication.
+
 ---
 
 ## Recipe 1 — Single page → LangChain documents
@@ -40,13 +56,18 @@ matryca-parse export /path/to/graph output --format langchain
 
 Requires optional `[ai]` extra (`uv sync --extra ai`).
 
-For a complete offline example that exercises the LangChain, LlamaIndex, and
-context-enriched exports—including a resolved Logseq page embed—run
+For an offline example that exercises the LangChain, LlamaIndex, and
+context-enriched exports—including a resolved Logseq page embed—install the
+companion when it is published, then run
 [`examples/run_synapse_rag.py`](../examples/run_synapse_rag.py):
 
 ```bash
 uv run python examples/run_synapse_rag.py
 ```
+
+Until then, the example's LangChain and context-enriched paths can run with
+`uv sync --extra ai`; its LlamaIndex path exits with a specific companion
+installation message.
 
 ---
 

@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from pathlib import Path
 from re import escape
-from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -21,19 +19,6 @@ class FakeDocument:
     def __init__(self, page_content: str, metadata: dict[str, object]) -> None:
         self.page_content = page_content
         self.metadata = metadata
-
-
-@dataclass
-class FakeRelatedNodeInfo:
-    node_id: str
-
-
-@dataclass
-class FakeTextNode:
-    id_: str
-    text: str
-    metadata: dict[str, object]
-    relationships: dict[object, object] = field(default_factory=dict)
 
 
 def build_ast() -> list[LogseqNode]:
@@ -102,124 +87,62 @@ def test_to_langchain_documents_uses_visitor_and_graph_metadata() -> None:
     assert child_doc.metadata["path"] == "Root > Child"
 
 
-def test_to_llamaindex_nodes_raises_when_dependency_missing() -> None:
-    expected = escape("Missing AI export dependencies. Install with: uv sync --extra ai")
-    with (
-        patch("logseq_matryca_parser.synapse.TextNode", None),
-        patch("logseq_matryca_parser.synapse.NodeRelationship", None),
-        patch("logseq_matryca_parser.synapse.RelatedNodeInfo", None),
-    ):
-        with pytest.raises(ImportError, match=expected):
-            SynapseAdapter.to_llamaindex_nodes(build_ast())
+def test_shim_forwards_nodes_and_keyword_arguments(monkeypatch: pytest.MonkeyPatch) -> None:
+    from types import SimpleNamespace
 
+    nodes = build_ast()
+    expected = [object()]
+    calls: list[tuple[object, dict[str, object]]] = []
 
-def test_to_llamaindex_nodes_injects_parent_child_relationships() -> None:
-    fake_relationship = SimpleNamespace(
-        PARENT="PARENT",
-        CHILD="CHILD",
-        SOURCE="SOURCE",
-        NEXT="NEXT",
-        PREVIOUS="PREVIOUS",
+    def import_companion(module_name: str) -> SimpleNamespace:
+        assert module_name == "logseq_matryca_parser_llamaindex"
+
+        def convert(received_nodes: object, **kwargs: object) -> list[object]:
+            calls.append((received_nodes, kwargs))
+            return expected
+
+        return SimpleNamespace(to_llamaindex_nodes=convert)
+
+    monkeypatch.setattr("logseq_matryca_parser.synapse.importlib.import_module", import_companion)
+
+    actual = SynapseAdapter.to_llamaindex_nodes(
+        nodes, page_title="Daily", page_source_id="source-id"
     )
-    page_source_id = "page-source-uuid"
-    with (
-        patch("logseq_matryca_parser.synapse.TextNode", FakeTextNode),
-        patch("logseq_matryca_parser.synapse.NodeRelationship", fake_relationship),
-        patch("logseq_matryca_parser.synapse.RelatedNodeInfo", FakeRelatedNodeInfo),
-    ):
-        nodes = SynapseAdapter.to_llamaindex_nodes(
-            build_ast(),
-            page_title="graph.md",
-            page_source_id=page_source_id,
+
+    assert actual is expected
+    assert calls == [(nodes, {"page_title": "Daily", "page_source_id": "source-id"})]
+
+
+def test_missing_companion_has_evergreen_install_command(monkeypatch: pytest.MonkeyPatch) -> None:
+    def missing_companion(module_name: str) -> None:
+        raise ModuleNotFoundError(
+            "No module named 'logseq_matryca_parser_llamaindex'", name=module_name
         )
 
-    assert len(nodes) == 2
-    root_node = nodes[0]
-    child_node = nodes[1]
+    monkeypatch.setattr("logseq_matryca_parser.synapse.importlib.import_module", missing_companion)
 
-    assert root_node.relationships["SOURCE"].node_id == page_source_id
-    assert child_node.relationships["SOURCE"].node_id == page_source_id
-    assert child_node.relationships["PARENT"].node_id == "root-1"
-    assert root_node.relationships["CHILD"][0].node_id == "child-1"
-    assert root_node.metadata["path"] == "Root"
-    assert child_node.metadata["task_status"] == "TODO"
-    assert child_node.metadata["task_priority"] == "A"
+    with pytest.raises(ImportError) as exc_info:
+        SynapseAdapter.to_llamaindex_nodes(build_ast())
+    message = str(exc_info.value)
+    assert "pip install logseq-matryca-parser-llamaindex" in message
+    assert "not yet published" not in message
 
 
-def test_to_llamaindex_nodes_assigns_distinct_source_per_page() -> None:
-    """Multi-page root lists receive independent LlamaIndex ``SOURCE`` ids (BUG-018)."""
-    fake_relationship = SimpleNamespace(
-        PARENT="PARENT",
-        CHILD="CHILD",
-        SOURCE="SOURCE",
-        NEXT="NEXT",
-        PREVIOUS="PREVIOUS",
-    )
-    root_a = LogseqNode(
-        uuid="root-a",
-        content="Page A",
-        clean_text="Page A",
-        indent_level=0,
-        source_path="/vault/pages/A.md",
-    )
-    root_b = LogseqNode(
-        uuid="root-b",
-        content="Page B",
-        clean_text="Page B",
-        indent_level=0,
-        source_path="/vault/pages/B.md",
-    )
-    with (
-        patch("logseq_matryca_parser.synapse.TextNode", FakeTextNode),
-        patch("logseq_matryca_parser.synapse.NodeRelationship", fake_relationship),
-        patch("logseq_matryca_parser.synapse.RelatedNodeInfo", FakeRelatedNodeInfo),
-    ):
-        nodes = SynapseAdapter.to_llamaindex_nodes([root_a, root_b])
+def test_shim_does_not_mask_companion_internal_import_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original = ModuleNotFoundError("No module named 'llama_index.core'", name="llama_index.core")
 
-    source_ids = {nodes[0].relationships["SOURCE"].node_id, nodes[1].relationships["SOURCE"].node_id}
-    assert len(source_ids) == 2
+    def broken_companion(_module_name: str) -> None:
+        raise original
 
+    monkeypatch.setattr("logseq_matryca_parser.synapse.importlib.import_module", broken_companion)
 
-def test_to_llamaindex_nodes_wires_sibling_next_and_previous() -> None:
-    fake_relationship = SimpleNamespace(
-        PARENT="PARENT",
-        CHILD="CHILD",
-        SOURCE="SOURCE",
-        NEXT="NEXT",
-        PREVIOUS="PREVIOUS",
-    )
-    first = LogseqNode(
-        uuid="sibling-a",
-        content="First",
-        clean_text="First",
-        indent_level=1,
-        parent_id="root-1",
-    )
-    second = LogseqNode(
-        uuid="sibling-b",
-        content="Second",
-        clean_text="Second",
-        indent_level=1,
-        parent_id="root-1",
-        left_id="sibling-a",
-    )
-    root = LogseqNode(
-        uuid="root-1",
-        content="Root",
-        clean_text="Root",
-        indent_level=0,
-        children=[first, second],
-    )
-    with (
-        patch("logseq_matryca_parser.synapse.TextNode", FakeTextNode),
-        patch("logseq_matryca_parser.synapse.NodeRelationship", fake_relationship),
-        patch("logseq_matryca_parser.synapse.RelatedNodeInfo", FakeRelatedNodeInfo),
-    ):
-        nodes = SynapseAdapter.to_llamaindex_nodes([root], page_source_id="page-doc")
+    with pytest.raises(ModuleNotFoundError) as exc_info:
+        SynapseAdapter.to_llamaindex_nodes(build_ast())
 
-    by_id = {node.id_: node for node in nodes}
-    assert by_id["sibling-b"].relationships["PREVIOUS"].node_id == "sibling-a"
-    assert by_id["sibling-a"].relationships["NEXT"].node_id == "sibling-b"
+    assert exc_info.value is original
+    assert exc_info.value.name == "llama_index.core"
 
 
 def test_to_context_enriched_chunks_raises_when_dependency_missing(tmp_path: Path) -> None:
@@ -281,8 +204,12 @@ def test_synapse_recursive_embed_expansion(tmp_path: Path) -> None:
         "- Before {{embed ((" + block_id + "))}} after\n",
         encoding="utf-8",
     )
-    (pages / "SnippetPage.md").write_text("- Line one from snippet\n- Line two from snippet\n", encoding="utf-8")
-    (pages / "PageEmbedHost.md").write_text("- Start {{embed [[SnippetPage]]}} end\n", encoding="utf-8")
+    (pages / "SnippetPage.md").write_text(
+        "- Line one from snippet\n- Line two from snippet\n", encoding="utf-8"
+    )
+    (pages / "PageEmbedHost.md").write_text(
+        "- Start {{embed [[SnippetPage]]}} end\n", encoding="utf-8"
+    )
 
     graph = LogseqGraph.load_directory(graph_root)
 
@@ -385,22 +312,14 @@ class TestEmbedExpansionEdgeCases:
 
         # Happy path page embed: A → B
         (pages / "B.md").write_text("- Content from page B\n", encoding="utf-8")
-        (pages / "AEmbedsB.md").write_text(
-            "- Before {{embed [[B]]}} after\n", encoding="utf-8"
-        )
+        (pages / "AEmbedsB.md").write_text("- Before {{embed [[B]]}} after\n", encoding="utf-8")
 
         # Cycle detection: A ↔ B
-        (pages / "CycleA.md").write_text(
-            "- before {{embed [[CycleB]]}} after\n", encoding="utf-8"
-        )
-        (pages / "CycleB.md").write_text(
-            "- inner {{embed [[CycleA]]}}\n", encoding="utf-8"
-        )
+        (pages / "CycleA.md").write_text("- before {{embed [[CycleB]]}} after\n", encoding="utf-8")
+        (pages / "CycleB.md").write_text("- inner {{embed [[CycleA]]}}\n", encoding="utf-8")
 
         # Missing page target
-        (pages / "MissingPage.md").write_text(
-            "- x {{embed [[NoSuchPage]]}}\n", encoding="utf-8"
-        )
+        (pages / "MissingPage.md").write_text("- x {{embed [[NoSuchPage]]}}\n", encoding="utf-8")
 
         # Missing block target
         missing_uuid = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
@@ -466,14 +385,13 @@ class TestEmbedExpansionEdgeCases:
 
         page = graph.pages[page_title]
         text = page.root_nodes[0].content
-        expanded = _expand_macros_and_embeds(
-            text, graph, set(), embed_page_chain=embed_page_chain
-        )
+        expanded = _expand_macros_and_embeds(text, graph, set(), embed_page_chain=embed_page_chain)
 
         for sub in expected:
             assert sub in expanded, f"Expected {sub!r} in {expanded!r}"
         for sub in unexpected:
             assert sub not in expanded, f"Found unexpected {sub!r} in {expanded!r}"
+
 
 class TestStripMarkdownForEmbedding:
     """Table-driven tests for ``_strip_markdown_for_embedding()`` cleaner."""
@@ -497,9 +415,7 @@ class TestStripMarkdownForEmbedding:
         assert _strip_markdown_for_embedding(text) == expected
 
     def test_combined_formatting(self):
-        result = _strip_markdown_for_embedding(
-            "See **[[Project Page]]** for `details` #todo"
-        )
+        result = _strip_markdown_for_embedding("See **[[Project Page]]** for `details` #todo")
         assert result == "See Project Page for details"
 
 
@@ -512,13 +428,21 @@ class TestBuildSynapseMetadata:
     def test_includes_core_keys(self):
         node = LogseqNode(uuid="abc", content="Test", indent_level=0)
         meta = build_synapse_metadata(node, source="test")
-        for key in ("uuid", "indent_level", "source", "path", "refs",
-                     "task_status", "task_priority"):
+        for key in (
+            "uuid",
+            "indent_level",
+            "source",
+            "path",
+            "refs",
+            "task_status",
+            "task_priority",
+        ):
             assert key in meta
 
     def test_property_serialization(self):
-        node = LogseqNode(uuid="x", content="T", indent_level=1,
-                          properties={"tags": "ai", "status": "done"})
+        node = LogseqNode(
+            uuid="x", content="T", indent_level=1, properties={"tags": "ai", "status": "done"}
+        )
         meta = build_synapse_metadata(node, source="s")
         assert meta["tags"] == "ai"
         assert meta["status"] == "done"

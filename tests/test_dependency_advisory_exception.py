@@ -3,8 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ADVISORY_ID = "PYSEC-2026-3740"
-GHSA_ID = "GHSA-8mgp-746c-j5xp"
 PROHIBITED_APIS = (
     "TransitionParser",
     "AveragedPerceptron",
@@ -13,37 +11,23 @@ PROHIBITED_APIS = (
 )
 
 
-def test_nltk_advisory_exception_is_exact_and_release_consistent() -> None:
-    ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-    release = (ROOT / ".github" / "workflows" / "pypi_publish.yml").read_text(
-        encoding="utf-8"
+def test_parser_audits_have_no_nltk_waiver() -> None:
+    workflows = (
+        ROOT / ".github" / "workflows" / "ci.yml",
+        ROOT / ".github" / "workflows" / "pypi_publish.yml",
     )
 
-    exact_exception = f"--ignore-vuln {ADVISORY_ID}"
-    assert ci.count(exact_exception) == 1
-    assert release.count(exact_exception) == 1
-    assert "--ignore-vuln CVE-2026-71492" not in ci + release
-    assert (ci + release).count("--ignore-vuln") == 2
+    for path in workflows:
+        workflow = path.read_text(encoding="utf-8")
+        assert "uv run pip-audit --no-deps --disable-pip" in workflow
+        assert "--ignore-vuln" not in workflow
+        assert "--all-extras" in workflow
+        assert "--no-dev" in workflow
+        assert "--no-emit-workspace" in workflow
+        assert "requirements-audit.txt" in workflow
 
 
-def test_nltk_advisory_exception_records_required_governance() -> None:
-    policy = (
-        ROOT / "docs" / "security" / "DEPENDENCY_ADVISORY_EXCEPTIONS.md"
-    ).read_text(encoding="utf-8")
-
-    for required in (
-        ADVISORY_ID,
-        GHSA_ID,
-        "nltk 3.10.3",
-        "optional AI",
-        "@MarcoPorcellato",
-        "2026-10-05",
-        "https://github.com/nltk/nltk/security/advisories/GHSA-8mgp-746c-j5xp",
-    ):
-        assert required in policy
-
-
-def test_parser_does_not_reach_the_waived_nltk_apis() -> None:
+def test_parser_does_not_import_nltk_or_reach_its_vulnerable_apis() -> None:
     production_text = "\n".join(
         path.read_text(encoding="utf-8") for path in sorted((ROOT / "src").rglob("*.py"))
     )

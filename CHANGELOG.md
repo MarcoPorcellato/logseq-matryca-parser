@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **LlamaIndex companion boundary** — keep `SynapseAdapter.to_llamaindex_nodes()`
+  as a lazy compatibility shim while moving native node construction out of the
+  Parser distribution. The proposed companion package is not yet published;
+  `[ai]` provides LangChain, while `[all]` also includes visualization
+  dependencies. Neither extra installs LlamaIndex or NLTK.
+
+### Security
+
+- **Remove Parser's NLTK dependency chain** — exclude `llama-index-core` and
+  NLTK from Parser extras, lock, and package metadata, and remove the temporary
+  Parser audit waiver. This does not resolve the upstream NLTK advisory or set
+  the separate companion's security policy.
+
 ## [1.9.0] - 2026-09-06
 
 ### Added
