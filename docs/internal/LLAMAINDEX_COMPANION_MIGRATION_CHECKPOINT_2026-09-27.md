@@ -7,7 +7,7 @@ type: Document
 
 - Parser worktree: `/Users/marco1/.codex/worktrees/nltk-llamaindex-decoupling/logseq-matryca-parser`
 - Branch: `design/nltk-llamaindex-companion`
-- Parser HEAD: `1d11d97e1806b534a74a82585fc1aec54e56a4fa` (`chore: prepare parser 1.10.0 release`)
+- Parser code anchor before this checkpoint: `1d11d97e1806b534a74a82585fc1aec54e56a4fa` (`chore: prepare parser 1.10.0 release`). This documentation checkpoint postdates that code anchor; run `git rev-parse HEAD` on resume to bind the current branch HEAD.
 - Companion local clone: `/Users/marco1/Documents/CODICE con VS CODE/logseq-matryca-parser-llamaindex`
 - Companion branch/HEAD: `feat/native-llamaindex-adapter` at `bcf7576caa99cf884280cffdb05238358b6be2f3`; local `main` remains at bootstrap commit `47d954a713712b8a433970f9b0f23db070ee09b9`.
 - Companion clone is clean and has **no remote configured**. The staging source under `/private/tmp/logseq-llamaindex-companion.Cfq6w7` still exists. The durable clone is the safest local resume source; add a GitHub remote only after separate explicit authorization to create that exact public repository.
