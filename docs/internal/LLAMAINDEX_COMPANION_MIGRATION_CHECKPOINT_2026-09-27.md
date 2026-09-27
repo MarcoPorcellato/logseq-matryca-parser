@@ -31,9 +31,10 @@ type: Document
 ## Next gates, in order
 
 1. Rebind both local paths, branches, exact HEADs, and clean status before work.
-2. Publish Parser 1.10.0 only through its separate reviewed release process; then install actual registry artifacts at the declared companion lower bound and verify the `<1.11.0` exclusion with packaging tests.
-3. After the dependency resolves, generate and review a portable lock, add hosted Python 3.12/3.13 CI, run the exact production export audit, and repeat distribution/shim acceptance.
-4. Reconcile the NLTK advisory from authoritative sources. Keep companion release blocked absent a fixed upstream release or a separately approved, narrowly scoped exception with compensating controls.
-5. Both draft PRs exist. Review their exact hosted checks and complete remaining qualification before any merge. Either package publication remains a separate authorization gate.
+2. Prequalify companion native-node and shim behavior against the exact candidate Parser 1.10.0 wheel; record both artifact hashes. This does not prove registry installation.
+3. Decide Parser PR merge and 1.10.0 publication through separate explicit maintainer gates after its independent hosted, dependency, migration, and release checks pass.
+4. After Parser 1.10.0 resolves from the registry, verify companion lower-bound installation and `<1.11.0` exclusion, generate a portable lock, add hosted Python 3.12/3.13 CI, run the exact production export audit, and repeat distribution/shim acceptance.
+5. Reconcile the NLTK advisory from authoritative sources. Keep companion release blocked absent a fixed upstream release or a separately approved, narrowly scoped exception with compensating controls.
+6. Both draft PRs exist. Review their exact hosted checks and complete the applicable qualification before each merge. Companion publication remains a separate authorization gate.
 
 See the [implementation plan](../superpowers/plans/2026-09-27-llamaindex-companion-separation.md) for task ownership and detailed acceptance criteria.

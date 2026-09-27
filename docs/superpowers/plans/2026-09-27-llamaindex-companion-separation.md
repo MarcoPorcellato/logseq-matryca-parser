@@ -4,7 +4,7 @@
 
 **Goal:** Remove the LlamaIndex-to-NLTK chain from the Parser distribution while preserving framework-native LlamaIndex export through a separately maintained companion.
 
-**Architecture:** Parser keeps the experimental `SynapseAdapter` entry point and a call-time delegation shim; it retains framework-neutral metadata and source-ID helpers but owns no LlamaIndex imports, visitor, manifest entry, or lock entry. A separate distribution owns the real LlamaIndex visitor and its own lock, audit, tests, and release evidence. Neither distribution ships until cross-repository acceptance passes.
+**Architecture:** Parser keeps the experimental `SynapseAdapter` entry point and a call-time delegation shim; it retains framework-neutral metadata and source-ID helpers but owns no LlamaIndex imports, visitor, manifest entry, or lock entry. A separate distribution owns the real LlamaIndex visitor and its own lock, audit, tests, and release evidence. Parser and companion have distinct release gates: prequalify the companion against the exact candidate Parser wheel, independently qualify and authorize Parser 1.10.0, then complete registry-installed companion acceptance before any companion release.
 
 **Tech Stack:** Python 3.12/3.13, uv 0.11.7, Hatchling, pytest, LlamaIndex core, GitHub Actions, pip-audit.
 
@@ -32,11 +32,13 @@
   passes on a clean clone; bounded wheel metadata and packaged license were
   checked. Sol review of the local slice is `PASS_WITH_NOTES`; security review
   of local code is `PASS_WITH_NOTES`. These are not release gates.
-- Full companion Task 6 and cross-repository Task 7 remain **BLOCKED**:
-  Parser 1.10.0 is not published, so registry-resolved minimum/upper-bound
-  testing and a portable lock are not yet possible; hosted Python 3.12/3.13 CI,
-  production export audit, installed-release acceptance, and an advisory
-  disposition remain unqualified. Security review marks release `BLOCKED`.
+- Companion Task 6 release qualification and the post-Parser-publication part
+  of Task 7 remain **BLOCKED**: Parser 1.10.0 is not published, so
+  registry-resolved minimum/upper-bound testing and a portable lock are not yet
+  possible; hosted Python 3.12/3.13 CI, production export audit,
+  installed-release acceptance, and an advisory disposition remain
+  unqualified. Exact candidate-wheel prequalification can proceed before that
+  publication. Security review marks companion release `BLOCKED`.
 - The exact public GitHub companion repository was created after explicit
   authorization. Its bootstrap and feature branches were pushed; companion
   PR #1 and Parser PR #225 are both drafts. No merge or package publication
@@ -131,7 +133,7 @@ Parser `synapse.py` keeps `build_synapse_metadata(node: LogseqNode, *, source: s
 
 ### Task 5: Companion native adapter — **local implementation checkpoint; publication blocked**
 
-**Files, in the separate companion repository only:** `src/logseq_matryca_parser_llamaindex/__init__.py`, `src/logseq_matryca_parser_llamaindex/adapter.py`, `tests/test_adapter.py`. A local-only companion checkout exists at the path recorded in the current checkpoint; it is not a created public GitHub repository.
+**Files, in the separate companion repository only:** `src/logseq_matryca_parser_llamaindex/__init__.py`, `src/logseq_matryca_parser_llamaindex/adapter.py`, `tests/test_adapter.py`. The companion checkout and public draft PR #1 exist at the locations recorded in the current checkpoint.
 
 **Interfaces:** Consumes `LogseqNode`, `ASTVisitor`, `build_synapse_metadata`, `page_source_node_id` from Parser's tested compatible range; produces `to_llamaindex_nodes(...) -> list[llama_index.core.schema.TextNode]` for Task 2 shim. Neither Parser repository nor Parser lock may contain companion files.
 
@@ -157,10 +159,11 @@ Parser `synapse.py` keeps `build_synapse_metadata(node: LogseqNode, *, source: s
 
 **Files:** No new code by default; correct the owning task if evidence exposes a defect. Release notes are already Task 4 files.
 
-**Interfaces:** Consumes Tasks 1–6 and their exact commits/artifacts; produces an acceptance record, not publication authority.
+**Interfaces:** Prequalification consumes completed Parser Tasks 1–4 and local companion Tasks 5–6 artifacts. Post-Parser-publication acceptance additionally consumes companion Task 6 release evidence. Both stages produce evidence, not publication authority.
 
-- [ ] **Step 1: Rebind exact state.** Record Parser and local companion HEADs, dirty state, locks, distribution names, version range, wheel hashes, and advisory status. If the local companion implementation or its required evidence is absent, stop with Parser-only partial result. The absence of a public GitHub companion repository alone does not invalidate the local evidence; creation remains separately authorization-gated.
+- [ ] **Step 1: Rebind exact state.** Record Parser and companion HEADs, dirty state, locks, distribution names, version range, wheel hashes, advisory status, and draft PR states. If the companion implementation or its required evidence is absent, stop with Parser-only partial result. A public GitHub repository exists, but its presence alone does not qualify either distribution.
 - [ ] **Step 2: Run Parser gate** on clean exact candidate: `rtk uv sync --locked --all-extras`, `rtk make all`, `rtk make vendor-name-check`, locked base/`ai`/`all` exports, unwaived CI-equivalent audit, wheel/sdist contract, and clean-environment import/CLI checks. Collect hosted Python 3.12/3.13 and platform CI receipts before claiming full release qualification.
-- [ ] **Step 3: Run companion gate** against built Parser wheel within approved version range: real-node tests, exact package-contract and dependency audit, and current NLTK-advisory decision. Verify Parser wheel metadata has no companion/LlamaIndex/NLTK requirement; companion metadata has the bounded Parser requirement.
-- [ ] **Step 4: Review migration and security claims.** Show clean Parser graph separately from companion's advisory; verify no manual alert dismissal and no silent patch release. Any failed or unavailable gate remains failed/unknown, never inferred from local PASS.
-- [ ] **Step 5: Stop before merge and release.** The public companion repository, branch pushes, and both draft PRs now exist. Maintainer reviews exact hosted checks, cross-repository evidence, and migration notes. PR merge, Parser release, companion release, and package publication each require a separate decision and the existing release process.
+- [ ] **Step 3: Prequalify companion against the exact candidate Parser wheel.** Run real-node, shim, and wheel-metadata checks with explicit artifact hashes. A local `--no-deps` install is smoke evidence, not registry resolution or complete compatibility proof. Keep NLTK advisory status separate from Parser's clean graph.
+- [ ] **Step 4: Decide Parser integration and release independently.** Review exact Parser hosted checks, dependency audit, migration notes, and prequalification evidence. Parser PR merge and 1.10.0 publication each need an explicit maintainer decision under the existing release process; neither is authorized by this plan. Do not claim the companion is release-ready at this stage.
+- [ ] **Step 5: Qualify the registry-installed companion after Parser publication.** Install actual Parser 1.10.0 distribution, verify the supported lower bound and `<1.11.0` exclusion, generate a portable companion lock, run hosted Python 3.12/3.13 CI and the exact production export audit, and repeat installed-release shim/native-node acceptance. Reconcile the NLTK advisory or obtain a separately approved, narrow, time-bound exception before considering companion release.
+- [ ] **Step 6: Stop before companion merge and publication.** Companion PR #1 remains draft until its hosted and security gates pass. Review exact evidence; companion PR merge and package publication each require a separate maintainer decision. No local or hosted PASS implicitly authorizes either.

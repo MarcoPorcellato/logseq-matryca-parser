@@ -50,17 +50,17 @@ release.
 
 ## Decision
 
-Create a companion Python distribution in a **new public GitHub repository**.
-The candidate distribution and repository slug is
-`logseq-matryca-parser-llamaindex`; verify GitHub and PyPI name availability
-before creating or publishing anything. The Parser repository must not contain
+Create a companion Python distribution in a **separate public GitHub repository**,
+now created at `MarcoPorcellato/logseq-matryca-parser-llamaindex`. The candidate
+distribution name uses the same slug; verify PyPI availability before package
+publication. The Parser repository must not contain
 the companion's manifest or lockfile, so its Dependabot graph can be free of
 the LlamaIndex-to-NLTK chain.
 
 The companion depends on a supported Parser version and `llama-index-core`.
 It owns the LlamaIndex visitor and framework-native node construction. It
 must preserve the current exported metadata and topology semantics. The new
-repository will own its own dependency audit and any temporary advisory
+repository owns its own dependency audit and any temporary advisory
 exception; moving the integration does not resolve NLTK for users of that
 integration.
 
@@ -140,15 +140,22 @@ slug, and version range must be verified before publishing.
 
 ## Open external gates
 
-- Verify candidate GitHub and PyPI names and the supported-version policy
-  before repository creation or package release.
-- Obtain explicit authorization before creating the public companion
-  repository or publishing either package.
+- The public companion repository has been created and both implementation
+  branches are available as draft PRs. Verify PyPI name availability and the
+  supported-version policy before any package publication.
+- Prequalify the companion against the exact candidate Parser wheel. Parser
+  1.10.0 can then pass its independent review, merge, and release gates under
+  explicit maintainer decisions. Only after Parser is registry-available can
+  the companion generate its portable lock and complete hosted CI, production
+  audit, and registry-installed compatibility acceptance.
+- Obtain separate explicit authorization for each PR merge and each package
+  publication. No draft PR or local test grants release authority.
 - Recheck the NLTK advisory and upstream release state immediately before
-  deciding whether the companion needs a temporary exception.
+  deciding whether the companion can release or needs a narrow, time-bound
+  exception approved by the maintainer.
 
 ## Next review stage
 
-Maintainer review and approval of this design precede the implementation plan.
-After approval, GPT-6 Sol `xhigh` will author the detailed implementation plan;
-the maintainer will review that plan before implementation begins.
+Review the staged acceptance sequence and exact hosted evidence in the
+[implementation plan](../plans/2026-09-27-llamaindex-companion-separation.md).
+Parser and companion remain draft changes; neither package has been released.
