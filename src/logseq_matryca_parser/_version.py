@@ -1,3 +1,3 @@
 """Single source of truth for the distribution version."""
 
-__version__ = "1.9.0"
+__version__ = "1.10.0"

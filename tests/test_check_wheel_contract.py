@@ -38,7 +38,7 @@ def _wheel(
 
 
 def test_source_version_reads_lightweight_version_module() -> None:
-    assert source_version() == "1.9.0"
+    assert source_version() == "1.10.0"
 
 
 def test_valid_wheel_contract(tmp_path: Path) -> None:
