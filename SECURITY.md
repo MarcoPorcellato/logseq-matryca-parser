@@ -4,6 +4,9 @@
 
 Security fixes are provided **only for the latest released version** on [PyPI](https://pypi.org/project/logseq-matryca-parser/). The latest supported release is v1.9.0.
 
+Version 1.10.0 release preparation does not change this support status; it will
+do so only after publication to PyPI.
+
 | Version | Supported |
 | ------- | --------- |
 | **1.9.0** (latest released) | Yes |

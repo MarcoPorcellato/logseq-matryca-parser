@@ -314,6 +314,9 @@ We welcome issues, pull requests, and constructive feedback.
 
 ## 📦 Release history
 
+Version 1.10.0 release notes are prepared, but the package has not yet been
+published to PyPI. The latest published release remains v1.9.0.
+
 Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
 [changelog](CHANGELOG.md), or the signed artifacts on
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
