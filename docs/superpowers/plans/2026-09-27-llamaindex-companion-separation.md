@@ -12,26 +12,49 @@
 
 ## Current checkpoint status — 2026-09-27
 
-- Parser Tasks 1–4 are implemented and integrated-reviewed `PASS_WITH_NOTES`.
-- Final Parser checks pass: `make all` (825 tests, 91.13% coverage), docs,
-  vendor-name policy, wheel contract, sdist metadata, and an unwaived audit.
-- Tasks 5–6 and cross-repository Task 7 remain gated on separate companion
-  repository authority, name/range decisions, real-node tests, and acceptance.
-- The integrated Parser diff is committed locally on this branch. No push, PR,
-  repository creation, or publication occurred.
+- Parser Tasks 1–4 are implemented at `1d11d97e1806b534a74a82585fc1aec54e56a4fa`
+  on `design/nltk-llamaindex-companion`; Sol's integrated review is
+  `PASS_WITH_NOTES`. The candidate package version is 1.10.0. `make all`
+  passes (825 tests, 91.13% coverage); the dependency boundary, wheel/sdist
+  contract, unwaived audit, docs, and vendor-name checks pass on this local
+  source state.
+- Tasks 5–6 have a **local-only companion implementation checkpoint** in
+  `/Users/marco1/Documents/CODICE con VS CODE/logseq-matryca-parser-llamaindex`,
+  branch `feat/native-llamaindex-adapter`, exact HEAD
+  `bcf7576caa99cf884280cffdb05238358b6be2f3`. It is a clean local clone; a
+  separate staging clone remains under `/private/tmp`. The companion has real
+  LlamaIndex `TextNode` construction, package metadata, tests, README, and an
+  exact Apache-2.0 license copy. Its initial Parser range is provisionally
+  bounded to `>=1.10.0,<1.11.0`; `llama-index-core` is bounded to
+  `>=0.14.22,<0.15`.
+- Local companion verification: 8 tests pass; wheel and sdist build; Ruff
+  passes on a clean clone; bounded wheel metadata and packaged license were
+  checked. Sol review of the local slice is `PASS_WITH_NOTES`; security review
+  of local code is `PASS_WITH_NOTES`. These are not release gates.
+- Full companion Task 6 and cross-repository Task 7 remain **BLOCKED**:
+  Parser 1.10.0 is not published, so registry-resolved minimum/upper-bound
+  testing and a portable lock are not yet possible; hosted Python 3.12/3.13 CI,
+  production export audit, installed-release acceptance, and an advisory
+  disposition remain unqualified. Security review marks release `BLOCKED`.
+- No GitHub companion repository has been created. The exact public repository
+  creation attempt was rejected by automatic review pending explicit exact
+  authorization; do not retry or use a workaround. No push, PR, or package
+  publication occurred. See
+  [`docs/internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md`](../../internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md)
+  for restart facts and stop boundaries.
 
 ## Global Constraints
 
-- Approved live base: `main@1c28aa6ceb01ada0ed8f4838ffb58903dc56f6f4`; this design worktree is `afd617046392ae14f0a2c9ce14493b3d08036b2e` before plan edits. Rebind HEAD/status before execution. GitHub API was unavailable during design review, so remote freshness beyond the verified base is unconfirmed.
+- Design began from `main@1c28aa6ceb01ada0ed8f4838ffb58903dc56f6f4`. The current Parser worktree is now at `1d11d97e1806b534a74a82585fc1aec54e56a4fa`; rebind HEAD/status before resuming. Live Parser `main` was read as `fc2af61221ed2b8eb1026082987938a996b2d73f` during the companion investigation; this is a historical observation, not a current remote guarantee.
 - Candidate distribution/repository slug: `logseq-matryca-parser-llamaindex`; verify GitHub and PyPI name availability before creating or publishing anything. Python import module in this plan: `logseq_matryca_parser_llamaindex`.
 - Keep `SynapseAdapter.to_llamaindex_nodes(nodes, *, page_title=None, page_source_id=None)` and the package-root `SynapseAdapter` export. Missing companion must produce an actionable installation command; no dictionary substitute for real LlamaIndex nodes.
 - Keep `[ai]` for LangChain export; `[all]` retains visualization and LangChain dependencies only. Remove the NLTK uv constraint only after confirming no remaining Parser dependency requires it.
 - Parser base, `[ai]`, `[all]`, root `uv.lock`, exported audit requirements, and built package metadata must contain neither `llama-index-core` nor `nltk`.
 - Do not change AST, graph, parser, serialization, LangChain, or Logseq semantics. No adapter-wide refactor beyond imports and bridge boundary; do not replace NLTK with another NLP library.
 - `PYSEC-2026-3740` remains a companion concern until an upstream fixed NLTK release is available and qualified. Remove Parser's waiver and exception test only after Parser dependency evidence is clean; never dismiss the Parser alert manually.
-- Companion declares and tests a bounded compatible Parser version range. Exact range is an open maintainer gate, not a value to guess. Recheck advisory state before deciding its temporary exception.
+- Companion's local manifest currently declares `logseq-matryca-parser>=1.10.0,<1.11.0` and `llama-index-core>=0.14.22,<0.15`. The former avoids the invalid 1.9.0 lower bound because released Parser 1.9.0 still includes the old adapter; it is a provisional compatibility window, not yet release-qualified. Do not widen the upper bound without testing each newly supported Parser minor. Recheck the advisory before any exception or release decision.
 - Parser user-facing docs and messages remain English. Existing Parser `requires-python = ">=3.12"`; CI supports Python 3.12 and 3.13. Preserve existing wheel, typing, docs, license, and release contracts.
-- No work in the dirty primary checkout. Public companion repository creation, branch push, PR, and either publication each need separate explicit authorization. Parser-only green checks do not complete acceptance or authorize release.
+- No work in the dirty primary checkout. Public companion repository creation, branch push, PR, and either publication each need separate explicit authorization. The exact public repository creation attempt was rejected by automatic review and is blocked pending explicit authorization; do not retry by another route. Parser-only or local-companion green checks do not complete acceptance or authorize release.
 - The integrated Parser checkpoint requires explicit maintainer authorization before local commit; bind approval to the exact branch, HEAD, and reviewed diff. No local commit, push, PR, companion repository creation, or publication without its applicable authorization.
 - Every shell command starts with `rtk`. Do not run CCP heavy work without its separate exact-bound authorization; use standard public GitHub-hosted CI for the eventual public-repository gate.
 
@@ -105,29 +128,29 @@ Parser `synapse.py` keeps `build_synapse_metadata(node: LogseqNode, *, source: s
 - [x] **Step 4: Confirm GREEN.** Focused example tests, `make all`, `make docs-check`, and `make vendor-name-check` pass. Final `make all`: 825 passed, 91.13% coverage. Final docs wording correction passed docs-check and focused tests.
 - [x] **Step 5: Review checkpoint.** Compare current recipes/indexes to migration contract and preserve historical entries. Integrated Sol review is `PASS_WITH_NOTES` after correcting extras wording; security review is `PASS_WITH_NOTES`. This integrated checkpoint was committed locally after explicit maintainer authorization. Push and publication remain separately gated.
 
-### Task 5: Companion native adapter — **pause until separate repository authority**
+### Task 5: Companion native adapter — **local implementation checkpoint; publication blocked**
 
-**Files, in the separate companion repository only:** Create `src/logseq_matryca_parser_llamaindex/__init__.py`, `src/logseq_matryca_parser_llamaindex/adapter.py`, `tests/test_adapter.py`.
+**Files, in the separate companion repository only:** `src/logseq_matryca_parser_llamaindex/__init__.py`, `src/logseq_matryca_parser_llamaindex/adapter.py`, `tests/test_adapter.py`. A local-only companion checkout exists at the path recorded in the current checkpoint; it is not a created public GitHub repository.
 
 **Interfaces:** Consumes `LogseqNode`, `ASTVisitor`, `build_synapse_metadata`, `page_source_node_id` from Parser's tested compatible range; produces `to_llamaindex_nodes(...) -> list[llama_index.core.schema.TextNode]` for Task 2 shim. Neither Parser repository nor Parser lock may contain companion files.
 
-- [ ] **Step 1: Write failing tests with real LlamaIndex types.** `test_native_nodes_preserve_metadata_order_and_topology` asserts `isinstance(item, TextNode)`, `id_ == node.uuid`, `text == clean_text`, all existing metadata/property values, depth-first order, SOURCE, PARENT, CHILD, PREVIOUS, and NEXT. Add the four Task 5 Review Focus tests named above: `test_empty_input_returns_no_nodes` asserts `[]`; `test_same_basename_different_paths_have_distinct_sources` asserts distinct deterministic SOURCE IDs; `test_explicit_source_id_preserves_single_and_mixed_page_behavior` asserts explicit ID for single page and per-path IDs for mixed pages; `test_out_of_batch_links_do_not_create_reciprocals` asserts forward links only. Reuse current Parser fixture semantics, not fake schema objects.
-- [ ] **Step 2: Confirm RED.** Run `rtk uv run pytest -q tests/test_adapter.py`; expect import/function failures before implementation.
-- [ ] **Step 3: Move native construction and `LlamaIndexVisitor` logic** into `adapter.py`; export the named function from `__init__.py`. Preserve existing `source_path`-based source selection and relationship rules. Use shared Parser metadata/source-ID helpers; do not add NLP, network, or vault I/O.
-- [ ] **Step 4: Confirm GREEN.** Run `rtk uv run pytest -q tests/test_adapter.py` in companion environment with real `llama-index-core`, and an installed-distribution test that imports Parser first, then calls its shim and verifies returned real `TextNode` objects.
-- [ ] **Step 5: Review checkpoint.** Compare node outputs with pre-migration fixtures on exact same AST, including ID, metadata, order, and each relationship; commit only after exact maintainer authorization.
+- [x] **Step 1: Write failing tests with real LlamaIndex types.** Native node type, IDs, text, metadata, depth-first order and relationship tests were written against real `TextNode` / `NodeRelationship` types, including empty input, same-basename paths, explicit/mixed source IDs, and out-of-batch links.
+- [x] **Step 2: Confirm RED.** Initial tests failed before the implementation was added.
+- [x] **Step 3: Move native construction and `LlamaIndexVisitor` logic** into the local companion adapter, preserving Parser metadata/source-ID helpers and topology rules.
+- [x] **Step 4: Confirm local GREEN.** Six adapter tests passed; package-stage evidence later added two distribution/import-boundary tests (8 total). Local source-to-source shim and built-wheel smoke evidence are recorded in the checkpoint. This does not equal registry-installed minimum-version acceptance.
+- [x] **Step 5: Review checkpoint.** Sol review of the local slice is `PASS_WITH_NOTES`; four parity scenarios were recorded. Broader installed-release acceptance and the exact supported-version matrix remain pending Task 6.
 
-### Task 6: Companion package, audit, and compatibility range — **same authority gate**
+### Task 6: Companion package, audit, and compatibility range — **local package checkpoint; release BLOCKED**
 
-**Files, in the separate companion repository only:** Create `pyproject.toml`, `uv.lock`, `tests/test_distribution.py`, `.github/workflows/ci.yml`, `README.md`; create `docs/security/DEPENDENCY_ADVISORY_EXCEPTIONS.md` only if live advisory review requires a temporary exception.
+**Files, in the separate companion repository only:** Local checkout contains `pyproject.toml`, `tests/test_distribution.py`, `README.md`, and exact Apache-2.0 `LICENSE`. A portable `uv.lock`, hosted workflow, and advisory exception have intentionally not been added.
 
-**Interfaces:** Consumes Task 5 adapter and maintainer-approved Parser version range; produces wheel metadata with bounded `logseq-matryca-parser` and `llama-index-core` requirements, own test/audit receipts. Candidate distribution name remains subject to live availability checks.
+**Interfaces:** Consumes Task 5 adapter and the provisional Parser version range recorded above; produces wheel metadata with bounded `logseq-matryca-parser` and `llama-index-core` requirements. The range is not release-approved until real registry endpoints are tested; companion audit receipts remain absent. Candidate distribution name remains subject to live availability checks.
 
-- [ ] **Step 1: Stop for gates.** Verify GitHub/PyPI candidate names and select an exact lower and exclusive upper Parser compatibility bound from tested releases; obtain maintainer approval before creating public repo or finalizing manifest. A local staging directory is not authorization to create/publish a public repository.
-- [ ] **Step 2: Write failing package tests.** `test_companion_metadata_has_bounded_parser_range` inspects built wheel `Requires-Dist`; `test_parser_minimum_and_upper_boundary` installs/tests the approved minimum and highest supported Parser versions and verifies an incompatible version is rejected. `test_importing_parser_alone_does_not_load_companion` checks a fresh subprocess.
-- [ ] **Step 3: Add minimal package/lock/CI.** Dependency set is bounded Parser plus `llama-index-core`, with Python 3.12/3.13 checks. Companion CI runs locked tests, wheel metadata, and its own exported production `pip-audit`. Recheck `PYSEC-2026-3740` immediately before policy: if still open, add an exact, owner/expiry-scoped companion exception and no broader ignore; if fixed, qualify the fixed release instead. Do not claim NLTK fixed because Parser no longer resolves it.
-- [ ] **Step 4: Confirm GREEN or explicit security block.** Run `rtk uv sync --locked`, `rtk uv run pytest -q`, `rtk uv build`, inspect wheel metadata, and audit exact export. A still-open advisory with no approved exception is BLOCKED, not PASS. Verify license/lock and package provenance under companion repository policy before release.
-- [ ] **Step 5: Review checkpoint.** Preserve exact companion HEAD, lock hash, tested Parser range, advisory state, and CI evidence; commit/push/publish only under each separate authorization.
+- [x] **Step 1: Select provisional package bounds.** The local manifest uses Parser `>=1.10.0,<1.11.0` and `llama-index-core>=0.14.22,<0.15`; 1.10.0 is not yet registry-available, so the Parser window is intentionally provisional and unqualified. The former suggested `>=1.9.0` lower bound was incorrect because released 1.9.0 still carries the old adapter.
+- [x] **Step 2: Write pre-release package-contract tests.** Wheel metadata tests assert bounded Parser/LlamaIndex requirements; a subprocess test verifies Parser import does not load the companion. Existing adapter tests cover real LlamaIndex types. Minimum/upper-bound registry install tests remain blocked until the Parser 1.10.0 artifact and next supported boundary are available.
+- [x] **Step 3: Add minimal local metadata and documentation.** Python `>=3.12`, version `0.1.0`, Apache-2.0 license copied byte-for-byte from Parser, package metadata, consumer-data disclosure, and readiness gates are present. No `uv.lock`, hosted CI, or advisory waiver was added because those would falsely claim registry-resolved/release-qualified inputs.
+- [x] **Step 4: Confirm local package evidence and record release block.** On clean local clone at companion HEAD `bcf7576caa99cf884280cffdb05238358b6be2f3`, `uv build --offline` succeeded; 8 tests passed; Ruff `0.15.12` passed on `tests/test_distribution.py`; wheel metadata and packaged license were verified. Full-tree Ruff passed after review. This is local evidence only. Parser 1.10.0 registry tests, portable lock, hosted Python 3.12/3.13 CI, production export audit and advisory disposition remain **BLOCKED**.
+- [x] **Step 5: Review checkpoint.** Sol and security review of the local code are each `PASS_WITH_NOTES`; release remains `BLOCKED`. LlamaIndex 0.14.22 resolves NLTK 3.10.3. GitHub advisory says affected `<=3.10.3` with no fixed release; PyPA advisory prose and machine range conflict. Do not add an exception, claim a fix, or release until the authoritative advisory state is reconciled and an accepted security disposition exists.
 
 ### Task 7: Cross-repository acceptance and release gate
 
