@@ -18,12 +18,11 @@
   passes (825 tests, 91.13% coverage); the dependency boundary, wheel/sdist
   contract, unwaived audit, docs, and vendor-name checks pass on this local
   source state.
-- Tasks 5–6 have a **local-only companion implementation checkpoint** in
-  `/Users/marco1/Documents/CODICE con VS CODE/logseq-matryca-parser-llamaindex`,
+- Tasks 5–6 have a **companion implementation checkpoint** in
+  [draft PR #1](https://github.com/MarcoPorcellato/logseq-matryca-parser-llamaindex/pull/1),
   branch `feat/native-llamaindex-adapter`, implementation evidence at
   `bcf7576caa99cf884280cffdb05238358b6be2f3` and draft-PR head
-  `14fd8de399d5abd38c70e52125e81da8dda5c5b2`. It is a clean local clone; a
-  separate staging clone remains under `/private/tmp`. The companion has real
+  `14fd8de399d5abd38c70e52125e81da8dda5c5b2`. The companion has real
   LlamaIndex `TextNode` construction, package metadata, tests, README, and an
   exact Apache-2.0 license copy. Its initial Parser range is provisionally
   bounded to `>=1.10.0,<1.11.0`; `llama-index-core` is bounded to
@@ -32,6 +31,11 @@
   passes on a clean clone; bounded wheel metadata and packaged license were
   checked. Sol review of the local slice is `PASS_WITH_NOTES`; security review
   of local code is `PASS_WITH_NOTES`. These are not release gates.
+- Candidate-wheel prequalification passed on Python 3.12.13: exact Parser and
+  companion wheels resolved together with 71 consistent distributions;
+  installed-only native-node, topology, source-ID, and shim assertions passed.
+  Wheel hashes and limits are recorded in the public checkpoint. This is not
+  registry compatibility or companion security qualification.
 - Companion Task 6 release qualification and the post-Parser-publication part
   of Task 7 remain **BLOCKED**: Parser 1.10.0 is not published, so
   registry-resolved minimum/upper-bound testing and a portable lock are not yet

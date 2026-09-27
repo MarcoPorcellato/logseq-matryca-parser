@@ -5,13 +5,9 @@ type: Document
 
 ## Resume anchors
 
-- Parser worktree: `/Users/marco1/.codex/worktrees/nltk-llamaindex-decoupling/logseq-matryca-parser`
-- Branch: `design/nltk-llamaindex-companion`
-- Parser code anchor before this checkpoint: `1d11d97e1806b534a74a82585fc1aec54e56a4fa` (`chore: prepare parser 1.10.0 release`). This documentation checkpoint postdates that code anchor; run `git rev-parse HEAD` on resume to bind the current branch HEAD.
-- Companion local clone: `/Users/marco1/Documents/CODICE con VS CODE/logseq-matryca-parser-llamaindex`
-- Companion branch/HEAD at the draft PR opening: `feat/native-llamaindex-adapter` at `14fd8de399d5abd38c70e52125e81da8dda5c5b2`; `main` remains at bootstrap commit `47d954a713712b8a433970f9b0f23db070ee09b9`. Rebind both refs on resume.
-- The companion clone was clean at the recorded draft-PR commit. Its `origin` points to `https://github.com/MarcoPorcellato/logseq-matryca-parser-llamaindex.git`. The staging source under `/private/tmp/logseq-llamaindex-companion.Cfq6w7` still exists; the durable clone remains the safest local resume source.
-- Parser primary checkout is not the work surface; preserve its existing dirty/stale state.
+- Parser: [draft PR #225](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/225), branch `design/nltk-llamaindex-companion`; earlier code qualification anchor `1d11d97e1806b534a74a82585fc1aec54e56a4fa`. Candidate-wheel gate source HEAD was `95154fa32f6f13ebb1f9b6accc26ccace8ff2435`, clean at gate time. Rebind the current PR head on resume.
+- Companion: [draft PR #1](https://github.com/MarcoPorcellato/logseq-matryca-parser-llamaindex/pull/1), branch `feat/native-llamaindex-adapter`; tested head `14fd8de399d5abd38c70e52125e81da8dda5c5b2`. Its bootstrap `main` is `47d954a713712b8a433970f9b0f23db070ee09b9`.
+- Both candidate-wheel source checkouts were clean at the gate HEADs above. Preserve any dirty primary checkout and rebind repository and branch state before further work. Local workspace paths are intentionally omitted from this public record.
 
 ## Completed local evidence
 
@@ -19,8 +15,8 @@ type: Document
 - Companion Tasks 5–6 are a local implementation checkpoint only. The package exports native LlamaIndex `TextNode` objects and keeps the Parser dependency graph separate. Candidate distribution name: `logseq-matryca-parser-llamaindex`; package version `0.1.0`; Python `>=3.12`; license `Apache-2.0`, copied exactly from Parser.
 - Provisional companion requirements: `logseq-matryca-parser>=1.10.0,<1.11.0` and `llama-index-core>=0.14.22,<0.15`. Released Parser 1.9.0 still contains the old adapter; therefore the formerly suggested `>=1.9.0` lower bound was invalid. The 1.10.0 minimum is not yet registry-available, and neither endpoint has registry-install compatibility qualification.
 - At companion HEAD `bcf7576caa99cf884280cffdb05238358b6be2f3`: offline wheel/sdist build passed, 8 tests passed, wheel metadata and packaged license were verified, full-tree Ruff passed on the clean clone. Sol review of local code: `PASS_WITH_NOTES`. Security review of local code: `PASS_WITH_NOTES`.
-- A locally built Parser 1.10.0 wheel was installed with `--no-deps` into the isolated companion test environment for import-isolation coverage. This is local smoke evidence, not registry resolution or compatibility testing against released artifacts.
-- This does **not** complete release qualification: no portable `uv.lock`, hosted Python 3.12/3.13 CI, production export audit, registry compatibility matrix, or installed-release acceptance exists yet. Those are deliberately pending until a real Parser 1.10.0 distribution can resolve.
+- Candidate-wheel prequalification passed on Python 3.12.13: exact local Parser wheel SHA-256 `4bc8f3b544a996d88ea38b1e00e19ac390f0dfe2e247a47598d6cbaf3a7a3e27` and companion wheel SHA-256 `9309ae5f1c2d123622f67745e8ac02188835fadac1501a894dd9164a6f878261` resolved with all runtime dependencies. All 71 installed distributions passed dependency consistency checks. Installed-only assertions passed for native `TextNode` types, ordering, relationships, source IDs, and the Parser shim. This is local candidate-wheel evidence, not a registry or release qualification.
+- This does **not** complete release qualification: no portable `uv.lock`, hosted companion Python 3.12/3.13 CI, production export audit, or registry compatibility matrix exists yet. Those remain pending until a real Parser 1.10.0 distribution can resolve.
 
 ## Security and publication boundary
 
@@ -30,8 +26,8 @@ type: Document
 
 ## Next gates, in order
 
-1. Rebind both local paths, branches, exact HEADs, and clean status before work.
-2. Prequalify companion native-node and shim behavior against the exact candidate Parser 1.10.0 wheel; record both artifact hashes. This does not prove registry installation.
+1. Rebind both repository branches, exact HEADs, draft PR states, and clean status before work.
+2. Preserve candidate-wheel prequalification evidence at the hashes above. It does not prove registry installation or companion release readiness.
 3. Decide Parser PR merge and 1.10.0 publication through separate explicit maintainer gates after its independent hosted, dependency, migration, and release checks pass.
 4. After Parser 1.10.0 resolves from the registry, verify companion lower-bound installation and `<1.11.0` exclusion, generate a portable lock, add hosted Python 3.12/3.13 CI, run the exact production export audit, and repeat distribution/shim acceptance.
 5. Reconcile the NLTK advisory from authoritative sources. Keep companion release blocked absent a fixed upstream release or a separately approved, narrowly scoped exception with compensating controls.
