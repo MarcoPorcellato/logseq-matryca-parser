@@ -5,7 +5,7 @@ type: Document
 
 ## Resume anchors
 
-- Parser: [draft PR #225](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/225), branch `design/nltk-llamaindex-companion`; earlier code qualification anchor `1d11d97e1806b534a74a82585fc1aec54e56a4fa`. Candidate-wheel gate source HEAD was `95154fa32f6f13ebb1f9b6accc26ccace8ff2435`, clean at gate time. Rebind the current PR head on resume.
+- Parser: PR #225 has since merged; exact remote `main` is `870a35eb8014c030aaa874e8f1ce550556e0decb` (verified 2026-09-27). Earlier code qualification anchor was `1d11d97e1806b534a74a82585fc1aec54e56a4fa`; candidate-wheel gate source HEAD was `95154fa32f6f13ebb1f9b6accc26ccace8ff2435`, clean at gate time. Version 1.10.0 remains release preparation only and is not yet published to PyPI.
 - Companion: [draft PR #1](https://github.com/MarcoPorcellato/logseq-matryca-parser-llamaindex/pull/1), branch `feat/native-llamaindex-adapter`; tested head `14fd8de399d5abd38c70e52125e81da8dda5c5b2`. Its bootstrap `main` is `47d954a713712b8a433970f9b0f23db070ee09b9`.
 - Both candidate-wheel source checkouts were clean at the gate HEADs above. Preserve any dirty primary checkout and rebind repository and branch state before further work. Local workspace paths are intentionally omitted from this public record.
 
@@ -21,16 +21,16 @@ type: Document
 ## Security and publication boundary
 
 - NLTK 3.10.3 remains in the current LlamaIndex dependency graph. GitHub advisory [GHSA-8mgp-746c-j5xp](https://github.com/advisories/GHSA-8mgp-746c-j5xp) reports affected versions `<=3.10.3` and no fixed release. The PyPA record [PYSEC-2026-3740](https://github.com/pypa/advisory-database/blob/main/vulns/nltk/PYSEC-2026-3740.yaml) has conflicting prose and machine-readable range. Treat the advisory as unresolved: no clean-audit claim, waiver, or release until authoritative records are reconciled and an accepted disposition exists. Security release gate: `BLOCKED`.
-- After explicit authorization, `MarcoPorcellato/logseq-matryca-parser-llamaindex` was created as `PUBLIC`. The bootstrap `main` and feature branch were pushed, and [companion PR #1](https://github.com/MarcoPorcellato/logseq-matryca-parser-llamaindex/pull/1) was opened as a draft. [Parser PR #225](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/225) is also a draft. Neither PR has been merged; no package publication or release has occurred. Local reviews do not authorize those further actions.
+- After explicit authorization, `MarcoPorcellato/logseq-matryca-parser-llamaindex` was created as `PUBLIC`. The bootstrap `main` and feature branch were pushed, and [companion PR #1](https://github.com/MarcoPorcellato/logseq-matryca-parser-llamaindex/pull/1) was opened as a draft. At checkpoint time, Parser PR #225 was also a draft; it has since merged at the exact `main` commit recorded above. Parser 1.10.0 publication remains a separate maintainer gate. The companion PR state must be rebound before further decisions. Local reviews do not authorize those further actions.
 - The GitHub repository name is now occupied by the authorized public repository. Earlier PyPI HTTP 404 was not a name reservation; recheck package availability before any publication decision.
 
 ## Next gates, in order
 
-1. Rebind both repository branches, exact HEADs, draft PR states, and clean status before work.
+1. Rebind both repository branches, exact HEADs, current companion PR state, and clean status before work.
 2. Preserve candidate-wheel prequalification evidence at the hashes above. It does not prove registry installation or companion release readiness.
-3. Decide Parser PR merge and 1.10.0 publication through separate explicit maintainer gates after its independent hosted, dependency, migration, and release checks pass.
+3. Decide Parser 1.10.0 publication through a separate explicit maintainer gate after its independent hosted, dependency, migration, and release checks pass.
 4. After Parser 1.10.0 resolves from the registry, verify companion lower-bound installation and `<1.11.0` exclusion, generate a portable lock, add hosted Python 3.12/3.13 CI, run the exact production export audit, and repeat distribution/shim acceptance.
 5. Reconcile the NLTK advisory from authoritative sources. Keep companion release blocked absent a fixed upstream release or a separately approved, narrowly scoped exception with compensating controls.
-6. Both draft PRs exist. Review their exact hosted checks and complete the applicable qualification before each merge. Companion publication remains a separate authorization gate.
+6. Review the companion draft PR's exact hosted checks and complete its applicable qualification before any merge. Companion publication remains a separate authorization gate.
 
 See the [implementation plan](../superpowers/plans/2026-09-27-llamaindex-companion-separation.md) for task ownership and detailed acceptance criteria.
