@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-30
-verified: 2026-08-30
-stale_after: 2027-02-26
+last_verified: 2026-09-27
+verified: 2026-09-27
+stale_after: 2027-03-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -35,7 +35,7 @@ navigation layers only.
 | [Continuous integration assurance](CI_ASSURANCE.md) | Pull-request, scheduled, settings-managed, and release checks with evidence boundaries |
 | [AI contribution policy](AI_CONTRIBUTION_POLICY.md) | Human accountability, privacy, disclosure, and review rules for AI-assisted work |
 | [Agent action contract](reference/AGENT_ACTION_CONTRACT.md) | Read/write authority, provenance, prompt-injection boundary, and approval matrix |
-| [Support and compatibility matrix](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Supported runtimes, public API tiers, optional adapters, and explicit limits |
+| [Support and compatibility matrix](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Supported runtimes, public API tiers, optional integrations, companion boundary, and explicit limits |
 | [Dependency, license, SBOM, and provenance policy](reference/DEPENDENCY_LICENSE_POLICY.md) | Release evidence, override, checksum, and attestation contract |
 | [Daily metrics threat model](security/DAILY_METRICS_THREAT_MODEL.md) | Security boundary for the self-mutating repository traffic archive |
 | [Dependency advisory exceptions](security/DEPENDENCY_ADVISORY_EXCEPTIONS.md) | Exact, time-bounded security audit exceptions and compensating controls |

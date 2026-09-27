@@ -41,13 +41,11 @@ viz = [
 ]
 ai = [
     "langchain-core",
-    "llama-index-core",
 ]
 all = [
     "networkx>=3.0.0",
     "pyvis>=0.3.2",
     "langchain-core",
-    "llama-index-core",
 ]
 watch = [
     "watchdog>=4.0.0",
@@ -86,7 +84,6 @@ dev = [
 [tool.uv]
 constraint-dependencies = [
     "aiohttp>=3.14.3",
-    "nltk>=3.10.3",
     "setuptools>=83.0.0",
 ]
 

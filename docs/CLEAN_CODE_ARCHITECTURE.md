@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-09-05
-verified: 2026-09-05
-stale_after: 2027-02-26
+last_verified: 2026-09-27
+verified: 2026-09-27
+stale_after: 2027-03-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -58,7 +58,7 @@ public `plumber.*` contracts. Public APIs (`LogseqGraph`, `StackMachineParser`,
 |------|-----------|-------------------------|
 | **Entities** | `logos_core.py`, `exceptions.py` | AST shape, Pydantic invariants, typed errors |
 | **Use cases** | `logos_parser.py`, `graph.py`, `logseq_markdown.py`, `logseq_paths.py` | Parse, index, serialize, path translation — **no** CLI or optional AI/viz imports |
-| **Adapters** | `synapse.py`, `forge.py`, `agent_writer.py`, `agent_press.py`, `lens.py` | Framework projections (LangChain, LlamaIndex, Obsidian, PyVis) |
+| **Adapters** | `synapse.py`, `forge.py`, `agent_writer.py`, `agent_press.py`, `lens.py` | Parser-owned projections (LangChain, Obsidian, PyVis); LlamaIndex node construction belongs to a separate companion package |
 | **Drivers** | `kinetic.py`, `kinetic_commands.py`, `kinetic_export.py`, `__main__.py` | Operator CLI — orchestrates use cases and adapters |
 
 Parser runtime modules must not import Plumber, Trama, or Brain. Trama and Brain
@@ -204,8 +204,13 @@ compatibility decision.
 
 | Area | Responsibility |
 |------|----------------|
-| Visitors | `LangChainVisitor`, `LlamaIndexVisitor` |
+| Visitors | `LangChainVisitor` |
 | Enriched RAG | `to_context_enriched_chunks`, embed expansion via `synapse_embed` |
+
+`SynapseAdapter.to_llamaindex_nodes()` is a lazy compatibility bridge, not a
+Parser-owned framework adapter. The separate LlamaIndex companion owns native
+node construction and is not yet published; the Parser dependency graph stays
+framework-light.
 
 **OCP:** `BlockEmbedExpander` / `PageEmbedExpander` in `synapse_embed.py` — [#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70) **shipped**.
 

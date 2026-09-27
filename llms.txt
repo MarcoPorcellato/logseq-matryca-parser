@@ -5,9 +5,11 @@
 Logseq Markdown files are the source of truth. The parser preserves outliner
 hierarchy, block UUIDs, page aliases, backlinks, properties, tasks, timestamps,
 and assets instead of flattening a vault into unrelated text chunks. Derived
-views include graph queries, LangChain documents, LlamaIndex nodes,
-context-enriched chunks, JSON and Obsidian exports, interactive visualization,
-and token-efficient agent reads and writes.
+views include graph queries, LangChain documents, context-enriched chunks,
+JSON and Obsidian exports, interactive visualization, and token-efficient
+agent reads and writes. Native LlamaIndex nodes are delegated to the separate
+`logseq-matryca-parser-llamaindex` companion, which is planned but not yet
+published on PyPI; it is not a Parser dependency.
 
 Use documented package-root imports for stable APIs. Treat filesystem writes,
 symlinks, asset paths, graph identity, and parse/serialize round trips as safety
@@ -35,7 +37,8 @@ boundaries. Read AGENTS.md before changing the repository.
 
 ## Runnable entry points
 
-- [Offline SYNAPSE RAG example](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/examples/run_synapse_rag.py): LangChain, LlamaIndex, enriched chunks, and page-embed expansion without a user vault.
+- [Offline SYNAPSE RAG example](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/examples/run_synapse_rag.py): LangChain, the optional LlamaIndex companion path, enriched chunks, and page-embed expansion without a user vault. The companion is not yet published.
+- [Support and compatibility matrix](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/CONFORMANCE_SUPPORT_MATRIX.md): Current Parser and optional-companion boundaries.
 - [Demo example](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/examples/run_demo.py): Small end-to-end parser demonstration.
 - [CLI implementation](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/src/logseq_matryca_parser/kinetic.py): Parse, scan, export, visualize, agent-read, agent-write, append, and demo commands.
 - [Public package API](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/src/logseq_matryca_parser/__init__.py): Supported package-root exports.

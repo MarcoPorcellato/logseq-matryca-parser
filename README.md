@@ -46,7 +46,8 @@ selected by the caller.
 ### Choose your workflow
 
 - **Parse and query:** load one page or a complete vault as a typed AST and graph.
-- **Build RAG context:** export LangChain documents, LlamaIndex nodes, or enriched chunks.
+- **Build RAG context:** export LangChain documents and enriched chunks; use
+  the separate LlamaIndex companion when available.
 - **Move knowledge:** generate JSON, clean Markdown, or an Obsidian vault.
 - **Visualize:** render an interactive reference-topology graph with the transitional,
   feature-frozen LENS adapter.
@@ -69,7 +70,16 @@ The PKM (Personal Knowledge Management) world is currently forcing users to make
 ### 🔱 The Matryca Solution: The Best of Both Worlds
 **Logseq Matryca Parser** is the ultimate bridge. It allows you to **keep your sovereign, future-proof Markdown files**, while synthesizing a **Virtual Global Graph** in RAM at runtime.
 
-It acts as the strict **File System Driver** for your LLM OS. By using a deterministic Stack-Machine to parse your outliner topology, it feeds LangChain or LlamaIndex with the exact parent-child context of every single block.
+It acts as the strict **File System Driver** for your LLM OS. A deterministic
+Stack-Machine parses outliner topology and preserves each block's parent-child
+context for LangChain and, through a separate optional companion, LlamaIndex.
+
+The Parser's `[ai]` and `[all]` extras do not install LlamaIndex. The
+`logseq-matryca-parser-llamaindex` companion is planned but not yet published
+on PyPI; until then, `SynapseAdapter.to_llamaindex_nodes()` reports that the
+companion is unavailable. The Parser lock and distributions no longer include
+`llama-index-core` or NLTK. This removes that dependency chain from Parser; it
+does not claim that the separate NLTK advisory is fixed for other consumers.
 
 *You get the reasoning power of a centralized relational database, without sacrificing the plain-text soul of your Second Brain in Logseq.*
 
@@ -142,7 +152,7 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 | :--- | :--- |
 | **Parse faithfully — LOGOS** | Deterministic AST parsing for outlines, YAML and native properties, tasks, temporal markers, references, assets, code/math/query shields, stable UUIDs, line ranges, and format-preserving round trips. |
 | **Understand the vault — Graph** | Canonical pages, aliases, backlinks, inherited properties, case-insensitive lookup, namespace resolution, fluent queries, broken-reference diagnostics, and optional per-file live reloads. |
-| **Export and integrate — SYNAPSE, FORGE, LENS** | Lineage-aware LangChain and LlamaIndex exports, context-enriched chunks, JSON and Markdown serialization, Obsidian vault generation, and interactive graph visualization. |
+| **Export and integrate — SYNAPSE, FORGE, LENS** | Lineage-aware LangChain exports and context-enriched chunks; LlamaIndex nodes through a separate companion; JSON and Markdown serialization, Obsidian vault generation, and interactive graph visualization. |
 | **Automate safely — KINETIC and agent tools** | CLI parse, scan, export, and visualization; token-efficient X-Ray reads; append-only logging; bounded AST writes; vault containment, dry-run patches, and atomic replacement. |
 
 The base parser is local-first and has zero telemetry. Optional AI, watcher, and
@@ -241,6 +251,14 @@ from logseq_matryca_parser import StackMachineParser
 
 strict_page = StackMachineParser(strict_refs=True).parse_page_file("page.md")
 ```
+
+`uv sync --extra ai` installs LangChain. `[all]` also installs the visualization
+dependencies. Neither extra installs LlamaIndex or NLTK. LlamaIndex export
+remains available through the `SynapseAdapter` compatibility method when the
+separate `logseq-matryca-parser-llamaindex` companion is installed. That
+companion is planned but not yet published on PyPI; see the
+[support matrix](docs/reference/CONFORMANCE_SUPPORT_MATRIX.md) for the current
+boundary. The Parser itself does not install `llama-index-core` or NLTK.
 
 ### 🤖 Agentic Write Access (Append-Only)
 

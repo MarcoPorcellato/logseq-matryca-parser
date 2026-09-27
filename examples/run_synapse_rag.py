@@ -1,10 +1,14 @@
 """Run the three public SYNAPSE conversion paths against an offline fixture.
 
-Run from the repository root after installing the optional AI integrations::
+Run from the repository root after installing the optional integrations::
 
     uv sync --extra ai
+    # Run after the separate companion is published:
+    pip install logseq-matryca-parser-llamaindex
     uv run python examples/run_synapse_rag.py
 
+The separate LlamaIndex companion is planned but not yet published. The parser's
+``[ai]`` extra installs LangChain only; it does not install LlamaIndex or NLTK.
 The temporary Logseq graph includes a resolved page embed so the contextual
 export demonstrates transclusion without requiring a real vault or network.
 """
@@ -69,10 +73,17 @@ if __name__ == "__main__":
     try:
         run_demo()
     except ImportError as exc:
-        print(
-            "SYNAPSE AI dependencies are missing. "
-            "Install them with `uv sync --extra ai` and run this script again. "
-            f"Details: {exc}",
-            file=sys.stderr,
-        )
+        if isinstance(exc, ModuleNotFoundError):
+            raise
+        if "logseq-matryca-parser-llamaindex" in str(exc):
+            message = f"LlamaIndex companion unavailable. {exc}"
+        elif "Missing AI export dependencies" in str(exc):
+            message = (
+                "LangChain dependencies are missing. Install them with "
+                "`uv sync --extra ai` and run this script again. "
+                f"Details: {exc}"
+            )
+        else:
+            raise
+        print(message, file=sys.stderr)
         raise SystemExit(1) from exc

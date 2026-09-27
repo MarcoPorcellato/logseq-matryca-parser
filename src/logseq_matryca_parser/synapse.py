@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import importlib
 import logging
 import re
 import uuid
-from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NotRequired, TypedDict
 
@@ -45,26 +45,13 @@ class SynapseMetadata(TypedDict, total=False):
     line_start: NotRequired[int | None]
     effective_properties: NotRequired[dict[str, Any]]
 
+
 Document: type[Any] | None
-NodeRelationship: Any
-RelatedNodeInfo: type[Any] | None
-TextNode: type[Any] | None
 
 try:
     from langchain_core.documents import Document  # type: ignore
 except ImportError:
     Document = None
-
-try:
-    from llama_index.core.schema import (  # type: ignore
-        NodeRelationship,
-        RelatedNodeInfo,
-        TextNode,
-    )
-except ImportError:
-    NodeRelationship = None
-    RelatedNodeInfo = None
-    TextNode = None
 
 
 def _serialize_metadata_value(value: Any) -> Any:
@@ -214,75 +201,6 @@ class LangChainVisitor(ASTVisitor):
         return self._documents
 
 
-class LlamaIndexVisitor(ASTVisitor):
-    """Build LlamaIndex nodes and inject parent/child/sibling/page topology relationships."""
-
-    def __init__(
-        self,
-        text_node_cls: type[Any],
-        node_relationship: Any,
-        related_node_info_cls: type[Any],
-        *,
-        page_source_id: str | None = None,
-        source_id_for_node: Callable[[LogseqNode], str] | None = None,
-    ) -> None:
-        self._text_node_cls = text_node_cls
-        self._node_relationship = node_relationship
-        self._related_node_info_cls = related_node_info_cls
-        self._page_source_id = page_source_id
-        self._source_id_for_node = source_id_for_node
-        self._nodes_by_id: dict[str, Any] = {}
-        self._ordered_nodes: list[Any] = []
-
-    def visit_node(self, node: LogseqNode) -> None:
-        text_node = self._text_node_cls(
-            id_=node.uuid,
-            text=node.clean_text,
-            metadata=build_synapse_metadata(node, source=node.source_path or ""),
-        )
-        if not hasattr(text_node, "relationships") or text_node.relationships is None:
-            text_node.relationships = {}
-
-        source_id = self._page_source_id
-        if self._source_id_for_node is not None:
-            source_id = self._source_id_for_node(node)
-        if source_id is not None:
-            text_node.relationships[self._node_relationship.SOURCE] = self._related_node_info_cls(
-                node_id=source_id
-            )
-
-        if node.parent_id:
-            text_node.relationships[self._node_relationship.PARENT] = self._related_node_info_cls(
-                node_id=node.parent_id
-            )
-            parent_node = self._nodes_by_id.get(node.parent_id)
-            if parent_node is not None:
-                child_relationships = parent_node.relationships.get(
-                    self._node_relationship.CHILD, []
-                )
-                child_relationships.append(self._related_node_info_cls(node_id=node.uuid))
-                parent_node.relationships[self._node_relationship.CHILD] = child_relationships
-
-        if node.left_id:
-            text_node.relationships[self._node_relationship.PREVIOUS] = (
-                self._related_node_info_cls(node_id=node.left_id)
-            )
-            previous_node = self._nodes_by_id.get(node.left_id)
-            if previous_node is not None:
-                previous_node.relationships[self._node_relationship.NEXT] = (
-                    self._related_node_info_cls(node_id=node.uuid)
-                )
-
-        self._nodes_by_id[node.uuid] = text_node
-        self._ordered_nodes.append(text_node)
-
-    def depart_node(self, node: LogseqNode) -> None:
-        _ = node
-
-    def get_nodes(self) -> list[Any]:
-        return self._ordered_nodes
-
-
 class SynapseAdapter:
     """Transform Logseq hierarchy into framework-native AI objects."""
 
@@ -303,36 +221,22 @@ class SynapseAdapter:
         page_title: str | None = None,
         page_source_id: str | None = None,
     ) -> list[Any]:
-        """Convert AST nodes to LlamaIndex nodes preserving topology links."""
-        if TextNode is None or NodeRelationship is None or RelatedNodeInfo is None:
-            raise ImportError(_MISSING_AI_EXPORT_DEPS_MSG)
-        flat = _flatten_nodes_for_export(nodes)
-        unique_paths = {node.source_path for node in flat if node.source_path}
-        use_per_node_source = len(unique_paths) > 1
-        source_ids_by_path: dict[str, str] = {}
-
-        def _source_id_for_node(node: LogseqNode) -> str:
-            path_key = node.source_path or ""
-            if path_key not in source_ids_by_path:
-                title_seed = page_title or (Path(path_key).stem if path_key else "untitled")
-                source_ids_by_path[path_key] = page_source_node_id(title_seed, path_key or None)
-            return source_ids_by_path[path_key]
-
-        resolved_source_id = page_source_id
-        if resolved_source_id is None and not use_per_node_source:
-            first_path = next(iter(unique_paths), None)
-            title = page_title or "untitled"
-            resolved_source_id = page_source_node_id(title, first_path)
-        visitor = LlamaIndexVisitor(
-            text_node_cls=TextNode,
-            node_relationship=NodeRelationship,
-            related_node_info_cls=RelatedNodeInfo,
-            page_source_id=None if use_per_node_source else resolved_source_id,
-            source_id_for_node=_source_id_for_node if use_per_node_source else None,
+        """Convert AST nodes using the optional native LlamaIndex companion package."""
+        try:
+            companion = importlib.import_module("logseq_matryca_parser_llamaindex")
+        except ModuleNotFoundError as exc:
+            if exc.name != "logseq_matryca_parser_llamaindex":
+                raise
+            raise ImportError(
+                "LlamaIndex export requires the separate companion package, which is "
+                "not yet published. When available, install with: "
+                "pip install logseq-matryca-parser-llamaindex"
+            ) from exc
+        return companion.to_llamaindex_nodes(
+            nodes,
+            page_title=page_title,
+            page_source_id=page_source_id,
         )
-        for node in nodes:
-            node.accept(visitor)
-        return visitor.get_nodes()
 
     @staticmethod
     def to_context_enriched_chunks(
@@ -350,11 +254,11 @@ class SynapseAdapter:
                 logger.debug("context chunk skip orphan uuid=%s", node.uuid)
                 continue
             breadcrumbs, page = _build_breadcrumbs(graph, node)
-            source_name = Path(node.source_path).name if node.source_path else str(graph.graph_path.name)
-            host_page = graph.page_for_node(node)
-            embed_chain = (
-                frozenset({host_page.title}) if host_page is not None else frozenset()
+            source_name = (
+                Path(node.source_path).name if node.source_path else str(graph.graph_path.name)
             )
+            host_page = graph.page_for_node(node)
+            embed_chain = frozenset({host_page.title}) if host_page is not None else frozenset()
             expanded_content = _expand_macros_and_embeds(
                 node.content, graph, set(), embed_page_chain=embed_chain
             )

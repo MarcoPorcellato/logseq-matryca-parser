@@ -8,9 +8,9 @@ audience: integrators
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-19
-verified: 2026-08-19
-stale_after: 2027-02-19
+last_verified: 2026-09-27
+verified: 2026-09-27
+stale_after: 2027-03-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -62,7 +62,7 @@ release notes. Security support is limited to the latest release as defined in
 | Integration | Status | Dependency | Compatibility boundary |
 |---|---|---|---|
 | LangChain documents | Optional experimental adapter | `langchain-core` | Preserve lineage metadata and lazy import behavior |
-| LlamaIndex nodes | Optional experimental adapter | `llama-index-core` | Preserve relationships and lazy import behavior |
+| LlamaIndex nodes | Compatibility shim to a separate companion; companion not yet published on PyPI | `logseq-matryca-parser-llamaindex` owns `llama-index-core`; neither it nor NLTK is a Parser dependency | Keep native `TextNode` output, relationships, and call-time import; see the [migration recipe](../COOKBOOK.md) |
 | Visualization | Optional experimental adapter | `networkx`, `pyvis` | Do not make visualization a parser requirement |
 | File watching | Optional experimental adapter | `watchdog` | Event handling must preserve graph identity and deterministic reload rules |
 | MCP or A2A | No runtime implementation | None | See the protocol adapter decision before proposing one |

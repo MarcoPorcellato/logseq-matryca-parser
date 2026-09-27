@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-30
-verified: 2026-08-30
-stale_after: 2027-02-26
+last_verified: 2026-09-27
+verified: 2026-09-27
+stale_after: 2027-03-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -18,6 +18,20 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-09-27 — LlamaIndex companion boundary
+
+- Began the LlamaIndex companion separation: Parser `[ai]` and `[all]` now
+  exclude `llama-index-core` and NLTK; `SynapseAdapter.to_llamaindex_nodes()`
+  remains as a lazy bridge, with native node tests moving to the companion gate.
+- Removed the temporary NLTK advisory waiver from Parser CI and release audits.
+  A fresh no-waiver audit of the exact locked all-extras production export found
+  no known vulnerabilities; this resolves Parser exposure only, not the
+  upstream advisory or the companion's future dependency policy.
+- Updated the support matrix, API contract, cookbook, architecture guides, and
+  agent-facing indexes to mark the proposed companion as not yet published on
+  PyPI. Its repository, package ownership, real-node tests, and release remain
+  separate authorization and acceptance gates.
 
 ## 2026-08-30 — v1.8.2 publication
 

@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-09-05
-verified: 2026-09-05
-stale_after: 2027-02-03
+last_verified: 2026-09-27
+verified: 2026-09-27
+stale_after: 2027-03-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -90,6 +90,15 @@ The following integrations remain public but experimental:
 
 Everything not exported from `logseq_matryca_parser.__all__` is internal unless
 another maintained contract explicitly promotes it.
+
+`SynapseAdapter.to_llamaindex_nodes()` remains a compatibility entry point, but
+its native `TextNode` implementation is no longer in this distribution. It
+imports `logseq-matryca-parser-llamaindex` only when called and delegates to the
+separate companion. That package is planned but not yet published on PyPI. The
+`[ai]` extra provides LangChain; `[all]` also includes visualization
+dependencies. Neither extra installs LlamaIndex or NLTK. See the
+[support matrix](CONFORMANCE_SUPPORT_MATRIX.md) for the current migration
+boundary.
 
 `GraphVisualizer` remains experimental, compatible, transitional, and
 feature-frozen in this release line. Stage 0 changes no API and emits no
