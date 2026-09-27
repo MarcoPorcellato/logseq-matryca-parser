@@ -113,7 +113,7 @@ def test_shim_forwards_nodes_and_keyword_arguments(monkeypatch: pytest.MonkeyPat
     assert calls == [(nodes, {"page_title": "Daily", "page_source_id": "source-id"})]
 
 
-def test_missing_companion_names_install_command(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_missing_companion_has_evergreen_install_command(monkeypatch: pytest.MonkeyPatch) -> None:
     def missing_companion(module_name: str) -> None:
         raise ModuleNotFoundError(
             "No module named 'logseq_matryca_parser_llamaindex'", name=module_name
@@ -121,8 +121,11 @@ def test_missing_companion_names_install_command(monkeypatch: pytest.MonkeyPatch
 
     monkeypatch.setattr("logseq_matryca_parser.synapse.importlib.import_module", missing_companion)
 
-    with pytest.raises(ImportError, match="pip install logseq-matryca-parser-llamaindex"):
+    with pytest.raises(ImportError) as exc_info:
         SynapseAdapter.to_llamaindex_nodes(build_ast())
+    message = str(exc_info.value)
+    assert "pip install logseq-matryca-parser-llamaindex" in message
+    assert "not yet published" not in message
 
 
 def test_shim_does_not_mask_companion_internal_import_error(

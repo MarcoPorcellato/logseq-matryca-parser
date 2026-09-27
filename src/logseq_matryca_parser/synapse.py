@@ -228,9 +228,8 @@ class SynapseAdapter:
             if exc.name != "logseq_matryca_parser_llamaindex":
                 raise
             raise ImportError(
-                "LlamaIndex export requires the separate companion package, which is "
-                "not yet published. When available, install with: "
-                "pip install logseq-matryca-parser-llamaindex"
+                "LlamaIndex export requires the optional companion package. "
+                "Install with: pip install logseq-matryca-parser-llamaindex"
             ) from exc
         return companion.to_llamaindex_nodes(
             nodes,
