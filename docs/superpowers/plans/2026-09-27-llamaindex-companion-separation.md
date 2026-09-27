@@ -20,8 +20,9 @@
   source state.
 - Tasks 5–6 have a **local-only companion implementation checkpoint** in
   `/Users/marco1/Documents/CODICE con VS CODE/logseq-matryca-parser-llamaindex`,
-  branch `feat/native-llamaindex-adapter`, exact HEAD
-  `bcf7576caa99cf884280cffdb05238358b6be2f3`. It is a clean local clone; a
+  branch `feat/native-llamaindex-adapter`, implementation evidence at
+  `bcf7576caa99cf884280cffdb05238358b6be2f3` and draft-PR head
+  `14fd8de399d5abd38c70e52125e81da8dda5c5b2`. It is a clean local clone; a
   separate staging clone remains under `/private/tmp`. The companion has real
   LlamaIndex `TextNode` construction, package metadata, tests, README, and an
   exact Apache-2.0 license copy. Its initial Parser range is provisionally
@@ -37,8 +38,9 @@
   production export audit, installed-release acceptance, and an advisory
   disposition remain unqualified. Security review marks release `BLOCKED`.
 - The exact public GitHub companion repository was created after explicit
-  authorization and verified `PUBLIC` and empty. No push, PR, or package
-  publication occurred. See
+  authorization. Its bootstrap and feature branches were pushed; companion
+  PR #1 and Parser PR #225 are both drafts. No merge or package publication
+  occurred. See
   [`docs/internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md`](../../internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md)
   for restart facts and stop boundaries.
 
@@ -53,8 +55,8 @@
 - `PYSEC-2026-3740` remains a companion concern until an upstream fixed NLTK release is available and qualified. Remove Parser's waiver and exception test only after Parser dependency evidence is clean; never dismiss the Parser alert manually.
 - Companion's local manifest currently declares `logseq-matryca-parser>=1.10.0,<1.11.0` and `llama-index-core>=0.14.22,<0.15`. The former avoids the invalid 1.9.0 lower bound because released Parser 1.9.0 still includes the old adapter; it is a provisional compatibility window, not yet release-qualified. Do not widen the upper bound without testing each newly supported Parser minor. Recheck the advisory before any exception or release decision.
 - Parser user-facing docs and messages remain English. Existing Parser `requires-python = ">=3.12"`; CI supports Python 3.12 and 3.13. Preserve existing wheel, typing, docs, license, and release contracts.
-- No work in the dirty primary checkout. The public companion repository was created after explicit authorization. Branch push, PR, and either publication remain separate authorization gates. Parser-only or local-companion green checks do not complete acceptance or authorize release.
-- Parser implementation and checkpoint commits are complete locally on the isolated branch. Reverify exact branch, HEAD, and diff before continuing. The companion repository has been created; push, PR, and either package publication remain separate external authorization gates.
+- No work in the dirty primary checkout. Public repository creation, branch pushes, and draft PRs are complete. Merge and either publication remain separate authorization gates. Parser-only or local-companion green checks do not complete acceptance or authorize release.
+- Parser implementation and checkpoint commits are on the isolated branch. Reverify exact branch, HEAD, and diff before continuing. [Parser PR #225](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/225) and [companion PR #1](https://github.com/MarcoPorcellato/logseq-matryca-parser-llamaindex/pull/1) remain drafts pending cross-repository qualification.
 - Every shell command starts with `rtk`. Do not run CCP heavy work without its separate exact-bound authorization; use standard public GitHub-hosted CI for the eventual public-repository gate.
 
 ## Review Focus
@@ -161,4 +163,4 @@ Parser `synapse.py` keeps `build_synapse_metadata(node: LogseqNode, *, source: s
 - [ ] **Step 2: Run Parser gate** on clean exact candidate: `rtk uv sync --locked --all-extras`, `rtk make all`, `rtk make vendor-name-check`, locked base/`ai`/`all` exports, unwaived CI-equivalent audit, wheel/sdist contract, and clean-environment import/CLI checks. Collect hosted Python 3.12/3.13 and platform CI receipts before claiming full release qualification.
 - [ ] **Step 3: Run companion gate** against built Parser wheel within approved version range: real-node tests, exact package-contract and dependency audit, and current NLTK-advisory decision. Verify Parser wheel metadata has no companion/LlamaIndex/NLTK requirement; companion metadata has the bounded Parser requirement.
 - [ ] **Step 4: Review migration and security claims.** Show clean Parser graph separately from companion's advisory; verify no manual alert dismissal and no silent patch release. Any failed or unavailable gate remains failed/unknown, never inferred from local PASS.
-- [ ] **Step 5: Stop for external actions.** Maintainer reviews exact evidence and migration notes. Public companion repository creation (if still pending), branch push, PR, Parser release, companion release, and publication each require separate explicit authorization; follow existing release process only after those gates.
+- [ ] **Step 5: Stop before merge and release.** The public companion repository, branch pushes, and both draft PRs now exist. Maintainer reviews exact hosted checks, cross-repository evidence, and migration notes. PR merge, Parser release, companion release, and package publication each require a separate decision and the existing release process.
