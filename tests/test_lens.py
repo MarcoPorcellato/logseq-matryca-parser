@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import networkx as nx  # type: ignore[import-untyped]
+import pytest
 
 from logseq_matryca_parser.graph import LogseqGraph
 from logseq_matryca_parser.lens import GraphVisualizer, NetworkXVisitor
@@ -100,6 +101,34 @@ def test_graph_visualizer_resolves_alias_wikilink_to_canonical_page(
 
     assert set(visualizer.graph.nodes) == {"P"}
     assert "Alt" not in visualizer.graph
+
+
+@pytest.mark.parametrize("page_source", ["canonical", "raw_alias_values"])
+def test_graph_visualizer_counts_alias_page_once(
+    tmp_path: Path,
+    page_source: str,
+) -> None:
+    pages_dir = tmp_path / "pages"
+    pages_dir.mkdir()
+    (pages_dir / "P.md").write_text(
+        "alias:: Alt\n\n- Parent block\n  - Child block\n",
+        encoding="utf-8",
+    )
+
+    graph = LogseqGraph.load_directory(tmp_path)
+
+    assert graph.pages["P"] is graph.pages["Alt"]
+    if page_source == "canonical":
+        pages = list(graph.iter_canonical_pages())
+    else:
+        pages = list(graph.pages.values())
+
+    visualizer = GraphVisualizer(pages, graph=graph)
+    visualizer.build_network()
+
+    assert visualizer.get_deep_statistics()["largest_pages"] == [
+        {"page": "P", "block_count": 2}
+    ]
 
 
 def test_lens_module_imports_without_viz_dependencies() -> None:
