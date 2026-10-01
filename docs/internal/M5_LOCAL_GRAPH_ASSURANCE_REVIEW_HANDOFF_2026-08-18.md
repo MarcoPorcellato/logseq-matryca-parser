@@ -7,7 +7,7 @@ type: Document
 ## Safe resume point
 
 - Repository: `MarcoPorcellato/logseq-matryca-parser`
-- Isolated worktree: `/private/tmp/logseq-parser-assurance-m5-20260818`
+- Isolated worktree: temporary isolated checkout (ephemeral path omitted)
 - Branch: `agent/parser-privacy-assurance-m5`
 - Base: `origin/main` at `27d006153e45f2c4ae37ca03136114fb8246ac88`
 - Local implementation/evidence commits, oldest first:

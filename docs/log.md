@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-09-27
-verified: 2026-09-27
-stale_after: 2027-03-26
+last_verified: 2026-10-01
+verified: 2026-10-01
+stale_after: 2027-03-30
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -18,6 +18,29 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-09-30 — Org reader design gate closed
+
+- The maintainer selected one absolute caller-supplied `.org` path, without a
+  vault-root containment promise, and accepted the bounded platform policy and
+  stated residuals: OS/provider effects may precede rejection; remote-backed
+  I/O may occur; physical locality, immutable snapshots under concurrent
+  writes, and a hard wall-clock I/O deadline are not promised.
+- The experimental D1 contract records Linux ext-family, macOS APFS, and
+  Windows NTFS runner profiles, component-at-a-time no-follow handling,
+  same-handle checks, fixed path-free diagnostics, and fail-closed behavior
+  outside the selected matrix. These mechanisms are not yet runtime-qualified;
+  Windows ABI/adversarial tests and the parser security review remain later
+  D2 gates.
+- The project-authored corpus and design gates passed before implementation.
+  Those results describe the design phase only; they do not qualify the parser
+  implementation or any native runtime.
+- Sol XHigh approved the final design and D1 contract. This approval covers
+  the specification only; it does not qualify the implementation or native
+  Windows behavior.
+- The design and plan preserve a finite, source-only Org subset; they do not
+  claim complete GNU Org or Logseq OG parity. No production parser/API,
+  Beads/GitHub mutation, commit, push, PR, merge, or release was made.
 
 ## 2026-09-27 — LlamaIndex companion boundary
 
@@ -530,3 +553,26 @@ not current quality claims.
   authoritative. This work does not close issue #104; malformed-input strategies,
   graph/filesystem behavior, and concurrency remain deferred Hypothesis-specific
   expansions.
+
+## 2026-10-01 — Org parser enters native CI qualification
+
+- Added a private, read-only Org parser and synthetic adversarial coverage
+  without changing Markdown parsing, graph loading, package-root exports, or
+  runtime dependencies.
+- The documented scope remains experimental and limited to a finite Logseq OG
+  subset. Graph loading, writing, watcher integration, Logseq DB support, and
+  full Org-mode conformance remain out of scope.
+- The earlier local checkpoint passed 1,027 tests with five platform-specific
+  skips at 89.78% coverage; its whole-branch review was **BLOCKED** pending
+  filesystem-transition coverage and clean-source package evidence. Those
+  repairs were completed and reviewed in the subsequent checkpoint.
+- The final local macOS arm64 gate passed 1,032 tests with five platform-specific
+  skips at 89.79% coverage. The skips include native Linux and Windows reader
+  checks; local results do not qualify either platform.
+- The final clean-source package gate passed wheel contract, Twine 6.2.0,
+  downstream strict typing, and scoped artifact privacy checks. Its sdist had
+  303 entries, included each of the 16 changed Markdown documents exactly once,
+  and excluded the local restart handoff and cache/build artifacts.
+- Native Linux x86-64 and Windows x64 qualification remains open for the draft
+  GitHub Actions matrix. This CI-qualification draft is not merge-ready.
+- No release, package publication, public API promotion, or merge is implied.

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "source_text": "* Boundary Notes\n\nFinal content line.\n",
+  "elements": [
+    {"kind": "heading", "line_start": 1, "line_end": 1, "level": 1, "title": "Boundary Notes", "marker": null, "priority": null, "tags": []},
+    {"kind": "paragraph", "line_start": 3, "line_end": 3, "text": "Final content line."}
+  ]
+}

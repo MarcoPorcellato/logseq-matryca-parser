@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "page_title": "synthetic-properties-references",
+  "blocks": [
+    {"ordinal": 0, "title": "Inspect the page contract", "marker": null, "priority": null, "tags": [], "parent_ordinal": null, "line_start": 4}
+  ],
+  "page_properties": [
+    {"scope": "document", "name": "TITLE", "value": "Synthetic File Title"},
+    {"scope": "document", "name": "FILETAGS", "value": ":parser:org:"},
+    {"scope": "heading:0", "name": "ALIAS", "value": "Alternate Study Name"},
+    {"scope": "heading:0", "name": "CUSTOM_ID", "value": "contract-9"}
+  ],
+  "references": [{"kind": "page", "target": "Reference Page", "resolution": "unresolved"}],
+  "timestamps": [],
+  "opaque": [{"kind": "external_link", "line_start": 10}],
+  "diagnostics": []
+}

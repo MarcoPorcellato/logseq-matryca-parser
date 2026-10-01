@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "page_title": "synthetic-outline",
+  "blocks": [
+    {"ordinal": 0, "title": "Review the parser boundary", "marker": "TODO", "priority": "A", "tags": ["engineering", "org"], "parent_ordinal": null, "line_start": 1},
+    {"ordinal": 1, "title": "Keep the child section", "marker": "DONE", "priority": "B", "tags": ["review"], "parent_ordinal": 0, "line_start": 6},
+    {"ordinal": 2, "title": "Retain an unfamiliar workflow marker", "marker": "WAITING", "priority": "C", "tags": [], "parent_ordinal": null, "line_start": 8}
+  ],
+  "page_properties": [],
+  "references": [],
+  "timestamps": [],
+  "opaque": [{"kind": "list", "line_start": 3, "line_end": 4}],
+  "diagnostics": []
+}
