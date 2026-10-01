@@ -103,6 +103,7 @@ def test_rejects_path_over_unicode_codepoint_cap_before_open(monkeypatch: pytest
     assert result.code is OrgSourceCode.PATH_INVALID
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX source backend behavior is not active on Windows")
 def test_short_reads_are_accumulated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from logseq_matryca_parser import _org_source_posix as posix
 
@@ -113,6 +114,7 @@ def test_short_reads_are_accumulated(tmp_path: Path, monkeypatch: pytest.MonkeyP
     assert read_org_source(path) == expected
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX source backend behavior is not active on Windows")
 def test_growing_source_over_cap_is_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from logseq_matryca_parser import _org_source_posix as posix
 
@@ -123,6 +125,7 @@ def test_growing_source_over_cap_is_rejected(tmp_path: Path, monkeypatch: pytest
     assert result.code is OrgSourceCode.SOURCE_TOO_LARGE
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX source backend behavior is not active on Windows")
 def test_filesystem_rejection_closes_every_acquired_descriptor(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -229,6 +232,7 @@ def test_missing_file_maps_to_fixed_read_failure(tmp_path: Path) -> None:
     assert str(tmp_path) not in repr(result)
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX native path encoding is not active on Windows")
 def test_unrepresentable_native_path_is_fixed_read_failure(tmp_path: Path) -> None:
     result = read_org_source(f"{tmp_path}/\ud800.org")
     assert isinstance(result, OrgSourceFailure)
