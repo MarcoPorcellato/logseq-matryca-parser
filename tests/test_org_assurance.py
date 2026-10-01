@@ -592,8 +592,9 @@ def test_rejects_duplicate_fixture_ids_and_source_paths(tmp_path: Path) -> None:
     manifest = _manifest(tmp_path)
     duplicate_id = dict(manifest["fixtures"][0])
     duplicate_id["source_path"] = "tests/fixtures/org/second.org"
-    (tmp_path / duplicate_id["source_path"]).write_text("second\n", encoding="utf-8")
-    duplicate_id["source_sha256"] = hashlib.sha256(b"second\n").hexdigest()
+    second_source = b"second\n"
+    (tmp_path / duplicate_id["source_path"]).write_bytes(second_source)
+    duplicate_id["source_sha256"] = hashlib.sha256(second_source).hexdigest()
     manifest["fixtures"].append(duplicate_id)
     _save_manifest(tmp_path, manifest)
     _assert_code(tmp_path, "duplicate_fixture_id")
@@ -617,8 +618,9 @@ def test_rejects_duplicate_projection_paths(tmp_path: Path) -> None:
         exact_expectation="tests/org_assurance/exact_v1/second.json",
         semantic_expectation=("tests/org_assurance/logseq_org_semantic_v1/second.json"),
     )
-    (tmp_path / duplicate["source_path"]).write_text("second\n", encoding="utf-8")
-    duplicate["source_sha256"] = hashlib.sha256(b"second\n").hexdigest()
+    second_source = b"second\n"
+    (tmp_path / duplicate["source_path"]).write_bytes(second_source)
+    duplicate["source_sha256"] = hashlib.sha256(second_source).hexdigest()
     (tmp_path / duplicate["exact_expectation"]).write_text("{}\n", encoding="utf-8")
     (tmp_path / duplicate["semantic_expectation"]).write_text("{}\n", encoding="utf-8")
     manifest["fixtures"].append(duplicate)
