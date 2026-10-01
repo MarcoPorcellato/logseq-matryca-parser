@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-30
-verified: 2026-08-30
-stale_after: 2027-02-26
+last_verified: 2026-10-01
+verified: 2026-10-01
+stale_after: 2027-03-30
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -55,6 +55,7 @@ entry points.
 | [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Maintainers, contributors | Dated evidence-backed audit baseline, confirmed defects, and original issue map; the public roadmap is the current execution view |
 | [`REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md`](REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md) | Maintainers | GitHub governance, supply-chain, agent interoperability, and AAIF-readiness study |
 | [`LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md`](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | Maintainers, parser contributors | License-safe comparative study and execution plan for semantic, complexity, and source-location assurance |
+| [`superpowers/specs/2026-09-29-logseq-org-parser-design.md`](superpowers/specs/2026-09-29-logseq-org-parser-design.md) | Maintainers | Approved, review-gated design for a read-only Org parser scoped to Logseq OG file graphs |
 | [`README_READABILITY_REPORT_2026-08-08.md`](README_READABILITY_REPORT_2026-08-08.md) | Maintainers | Measured human and AI README assessment with a phased simplification proposal |
 | [`quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md`](quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md) | Maintainers | Current disposition of all 33 live open issues and four open PRs |
 | [`decisions/index.md`](decisions/index.md) | Maintainers | Canonical decision registry, including the external-oracle boundary |

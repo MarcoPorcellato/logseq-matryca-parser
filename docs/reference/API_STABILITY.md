@@ -91,6 +91,13 @@ The following integrations remain public but experimental:
 Everything not exported from `logseq_matryca_parser.__all__` is internal unless
 another maintained contract explicitly promotes it.
 
+The current read-only Org parser implementation is internal and unreleased.
+Its private `logseq_matryca_parser._org_parser` entrypoints are not package-root
+exports and carry no stable or public experimental compatibility guarantee.
+They are not a public Org-support claim. See the
+[maintainer-only implementation status](../internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md)
+for the bounded subset, verification evidence, and open qualification gates.
+
 `SynapseAdapter.to_llamaindex_nodes()` remains a compatibility entry point, but
 its native `TextNode` implementation is no longer in this distribution. It
 imports `logseq-matryca-parser-llamaindex` only when called and delegates to the

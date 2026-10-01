@@ -71,7 +71,7 @@ fetch it, inspect the intervening commits, and reconcile before changing source.
 Run:
 
 ```bash
-rtk env UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache uv run pytest -q tests/test_graph.py tests/test_agent_writer.py tests/test_writer_security.py tests/test_runtime_evidence.py
+rtk env UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" uv run pytest -q tests/test_graph.py tests/test_agent_writer.py tests/test_writer_security.py tests/test_runtime_evidence.py
 ```
 
 Expected: the existing focused suite passes. A failure is a baseline defect and
@@ -160,7 +160,7 @@ before all candidate indexes are ready.
 Run:
 
 ```bash
-rtk env UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache uv run pytest -q \
+rtk env UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" uv run pytest -q \
   tests/test_graph_concurrency.py::test_failed_refresh_preserves_complete_prior_version \
   tests/test_graph_concurrency.py::test_reader_never_observes_mixed_indexes_during_reload
 ```
@@ -279,7 +279,7 @@ rtk rg -n "self\.(pages|_node_registry|_backlink_registry|_lower_title_map|_inde
 Run:
 
 ```bash
-rtk env UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache uv run pytest -q \
+rtk env UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" uv run pytest -q \
   tests/test_graph_concurrency.py \
   tests/test_graph.py::test_graph_incremental_page_invalidation \
   tests/test_graph.py::test_invalidate_and_reload_purges_deleted_page \
@@ -331,7 +331,7 @@ transaction.
 Run:
 
 ```bash
-rtk env UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache uv run pytest -q tests/test_agent_writer.py::test_simultaneous_appends_preserve_both_children
+rtk env UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" uv run pytest -q tests/test_agent_writer.py::test_simultaneous_appends_preserve_both_children
 ```
 
 Expected: FAIL because one requested child is absent.
@@ -354,7 +354,7 @@ readable. Preserve every validation and exception path. The scope begins before
 Run:
 
 ```bash
-rtk env UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache uv run pytest -q tests/test_agent_writer.py tests/test_writer_security.py tests/test_graph_concurrency.py
+rtk env UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" uv run pytest -q tests/test_agent_writer.py tests/test_writer_security.py tests/test_graph_concurrency.py
 rtk uv run ruff check src/logseq_matryca_parser/agent_writer.py tests/test_agent_writer.py
 rtk uv run mypy src/logseq_matryca_parser/agent_writer.py tests/test_agent_writer.py
 ```
@@ -438,7 +438,7 @@ dispatcher without holding the graph lock.
 Run:
 
 ```bash
-rtk env UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache uv run pytest -q tests/test_graph_concurrency.py tests/test_graph.py
+rtk env UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" uv run pytest -q tests/test_graph_concurrency.py tests/test_graph.py
 rtk uv run ruff check src/logseq_matryca_parser/graph.py tests/test_graph_concurrency.py tests/test_graph.py
 rtk uv run mypy src/logseq_matryca_parser/graph.py tests/test_graph_concurrency.py tests/test_graph.py
 ```
@@ -496,7 +496,7 @@ authority text would otherwise become false.
 Run:
 
 ```bash
-rtk env UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache uv run pytest -q \
+rtk env UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" uv run pytest -q \
   tests/test_graph_concurrency.py tests/test_graph.py tests/test_agent_writer.py \
   tests/test_writer_security.py tests/test_runtime_evidence.py tests/test_compat_corpus.py
 rtk make docs-check
@@ -532,7 +532,7 @@ If `AGENT_ACTION_CONTRACT.md` is unchanged, omit it from `git add`.
 Run:
 
 ```bash
-rtk env UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache make all
+rtk env UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" make all
 rtk make vendor-name-check
 rtk git diff --check origin/main...HEAD
 rtk git status --short --branch
@@ -619,7 +619,7 @@ include exact `index_diagnostics` equality with the cold graph.
 Run:
 
 ```bash
-rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" \
   uv run pytest -q tests/test_graph_concurrency.py -k collision_transition
 ```
 
@@ -697,14 +697,14 @@ delete empty keys. Do not call `_build_backlink_registry()`.
 Run:
 
 ```bash
-rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" \
   uv run pytest -q \
   tests/test_graph_concurrency.py -k 'collision_transition or incremental_lifecycle' \
   tests/test_graph.py::test_incremental_rename_reindexes_backlinks_without_a_global_rebuild \
   tests/test_graph.py::test_incremental_deletion_rebuilds_backlinks_like_cold_load
-rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" \
   uv run ruff check src/logseq_matryca_parser/graph.py tests/test_graph_concurrency.py
-rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" \
   uv run mypy src/logseq_matryca_parser/graph.py tests/test_graph_concurrency.py
 ```
 
@@ -748,7 +748,7 @@ not change after `stop()` returns.
 Run:
 
 ```bash
-rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" \
   uv run pytest -q \
   tests/test_graph_concurrency.py::test_watcher_stop_quiesces_an_inflight_route
 ```
@@ -783,9 +783,9 @@ dispatcher close and retained-ownership behavior.
 Run:
 
 ```bash
-rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" \
   uv run pytest -q tests/test_graph_concurrency.py -k 'watcher or callback or dispatcher'
-rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" \
   uv run pytest -q tests/test_graph.py -k watcher
 ```
 
@@ -832,7 +832,7 @@ Run:
 
 ```bash
 rtk zsh -c 'for run in {1..20}; do
-  rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+  rtk env UV_NO_SYNC=1 UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" \
     uv run pytest -q \
     tests/test_agent_writer.py::test_simultaneous_appends_preserve_both_children || exit 1
 done'
@@ -873,11 +873,11 @@ private types as stable API and do not add product-specific audit-tool names.
 Run:
 
 ```bash
-rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache \
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" \
   uv run pytest -q tests/test_graph_concurrency.py tests/test_graph.py \
   tests/test_agent_writer.py tests/test_writer_security.py \
   tests/test_runtime_evidence.py tests/test_compat_corpus.py
-rtk env UV_NO_SYNC=1 UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache make all
+rtk env UV_NO_SYNC=1 UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" make all
 rtk make vendor-name-check
 rtk git diff --check origin/main...HEAD
 rtk git status --short --branch

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "page_title": "synthetic-schedule",
+  "blocks": [
+    {"ordinal": 0, "title": "Schedule the review", "marker": "TODO", "priority": "B", "tags": ["calendar"], "parent_ordinal": null, "line_start": 1}
+  ],
+  "page_properties": [],
+  "references": [],
+  "timestamps": [
+    {"kind": "scheduled", "date": "2026-10-04", "raw": "SCHEDULED: <2026-10-04 Sun>"},
+    {"kind": "deadline", "date": "2026-10-08", "raw": "DEADLINE: <2026-10-08 Thu>"}
+  ],
+  "opaque": [
+    {"kind": "closed_timestamp", "line_start": 4},
+    {"kind": "clock_timestamp", "line_start": 5}
+  ],
+  "diagnostics": []
+}

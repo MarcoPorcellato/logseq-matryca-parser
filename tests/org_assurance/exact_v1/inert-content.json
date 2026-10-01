@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "source_text": "* Inert examples\n#+BEGIN_SRC sh\nprintf '%s\\n' 'must never run'\n#+END_SRC\n\n#+BEGIN_QUERY\n{:query [:find ?block :where [?block :block/name _]]}\n#+END_QUERY\n\n#+BEGIN: custom-report\narbitrary generator body\n#+END:\n\n#+MACRO: external-task echo-danger\nLiteral expansion: {{{external-task}}}.\n[[file:../../private/marker.txt]]\n",
+  "elements": [
+    {"kind": "heading", "line_start": 1, "line_end": 1, "level": 1, "title": "Inert examples", "marker": null, "priority": null, "tags": []},
+    {"kind": "source_block", "line_start": 2, "line_end": 4, "language": "sh"},
+    {"kind": "query_block", "line_start": 6, "line_end": 8},
+    {"kind": "dynamic_block", "line_start": 10, "line_end": 12, "name": "custom-report"},
+    {"kind": "macro_directive", "line_start": 14, "line_end": 14, "name": "external-task"},
+    {"kind": "paragraph", "line_start": 15, "line_end": 15, "text": "Literal expansion: {{{external-task}}}."},
+    {"kind": "paragraph", "line_start": 16, "line_end": 16, "text": "[[file:../../private/marker.txt]]"}
+  ]
+}

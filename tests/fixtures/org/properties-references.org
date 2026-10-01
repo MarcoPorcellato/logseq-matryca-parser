@@ -1,0 +1,10 @@
+#+TITLE: Synthetic File Title
+#+FILETAGS: :parser:org:
+
+* Inspect the page contract
+:PROPERTIES:
+:ALIAS: Alternate Study Name
+:CUSTOM_ID: contract-9
+:END:
+Open [[Reference Page]] without resolving its target.
+See [[https://example.invalid/guide][external guide]].

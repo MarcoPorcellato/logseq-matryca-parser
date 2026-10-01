@@ -20,6 +20,7 @@ required_frontmatter_fields = [
 maintained_documents = [
   "docs/index.md",
   "docs/README.md",
+  "docs/internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md",
   "docs/DOCUMENTATION_SYSTEM.md",
   "docs/CI_ASSURANCE.md",
   "docs/AI_CONTRIBUTION_POLICY.md",

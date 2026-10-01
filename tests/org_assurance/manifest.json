@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "exact_profile": "org_exact_v1",
+  "semantic_profile": "logseq_org_semantic_v1",
+  "fixtures": [
+    {
+      "id": "boundary_lines",
+      "source_path": "tests/fixtures/org/boundary-lines.org",
+      "source_sha256": "3939b33dbec5281b910f699c6f705fc4e9b625b29ee3e99f7f2c9a934c8c1a73",
+      "provenance": "project-authored",
+      "license": "Apache-2.0",
+      "parse": {"entrypoint": "text", "page_title": "synthetic-boundary-lines"},
+      "exact_expectation": "tests/org_assurance/exact_v1/boundary-lines.json",
+      "semantic_expectation": "tests/org_assurance/logseq_org_semantic_v1/boundary-lines.json",
+      "protected_invariant": "Source order and one-based logical lines remain stable across blank lines."
+    },
+    {
+      "id": "inert_content",
+      "source_path": "tests/fixtures/org/inert-content.org",
+      "source_sha256": "7208dace80550adc95cb87cbb3b8c207f09f1634b4db71a39a6a53d3d976c153",
+      "provenance": "project-authored",
+      "license": "Apache-2.0",
+      "parse": {"entrypoint": "text", "page_title": "synthetic-inert-content"},
+      "exact_expectation": "tests/org_assurance/exact_v1/inert-content.json",
+      "semantic_expectation": "tests/org_assurance/logseq_org_semantic_v1/inert-content.json",
+      "protected_invariant": "Executable-looking blocks, macros, queries, and file links remain inert and are never resolved."
+    },
+    {
+      "id": "malformed_drawer",
+      "source_path": "tests/fixtures/org/malformed-drawer.org",
+      "source_sha256": "9d994143715891102f0411f6520fc4dd4dbc4e7145a5f5db9d05cb00e221eee5",
+      "provenance": "project-authored",
+      "license": "Apache-2.0",
+      "parse": {"entrypoint": "text", "page_title": "synthetic-malformed-drawer"},
+      "exact_expectation": "tests/org_assurance/exact_v1/malformed-drawer.json",
+      "semantic_expectation": "tests/org_assurance/logseq_org_semantic_v1/malformed-drawer.json",
+      "protected_invariant": "An unterminated property drawer is retained as opaque input and diagnosed at its opener."
+    },
+    {
+      "id": "outline_workflow",
+      "source_path": "tests/fixtures/org/outline-workflow.org",
+      "source_sha256": "8d97baf11104b567c9208e3731fbdb623e5bddc93abcced0b2c4a9dac7490d28",
+      "provenance": "project-authored",
+      "license": "Apache-2.0",
+      "parse": {"entrypoint": "text", "page_title": "synthetic-outline"},
+      "exact_expectation": "tests/org_assurance/exact_v1/outline-workflow.json",
+      "semantic_expectation": "tests/org_assurance/logseq_org_semantic_v1/outline-workflow.json",
+      "protected_invariant": "Heading order, nesting, raw workflow markers, priorities, tags, and nested list structure are preserved."
+    },
+    {
+      "id": "properties_references",
+      "source_path": "tests/fixtures/org/properties-references.org",
+      "source_sha256": "38904332becbe4e6d8bc4eb2added360425aab0000733893a9321c1d89f50445",
+      "provenance": "project-authored",
+      "license": "Apache-2.0",
+      "parse": {"entrypoint": "text", "page_title": "synthetic-properties-references"},
+      "exact_expectation": "tests/org_assurance/exact_v1/properties-references.json",
+      "semantic_expectation": "tests/org_assurance/logseq_org_semantic_v1/properties-references.json",
+      "protected_invariant": "Document directives and heading drawers remain distinct; a parsed page reference is never resolved without graph context."
+    },
+    {
+      "id": "schedule_and_clock",
+      "source_path": "tests/fixtures/org/schedule-and-clock.org",
+      "source_sha256": "a93cb54f768a7a5c6c78b79dca127594014d2eaedabf00d61719552f1d3bda0b",
+      "provenance": "project-authored",
+      "license": "Apache-2.0",
+      "parse": {"entrypoint": "text", "page_title": "synthetic-schedule"},
+      "exact_expectation": "tests/org_assurance/exact_v1/schedule-and-clock.json",
+      "semantic_expectation": "tests/org_assurance/logseq_org_semantic_v1/schedule-and-clock.json",
+      "protected_invariant": "Only verified SCHEDULED and DEADLINE values are normalized; CLOSED and CLOCK remain source-backed opaque values."
+    }
+  ]
+}

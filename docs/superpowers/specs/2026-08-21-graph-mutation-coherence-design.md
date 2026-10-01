@@ -272,7 +272,7 @@ used as timing-based success criteria.
 The exact implementation head requires:
 
 ```bash
-rtk env UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-103-uv-cache make all
+rtk env UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-103-uv-cache" make all
 rtk make vendor-name-check
 rtk git diff --check origin/main...HEAD
 ```

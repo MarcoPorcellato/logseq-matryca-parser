@@ -61,7 +61,7 @@ Expected: the working tree is clean and the branch is based on the recorded `ori
 Run:
 
 ```bash
-UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-m9-uv-cache rtk uv sync --all-extras
+UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-m9-uv-cache" rtk uv sync --all-extras
 rtk make all
 rtk make vendor-name-check
 ```
