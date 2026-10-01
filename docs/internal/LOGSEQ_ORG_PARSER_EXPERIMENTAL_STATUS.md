@@ -186,9 +186,10 @@ A later review found that the nine-document privacy sanitizer had also changed
 historical command wrappers and environment semantics. That documentation
 regression is corrected: `rtk`, `UV_NO_SYNC=1`, and command structure are
 preserved; only machine-specific path values are replaced with portable
-temporary paths. Fresh whole-branch Sol review returned `PASS_WITH_NOTES`; its
-remaining note is that native Linux x86-64 and Windows x64 qualification must
-still come from CI. Fresh local diff inventory and a bounded privacy scan found
+temporary paths. Fresh whole-branch Sol review returned `PASS_WITH_NOTES`; at
+that pre-merge point, its remaining note was that native Linux x86-64 and
+Windows x64 qualification still needed CI evidence. That evidence is recorded
+below. Fresh local diff inventory and a bounded privacy scan found
 only intended Org changes and the nine authorized document sanitizations, with
 no machine-local path or identifier matches in those nine documents. Minor
 inertness-test suggestions remain deferred; source review found no executable
@@ -212,12 +213,8 @@ worktree, or cache values; portable `${TMPDIR}` examples in historical plans
 remain intentional. These local gates do not qualify native Linux or Windows
 execution.
 
-Open: obtain native Linux x86-64 and Windows x64 qualification. The Linux-native `fstatfs`
-test and native Windows checks are skipped on this macOS arm64 host; neither
-Linux nor Windows is claimed as passed. The refreshed local source audit and
-`tests/test_org_source_imports.py` both report zero Org source-reader import
-cycles. The D1 full-suite receipt predates this parser and is not current
-evidence. A default-cache limitation in an earlier documentation check was
-handled with the isolated environment/cache; maintained docs, vendor-name,
-and diff checks passed. No commit, push, PR, merge, release, Beads/GitHub sync,
-or GitHub issue mutation occurred.
+**Native qualification completed (2026-10-01):** PR [#229](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/229) was squash-merged at `09df7069dca553005123162fd24cd847d1b3456c`; its tested head was `2d5ef3b30e3d515841539be58a8dce0a34d5b1aa`. All 14 GitHub check runs completed successfully. The native test matrix passed on `ubuntu-24.04`, `macos-15`, and `windows-2025`, each with Python 3.12 and 3.13; Quality, CodeQL, production dependency audit, wheel/source-distribution contract, dependency review, and static analyses also passed. These results qualify only that exact PR head and matrix, not every OS version, filesystem/provider, or full GNU Org/Logseq conformance. The Linux-native `fstatfs` and Windows checks skipped by the local macOS arm64 run remain skipped in that local run; the hosted native results are separate evidence.
+
+The refreshed local source audit and `tests/test_org_source_imports.py` both report zero Org source-reader import cycles. The D1 full-suite receipt predates this parser and is not current evidence. An earlier default-cache limitation in a documentation check was handled with an isolated environment/cache; maintained-docs, vendor-name, and diff checks passed.
+
+**Remaining scope:** this remains an experimental, unreleased, read-only Org subset parser, not a stable API or full Org compatibility claim. D3 graph loading—including mixed `.md`/`.org` selection, page identity/collisions, namespace and journal paths, aliases/backlinks, indexing, and refresh behavior—requires a separate reviewed design before implementation. Watchers, writing/round-trip, and Logseq DB support remain deferred. PR #229 is merged; no release or package publication is implied by its CI qualification.
