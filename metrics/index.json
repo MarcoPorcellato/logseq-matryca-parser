@@ -3,8 +3,9 @@
   "partition": "calendar_quarter",
   "quarters": [
     "2026-Q2",
-    "2026-Q3"
+    "2026-Q3",
+    "2026-Q4"
   ],
   "legacy_migrated": true,
-  "updated_at": "2026-09-30"
+  "updated_at": "2026-10-01"
 }
