@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Source archive hygiene** — exclude selected ignored local maintainer and
   tool-cache directories from source distributions; runtime behavior is unchanged.
 
+### Security
+
+- **Development-toolchain security** — update the locked `virtualenv` from
+  21.5.1 to 21.14.4, closing four Dependabot advisories in the `pre-commit`
+  development dependency chain. Published runtime dependencies are unchanged.
+
 ## [1.10.0] - 2026-09-27
 
 ### Changed
