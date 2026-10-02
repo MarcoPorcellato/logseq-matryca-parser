@@ -10,7 +10,11 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-27-llamaindex-companion-separation-design.md`
 
-## Current checkpoint status — 2026-09-27
+## Historical checkpoint status — 2026-09-27
+
+> This section records the state at the 2026-09-27 checkpoint. Its pending
+> release and PR statements are historical; the current status refresh at the
+> end records later evidence.
 
 - Parser Tasks 1–4 are implemented at `1d11d97e1806b534a74a82585fc1aec54e56a4fa`
   on `design/nltk-llamaindex-companion`; Sol's integrated review is
@@ -44,9 +48,9 @@
   unqualified. Exact candidate-wheel prequalification can proceed before that
   publication. Security review marks companion release `BLOCKED`.
 - The exact public GitHub companion repository was created after explicit
-  authorization. Its bootstrap and feature branches were pushed; companion
-  PR #1 and Parser PR #225 are both drafts. No merge or package publication
-  occurred. See
+  authorization. Its bootstrap and feature branches were pushed; at this
+  checkpoint companion PR #1 and Parser PR #225 were both drafts. No merge or
+  package publication had occurred. See
   [`docs/internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md`](../../internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md)
   for restart facts and stop boundaries.
 
@@ -62,7 +66,7 @@
 - Companion's local manifest currently declares `logseq-matryca-parser>=1.10.0,<1.11.0` and `llama-index-core>=0.14.22,<0.15`. The former avoids the invalid 1.9.0 lower bound because released Parser 1.9.0 still includes the old adapter; it is a provisional compatibility window, not yet release-qualified. Do not widen the upper bound without testing each newly supported Parser minor. Recheck the advisory before any exception or release decision.
 - Parser user-facing docs and messages remain English. Existing Parser `requires-python = ">=3.12"`; CI supports Python 3.12 and 3.13. Preserve existing wheel, typing, docs, license, and release contracts.
 - No work in the dirty primary checkout. Public repository creation, branch pushes, and draft PRs are complete. Merge and either publication remain separate authorization gates. Parser-only or local-companion green checks do not complete acceptance or authorize release.
-- Parser implementation and checkpoint commits are on the isolated branch. Reverify exact branch, HEAD, and diff before continuing. [Parser PR #225](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/225) and [companion PR #1](https://github.com/MarcoPorcellato/logseq-matryca-parser-llamaindex/pull/1) remain drafts pending cross-repository qualification.
+- At this checkpoint, Parser implementation and checkpoint commits were on the isolated branch. Reverify exact branch, HEAD, and diff before continuing. Parser PR #225 and companion PR #1 were drafts pending cross-repository qualification.
 - Every shell command starts with `rtk`. Do not run CCP heavy work without its separate exact-bound authorization; use standard public GitHub-hosted CI for the eventual public-repository gate.
 
 ## Review Focus
@@ -168,6 +172,19 @@ Parser `synapse.py` keeps `build_synapse_metadata(node: LogseqNode, *, source: s
 - [ ] **Step 1: Rebind exact state.** Record Parser and companion HEADs, dirty state, locks, distribution names, version range, wheel hashes, advisory status, and draft PR states. If the companion implementation or its required evidence is absent, stop with Parser-only partial result. A public GitHub repository exists, but its presence alone does not qualify either distribution.
 - [ ] **Step 2: Run Parser gate** on clean exact candidate: `rtk uv sync --locked --all-extras`, `rtk make all`, `rtk make vendor-name-check`, locked base/`ai`/`all` exports, unwaived CI-equivalent audit, wheel/sdist contract, and clean-environment import/CLI checks. Collect hosted Python 3.12/3.13 and platform CI receipts before claiming full release qualification.
 - [ ] **Step 3: Prequalify companion against the exact candidate Parser wheel.** Run real-node, shim, and wheel-metadata checks with explicit artifact hashes. A local `--no-deps` install is smoke evidence, not registry resolution or complete compatibility proof. Keep NLTK advisory status separate from Parser's clean graph.
-- [ ] **Step 4: Decide Parser integration and release independently.** Review exact Parser hosted checks, dependency audit, migration notes, and prequalification evidence. Parser PR merge and 1.10.0 publication each need an explicit maintainer decision under the existing release process; neither is authorized by this plan. Do not claim the companion is release-ready at this stage.
+- [x] **Step 4: Decide Parser integration and release independently.** Parser PR #225 merged on 2026-09-27 at `870a35eb8014c030aaa874e8f1ce550556e0decb`; tag `v1.10.0` was published on 2026-09-28 and resolves to `4966144b5cd3e95ce36d38c8c1a9823a6ecab056`. This closes the Parser release gate only; it does not qualify the companion.
 - [ ] **Step 5: Qualify the registry-installed companion after Parser publication.** Install actual Parser 1.10.0 distribution, verify the supported lower bound and `<1.11.0` exclusion, generate a portable companion lock, run hosted Python 3.12/3.13 CI and the exact production export audit, and repeat installed-release shim/native-node acceptance. Reconcile the NLTK advisory or obtain a separately approved, narrow, time-bound exception before considering companion release.
 - [ ] **Step 6: Stop before companion merge and publication.** Companion PR #1 remains draft until its hosted and security gates pass. Review exact evidence; companion PR merge and package publication each require a separate maintainer decision. No local or hosted PASS implicitly authorizes either.
+
+## Current status refresh — 2026-10-02
+
+The 2026-09-27 checkpoint above remains historical evidence. Current verified
+state: Parser v1.10.0 is the latest PyPI/GitHub release; Parser PR #225 and Org
+parser PR #229 have merged. Parser `main` was observed at
+`8c07b2e9235852fcbf9aac16bce5ff13bcc82534`. The companion distribution is not
+published (PyPI returned HTTP 404), and companion PR #1 remains open/draft at
+`e6824c3e50aeac942b01a9aa3f2bbed1663b1230`. The companion's provisional
+`>=1.10.0,<1.11.0` Parser range is now resolvable at its lower bound but remains
+unqualified; do not widen it to include a future Parser 1.11.0 without new
+compatibility evidence. Parser v1.11.0 is in release preparation, not yet
+published, and does not alter the companion's state or authorization gates.

@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-09-27
-verified: 2026-09-27
-stale_after: 2027-03-26
+last_verified: 2026-10-02
+verified: 2026-10-02
+stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -19,7 +19,7 @@ superseded_by: null
 
 # Clean Code & Clean Architecture — Logseq Matryca Parser
 
-**Version:** documents maintainer contracts refreshed for **v1.10.0** release preparation; v1.10.0 is not yet published (v1 structural backlog complete; parser, graph-coherence, local-assurance, and stable snapshot-graph slices merged)
+**Version:** maintainer contracts refreshed for the **v1.11.0** release cycle; the release candidate includes the experimental Org-reader slice (v1 structural backlog complete; parser, graph-coherence, local-assurance, and stable snapshot-graph slices merged)
 **Audience:** contributors and Cursor agents patching `src/logseq_matryca_parser/`  
 **Companion:** [`ARCHITECTURE.md`](ARCHITECTURE.md) (LOGOS domain contract) · [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) (audit evidence) · [`CONTRIBUTING.md`](../CONTRIBUTING.md)
 

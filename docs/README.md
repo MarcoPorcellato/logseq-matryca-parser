@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-01
-verified: 2026-10-01
-stale_after: 2027-03-30
+last_verified: 2026-10-02
+verified: 2026-10-02
+stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -56,8 +56,11 @@ entry points.
 | [`REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md`](REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md) | Maintainers | GitHub governance, supply-chain, agent interoperability, and AAIF-readiness study |
 | [`LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md`](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | Maintainers, parser contributors | License-safe comparative study and execution plan for semantic, complexity, and source-location assurance |
 | [`superpowers/specs/2026-09-29-logseq-org-parser-design.md`](superpowers/specs/2026-09-29-logseq-org-parser-design.md) | Maintainers | Approved, review-gated design for a read-only Org parser scoped to Logseq OG file graphs |
+| [`superpowers/plans/2026-09-29-logseq-org-parser.md`](superpowers/plans/2026-09-29-logseq-org-parser.md) | Maintainers | D2 implementation and six-cell hosted qualification; D3 deferred and Markdown parser work prioritized |
+| [`internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md`](internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md) | Maintainers | Experimental Org subset, selected diagnostics, explicit non-conformance limits, and deferred scope |
+| [`internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md`](internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md) | Maintainers | Historical Parser/companion checkpoint with a dated 2026-10-02 live-status refresh |
 | [`README_READABILITY_REPORT_2026-08-08.md`](README_READABILITY_REPORT_2026-08-08.md) | Maintainers | Measured human and AI README assessment with a phased simplification proposal |
-| [`quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md`](quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md) | Maintainers | Current disposition of all 33 live open issues and four open PRs |
+| [`quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md`](quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md) | Maintainers | Dated 2026-09-24 issue/PR snapshot; rebind live GitHub state before acting |
 | [`decisions/index.md`](decisions/index.md) | Maintainers | Canonical decision registry, including the external-oracle boundary |
 | [`reference/index.md`](reference/index.md) | Maintainers, integrators | Provenance and Matryca ecosystem relations |
 | [`reference/DIAGNOSTICS.md`](reference/DIAGNOSTICS.md) | Integrators, contributors | Stable diagnostic codes, payload schema, path safety, CLI rendering, and escalation |

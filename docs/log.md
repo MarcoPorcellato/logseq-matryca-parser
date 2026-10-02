@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-01
-verified: 2026-10-01
-stale_after: 2027-03-30
+last_verified: 2026-10-02
+verified: 2026-10-02
+stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -18,6 +18,26 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-10-02 — v1.11.0 release preparation and Org reader limits
+
+- Reconciled the release-facing docs for v1.11.0 while preserving the verified
+  latest-published and supported version as v1.10.0. The 1.11.0 tag does not yet
+  exist; a tag push follows the separate PyPI and GitHub Release workflow.
+- Documented that the experimental Org reader is private, read-only, and
+  non-stable; its diagnostics are selected rather than exhaustive, and retained
+  source is not proof of semantic understanding. D3 graph integration is
+  deferred; Markdown remains the primary supported parser surface.
+- Fixed source-distribution hygiene so selected ignored local maintainer and
+  tool-cache directories are excluded. The exact release-candidate source
+  archive and wheel were rebuilt and checked; this is artifact evidence, not a
+  publication.
+- Updated the AI-agent, LLM, support, API-stability, compatibility, and
+  documentation indexes to expose the experimental boundary without claiming
+  full GNU Org or Logseq conformance.
+- Added a dated status refresh to the LlamaIndex companion migration records:
+  Parser v1.10.0 is published, Parser PR #225 and Org parser PR #229 are merged,
+  and companion PR #1 remains a draft. Rebind its live state before resuming.
 
 ## 2026-09-30 — Org reader design gate closed
 

@@ -7,12 +7,32 @@ published artifacts and attestations, see
 
 ## Unreleased
 
-The Parser is separating native LlamaIndex export into a companion package.
-The compatibility method remains, but the proposed companion is not yet
-published; Parser `[ai]` provides LangChain, while `[all]` also includes
-visualization dependencies. Neither extra installs LlamaIndex or NLTK. See
-the [support matrix](docs/reference/CONFORMANCE_SUPPORT_MATRIX.md) for the
-current boundary.
+No unreleased highlights are currently recorded.
+
+## v1.11.0
+
+Status note dated 2026-10-02: this release is prepared but not yet published;
+v1.10.0 remains the latest published package as of that date.
+
+Minor release — adds an experimental, read-only Logseq Org reader while keeping
+the existing Markdown parser and graph workflow unchanged.
+
+| Area | Change |
+| :--- | :--- |
+| **Org input** | Parses Org text or one caller-selected `.org` file without loading a vault graph; the API remains private and non-stable. |
+| **Scope and diagnostics** | Diagnostics cover selected conditions, not every unsupported construct. Preserved source text or no diagnostic does not establish that Org or Logseq semantics were understood; inspect the original source when needed. |
+| **Source archive hygiene** | Excludes selected ignored local maintainer and tool-cache directories from source distributions; runtime behavior is unchanged. |
+
+## v1.10.0
+
+Minor release — clarifies the native LlamaIndex companion boundary and removes
+the Parser's NLTK dependency chain. No intentional breaking changes to the
+existing package API or CLI behavior.
+
+| Area | Change |
+| :--- | :--- |
+| **LlamaIndex boundary** | Keeps `SynapseAdapter.to_llamaindex_nodes()` as a lazy compatibility shim while native node construction moves to a separate companion. |
+| **Dependency security** | Removes `llama-index-core` and NLTK from Parser extras, lock, and package metadata; the `[ai]` extra provides LangChain and `[all]` also adds visualization dependencies. |
 
 ## v1.9.0
 

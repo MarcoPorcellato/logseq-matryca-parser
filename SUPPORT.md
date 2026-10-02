@@ -36,6 +36,12 @@ model-provider support, or compatibility with undocumented private APIs. Optiona
 AI and visualization integrations remain separately documented and may have
 their own dependency or upstream support requirements.
 
+The experimental Org reader in the v1.11.0 release line is an internal,
+non-stable interface, not part of the supported public API. It does not load a
+vault graph or promise full Org or Logseq semantics. Its selected diagnostics do
+not identify every unsupported construct; see the
+[API stability contract](docs/reference/API_STABILITY.md) before relying on it.
+
 Security response expectations are defined in [`SECURITY.md`](SECURITY.md).
 General issue response time depends on maintainer availability; opening an issue
 does not guarantee a feature or a fixed release date.

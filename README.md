@@ -155,6 +155,13 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 | **Export and integrate — SYNAPSE, FORGE, LENS** | Lineage-aware LangChain exports and context-enriched chunks; LlamaIndex nodes through a separate companion; JSON and Markdown serialization, Obsidian vault generation, and interactive graph visualization. |
 | **Automate safely — KINETIC and agent tools** | CLI parse, scan, export, and visualization; token-efficient X-Ray reads; append-only logging; bounded AST writes; vault containment, dry-run patches, and atomic replacement. |
 
+The v1.11.0 release line also contains an **experimental, read-only Org
+reader** behind a private, non-stable API. It reads Org text or one selected
+`.org` file; it does not load a vault graph or claim complete GNU Org or
+Logseq semantics. Its diagnostics are selective, not a complete inventory of
+unsupported syntax. See the [API stability contract](docs/reference/API_STABILITY.md)
+and [release highlights](RELEASE_HIGHLIGHTS.md).
+
 The base parser is local-first and has zero telemetry. Optional AI, watcher, and
 visualization dependencies remain lazy. See the [architecture](docs/ARCHITECTURE.md)
 and [API stability reference](docs/reference/API_STABILITY.md) for exact boundaries.
@@ -314,13 +321,16 @@ We welcome issues, pull requests, and constructive feedback.
 
 ## 📦 Release history
 
-Version 1.10.0 release notes are prepared, but the package has not yet been
-published to PyPI. The latest published release remains v1.9.0.
+As of 2026-10-02, version 1.11.0 is prepared but not published; v1.10.0 is the
+latest published and supported release. Preparing these notes does not publish
+a package or change support status.
 
 Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
 [changelog](CHANGELOG.md), or the signed artifacts on
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
+- **v1.11.0** — Adds an experimental, read-only Logseq Org reader with source retention and explicit support limits.
+- **v1.10.0** — Clarifies the LlamaIndex companion boundary and removes the Parser's NLTK dependency chain.
 - **v1.9.0** — Adds the stable in-memory snapshot graph factory, clarifies the Parser-Plumber boundary, and governs the temporary optional-NLTK advisory exception.
 - **v1.8.2** — Adds SHA-pinned hosted assurance, portable Windows local assurance, corrected cookbook recipes, consistent optional-AI guidance, and `Path | str` graph loading.
 - **v1.8.1** — Hardened deep-outline parsing, coherent incremental graph mutations, bounded assurance cleanup, and stable provenance for optional NLTK.

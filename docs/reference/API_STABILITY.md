@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-09-27
-verified: 2026-09-27
-stale_after: 2027-03-26
+last_verified: 2026-10-02
+verified: 2026-10-02
+stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -91,12 +91,14 @@ The following integrations remain public but experimental:
 Everything not exported from `logseq_matryca_parser.__all__` is internal unless
 another maintained contract explicitly promotes it.
 
-The current read-only Org parser implementation is internal and unreleased.
-Its private `logseq_matryca_parser._org_parser` entrypoints are not package-root
-exports and carry no stable or public experimental compatibility guarantee.
-They are not a public Org-support claim. See the
+The experimental read-only Org reader included in the v1.11.0 release line is
+internal. Its private `logseq_matryca_parser._org_parser` entrypoints are not
+package-root exports and carry no stable or public experimental compatibility
+guarantee. The release does not promote them to a supported public API or make
+a complete Org-support claim. See the
 [maintainer-only implementation status](../internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md)
-for the bounded subset, verification evidence, and open qualification gates.
+for the bounded subset, selected-diagnostic limits, verification evidence, and
+deferred scope.
 
 `SynapseAdapter.to_llamaindex_nodes()` remains a compatibility entry point, but
 its native `TextNode` implementation is no longer in this distribution. It
@@ -117,8 +119,9 @@ decision, release notes, and migration guidance.
 
 `src/logseq_matryca_parser/_version.py` is the single authoritative version
 source. Hatchling derives wheel and source-distribution metadata from that file;
-the package root re-exports the same value. Release preparation changes that
-one assignment only. Tests compare runtime and installed distribution metadata.
+the package root re-exports the same value. Set the package version only at
+that assignment; release preparation may also update release notes, docs, and
+packaging rules. Tests compare runtime and installed distribution metadata.
 
 ## PEP 561 and wheel qualification
 
