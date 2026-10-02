@@ -66,6 +66,17 @@ Changelog = "https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/main/
 [tool.hatch.version]
 path = "src/logseq_matryca_parser/_version.py"
 
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.ccp",
+    "/.ccp-mounts",
+    "/.claude",
+    "/.cursor",
+    "/.hypothesis",
+    "/.serena",
+    "/.superpowers",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/logseq_matryca_parser"]
 

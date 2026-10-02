@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-10-02
+
+### Added
+
+- **Experimental Logseq Org reader** — add a read-only, source-preserving
+  parser for Org text or one caller-selected `.org` file. It remains a private,
+  non-stable API and does not load a vault graph. Its fixed diagnostics cover
+  selected conditions only; unsupported syntax may be retained without a
+  warning. Retained text or a diagnostic-free result does not mean that Org or
+  Logseq semantics were understood. Review the original source when omitted
+  behavior matters.
+
+### Fixed
+
+- **Source archive hygiene** — exclude selected ignored local maintainer and
+  tool-cache directories from source distributions; runtime behavior is unchanged.
+
 ## [1.10.0] - 2026-09-27
 
 ### Changed

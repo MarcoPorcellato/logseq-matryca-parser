@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-01
-verified: 2026-10-01
-stale_after: 2026-10-30
+last_verified: 2026-10-02
+verified: 2026-10-02
+stale_after: 2026-10-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -21,7 +21,9 @@ superseded_by: null
 
 > Internal and unreleased experimental work. This page is not a stable API,
 > compatibility promise, product support statement, or Logseq Org conformance
-> claim. No package-root export or public support-matrix entry is authorized.
+> claim. No package-root export or supported public API is authorized. The
+> informational row in the public support matrix records this boundary; it
+> does not promote the private entrypoints to a supported interface.
 
 ## Scope and API boundary
 
@@ -73,6 +75,18 @@ The implementation follows the finite grammar in the
 This subset does not establish Logseq's graph identity rules, property
 inheritance, configured TODO workflows, block references, embeds, table/media
 semantics, macro expansion, or equivalence to Logseq's complete parser.
+
+## Unsupported syntax and diagnostics
+
+The parser does not produce a complete per-document inventory of unsupported
+Org syntax. Its diagnostics identify selected conditions in the finite
+recognizer only. Unknown syntax may remain a generic directive, paragraph, or
+other source-preserving element without a diagnostic; `OrgOpaque` elements and
+warnings do not enumerate every omitted feature. Therefore, a diagnostic-free
+result is not evidence of full Org or Logseq semantic support, and retained
+source text is not the same as parsed meaning. Review the original source when
+behavior outside this subset matters. Any future public Org entrypoint must
+state this limitation beside its usage guidance.
 
 ## Input, resource, and work bounds
 
@@ -172,11 +186,10 @@ explicit include/exclude controls ([build configuration](https://hatch.pypa.io/1
 The current tag workflow runs its pre-flight and artifact build from fresh
 checkouts of the exact tag; the build then creates and verifies one immutable
 bundle before PyPI publication. The local dirty-build finding therefore does
-not demonstrate leakage through that hosted path. Until a separately reviewed
-sdist-selection policy and regression gate exist, do not treat arbitrary local
-dirty-worktree artifacts as publishable; the sanitized artifact result above
-applies only to those exact files. No packaging configuration or release
-workflow was changed in this Org-parser tranche.
+not demonstrate leakage through that hosted path. At the 2026-10-01 checkpoint,
+no durable source-selection policy had been added, so arbitrary dirty-worktree
+artifacts were not publishable on that evidence. The parser implementation in
+PR #229 did not change packaging configuration or the release workflow.
 
 The initial whole-branch Sol review returned `BLOCKED` for incomplete
 held-component transition coverage and a dirty-worktree sdist that included
@@ -218,3 +231,15 @@ execution.
 The refreshed local source audit and `tests/test_org_source_imports.py` both report zero Org source-reader import cycles. The D1 full-suite receipt predates this parser and is not current evidence. An earlier default-cache limitation in a documentation check was handled with an isolated environment/cache; maintained-docs, vendor-name, and diff checks passed.
 
 **Remaining scope:** this remains an experimental, unreleased, read-only Org subset parser, not a stable API or full Org compatibility claim. D3 graph loading—including mixed `.md`/`.org` selection, page identity/collisions, namespace and journal paths, aliases/backlinks, indexing, and refresh behavior—requires a separate reviewed design before implementation. Watchers, writing/round-trip, and Logseq DB support remain deferred. PR #229 is merged; no release or package publication is implied by its CI qualification.
+
+## Release-preparation update — 2026-10-02
+
+Parser v1.11.0 is prepared but not tagged or published. Separate release
+preparation adds explicit Hatch source-distribution exclusions for these
+selected ignored local directories: `.ccp`, `.ccp-mounts`, `.claude`, `.cursor`,
+`.hypothesis`, `.serena`, and `.superpowers`. This addresses the observed local
+tooling/cache paths; it is a bounded exclusion list, not a general guarantee
+that every arbitrary dirty-worktree artifact is safe to publish. A fresh
+wheel/source build and artifact scan must still pass after any later change.
+This packaging-only adjustment does not expand Org-parser behavior or alter the
+clean-checkout tag-triggered release workflow.

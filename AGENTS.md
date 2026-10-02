@@ -11,6 +11,14 @@ and safely extend a vault without flattening its structure.
 Markdown files are the source of truth. The in-memory graph, registries,
 backlinks, exports, visualizations, and AI chunks are derived views.
 
+The v1.11.0 release line also contains an experimental read-only Org reader
+behind a private, non-stable module API. It accepts Org text or one selected
+`.org` file and does not load a vault graph. Its diagnostics cover selected
+conditions only; unknown syntax may be retained without a warning. Do not
+present this subset as complete GNU Org or Logseq support. Markdown remains the
+primary supported parser surface; see
+[`docs/internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md`](docs/internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md).
+
 ## Capability map
 
 | Layer | Use it for | Primary entry point |

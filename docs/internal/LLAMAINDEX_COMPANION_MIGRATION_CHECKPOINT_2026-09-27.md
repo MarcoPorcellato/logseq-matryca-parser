@@ -3,9 +3,13 @@ type: Document
 ---
 # LlamaIndex companion migration checkpoint — 2026-09-27
 
+> Historical snapshot captured on 2026-09-27. The resume anchors and pending
+> Parser 1.10.0 publication statements below describe that checkpoint only.
+> Use the dated status refresh at the end before resuming.
+
 ## Resume anchors
 
-- Parser: PR #225 has since merged; exact remote `main` is `870a35eb8014c030aaa874e8f1ce550556e0decb` (verified 2026-09-27). Earlier code qualification anchor was `1d11d97e1806b534a74a82585fc1aec54e56a4fa`; candidate-wheel gate source HEAD was `95154fa32f6f13ebb1f9b6accc26ccace8ff2435`, clean at gate time. Version 1.10.0 remains release preparation only and is not yet published to PyPI.
+- Parser: PR #225 had merged by this checkpoint; exact remote `main` was `870a35eb8014c030aaa874e8f1ce550556e0decb` (verified 2026-09-27). Earlier code qualification anchor was `1d11d97e1806b534a74a82585fc1aec54e56a4fa`; candidate-wheel gate source HEAD was `95154fa32f6f13ebb1f9b6accc26ccace8ff2435`, clean at gate time. At this checkpoint, version 1.10.0 remained release preparation and was not yet published to PyPI.
 - Companion: [draft PR #1](https://github.com/MarcoPorcellato/logseq-matryca-parser-llamaindex/pull/1), branch `feat/native-llamaindex-adapter`; tested head `14fd8de399d5abd38c70e52125e81da8dda5c5b2`. Its bootstrap `main` is `47d954a713712b8a433970f9b0f23db070ee09b9`.
 - Both candidate-wheel source checkouts were clean at the gate HEADs above. Preserve any dirty primary checkout and rebind repository and branch state before further work. Local workspace paths are intentionally omitted from this public record.
 
@@ -34,3 +38,29 @@ type: Document
 6. Review the companion draft PR's exact hosted checks and complete its applicable qualification before any merge. Companion publication remains a separate authorization gate.
 
 See the [implementation plan](../superpowers/plans/2026-09-27-llamaindex-companion-separation.md) for task ownership and detailed acceptance criteria.
+
+## Current status refresh — 2026-10-02
+
+This update preserves the checkpoint evidence above and supersedes its current
+release/PR statements. Rebind the exact repository, branch, and hosted checks
+again before acting.
+
+- Parser v1.10.0 is published on PyPI and GitHub. The GitHub release was
+  published 2026-09-28; tag `v1.10.0` resolves to
+  `4966144b5cd3e95ce36d38c8c1a9823a6ecab056`. PyPI reports 1.10.0 as latest
+  on this verification date.
+- Parser PR #225 merged 2026-09-27 at
+  `870a35eb8014c030aaa874e8f1ce550556e0decb`. Org parser PR #229 merged
+  2026-10-01 at `09df7069dca553005123162fd24cd847d1b3456c`. The current Parser
+  `main` observed on 2026-10-02 is `8c07b2e9235852fcbf9aac16bce5ff13bcc82534`.
+- Companion PR #1 remains open and draft at head
+  `e6824c3e50aeac942b01a9aa3f2bbed1663b1230`; its PyPI distribution returned
+  HTTP 404 on this date. Rebind the PR head and checks before any decision.
+- The companion's provisional Parser range remains
+  `>=1.10.0,<1.11.0`; publication of Parser 1.10.0 makes the lower bound
+  registry-available but does not qualify the companion. The upper bound does
+  not admit Parser 1.11.0 and must not be widened without a separate
+  compatibility review.
+- Parser v1.11.0 is under release preparation and has no published tag as of
+  this update. Its experimental Org reader remains private and non-stable; that
+  Parser release does not qualify or publish the separate companion.
