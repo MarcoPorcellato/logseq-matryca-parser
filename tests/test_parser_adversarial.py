@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
+from dataclasses import asdict
 
 import pytest
 
@@ -33,11 +35,21 @@ def test_fast_profile_has_expected_classifications_and_semantic_roundtrips() -> 
     cases = adversarial.cases_for_profile("fast")
     results = [adversarial.run_case(case) for case in cases]
 
-    assert all(result.is_expected_for(case) for case, result in zip(cases, results, strict=True))
-    assert all(
-        result.semantic_roundtrip_checked
+    unexpected_results = [
+        {**asdict(result), "expected_classifications": case.expected_classifications}
         for case, result in zip(cases, results, strict=True)
-        if case.semantic_roundtrip
+        if not result.is_expected_for(case)
+    ]
+    assert not unexpected_results, json.dumps(
+        {"unexpected_results": unexpected_results}, sort_keys=True
+    )
+    unchecked_semantic_roundtrips = [
+        asdict(result)
+        for case, result in zip(cases, results, strict=True)
+        if case.semantic_roundtrip and not result.semantic_roundtrip_checked
+    ]
+    assert not unchecked_semantic_roundtrips, json.dumps(
+        {"unchecked_semantic_roundtrips": unchecked_semantic_roundtrips}, sort_keys=True
     )
     assert any(result.classification == "expected_parser_error" for result in results)
 
@@ -55,6 +67,52 @@ def test_timeout_is_classified_without_accepting_a_partial_result(
 
     assert result.classification == "timeout"
     assert result.semantic_roundtrip_checked is False
+
+
+@pytest.mark.parametrize(
+    ("classification", "exception_type", "receipt_key"),
+    [
+        ("timeout", None, "unexpected_results"),
+        ("runner_failure", "exit-1", "unexpected_results"),
+        ("unexpected_exception", "ValueError", "unexpected_results"),
+        ("invariant_failure", "AssertionError", "unexpected_results"),
+        ("semantic_roundtrip_failure", None, "unexpected_results"),
+        ("parsed", None, "unchecked_semantic_roundtrips"),
+    ],
+)
+def test_fast_profile_failure_reports_source_free_case_receipt(
+    monkeypatch: pytest.MonkeyPatch,
+    classification: adversarial.Classification,
+    exception_type: str | None,
+    receipt_key: str,
+) -> None:
+    cases = adversarial.cases_for_profile("fast")
+    failed_case = next(case for case in cases if case.semantic_roundtrip)
+
+    def classified_result(case: adversarial.GeneratedCase) -> adversarial.CaseResult:
+        failed = case.case_id == failed_case.case_id
+        return adversarial._base_result(
+            case,
+            classification=classification if failed else case.expected_classifications[0],
+            exception_type=exception_type if failed else None,
+            semantic_roundtrip_checked=case.semantic_roundtrip and not failed,
+        )
+
+    # Replace only process execution; exercise the real profile assertions.
+    monkeypatch.setattr(adversarial, "run_case", classified_result)
+    with pytest.raises(AssertionError) as failure:
+        test_fast_profile_has_expected_classifications_and_semantic_roundtrips()
+
+    message = str(failure.value)
+    receipt = json.loads(message.splitlines()[0])[receipt_key]
+    assert len(receipt) == 1
+    assert receipt[0]["case_id"] == failed_case.case_id
+    assert receipt[0]["classification"] == classification
+    assert receipt[0]["exception_type"] == exception_type
+    assert receipt[0]["source_sha256"] == failed_case.source_sha256
+    assert receipt[0]["source_bytes"] == failed_case.source_bytes
+    assert "source" not in receipt[0]
+    assert failed_case.source not in message
 
 
 def test_minimization_is_deterministic_and_preserves_the_given_predicate() -> None:

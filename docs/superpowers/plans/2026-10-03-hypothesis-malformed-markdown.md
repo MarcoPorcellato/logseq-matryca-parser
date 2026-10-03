@@ -130,15 +130,63 @@ does require the same locked version and generator revision.
   harness-test SHA-256:
   `82224fdd0874f76207a32cf82ff6200d98f6755ddd10532f5ed19771a92a9217`.
 
-Local qualification is complete. The final evidence-only documentation update
+Local qualification of the original increment is complete. The final evidence-only documentation update
 is checked separately by the maintained-document gate. No commit, push, pull
-request, release, GitHub backlog mutation, or Beads mutation was performed.
+request, release, GitHub backlog mutation, or Beads mutation was performed at
+that checkpoint. Subsequent publication and hosted evidence are recorded below.
 
 These are local results for the source base plus the uncommitted tranche, not
 hosted CI, released artifacts, or completion of #104. Graph/filesystem and
 concurrency properties remain outside this increment. The benefit to Trama is
 stronger Parser assurance through the accepted Parser → Plumber → Trama/Brain
 boundary, not a direct Trama dependency or integration.
+
+## Hosted qualification and diagnostic follow-up
+
+The increment was committed as
+`43ed6cc35b3a09087c595bc3a4da26e4346ab9a1` and submitted as
+[draft PR #232](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/232).
+Its initial hosted checks completed with thirteen successes and one failure.
+The Ubuntu and macOS Python 3.12/3.13 jobs and Windows Python 3.12 passed.
+The [Windows Python 3.13 job](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/37088984150/job/111105059075)
+failed in the existing adversarial fast-profile classification assertion:
+1,060 tests passed, one failed, and eight skipped, with 89.64% coverage.
+All thirty-two new malformed-property harness tests passed in that job.
+
+The old assertion reported only `assert False`, so the failed case and its
+classification are unknown. A timeout, parser defect, or infrastructure cause
+cannot be inferred from that evidence. An unchanged test does not prove that
+the failure is unrelated to this increment.
+
+The maintainer approved a bounded diagnostic follow-up. The existing
+fast-profile assertions now report source-free receipts for unexpected
+classifications or unchecked required semantic round trips. These include
+case identity, classification, exception type, source hash and byte count;
+classification failures also include the expected classifications. They do
+not include Markdown source, raw worker output, or exception messages. Six
+negative controls exercised the real assertions with classified process-boundary
+results: timeout, runner failure, unexpected exception, invariant failure,
+semantic-round-trip failure, and a parsed result missing its required round trip.
+All six failed before the diagnostic change and passed afterward. The combined
+adversarial and malformed-harness suite passed forty-four tests locally.
+
+This change does not alter the production parser, worker, subprocess timeout,
+accepted classifications, dependencies, workflow, or retry policy. It does not
+resolve or reinterpret the initial Windows failure. The PR remains a draft;
+a new hosted matrix must qualify the diagnostic revision. A failing matrix
+requires reporting its evidence before further changes or runs.
+
+Local qualification of the diagnostic revision passed `make all`: 1,070 tests
+passed, five native-platform tests skipped, and 89.79% coverage against the
+unchanged 80% floor (229.22 seconds). Ruff, mypy, maintained-document checks,
+and the vendor-name gate passed. GPT-6.1 Sol's read-only review returned PASS;
+it did not independently execute the supplied tests or establish the Windows
+failure's cause. Wheel/source metadata and isolated downstream typing passed.
+The exact final source archive includes the six original-increment and
+diagnostic files, byte-matched and inspected for local paths and token markers;
+local generated artifacts are excluded. The evidence-only final document
+update is checked separately before publication. No merge, tag, release,
+GitHub backlog mutation, or Beads mutation is authorized by this qualification.
 
 ## Primary references
 

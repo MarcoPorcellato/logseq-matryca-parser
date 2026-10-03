@@ -41,6 +41,20 @@ superseded_by: null
   [implementation record](superpowers/plans/2026-10-03-hypothesis-malformed-markdown.md).
 - #104 remains open. Trama benefits through the accepted Parser → Plumber →
   Trama/Brain boundary; this increment adds no direct consumer integration.
+- Draft PR #232's initial hosted checks completed with thirteen successes and
+  one failure in the existing adversarial fast-profile assertion on Windows
+  Python 3.13. All thirty-two new harness tests passed there; the opaque
+  assertion did not identify the failed case or classification. Added only
+  source-free failure receipts and six negative controls to that test, without
+  changing the parser, timeout, accepted outcomes, workflow, or retry policy.
+  The forty-four focused tests pass locally. This diagnostic change does not
+  establish the original failure's cause or resolve it; hosted qualification
+  remains required before the draft can be considered merge-ready.
+- The diagnostic revision passed local `make all` with 1,070 tests, five
+  native-platform skips, and 89.79% coverage, as well as package/typing checks
+  and a bounded exact-artifact inspection. Independent read-only Sol review
+  returned PASS. These results do not qualify the unexecuted diagnostic CI
+  matrix or supersede the initial hosted failure.
 
 ## 2026-10-02 — v1.11.0 release preparation and Org reader limits
 
