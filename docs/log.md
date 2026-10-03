@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-02
-verified: 2026-10-02
+last_verified: 2026-10-03
+verified: 2026-10-03
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,29 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-10-03 — Bounded malformed Markdown assurance
+
+- Added a test-only follow-up to #104, based on v1.11.0 source
+  `5d577631e68e695071a0badd440c7b374ea8931d`. Five synthetic stress families
+  use finite recipe fields and the existing adversarial subprocess runner;
+  the production parser, dependencies, workflows, and Org reader are unchanged.
+- Fast and broad generation are opt-in and independently cap parser children
+  at twenty and sixty. Each child retains the existing three-second timeout.
+  Failures stop the profile without retries or automatic minimization and emit
+  source-free replay metadata. This is not a hard parent-command time limit,
+  exhaustive malformed grammar, or semantic round-trip claim.
+- The initial broad profile passed sixty cases (48 parsed, 12 typed errors).
+  Independent Sol review identified a wrong-error acceptance gap, now repaired
+  with a specific `BlockReferenceError` oracle and negative controls. The
+  thirty-two focused harness tests pass. Post-review `make all` passed with
+  1064 tests, five native-platform skips, and 89.79% coverage; the focused
+  Markdown regression set passed 119 tests. Wheel/source metadata, isolated
+  downstream typing, exact archive byte matching, and bounded artifact privacy
+  inspection passed; the full record is in the
+  [implementation record](superpowers/plans/2026-10-03-hypothesis-malformed-markdown.md).
+- #104 remains open. Trama benefits through the accepted Parser → Plumber →
+  Trama/Brain boundary; this increment adds no direct consumer integration.
 
 ## 2026-10-02 — v1.11.0 release preparation and Org reader limits
 
