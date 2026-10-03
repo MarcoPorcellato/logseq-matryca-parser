@@ -19,6 +19,25 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-10-03 — Bounded graph construction property assurance
+
+- Completed the maintainer-approved, test-only local graph-routing increment for
+  #104 from `3070a8f1d788a295849ad34f263f63ef83b464ab`. A finite synthetic
+  model supplies independent canonical-page, alias-ownership, and backlink
+  expectations before comparing disk and snapshot constructions.
+- The [implementation record](quality/GRAPH_PROPERTY_ASSURANCE_2026-10-03.md)
+  records the reviewed scope, generation limits, oracle sensitivity,
+  qualification status, and deferred work. Eleven focused tests pass;
+  read-only GPT-6.1 Sol re-review returned PASS after repairs to replay
+  metadata, independent outline validation, and corruption-control baselines.
+  The final full local gate passed with 1,081 tests, five native-platform
+  skips, and 89.79% coverage. No production code, dependency, workflow, or Org
+  behavior changed. This evidence describes the uncommitted local
+  qualification checkpoint; no hosted qualification or completion of #104
+  is claimed. The maintainer subsequently authorized a feature-branch
+  commit, push, and draft pull request for exact-head hosted qualification,
+  without authorizing merge or release.
+
 ## 2026-10-03 — Bounded malformed Markdown assurance
 
 - Added a test-only follow-up to #104, based on v1.11.0 source
@@ -55,6 +74,13 @@ superseded_by: null
   and a bounded exact-artifact inspection. Independent read-only Sol review
   returned PASS. These results do not qualify the unexecuted diagnostic CI
   matrix or supersede the initial hosted failure.
+- Subsequent hosted qualification passed all fourteen checks on the
+  diagnostic revision. PR #232 was squash-merged as
+  `3070a8f1d788a295849ad34f263f63ef83b464ab`; its post-merge hosted run
+  [37096526012](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/37096526012)
+  passed all nine jobs, including the six native-platform test combinations.
+  The original Windows failure did not recur, but its cause remains unknown;
+  a later passing run does not explain or erase that historical result.
 
 ## 2026-10-02 — v1.11.0 release preparation and Org reader limits
 
