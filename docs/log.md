@@ -19,6 +19,29 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-10-04 — Published release status reconciled across entrypoints
+
+- Fresh GitHub Release and PyPI metadata confirm v1.11.0 was published on
+  2026-10-02 and is the latest released package. Correct the stale preparation
+  wording in README, release highlights, contributing guidance, security support,
+  architecture orientation, and the active experimental Org status record.
+- Keep the concise release list at the bottom of README and the detailed
+  highlights in their dedicated file. Add the development-toolchain security
+  highlight already present in the v1.11.0 release notes.
+- Cross-check all 19 existing README version entries against registry metadata.
+  v1.5.0 has a historical source/changelog record, but no tag, GitHub Release,
+  or PyPI distributions currently listed. Label it as a documented version
+  and preserve its highlights without claiming it was never published.
+- Keep composite Markdown assurance and the scoped scalar-metadata fix under
+  Unreleased; their integration in PR #234 does not put them in the existing
+  v1.11.0 distribution. The separate LlamaIndex companion remains unavailable
+  on PyPI at this verification date, so its current availability guidance stays.
+- Preserve earlier preparation entries as chronology, not current publication
+  status. No runtime, dependency, API, tag, distribution, or security-support
+  policy change is made; only the release that the existing policy supports is
+  corrected. This source-document update does not replace README metadata
+  already embedded in the previously published wheel and source archive.
+
 ## 2026-10-04 — Composite increment completes local package qualification
 
 - One authorized offline cycle passed build, wheel contract, Twine 6.2.0,

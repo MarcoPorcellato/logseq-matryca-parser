@@ -7,12 +7,22 @@ published artifacts and attestations, see
 
 ## Unreleased
 
-No unreleased highlights are currently recorded.
+Development on `main` includes the following changes, which are not in the
+published v1.11.0 package. See the [changelog](CHANGELOG.md#unreleased) for the
+complete unreleased record.
+
+- Bounded synthetic composite Markdown assurance checks outline shape, source
+  spans, tasks, dates, metadata, references, and semantic round trips. Finite
+  recipes do not establish exhaustive Markdown coverage.
+- A scoped serialization fix preserves genuine scalar metadata and explicit
+  block UUIDs before ordinary multiline prose continuations. Late property-like
+  text stays literal; excluded complex layouts retain their prior output.
 
 ## v1.11.0
 
-Status note dated 2026-10-02: this release is prepared but not yet published;
-v1.10.0 remains the latest published package as of that date.
+Published on 2026-10-02:
+[GitHub Release](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.11.0)
+and [PyPI package](https://pypi.org/project/logseq-matryca-parser/1.11.0/).
 
 Minor release — adds an experimental, read-only Logseq Org reader while keeping
 the existing Markdown parser and graph workflow unchanged.
@@ -22,6 +32,7 @@ the existing Markdown parser and graph workflow unchanged.
 | **Org input** | Parses Org text or one caller-selected `.org` file without loading a vault graph; the API remains private and non-stable. |
 | **Scope and diagnostics** | Diagnostics cover selected conditions, not every unsupported construct. Preserved source text or no diagnostic does not establish that Org or Logseq semantics were understood; inspect the original source when needed. |
 | **Source archive hygiene** | Excludes selected ignored local maintainer and tool-cache directories from source distributions; runtime behavior is unchanged. |
+| **Development-toolchain security** | Updates the locked `virtualenv` dependency from 21.5.1 to 21.14.4 for four Dependabot advisories in the `pre-commit` chain; published runtime dependencies are unchanged. |
 
 ## v1.10.0
 
@@ -128,6 +139,10 @@ Minor release — Clean Architecture v1 structural slices, new public graph APIs
 | **Test suite** | **456** pytest cases. |
 
 ## v1.5.0
+
+Historical version entry: no v1.5.0 tag, GitHub Release, or PyPI distributions
+are currently listed (verified 2026-10-04). These notes preserve the documented
+source changes; they are not evidence of package publication.
 
 Minor release — CLI vault hygiene for broken block references. **No intentional
 breaking changes** to default `scan` behavior (`--broken-refs` is opt-in).

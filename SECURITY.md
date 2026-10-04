@@ -2,15 +2,14 @@
 
 ## Supported Versions
 
-Security fixes are provided **only for the latest released version** on [PyPI](https://pypi.org/project/logseq-matryca-parser/). As of 2026-10-02, the latest supported release is v1.10.0.
+Security fixes are provided **only for the latest released version** on [PyPI](https://pypi.org/project/logseq-matryca-parser/). Verified on 2026-10-04, the latest supported release is [v1.11.0](https://pypi.org/project/logseq-matryca-parser/1.11.0/), published on 2026-10-02.
 
-Version 1.11.0 release preparation does not change this support status; it will
-do so only after publication to PyPI.
+Unreleased changes on `main` do not change the supported package version.
 
 | Version | Supported |
 | ------- | --------- |
-| **1.10.0** (latest released) | Yes |
-| 1.9.0 and older | No |
+| **1.11.0** (latest released) | Yes |
+| 1.10.0 and older | No |
 
 We recommend always running the current release and upgrading promptly when a security advisory is published.
 

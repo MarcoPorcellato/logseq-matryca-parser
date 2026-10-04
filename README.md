@@ -321,9 +321,15 @@ We welcome issues, pull requests, and constructive feedback.
 
 ## 📦 Release history
 
-As of 2026-10-02, version 1.11.0 is prepared but not published; v1.10.0 is the
-latest published and supported release. Preparing these notes does not publish
-a package or change support status.
+Latest published release: **[v1.11.0](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.11.0)**,
+published on 2026-10-02 and available on
+[PyPI](https://pypi.org/project/logseq-matryca-parser/1.11.0/).
+Security support follows the [latest-release policy](SECURITY.md).
+
+Development on `main` also includes bounded composite Markdown assurance and
+a scoped multiline scalar-metadata round-trip fix. These changes are
+**unreleased**, not part of the v1.11.0 package; see
+[Unreleased](CHANGELOG.md#unreleased) for their scope and limits.
 
 Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
 [changelog](CHANGELOG.md), or the signed artifacts on
@@ -338,7 +344,7 @@ Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
 - **v1.7.1** — Added the runnable offline SYNAPSE RAG example and tightened release-note and optional-dependency security checks.
 - **v1.7.0** — Hardened parser correctness, graph diagnostics, writer safety, API stability, documentation governance, and release provenance.
 - **v1.6.0** — Clean Architecture v1 structural slices, new public graph APIs, layer-boundary CI, and documentation SSOT.
-- **v1.5.0** — Added opt-in CLI detection of unresolved block references for vault and CI hygiene.
+- **v1.5.0 (documented version)** — Added opt-in CLI detection of unresolved block references; no release artifacts are currently listed (see highlights).
 - **v1.4.2** — Fixed agent-write newline handling, controlled corrupt-state failures, and cyclic SYNAPSE page embeds.
 - **v1.4.1** — Expanded contributor tests and refreshed the good-first-issue onboarding path.
 - **v1.4.0** — Strengthened graph integrity, live reloads, serialization, path safety, strict references, and parser edge cases.
