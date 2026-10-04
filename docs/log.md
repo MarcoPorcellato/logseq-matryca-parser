@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-03
-verified: 2026-10-03
+last_verified: 2026-10-04
+verified: 2026-10-04
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,239 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-10-04 — Composite increment completes local package qualification
+
+- One authorized offline cycle passed build, wheel contract, Twine 6.2.0,
+  isolated wheel-installed strict API typing with Mypy 1.20.2 and bounded
+  artifact inspection. All nine external stages exited 0, without retry.
+  Independent Sol High review returned PASS_WITH_NOTES without blocking findings.
+- Frozen source, configuration/lock and recorded project environment metadata
+  were unchanged. Exact artifacts and original failed attempts are preserved;
+  the [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  distinguishes local success from hosted/native-platform and release evidence.
+- The maintainer then authorized this documentary completion update, commit,
+  push and draft PR for CI. Add the bounded scalar-metadata behavior under
+  Unreleased and document it in the AST primer. This later documentary update
+  changes the previously inspected sdist snapshot; hosted package qualification
+  must rebuild the exact submitted commit. Local pre-publication quality and
+  hosted results are pending at the time of this entry. No merge, tag, release,
+  package publication, tracker mutation or additional campaign is authorized.
+
+## 2026-10-04 — Corrected isolated package prerequisites prepared
+
+- One separately authorized corrected installation reused the existing 27
+  hash-pinned requirements, without another compilation or new version selection.
+  All installed pins matched; Twine 6.2.0 and Mypy 1.20.2 version probes passed.
+- Project source/test, configuration/lock and environment metadata matched before
+  and after. The prior failed invocation remains unchanged. Tools and evidence
+  were preserved in persistent ignored storage, separate from the project.
+- Preparation is not package qualification. The
+  [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md) retains
+  pending final-documentation build, artifact metadata and wheel-installed typing
+  gates. No actual package check, build, Parser test, Git or publication action.
+
+## 2026-10-04 — Isolated package prerequisites resolve; install stops
+
+- The authorized isolated Twine 6.2.0/Mypy 1.20.2 preparation resolved 27
+  hash-pinned packages from PyPI. The one installer invocation stopped at
+  argument parsing because of mutually exclusive options; no installation
+  or automatic retry occurred. Independent isolated inventory is empty.
+- This is an operator command-construction error, not a Parser defect or failed
+  artifact check. Source/test, project lock/configuration and environment metadata
+  matched before and after. Exact requirements and failure were preserved.
+- The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  distinguishes successful resolution from incomplete preparation. Next proposal:
+  one corrected install reusing frozen pins, then metadata/version probes only.
+  Actual package qualification, Git and publication actions remain separate.
+
+## 2026-10-03 — Broad composite campaign and current quality pass
+
+- One authorized broad profile passed 119 recipes, representing 117 distinct
+  source digests, under cap 120 and fixed seeds 104/417/911. All independent
+  models and semantic round-trips passed, without retry or minimization.
+  Luna VALIDATED strict evidence and reconstructed sources; Sol High returned
+  PASS_WITH_NOTES. Historical FAIL remains unchanged. Diversity is finite,
+  not exhaustive syntax or Cartesian coverage.
+- Current complete quality passed 1,202 tests, with five native-platform skips
+  and 89.83% coverage; Ruff, mypy, maintained-document and vendor-name checks
+  passed. Protected source/test bytes and existing checkout ownership matched.
+- Offline wheel and sdist build and wheel contract passed. Twine tool resolution
+  stopped on unavailable cached metadata before Twine ran; no download or retry.
+  Distribution metadata and isolated wheel-installed typing remain unexecuted.
+  Bounded archive inspection passed, and exact artifacts were preserved locally.
+  The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  records fingerprints, current limits and required final-documentation rebuild.
+- Package qualification remains incomplete; #104 and hosted/release gates remain
+  separate. No commit, push, PR, release, dependency change or tracker mutation.
+- Independent Sol High terminal review returned PASS_WITH_NOTES for truthful
+  interpretation, not package/publication readiness; pending prerequisites,
+  installed-wheel typing and the final-documentation rebuild remain explicit.
+
+## 2026-10-03 — Fresh bounded composite smoke passes
+
+- The separately authorized new smoke executed three cases under cap four:
+  literal LF, nested August CRLF, and mixed thirty-two-block CRLF. All passed
+  their independent models and semantic round-trips. Post-context and local
+  origins matched; source/test bytes and the existing checkout were preserved.
+- Luna independently validated strict receipt identity, all three reconstructed
+  synthetic inputs, canonical hashes and the 38-file manifest without executing
+  project code. Sol High returned PASS_WITH_NOTES for bounded interpretation.
+  The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  preserves the new receipt digest, actual counts and limitations.
+- The historical FAIL is unchanged. The receipt does not preserve the skipped
+  candidate list; no fourth distinct case or whole-increment readiness is
+  claimed. Next proposal: separately authorized broad profile, fixed seeds
+  104/417/911, cap 120, three seconds per child, fail-first and no retry.
+  Current complete quality/package gates remain separate. No further child,
+  broad run, full suite, source correction, commit or publication followed.
+
+## 2026-10-03 — Fresh August single-case evaluation passes
+
+- The maintainer authorized one fresh child for the previously failing finite
+  August recipe, three-second timeout, no retry. Fresh source/runtime/origin
+  checks passed; a read-only controller preflight-membership mistake was
+  corrected before any child. Existing source and execution contracts were
+  unchanged. The sole invocation exited 0: original-input model and semantic
+  serialization/reparse checks both passed, with no semantic differences.
+- Luna independently validated source-free receipt identities, stage fields,
+  canonical hashes, synthetic input, all 38 manifest files and pre/post context.
+  Sol High assessment returned PASS_WITH_NOTES for scope and interpretation.
+  The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  preserves receipt/context digests and limits. This is cross-source diagnosis,
+  not historical replay or a full smoke campaign; the historical smoke remains
+  failed and its precise assertion unidentified.
+- No further child, retry, broad campaign, full-suite execution, source edit,
+  commit, push, publication or tracker change followed. The smallest next
+  proposal is a separately authorized fresh smoke, cap four, fail-first and
+  no retry; broader randomized and full-project qualification remain deferred.
+
+## 2026-10-03 — Parser-free date expectation repair passes review
+
+- Following explicit approval, Luna added independent fixed-literal controls
+  for all four supported schedule/deadline dates and generated root fields.
+  Focused RED caught exactly the two August mismatches; the harness correction
+  changed only those two integer literals. Five focused controls and the full
+  guarded file passed; controller verification confirmed 84 passes in 1.86
+  seconds, focused Ruff/mypy, and whitespace checks.
+- Independent Sol High review returned PASS with no findings. Existing parser
+  and process guards, strict assertions, corruption controls, protocol,
+  provenance and execution bounds are unchanged. No parser or real child ran,
+  and no assertion instrumentation was introduced.
+- The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  preserves the new harness/test hashes and evidence limits. The historical
+  smoke remains failed and its exact rejected assertion unknown. A new runtime
+  evaluation requires separate authority; no full-suite/campaign execution,
+  commit, push, publication or tracker mutation followed this repair.
+
+## 2026-10-03 — Read-only diagnosis identifies incorrect date expectations
+
+- Luna source/receipt diagnosis and independent Sol High assessment
+  (`PASS_WITH_NOTES`) establish two August oracle epochs eight hours ahead of
+  UTC midnight. Production date handling and existing tests support UTC;
+  the April/May expectation literals are correct.
+- The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  records both exact corrections, severity, assertion ordering and causal
+  uncertainty. The historical smoke remains failed; its exact rejected
+  assertion was not preserved. No new production defect, security incident,
+  or data loss is established.
+- The next proposal is a separately authorized parser-free, two-literal repair
+  with independent date controls and review. Runtime discrimination and any
+  assertion instrumentation are separate gates. No parser, test, worker,
+  diagnostic, replay or campaign ran during diagnosis; no source edit, Git
+  mutation, publication or tracker change occurred.
+
+## 2026-10-03 — Single composite smoke stops on model assertion
+
+- The maintainer authorized one bounded smoke after the parser-free repair's
+  final Sol PASS. Fresh source/runtime/origin preflight passed; the sole run
+  stopped after two children under a four-child cap, with no retry.
+- The previously failing three-block synthetic case now passes the independent
+  model and semantic round-trip on the corrected serializer. A nine-block
+  nested CRLF/Unicode case returned `invariant_failure` / `AssertionError`
+  before model completion, so no round-trip was reached for that case.
+- The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  preserves the exact finite recipe, source and receipt digests, matched
+  pre/post provenance, runtime compatibility and remaining uncertainty.
+  Independent receipt inspection passed without replay. Campaign success is
+  false despite valid source provenance. No broad run, diagnostic, full-suite
+  rerun, correction, commit, publication or tracker mutation followed.
+
+## 2026-10-03 — Developmental composite replay qualification repair
+
+- The maintainer approved a bounded test-only repair after Sol High design
+  review returned PASS_WITH_NOTES. Schema 3 distinguishes source-qualified
+  developmental replay from historical schema-2 evidence and from runtime-byte
+  attestation. The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  records complete local source inventory, strict receipt validation, selected
+  runtime compatibility, child acknowledgment and pre/post drift requirements.
+- The first checkpoint passed 49 guarded controls but Sol High review returned
+  BLOCKED on five entry-point/probe/error/inventory/metadata paths. Parser-free
+  RED reproduced twenty expected failures. The repaired checkpoint and one
+  strengthened assertion passed 79 guarded tests, focused Ruff/mypy, and final
+  Sol High PASS. The selected checkout, scalar correction and historical
+  receipts are preserved. This repair is locally complete and uncommitted;
+  actual replay, diagnostic, smoke/broad execution, full-suite requalification
+  and publication remain separately gated. No real parser or child ran here.
+
+## 2026-10-03 — Bounded scalar metadata serialization correction
+
+- The maintainer accepted the historical CRITICAL impact warning and approved
+  the [correction plan](superpowers/plans/2026-10-03-scalar-metadata-serialization.md)
+  for local implementation, Sol review, and complete regression gates, without
+  commit or push. Design review returned PASS_WITH_NOTES; its empty-value and
+  conservative-prose conditions are incorporated.
+- Actual-parse regressions reproduced metadata loss before the source edit in
+  all four newline/indent combinations. The narrow eligibility/order correction
+  now passes 312 focused regressions, Ruff, and mypy. It preserves explicit child
+  UUIDs and late property-like literal content in those tests. Excluded layouts
+  keep legacy output; no complete mixed-layout correctness claim is made.
+- Independent Sol High implementation review returned PASS_WITH_NOTES, without
+  blocking new findings. Complete local quality gates passed: Ruff, mypy on 103
+  files, documentation/vendor validation, 1,153 tests, five native-platform
+  skips, and 89.83% coverage above the unchanged 80% floor. The bounded correction
+  is locally complete and remains uncommitted. Its content eligibility is a
+  documented conservative heuristic, not an exhaustive complex-layout classifier.
+- The composite harness and generic replay limitations remain separate; no
+  campaign, tracker update, hosted qualification, or publication followed. Full
+  logs and review evidence are preserved on persistent local storage.
+
+## 2026-10-03 — Composite valid Markdown assurance design
+
+- The maintainer approved a bounded, test-only mixed-input increment of #104
+  from `0e2b0187ddc54abd92f6a50e7dbde5166e474ffd`. Independent recipe and
+  logical-line expectations cover task/property/reference interactions,
+  hierarchy, and original source ranges before round-trip comparison.
+- The [implementation record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  preserves the approved bounds, read-only Sol design review notes, execution
+  budgets, replay contract, and deferred work. Local implementation is in
+  progress; no new test result or hosted qualification is claimed yet.
+  Production code, dependencies, workflows, Org, and tracker state remain
+  outside scope. Commit and publication require separate authorization.
+- Initial implementation stopped on its first smoke child. The parent
+  misclassified a partial-stage result and failed while reading its receipt;
+  one additional in-process diagnostic attempt reported a semantic round-trip
+  mismatch after the independent original-input model passed. That extra
+  attempt violated the selected no-rerun boundary and is recorded explicitly.
+  No broad campaign or production fix followed. The implementation record
+  preserves the finite recipe, exact source and draft-code digests, known
+  reporting defects, and missing field-level evidence. The new increment is
+  not qualified; read-only diagnosis precedes a correction decision.
+- Read-only Sol High implementation review returned BLOCKED. The maintainer
+  subsequently approved test-only harness repairs and one exact-recipe
+  diagnostic, with no production change or campaign. Parser-free validation
+  denies direct parsing and real subprocess execution; review and fresh
+  anchors precede the controller-owned diagnostic.
+- The repaired checkpoint passed 35 guarded parser-free tests, Ruff, and mypy.
+  Sol High returned PASS_WITH_NOTES for one exact local diagnostic only.
+  Fresh source/hash checks passed; the single worker produced a valid semantic
+  round-trip failure receipt, with original model success and twelve sanitized
+  differences across three blocks. Content, clean text, properties, and
+  property order differ. Receipt and worker evidence were preserved separately;
+  post-checks verified unchanged source and reviewed hashes. No retry or
+  production edit followed. The record distinguishes selected-file provenance
+  from incomplete generic replay/import/runtime binding, and preserves the
+  separate production correction decision.
 
 ## 2026-10-03 — Bounded graph construction property assurance
 
@@ -37,6 +270,12 @@ superseded_by: null
   is claimed. The maintainer subsequently authorized a feature-branch
   commit, push, and draft pull request for exact-head hosted qualification,
   without authorizing merge or release.
+- The maintainer subsequently authorized controlled integration. PR #233
+  passed all fourteen hosted checks and was squash-merged as
+  `0e2b0187ddc54abd92f6a50e7dbde5166e474ffd`. Its
+  [post-merge CI](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/37112297184)
+  passed all nine jobs, including the six native-platform test combinations.
+  The prior local checkpoint remains historical evidence; #104 is still open.
 
 ## 2026-10-03 — Bounded malformed Markdown assurance
 
