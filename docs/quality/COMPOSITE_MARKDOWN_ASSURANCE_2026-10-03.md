@@ -19,29 +19,101 @@ superseded_by: null
 
 # Composite valid Markdown property assurance
 
-## Current qualification summary
+## Composite checkpoint and current follow-up status
 
 The approved finite broad campaign passed 119 recipes representing 117 distinct
 Markdown source digests. Independent validation returned VALIDATED; independent
-phase review returned PASS_WITH_NOTES. The current complete quality aggregate
+phase review returned PASS_WITH_NOTES. The earlier composite quality aggregate
 passed 1,202 tests with five native-platform skips and 89.83% coverage, plus Ruff,
 mypy, documentation and vendor-name checks. Source and test bytes were preserved.
 
-The subsequent offline local package cycle passed wheel/sdist construction,
+The earlier pre-publication offline local package cycle passed wheel/sdist construction,
 wheel contract, Twine 6.2.0, isolated wheel-installed strict typing with Mypy
 1.20.2, and bounded archive inspection. Independent Sol High review returned
-PASS_WITH_NOTES without blocking findings. The inspected runtime source matches
-this candidate; the later documentary completion update changes the sdist
-snapshot, so hosted package checks must build and qualify the submitted commit.
+PASS_WITH_NOTES without blocking findings. At that checkpoint, the inspected
+runtime source matched the candidate, but the later documentary completion
+update changed the sdist snapshot. Exact submitted-commit hosted package
+qualification was still required; its subsequent result is recorded below.
 Earlier failed and incomplete attempts remain historical, not retroactively
 successful. The ledger below preserves their chronological states.
 
-The maintainer separately authorized the documentary completion update, commit,
-push, and a draft PR for hosted CI on 2026-10-04. This increment does not close
-#104 or establish hosted/platform qualification or release readiness. No merge,
-tag, package publication, tracker mutation, or additional random campaign is
-included. Native Linux/macOS/Windows checks with Python 3.12/3.13 remain pending
-for the submitted commit.
+The subsequent [PR #234](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/234)
+passed its hosted checks and was squash-merged as
+`a26370a73d0c1ec99eb186e0131044a23e4acb00` on 2026-10-04.
+Its [post-merge CI](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/37185041499)
+passed quality, package and dependency checks and all six native combinations:
+Ubuntu 24.04, macOS 15 and Windows 2025 with Python 3.12 and 3.13.
+Separate security checks also passed. [PR #237](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/237)
+then aligned the README and release documentation; it was merged as
+`f7b720ba7427da8a042e41bdc9c8f5d6fd3ee8eb` with successful
+[post-merge CI](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/37191353787).
+These are exact-commit hosted results, not a release or universal correctness
+claim. The composite change remains unreleased; #104 remains open. Historical
+entries below retain the gates that were pending at their respective checkpoints.
+
+The next approved local-only slice checks closed inline code, HTML comments,
+single-dollar math and double-dollar math against repeated visible references.
+It is separate from composite schema 3 and does not change the parser, serializer,
+dependencies or execution protocol. Qualification of that new test file is
+recorded separately below; the preceding CI results do not qualify new bytes.
+
+## Follow-up: closed inline shielding and occurrence order
+
+The maintainer approved a separate, local-only test slice on 2026-10-04 against
+`bf9bb1dcfa137b7837ec6826e238c23ee4b2f34f`. It adds one pytest file,
+`tests/test_parser_shielding_properties.py`, without changing production code,
+dependencies, existing composite schema 3 or its runner.
+
+Four fully rendered, hand-checked anchors cover matched inline backticks,
+closed HTML comments, `$…$` and `$$…$$`. Each contains hidden-only tokens and
+tokens repeated both inside and outside its literal region. The visible
+skeleton places a tag before its links and repeats both links and tags. This
+distinguishes ordered occurrence lists from stable reference deduplication,
+which visits all wikilinks before tags.
+
+Finite generated variations use one single-line root block, delimiter-free
+synthetic target/tag values, simple space-separated tags and LF/CRLF endings.
+The source limit is 2 KiB of UTF-8. Collection retains all four anchors first,
+deduplicates candidates and caps the selected list at twenty before parsing.
+Hypothesis runs only generation, without a database or parser calls. The
+ordinary parser loop checks independent facts on the first result before a
+second parse, then compares `exact_parse_v1` projections for determinism.
+At most forty parses occur in that loop; the cap is not a wall-clock guarantee
+or a limit on the complete repository suite.
+
+Independent expectations cover visible link/tag multiplicity and order,
+node/page reference order, exact page input and node content, one root without
+children, and the source interval `(1, 1)`. Existing tree invariants remain in
+use. Parser-free controls check collector saturation and corrupt copied
+observations while leaving expectations unchanged. An unexpected parser
+failure must stop the selected loop without retry or oracle weakening.
+
+Escaping, nested or malformed regions, delimiter adjacency, multiline/fenced
+states, query blocks, bracketed tags, metadata, graph/filesystem behavior and
+serializer round trips are excluded. Finite synthetic recipe context may
+appear in pytest failures; this is not a source-free logging guarantee.
+Local implementation now passes fifteen focused tests. The observed focused
+selection contained the four anchors and sixteen distinct generated recipes,
+with forty parser calls across all four families and no parser failure.
+Generation is explicitly limited to `Phase.generate`. A hand-written
+observation baseline and copied corruption controls include both hidden-link
+and hidden-tag leakage, root-count and nonempty-child errors. The initial
+collector and baseline controls have RED/GREEN evidence.
+
+The first full gate stopped before pytest on a type-inference error in the new
+test's heterogeneous mutation map. A bounded test-only repair replaced it with
+typed copied observations; no type suppression or production change was used.
+The failed outcome remains preserved. The fresh complete local gate then
+passed 1,217 tests with five native-platform skips and 89.83% coverage, plus
+Ruff, full Mypy, documentation and vendor-name checks. Source/test bytes were
+unchanged during that successful run. Final documentary reconciliation is
+checked separately after recording these results. Independent GPT-6.1 Sol
+Medium implementation review returned PASS_WITH_NOTES, with no test or oracle
+blockers. Its documentary note was addressed by explicitly labeling the older
+composite/pre-publication checkpoint as historical without changing its numbers.
+This is local evidence, not new hosted qualification.
+This tranche does not authorize commit, push, PR, merge,
+release or tracker mutation, and does not close #104.
 
 ## Scope, baseline, and authority
 
@@ -1077,8 +1149,8 @@ Protocol controls must reject missing/false check flags and malformed or
 misidentified receipts, and exercise timeout and fail-first execution budgets.
 Focused regressions, the broad campaign, full quality gates, and independent
 implementation review were required; their subsequent evidence is recorded
-above. Exact-commit hosted package and native-platform qualification remain
-pending; the bounded offline local package cycle passed on its frozen
+above. At that pre-publication checkpoint, exact-commit hosted package and
+native-platform qualification remained pending; the bounded offline local package cycle passed on its frozen
 pre-publication documentary snapshot. A discovered production defect is reported separately
 rather than hidden by loosening expectations.
 
