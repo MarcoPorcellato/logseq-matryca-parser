@@ -188,12 +188,40 @@ def format_logseq_block_property_lines(
     return lines
 
 
+def _scalar_metadata_precedes_prose(
+    node: LogseqNode, content_lines: list[str], continuation_indent: str
+) -> bool:
+    """Admit only ordinary scalar metadata and conservatively plain prose."""
+    if len(content_lines) < 2 or "logbook" in node.properties:
+        return False
+    for index, content in enumerate(content_lines):
+        line = content.removeprefix(continuation_indent) if index else content
+        if not line or not line[0].isalnum() or any(
+            marker in line for marker in ("```", "~~~", "{{", ":LOGBOOK:", ":END:")
+        ):
+            return False
+    emitted = False
+    for key, value in node.properties.items():
+        if key in _DERIVED_BLOCK_PROPERTY_KEYS:
+            continue
+        if re.fullmatch(r"[\w-]+", key) is None or type(value) not in (str, bool, int, float):
+            return False
+        rendered = str(value)
+        if "\r" in rendered or "\n" in rendered or not rendered.strip().strip('"').strip("'").strip():
+            return False
+        emitted = True
+    return emitted
+
+
 def _serialize_logseq_node_lines(node: LogseqNode, tab_size: int) -> list[str]:
     indent = " " * (node.indent_level * tab_size)
     content_lines = node.content.splitlines()
     first_line = content_lines[0] if content_lines else ""
     continuation_indent = _block_property_indent(indent)
     lines = [f"{indent}- {first_line}"]
+    properties_first = _scalar_metadata_precedes_prose(node, content_lines, continuation_indent)
+    if properties_first:
+        lines.extend(format_logseq_block_property_lines(node, indent))
     for continuation in content_lines[1:]:
         # Soft-break lines may already include alignment spaces from the parse buffer.
         line = continuation
@@ -203,7 +231,8 @@ def _serialize_logseq_node_lines(node: LogseqNode, tab_size: int) -> list[str]:
         lines.append(f"{continuation_indent}{line}")
     if "logbook" in node.properties:
         lines.extend(_format_logbook_drawer_lines(indent, node.properties["logbook"]))
-    lines.extend(format_logseq_block_property_lines(node, indent))
+    if not properties_first:
+        lines.extend(format_logseq_block_property_lines(node, indent))
     for child in node.children:
         lines.extend(_serialize_logseq_node_lines(child, tab_size))
     return lines

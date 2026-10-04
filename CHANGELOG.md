@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Multiline scalar metadata round trips** — emit genuine nonempty, single-line
+  scalar block properties before ordinary prose continuations on eligible
+  nodes, preserving their metadata and explicit block UUIDs when parsed again.
+  Property-like text after a continuation remains literal. Drawers, list-shaped
+  or multiline values, and excluded complex layouts retain their prior output;
+  this is not a general mixed-layout round-trip guarantee.
+
+### Added
+
+- **Composite Markdown assurance** — add a bounded synthetic valid-input family
+  with independent expectations for outline shape, source spans, tasks,
+  priorities, dates, metadata and visible references, followed by semantic
+  round-trip checks. Finite recipes and source-free receipts complement the
+  existing tests; they do not establish exhaustive Markdown coverage (#104).
+
 ## [1.11.0] - 2026-10-02
 
 ### Added
