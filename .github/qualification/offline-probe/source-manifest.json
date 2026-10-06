@@ -1,0 +1,149 @@
+{
+  "files": [
+    {
+      "path": ".github/qualification/offline-probe/extract_results.py",
+      "sha256": "08c93a4e810adf10d8e1f71fe717d0fd391a41bc8e960babc1bbe0f23456a70f"
+    },
+    {
+      "path": ".github/qualification/offline-probe/probe.py",
+      "sha256": "f0aa711cbb93937f05ea09d8ed42d33f9c97e11bdcf2709ee34e3f64ba658337"
+    },
+    {
+      "path": ".github/qualification/offline-probe/run_hosted_qualification.sh",
+      "sha256": "edd0ef834d01075097e37cd09fed1a5e538e416a588331ec1293d0085e5c375b"
+    },
+    {
+      "path": ".github/qualification/offline-probe/test_probe.py",
+      "sha256": "b42b34089df7275b726db744b3b4d7472d023db9da32921d78942854cf0df6e3"
+    },
+    {
+      "path": ".github/workflows/parser-adversarial.yml",
+      "sha256": "de30df2782e66c3b2c37293ed4075e359b7946053a14ee41d637a4ce3ac0de0e"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "f6d0c2b14ef061b525600d20b241cf4d37b945d5f26ddc08faf6104a6ae99530"
+    },
+    {
+      "path": "src/logseq_matryca_parser/__init__.py",
+      "sha256": "a26459f33f587c1741f0fe4b64542d0f609325ea1dd61251a69057db090c16c9"
+    },
+    {
+      "path": "src/logseq_matryca_parser/__main__.py",
+      "sha256": "2ff8423e4651d03588a8491afa1ae897176301ccf2e406db53201edc320c87ad"
+    },
+    {
+      "path": "src/logseq_matryca_parser/_lexical_state.py",
+      "sha256": "1b14077d0294861859b4ce26aa4573589d3067b08a342467b6a1e9a9b209344b"
+    },
+    {
+      "path": "src/logseq_matryca_parser/_org_parser.py",
+      "sha256": "23615334f3af0325758a9e0f153617e1d141c3952d8058222d64fad1c35ef25f"
+    },
+    {
+      "path": "src/logseq_matryca_parser/_org_source.py",
+      "sha256": "034ad5e215790912a739afe97e19622297412fa6d8f5cc2387ca24ee6c29128b"
+    },
+    {
+      "path": "src/logseq_matryca_parser/_org_source_contract.py",
+      "sha256": "0a1f56e55f1939f61ead6400372be7d1694034e4fce665005a2a5ece70a442c1"
+    },
+    {
+      "path": "src/logseq_matryca_parser/_org_source_posix.py",
+      "sha256": "7b2bfeca568fa6e2d7c453440f29c076c0f3c7d8077a8b4344f7c7a0f2109190"
+    },
+    {
+      "path": "src/logseq_matryca_parser/_org_source_windows.py",
+      "sha256": "f498d28b9e8457762e334c19e3cb43c525a222f3caf1c1f7dff6bbb3ee943c82"
+    },
+    {
+      "path": "src/logseq_matryca_parser/_version.py",
+      "sha256": "5fb8179c606bdb80de04079f0ed1db8227b4c4a9be24017659178928785ee0ba"
+    },
+    {
+      "path": "src/logseq_matryca_parser/agent_press.py",
+      "sha256": "087ef53410f3e2f0d6cfa80892d65e746d42b591d7e307994316a59042cd6d7e"
+    },
+    {
+      "path": "src/logseq_matryca_parser/agent_writer.py",
+      "sha256": "924311acdac46ec9c35f34ca6e40e988f6190d0b101018615d4886770eff89ff"
+    },
+    {
+      "path": "src/logseq_matryca_parser/diagnostics.py",
+      "sha256": "075b077487212f76ea3c47788616dd8de8aeca2c3059b57bb530d64bd795d257"
+    },
+    {
+      "path": "src/logseq_matryca_parser/exceptions.py",
+      "sha256": "a5eeac71685eba615d535a4b916e9cfaa5fcc98b41e7f6aaa431307977703ca8"
+    },
+    {
+      "path": "src/logseq_matryca_parser/forge.py",
+      "sha256": "4da26b524c2647e5c3e4a1cc8bd9936d8808e7751e2aaeb13dd918d668731d62"
+    },
+    {
+      "path": "src/logseq_matryca_parser/graph.py",
+      "sha256": "8dbdd8f9cf1e2b8d3491c92d72e4aae46e063aed05863ebed69a74034610bea3"
+    },
+    {
+      "path": "src/logseq_matryca_parser/kinetic.py",
+      "sha256": "38f6a18cc3ac1a132d8846f31f634024600cbfe07e4edc6befc4052303fd01d7"
+    },
+    {
+      "path": "src/logseq_matryca_parser/kinetic_commands.py",
+      "sha256": "fff5e156a13e0c4c128231590be132f7729e7a4d6aa18b84066657696adbed31"
+    },
+    {
+      "path": "src/logseq_matryca_parser/kinetic_export.py",
+      "sha256": "1e6eb39e35f74c3d30afc486d6d0e8092d4174a4c57195ec059bf9eed5ce36b2"
+    },
+    {
+      "path": "src/logseq_matryca_parser/lens.py",
+      "sha256": "2682454bcd0cbec8d5556feb6f328e34461e90f2703d6b2485d9c57f1c9135b8"
+    },
+    {
+      "path": "src/logseq_matryca_parser/local_graph_assurance.py",
+      "sha256": "6a42ad3983dd0dabdbfe8ea88116f62d924f5d72772fbf1fb39dd87c5b34d40f"
+    },
+    {
+      "path": "src/logseq_matryca_parser/logos_core.py",
+      "sha256": "6612df722d7ca8395caf0817a33da822f578244982643c0c15a0f5c5345305e0"
+    },
+    {
+      "path": "src/logseq_matryca_parser/logos_parser.py",
+      "sha256": "5f3c1cf7aa19d06c2928a5509019da0b2132791298ecdba64138979959352b31"
+    },
+    {
+      "path": "src/logseq_matryca_parser/logseq_markdown.py",
+      "sha256": "f2c01c46e8f3ccac33ff7f8f9eedbf65afedc33de28c3ece37a6a895f37c6dcd"
+    },
+    {
+      "path": "src/logseq_matryca_parser/logseq_paths.py",
+      "sha256": "a8c6d2aad41202f3113a5ae000ffde1685aedfe95442db7a3a709d4da191e834"
+    },
+    {
+      "path": "src/logseq_matryca_parser/synapse.py",
+      "sha256": "b47e0eef5ab5e85f7c1526555df4ddc5f8763f90d156063a0066ae4cb74e0696"
+    },
+    {
+      "path": "src/logseq_matryca_parser/synapse_embed.py",
+      "sha256": "307cd5a1a3b59d99df53dc781605567d92620ef2a7dd04fafe0d68e649ed56cb"
+    },
+    {
+      "path": "tests/__init__.py",
+      "sha256": "2f7f2fea2e8766faaf8557de487d9b5e268c14c3c542f70dd3884992662d11f8"
+    },
+    {
+      "path": "tests/parser_assurance/__init__.py",
+      "sha256": "8016eeffd400b5d2312d188a01400bb98b2b80dfd6666757a31fa47f0c3dcc19"
+    },
+    {
+      "path": "tests/parser_assurance/invariants.py",
+      "sha256": "f6ca006a48982a416899bd3fc3f0c76bf69d9125d32040ee911142c06e92190f"
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "b7dd6aaccd39382737dd85fe0470f87fd0f856c748bf6761920e581fc9556cb4"
+    }
+  ],
+  "source_aggregate_sha256": "ff84db72b86d1cf9faf7190c56371c6ba31d1512d4941b4eb9a7980d429869c9"
+}

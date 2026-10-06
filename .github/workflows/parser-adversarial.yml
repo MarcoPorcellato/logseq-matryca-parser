@@ -4,6 +4,27 @@ on:
   schedule:
     - cron: "17 4 * * 3"
   workflow_dispatch:
+    inputs:
+      hosted_cleanup_qualification:
+        description: Run one opt-in Ubuntu synthetic cleanup qualification
+        required: false
+        default: false
+        type: boolean
+      expected_ref:
+        description: Exact branch ref selected for this qualification
+        required: false
+        default: ""
+        type: string
+      expected_commit:
+        description: Full lowercase commit SHA selected for this qualification
+        required: false
+        default: ""
+        type: string
+      expected_workflow_sha256:
+        description: Expected SHA-256 of this workflow file at selected ref
+        required: false
+        default: ""
+        type: string
 
 concurrency:
   group: parser-adversarial-${{ github.repository }}
@@ -14,6 +35,7 @@ permissions:
 
 jobs:
   bounded-generated-assurance:
+    if: github.event_name != 'workflow_dispatch' || inputs.hosted_cleanup_qualification != true
     runs-on: ubuntu-24.04
     timeout-minutes: 10
 
@@ -38,3 +60,40 @@ jobs:
 
       - name: Verify checkout unchanged
         run: make verify-clean
+
+  hosted-cleanup-qualification:
+    if: github.event_name == 'workflow_dispatch' && inputs.hosted_cleanup_qualification == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout selected event commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Validate qualification identity before installation
+        env:
+          QUALIFICATION_ENABLED: ${{ inputs.hosted_cleanup_qualification }}
+          EXPECTED_REF: ${{ inputs.expected_ref }}
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          EXPECTED_WORKFLOW_SHA256: ${{ inputs.expected_workflow_sha256 }}
+        run: bash .github/qualification/offline-probe/run_hosted_qualification.sh --identity-only
+
+      - name: Install pinned uv and Python
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.11.7"
+          python-version: "3.12.13"
+          enable-cache: false
+
+      - name: Run bounded synthetic qualification
+        env:
+          QUALIFICATION_ENABLED: ${{ inputs.hosted_cleanup_qualification }}
+          EXPECTED_REF: ${{ inputs.expected_ref }}
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          EXPECTED_WORKFLOW_SHA256: ${{ inputs.expected_workflow_sha256 }}
+        run: bash .github/qualification/offline-probe/run_hosted_qualification.sh
