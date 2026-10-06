@@ -65,9 +65,37 @@ run_capped() {
 }
 
 identity_status=0
-install_status="$(run_capped install 30 uv --version)"
-if (( install_status == 0 )) && ! grep -qx 'uv 0.11.7' "${private_dir}/install.capture"; then
-  install_status=1
+install_status="$(run_capped install 30 uv self version --output-format json)"
+if (( install_status == 0 )); then
+  install_status="$(run_capped install-version 5 python3 -c '
+import json
+import sys
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON key")
+        result[key] = value
+    return result
+
+def reject_constant(value):
+    raise ValueError("nonfinite JSON value")
+
+try:
+    with open(sys.argv[1], encoding="utf-8") as source:
+        info = json.load(source, object_pairs_hook=unique_object, parse_constant=reject_constant)
+    if type(info) is not dict or info.get("package_name") != "uv" or info.get("version") != "0.11.7":
+        raise ValueError("unexpected uv identity")
+    metadata = info["commit_info"]
+    if metadata is not None:
+        if type(metadata) is not dict or type(metadata.get("commits_since_last_tag")) is not int:
+            raise ValueError("invalid release metadata")
+        if metadata["commits_since_last_tag"] != 0:
+            raise ValueError("non-release build")
+except Exception:
+    sys.exit(1)
+' "${private_dir}/install.capture")"
 fi
 record_status "identity\t${identity_status}\ninstall\t${install_status}"
 
