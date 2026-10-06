@@ -382,34 +382,236 @@ def test_specialized_workflows_pin_standard_runner_images(workflow_name: str) ->
     assert "runs-on: ubuntu-24.04" in workflow
 
 
-def test_specialized_workflows_bound_every_job() -> None:
-    expected_job_counts = {
-        "dependency-review.yml": 1,
-        "parser-adversarial.yml": 1,
-        "scorecard.yml": 1,
-        "daily-metrics.yml": 1,
-        "pypi_publish.yml": 4,
-    }
+def _workflow_jobs(text: str) -> list[list[str]]:
+    """Read only conventional block jobs; reject layouts we cannot inspect."""
+    jobs: dict[str, list[str]] = {}
+    inside = False
+    seen = False
+    current: list[str] | None = None
+    for line in text.splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if line.startswith("jobs:"):
+            assert not seen and re.fullmatch(r"jobs:\s*(?:#.*)?", line)
+            seen = inside = True
+            continue
+        if not inside:
+            continue
+        assert "\t" not in line[: len(line) - len(line.lstrip())]
+        indent = len(line) - len(line.lstrip())
+        if indent == 0:
+            inside = False
+            continue
+        if indent == 2:
+            match = re.fullmatch(r"  ([A-Za-z_][A-Za-z0-9_-]*):\s*(?:#.*)?", line)
+            assert match is not None, "unsupported job declaration"
+            name = match[1]
+            assert name not in jobs, "duplicate job"
+            current = jobs[name] = []
+        else:
+            assert indent >= 4 and current is not None, "ambiguous job layout"
+            assert not (indent == 4 and line.lstrip().startswith("<<:")), "merged job"
+            current.append(line)
+    assert seen and jobs, "missing block jobs"
+    return list(jobs.values())
 
-    for name, count in expected_job_counts.items():
-        workflow = (ROOT / ".github/workflows" / name).read_text(encoding="utf-8")
-        assert workflow.count("timeout-minutes:") == count
+
+def _require_job_bounds(text: str) -> None:
+    for job in _workflow_jobs(text):
+        limits = [line for line in job if line.startswith("    timeout-minutes:")]
+        assert len(limits) == 1, "each job needs its own timeout"
+        assert re.fullmatch(r"    timeout-minutes:\s*[1-9][0-9]*\s*(?:#.*)?", limits[0])
+
+
+def _require_read_only_checkouts(text: str) -> None:
+    checkout_count = 0
+    for job in _workflow_jobs(text):
+        markers = [i for i, line in enumerate(job) if line.startswith("    steps:")]
+        assert len(markers) == 1 and re.fullmatch(r"    steps:\s*(?:#.*)?", job[markers[0]])
+        steps: list[list[str]] = []
+        for line in job[markers[0] + 1 :]:
+            indent = len(line) - len(line.lstrip())
+            if indent == 4:
+                break
+            if indent == 6:
+                assert re.match(r"      - (?:name|uses|run|id|if|shell):", line), "unsupported step"
+                steps.append([line])
+            else:
+                assert indent >= 8 and steps, "ambiguous step layout"
+                assert not (indent == 8 and line.lstrip().startswith("<<:")), "merged step"
+                steps[-1].append(line)
+        assert steps, "empty steps"
+        for step in steps:
+            uses = [line for line in step if re.match(r"(?:      - |        )uses:", line)]
+            assert len(uses) <= 1, "duplicate step uses"
+            if not uses:
+                continue
+            scalar = uses[0].split("uses:", 1)[1].split(" #", 1)[0].strip()
+            plain = r"[A-Za-z0-9_.][A-Za-z0-9_./:@-]*"
+            assert re.fullmatch(rf"(?:{plain}|'{plain}'|\"{plain}\")", scalar), (
+                "unsupported uses scalar"
+            )
+            action = scalar.strip("\"'")
+            if not action.casefold().startswith("actions/checkout@"):
+                continue
+            checkout_count += 1
+            with_markers = [i for i, line in enumerate(step) if line.startswith("        with:")]
+            assert len(with_markers) == 1
+            start = with_markers[0]
+            assert re.fullmatch(r"        with:\s*(?:#.*)?", step[start])
+            options: list[str] = []
+            for line in step[start + 1 :]:
+                indent = len(line) - len(line.lstrip())
+                if indent <= 8:
+                    break
+                if indent == 10:
+                    assert not line.lstrip().startswith("<<:"), "merged checkout options"
+                    options.append(line)
+            flags = [line for line in options if line.startswith("          persist-credentials:")]
+            assert len(flags) == 1
+            assert re.fullmatch(r"          persist-credentials:\s*false\s*(?:#.*)?", flags[0])
+    assert checkout_count > 0, "missing inspected checkout"
+
+
+def test_specialized_workflows_bound_every_job() -> None:
+    for name in (
+        "dependency-review.yml",
+        "parser-adversarial.yml",
+        "scorecard.yml",
+        "daily-metrics.yml",
+        "pypi_publish.yml",
+    ):
+        _require_job_bounds((ROOT / ".github/workflows" / name).read_text(encoding="utf-8"))
 
 
 def test_specialized_read_only_checkouts_do_not_persist_credentials() -> None:
-    expected = {
-        "dependency-review.yml": 1,
-        "parser-adversarial.yml": 1,
-        "scorecard.yml": 1,
-        "pypi_publish.yml": 2,
-    }
-
-    for name, count in expected.items():
-        workflow = (ROOT / ".github/workflows" / name).read_text(encoding="utf-8")
-        assert workflow.count("persist-credentials: false") == count
+    for name in (
+        "dependency-review.yml",
+        "parser-adversarial.yml",
+        "scorecard.yml",
+        "pypi_publish.yml",
+    ):
+        _require_read_only_checkouts(
+            (ROOT / ".github/workflows" / name).read_text(encoding="utf-8")
+        )
 
     metrics = (ROOT / ".github/workflows/daily-metrics.yml").read_text(encoding="utf-8")
     assert "persist-credentials: true" in metrics
+
+
+def _synthetic_specialized_workflows(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, adversarial: str
+) -> None:
+    workflows = tmp_path / ".github/workflows"
+    workflows.mkdir(parents=True)
+    for name in ("dependency-review.yml", "scorecard.yml", "daily-metrics.yml", "pypi_publish.yml"):
+        (workflows / name).write_text(
+            (ROOT / ".github/workflows" / name).read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+    (workflows / "parser-adversarial.yml").write_text(adversarial, encoding="utf-8")
+    monkeypatch.setattr(__import__(__name__, fromlist=["ROOT"]), "ROOT", tmp_path)
+
+
+def test_workflow_contracts_accept_multiple_independently_protected_jobs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _synthetic_specialized_workflows(
+        tmp_path,
+        monkeypatch,
+        """jobs:
+  first:
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@abc
+        with:
+          persist-credentials: false
+  second:
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@abc
+        with:
+          persist-credentials: false
+""",
+    )
+    test_specialized_workflows_bound_every_job()
+    test_specialized_read_only_checkouts_do_not_persist_credentials()
+
+
+@pytest.mark.parametrize(
+    "workflow",
+    [
+        "jobs:\n  first:\n    timeout-minutes: 10\n  second:\n    runs-on: ubuntu-24.04\n",
+        "jobs:\n  first:\n    steps:\n      - run: true\n        timeout-minutes: 10\n",
+        "jobs: {first: {timeout-minutes: 10}}\n",
+        "jobs:\n  first:\n    timeout-minutes: 10\n  first:\n    runs-on: ubuntu-24.04\n",
+        "jobs:\n  first:\n    timeout-minutes: 0\n",
+        "jobs:\n  first:\n    timeout-minutes: true\n",
+    ],
+)
+def test_workflow_contract_rejects_unbounded_or_ambiguous_jobs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, workflow: str
+) -> None:
+    _synthetic_specialized_workflows(tmp_path, monkeypatch, workflow)
+    with pytest.raises(AssertionError):
+        test_specialized_workflows_bound_every_job()
+
+
+@pytest.mark.parametrize(
+    "later_step",
+    [
+        "      - uses: actions/checkout@def\n",
+        "      - uses: actions/checkout@def\n        with:\n          persist-credentials: true\n",
+    ],
+)
+def test_workflow_contract_rejects_unprotected_later_checkout(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, later_step: str
+) -> None:
+    workflow = (
+        "jobs:\n  first:\n    timeout-minutes: 10\n    steps:\n"
+        "      - uses: actions/checkout@abc\n        with:\n"
+        "          persist-credentials: false\n" + later_step
+    )
+    _synthetic_specialized_workflows(tmp_path, monkeypatch, workflow)
+    with pytest.raises(AssertionError):
+        test_specialized_read_only_checkouts_do_not_persist_credentials()
+
+
+def test_workflow_contract_rejects_credential_flag_on_unrelated_step(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    workflow = (
+        "jobs:\n  first:\n    timeout-minutes: 10\n    steps:\n"
+        "      - uses: actions/checkout@abc\n"
+        "      - uses: example/other@abc\n        with:\n"
+        "          persist-credentials: false\n"
+    )
+    _synthetic_specialized_workflows(tmp_path, monkeypatch, workflow)
+    with pytest.raises(AssertionError):
+        test_specialized_read_only_checkouts_do_not_persist_credentials()
+
+
+@pytest.mark.parametrize(
+    "scalar",
+    [
+        ">-\n          actions/checkout@def",
+        "|-\n          actions/checkout@def",
+        "*checkout",
+        "!!str actions/checkout@def",
+        '"actions/\\x63heckout@def"',
+    ],
+)
+def test_workflow_contract_rejects_unsupported_uses_after_protected_checkout(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, scalar: str
+) -> None:
+    workflow = (
+        "jobs:\n  first:\n    timeout-minutes: 10\n    steps:\n"
+        "      - uses: actions/checkout@abc\n        with:\n"
+        "          persist-credentials: false\n      - uses: " + scalar + "\n"
+    )
+    _synthetic_specialized_workflows(tmp_path, monkeypatch, workflow)
+    with pytest.raises(AssertionError):
+        test_specialized_read_only_checkouts_do_not_persist_credentials()
 
 
 def test_adversarial_workflow_uses_the_locked_environment() -> None:

@@ -10,6 +10,16 @@ on:
         required: false
         default: false
         type: boolean
+      official_corpus_probe:
+        description: Run one opt-in diagnostic on all 313 pinned official documents
+        required: false
+        default: false
+        type: boolean
+      expected_selection_sha256:
+        description: Exact public selection SHA-256 required for corpus mode
+        required: false
+        default: ""
+        type: string
       expected_ref:
         description: Exact branch ref selected for this qualification
         required: false
@@ -35,7 +45,7 @@ permissions:
 
 jobs:
   bounded-generated-assurance:
-    if: github.event_name != 'workflow_dispatch' || inputs.hosted_cleanup_qualification != true
+    if: github.event_name != 'workflow_dispatch' || (inputs.hosted_cleanup_qualification != true && inputs.official_corpus_probe != true)
     runs-on: ubuntu-24.04
     timeout-minutes: 10
 
@@ -62,7 +72,7 @@ jobs:
         run: make verify-clean
 
   hosted-cleanup-qualification:
-    if: github.event_name == 'workflow_dispatch' && inputs.hosted_cleanup_qualification == true
+    if: github.event_name == 'workflow_dispatch' && inputs.hosted_cleanup_qualification == true && inputs.official_corpus_probe != true
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -97,3 +107,42 @@ jobs:
           EXPECTED_COMMIT: ${{ inputs.expected_commit }}
           EXPECTED_WORKFLOW_SHA256: ${{ inputs.expected_workflow_sha256 }}
         run: bash .github/qualification/offline-probe/run_hosted_qualification.sh
+
+  official-corpus-qualification:
+    # Combined opt-ins deliberately reach the rejecting identity gate, not all-skip green.
+    if: github.event_name == 'workflow_dispatch' && inputs.official_corpus_probe == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    permissions:
+      contents: read
+    env:
+      CORPUS_ENABLED: ${{ inputs.official_corpus_probe }}
+      QUALIFICATION_ENABLED: ${{ inputs.hosted_cleanup_qualification }}
+      EXPECTED_REF: ${{ inputs.expected_ref }}
+      EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+      EXPECTED_WORKFLOW_SHA256: ${{ inputs.expected_workflow_sha256 }}
+      EXPECTED_SELECTION_SHA256: ${{ inputs.expected_selection_sha256 }}
+
+    steps:
+      - name: Checkout exact selected event commit without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Validate corpus identity before installation
+        run: bash .github/qualification/offline-probe/run_corpus_campaign.sh --identity-only
+
+      - name: Install pinned uv and selected Python without caches
+        timeout-minutes: 2
+        env:
+          UV_CACHE_DIR: ${{ runner.temp }}/official-corpus-qualification/uv-cache
+          UV_PYTHON_INSTALL_DIR: ${{ runner.temp }}/official-corpus-qualification/uv-python
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.11.7"
+          python-version: "3.12.13"
+          enable-cache: false
+
+      - name: Run controls and the complete bounded corpus diagnostic
+        run: bash .github/qualification/offline-probe/run_corpus_campaign.sh

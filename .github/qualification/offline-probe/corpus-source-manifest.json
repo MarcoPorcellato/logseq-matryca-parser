@@ -1,6 +1,18 @@
 {
   "files": [
     {
+      "path": ".github/qualification/offline-probe/corpus-selection.json",
+      "sha256": "f7bd6a4dea937cee48d69670f11a1c7673feb54d333b67c95f51acf4033153ff"
+    },
+    {
+      "path": ".github/qualification/offline-probe/corpus_campaign.py",
+      "sha256": "18235a9b1719654f18a6147e6e42d5ed710da09feb1ed71227f6512328e55f8a"
+    },
+    {
+      "path": ".github/qualification/offline-probe/corpus_inputs.py",
+      "sha256": "b014bc8f3afe23f2f86c9a1396e224f6309f0a71824ebcc917d98bc5d67227f0"
+    },
+    {
       "path": ".github/qualification/offline-probe/extract_results.py",
       "sha256": "08c93a4e810adf10d8e1f71fe717d0fd391a41bc8e960babc1bbe0f23456a70f"
     },
@@ -9,8 +21,20 @@
       "sha256": "f0aa711cbb93937f05ea09d8ed42d33f9c97e11bdcf2709ee34e3f64ba658337"
     },
     {
+      "path": ".github/qualification/offline-probe/run_corpus_campaign.sh",
+      "sha256": "fbfb0387df527d26f47bd62c8350d9fc3935ffe33b6134fda17418a5d0858bf4"
+    },
+    {
       "path": ".github/qualification/offline-probe/run_hosted_qualification.sh",
       "sha256": "f850a2e3474a24c07df2c45425b43113dd5c8e4609be943f71136633c0c0aba9"
+    },
+    {
+      "path": ".github/qualification/offline-probe/source-manifest.json",
+      "sha256": "0635adebce46224c643325c5703a5ef1a43eafbb1b4b9f0c48f36f892578d7b2"
+    },
+    {
+      "path": ".github/qualification/offline-probe/test_corpus_campaign.py",
+      "sha256": "17ae82aaaaeddc8f60be2e1ee00121dd8ad2fad14b5570650282d9f81b1a197f"
     },
     {
       "path": ".github/qualification/offline-probe/test_probe.py",
@@ -141,9 +165,13 @@
       "sha256": "f6ca006a48982a416899bd3fc3f0c76bf69d9125d32040ee911142c06e92190f"
     },
     {
+      "path": "tests/test_quality_gate_contract.py",
+      "sha256": "916e0bc63a8cefa6f879f96bb8e87a58113911b67054a35b66106d48ecf9c2e7"
+    },
+    {
       "path": "uv.lock",
       "sha256": "b7dd6aaccd39382737dd85fe0470f87fd0f856c748bf6761920e581fc9556cb4"
     }
   ],
-  "source_aggregate_sha256": "d105baf8dbbd1245be94f602ada9d509ebe14c653de1cbd694ee673fa8c0c990"
+  "source_aggregate_sha256": "08658b04bbd1cc25eb1edbe9e90bdfec1c94969b63991371df4e0ce5af867e60"
 }
