@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-02
-verified: 2026-10-02
+last_verified: 2026-10-10
+verified: 2026-10-10
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -36,6 +36,8 @@ navigation layers only.
 | [AI contribution policy](AI_CONTRIBUTION_POLICY.md) | Human accountability, privacy, disclosure, and review rules for AI-assisted work |
 | [Agent action contract](reference/AGENT_ACTION_CONTRACT.md) | Read/write authority, provenance, prompt-injection boundary, and approval matrix |
 | [Support and compatibility matrix](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Supported runtimes, public API tiers, optional integrations, companion boundary, and explicit limits |
+| [Official Logseq Markdown compatibility evidence](quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) | Results for all 313 selected official documents, focused metadata semantics, reproducible provenance and explicit coverage limits |
+| [Additional Logseq Markdown datasets](quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) | Researched corpus candidates, licensing, syntax diversity and priorities for future qualification |
 | [Org reader limits](internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md) | Experimental private Org subset, selected diagnostics, and explicit non-conformance limits |
 | [Org reader implementation plan](superpowers/plans/2026-09-29-logseq-org-parser.md) | Completed D2 qualification; D3 graph integration deferred and Markdown improvement prioritized |
 | [LlamaIndex companion migration checkpoint](internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md) | Historical migration evidence with a dated current-state refresh; rebind live PR and release state before action |

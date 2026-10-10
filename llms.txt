@@ -47,6 +47,8 @@ boundaries. Read AGENTS.md before changing the repository.
 ## Build, test, and contribute
 
 - [Contributing](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/CONTRIBUTING.md): Environment setup, quality gates, tests, and pull-request workflow.
+- [Official Logseq Markdown compatibility evidence](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md): Verified results for all 313 selected official documents, metadata-only page semantics, corpus provenance and explicit coverage limits.
+- [Additional Logseq Markdown datasets](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md): Research-backed corpus candidates, syntax diversity, content rights and proposed priorities; these datasets have not yet been tested.
 - [Security policy](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/SECURITY.md): Supported versions and private vulnerability reporting.
 - [Public roadmap](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/ROADMAP_2026-2027.md): Milestones, dependencies, and evidence gates without release promises.
 - [Issue triage policy](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/ISSUE_TRIAGE_POLICY.md): Issue labels, priorities, good-first issue lifecycle, stale-work, and closure rules.

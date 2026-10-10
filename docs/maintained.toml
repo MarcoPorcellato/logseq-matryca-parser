@@ -35,6 +35,8 @@ maintained_documents = [
   "docs/README_READABILITY_REPORT_2026-08-08.md",
   "docs/quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md",
   "docs/quality/README.md",
+  "docs/quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md",
+  "docs/quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md",
   "docs/decisions/index.md",
   "docs/decisions/ADR-0001-PROTOCOL_ADAPTER_BOUNDARY.md",
   "docs/decisions/ADR-0002-OFFICIAL-OKF-V02-MIGRATION-GATE.md",
