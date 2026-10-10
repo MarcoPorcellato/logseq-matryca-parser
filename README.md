@@ -20,7 +20,7 @@
 
 [👉 **TRY THE LIVE INTERACTIVE DEMO**](https://MarcoPorcellato.github.io/logseq-matryca-parser/)
 
-[Quickstart](#quickstart) · [Documentation](docs/README.md) · [Roadmap](docs/ROADMAP_2026-2027.md) · [Cookbook](docs/COOKBOOK.md) · [Release highlights](RELEASE_HIGHLIGHTS.md) · [AI / LLM index](llms.txt)
+[Quickstart](#quickstart) · [Compatibility](#verified-logseq-markdown-compatibility) · [Documentation](docs/README.md) · [Roadmap](docs/ROADMAP_2026-2027.md) · [Cookbook](docs/COOKBOOK.md) · [Release highlights](RELEASE_HIGHLIGHTS.md) · [AI / LLM index](llms.txt)
 
 </div>
 
@@ -52,6 +52,22 @@ selected by the caller.
 - **Visualize:** render an interactive reference-topology graph with the transitional,
   feature-frozen LENS adapter.
 - **Use an AI agent:** start from [`AGENTS.md`](AGENTS.md) or the concise [`llms.txt`](llms.txt) index.
+
+---
+
+## Verified Logseq Markdown compatibility
+
+**313/313 selected official Logseq Markdown documents passed our corpus checks.**
+
+Testing against a pinned official documentation snapshot found no parser
+exceptions, timeouts, or structural failures. Every input retained its exact
+source text, and returned nodes passed identity and tree-linkage checks.
+
+[Detailed compatibility report](docs/quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) · [Per-document results](docs/quality/official_logseq_corpus_2026-10-10.json) · [Additional dataset study](docs/quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md)
+
+These results verify the tested corpus and checks—not complete interpretation
+of every Logseq feature. Further datasets and semantic tests will extend this
+evidence; they are not included in the current results.
 
 ---
 
@@ -313,6 +329,7 @@ We welcome issues, pull requests, and constructive feedback.
 | **Documentation index** | [docs/README.md](docs/README.md) — active vs historical docs |
 | **Documentation system** | [docs/DOCUMENTATION_SYSTEM.md](docs/DOCUMENTATION_SYSTEM.md) — authority, lifecycle, metadata, and federation |
 | **Roadmap** | [docs/ROADMAP_2026-2027.md](docs/ROADMAP_2026-2027.md) — milestones, dependencies, and evidence gates |
+| **Markdown compatibility evidence** | [Official Logseq corpus report](docs/quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) — all 313 selected official documents passed raw-content and tree checks; semantic coverage and limits are explained |
 | **Support** | [SUPPORT.md](SUPPORT.md) — safe issue routing, support scope, and response boundaries |
 | **Governance** | [GOVERNANCE.md](GOVERNANCE.md) — decisions, maintainer path, and conflict handling |
 | **Agent safety** | [docs/reference/AGENT_ACTION_CONTRACT.md](docs/reference/AGENT_ACTION_CONTRACT.md) — authority, approvals, provenance, and prompt-injection boundary |

@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-04
-verified: 2026-10-04
+last_verified: 2026-10-10
+verified: 2026-10-10
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,13 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-10-10 — Official Markdown corpus evidence and broader dataset research
+
+- Prepare the [official Logseq Markdown compatibility report](quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) and a sanitized per-document evidence ledger for all 313 selected official documents. Each recorded input passed raw-content retention and tree invariants; this is a bounded compatibility result, not complete upstream semantic conformance.
+- Explain the 60 property-only pages that correctly produced no block nodes. Add focused synthetic tests for exact page metadata, key normalization, references, LF/CRLF text and the page-versus-root-list file APIs. The initial fixture expectation was corrected against official Logseq label syntax and the existing alias-reference contract; production code is unchanged.
+- Research [additional public datasets](quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) for broader syntax and graph coverage, distinguishing verified candidates, content rights and future admission from executed tests. No additional corpus has been downloaded or parsed in this phase.
+- Link the evidence through human and machine documentation entry points. Final local quality results and independent review are recorded in the report; publication and hosted qualification of this new documentation/test diff remain separate.
 
 ## 2026-10-04 — Published release status reconciled across entrypoints
 
