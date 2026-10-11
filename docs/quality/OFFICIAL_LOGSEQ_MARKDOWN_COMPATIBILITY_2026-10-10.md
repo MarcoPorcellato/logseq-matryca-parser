@@ -8,9 +8,9 @@ audience: integrators
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-10
-verified: 2026-10-10
-stale_after: 2027-01-08
+last_verified: 2026-10-11
+verified: 2026-10-11
+stale_after: 2027-01-09
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -21,7 +21,7 @@ superseded_by: null
 
 **Evidence date:** 2026-10-10
 
-**State:** Local quality gate and independent review completed; prepared for publication. Hosted qualification and publication of this new diff remain separate.
+**State:** Published through PR #239; its exact merged snapshot passed hosted qualification. Publication status was reverified on 2026-10-11. Later local changes require their own qualification and publication.
 
 **Scope:** A frozen selection from the official file-based Logseq documentation repository, plus separate existing synthetic tests.
 
@@ -92,7 +92,7 @@ block_roots = parser.parse_file(source_path)  # [] for the same property-only pa
 
 An empty `parse_file()` result therefore does not establish that the source page is empty. Prefer `parse_page_file()` when page title, properties, references, or raw source are part of the integration contract. The implementation and return shapes are visible in the pinned [`logos_parser.py`](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/bda44e60a36cfa73d086159fa7dabea8f29dd519/src/logseq_matryca_parser/logos_parser.py#L1092-L1097) and [`LogseqPage` model](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/bda44e60a36cfa73d086159fa7dabea8f29dd519/src/logseq_matryca_parser/logos_core.py).
 
-Three focused synthetic metadata-only cases have since passed locally: LF input, CRLF input, and a real temporary-file check of both page-returning and root-list readers. Their assertions cover normalized page-property keys, exact values and order, unchanged raw text, property-derived references, and zero roots. See the [focused metadata-only regression tests](../../tests/test_parser_metadata_only.py). This is a separate small test result; it was not part of the 313-file campaign. They also passed in the complete native test suite described below. A hosted result for these new bytes remains pending; local qualification is not publicly immutable exact-commit evidence.
+Three focused synthetic metadata-only cases passed locally: LF input, CRLF input, and a real temporary-file check of both page-returning and root-list readers. Their assertions cover normalized page-property keys, exact values and order, unchanged raw text, property-derived references, and zero roots. See the [focused metadata-only regression tests](../../tests/test_parser_metadata_only.py). This is a separate small test result; it was not part of the 313-file campaign. They also passed in the complete native test suite described below and were subsequently included in the exact merged snapshot qualified by PR #239's post-merge hosted matrix. That later qualification does not add property assertions to the historical corpus campaign.
 
 ## Capability and evidence matrix
 
@@ -106,7 +106,7 @@ The following tests are concrete, checked-in examples of bounded behavior. Excep
 | Tasks, priorities, and selected scheduled/deadline/repeater fields | The `m1a-task-timing` fixture and exact snapshot listed in the [compatibility manifest](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/bda44e60a36cfa73d086159fa7dabea8f29dd519/tests/fixtures/compat/v1/manifest.json) | Covers the fields encoded in that fixture; does not prove every date form, task transition, or upstream application behavior. |
 | Graph loading, aliases, backlinks, and page identity | [`test_load_directory_bulk_parse_and_uuid_lookup`, `test_page_aliases_and_backlink_resolution`, and `test_graph_backlink_resolution_cross_page`](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/bda44e60a36cfa73d086159fa7dabea8f29dd519/tests/test_graph.py) | These exercise bounded synthetic graphs and graph APIs, not all 313 selected documents as one loaded vault or every graph feature in the official application. |
 | Seeded adversarial generation and bounded malformed-input handling | [`test_generated_cases_are_bounded_and_order_independent`](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/bda44e60a36cfa73d086159fa7dabea8f29dd519/tests/test_parser_adversarial.py) and [`test_parser_malformed_properties.py`](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/bda44e60a36cfa73d086159fa7dabea8f29dd519/tests/test_parser_malformed_properties.py) | Fixed seeds, bounded recipes, and explicit replay improve repeatability; generated cases are not a sample of every valid Logseq syntax or user graph. |
-| Metadata-only file semantics | Three focused local cases in the [new test file](../../tests/test_parser_metadata_only.py) | Focused result: 3 passed, also included in the passing full native suite. Hosted qualification of the new bytes remains pending; these tests do not retroactively alter what the corpus campaign asserted. |
+| Metadata-only file semantics | Three focused cases in the [metadata-only test file](../../tests/test_parser_metadata_only.py) | Focused local result: 3 passed, also included in the passing full native suite and PR #239's qualified merged snapshot. These tests do not retroactively alter what the corpus campaign asserted. |
 
 ## Local qualification of the report and regressions
 
@@ -129,13 +129,37 @@ The native suite duration was 227.31 seconds, which is a test-suite duration, no
 
 The independent read-only review reconciled the complete ledger and checked the test expectations, source bindings, documentation claims, and scoped privacy boundaries. Its notes preserve the evidence limits: the retained native-suite capture contains initial and terminal segments rather than a complete raw log, and some pinned upstream source bodies were unavailable through the reviewer's web reader. A separate fresh metadata lookup confirmed the pinned importer files exist; this does not establish generated-output quantities or generator execution. These notes do not change the recorded 313-document result.
 
+## Publication and hosted qualification
+
+[PR #239](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/239)
+published the report, corpus ledger, dataset assessment, metadata-only
+regressions, and related documentation at head
+`f3e45c1db9a17536c64d3d07ec08c9298cff4f62`. It was squash-merged on
+2026-10-10 as `5c5839979c88b220f43dd35a17c8600383e1b654`; the merge tree
+matches that PR head exactly.
+
+Fresh inspection on 2026-10-11 confirmed thirteen successful post-merge checks:
+the [main CI run](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/38047142547),
+[CodeQL](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/38047142577),
+and [Scorecard](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/38047142529).
+Main CI includes all six native combinations of Ubuntu 24.04, macOS 15, and
+Windows 2025 with Python 3.12 and 3.13, plus quality, dependency audit, and
+package-contract checks. These are existing exact-commit hosted results; this
+verification did not rerun a workflow.
+
+Hosted qualification covers that published snapshot, including the
+metadata-only tests. It did not rerun the 313-document corpus campaign and
+does not qualify the separate, uncommitted multiline randomized shielding
+helper, its pending tests, or later documentary edits. No tag or release
+follows from this publication record.
+
 ## Keep the assurance lanes distinct
 
 This report combines context from three different evidence lanes, which answer different questions:
 
 1. **Frozen real-document campaign.** The 313-file selection was fixed and hash-bound; it was not randomly sampled. It exercises complete inputs from one official documentation revision, but the campaign's runtime oracle was structural and raw-content based.
 2. **Deterministic fixtures and generated tests.** The checked-in compatibility corpus has literal source/snapshot hashes, exact parse snapshots, repeated-parse comparisons, and selected semantic round-trip projections. Property-based tests generate bounded models; for example, outline/property tests use derandomized generation with a ceiling of 40 examples per profile. Other adversarial test recipes use explicit seeds and bounded families. “Generated” or “seeded” describes how test inputs are constructed; it does not make the 313-source selection a statistical sample.
-3. **Hosted CI.** The primary repository commit `bda44e60a36cfa73d086159fa7dabea8f29dd519` has a separate [post-merge hosted CI result](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/37202912593), after [PR #238](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/238). That receipt concerns its exact merged snapshot and named jobs. The corpus campaign was a local run against distinct candidate `e5e9845…`; the hosted receipt is not the campaign result and does not qualify later local report, ledger, or metadata-test bytes. No hosted result for those later bytes is claimed here.
+3. **Hosted CI.** The primary repository commit `bda44e60a36cfa73d086159fa7dabea8f29dd519` has a separate [post-merge hosted CI result](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/37202912593), after [PR #238](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/238). PR #239 subsequently published and qualified the report, ledger, and metadata-only tests at `5c5839979c88b220f43dd35a17c8600383e1b654`, as recorded above. Each receipt concerns its exact merged snapshot and named jobs. The corpus campaign was a local run against distinct candidate `e5e9845…`; neither hosted receipt is a corpus rerun or qualification of later uncommitted work.
 
 The project [CI assurance map](https://github.com/MarcoPorcellato/logseq-matryca-parser/blob/bda44e60a36cfa73d086159fa7dabea8f29dd519/docs/CI_ASSURANCE.md) describes the repository's separate exact-revision CI and release boundaries. Local corpus observations, source-level equivalence, fixture tests, and hosted jobs should remain separately labeled in downstream reports.
 
@@ -173,4 +197,4 @@ Until that work exists, use phrases such as **“bounded compatibility evidence 
 
 When adding a report or regression from a corpus finding, preserve the historical run as-is; do not retrofit semantic claims into its result rows. Add small synthetic tests with literal expected values when they isolate a behavior, and keep any newly executed regression, full local gate, hosted CI, and publication as separate evidence states. If a zero-node or metadata-only page is involved, check the page-returning API before interpreting an empty root list. Keep official source paths and hashes in the ledger, but avoid copying upstream prose or exposing private runtime receipts.
 
-The repository's normal review workflow remains applicable: update only evidence actually checked and link the immutable source and test references. This record completed its local gate and independent review; any later publication or changed source snapshot needs its own qualification. This report is a compatibility evidence record, not an upstream certification or an expansion of the Parser's supported contract.
+The repository's normal review workflow remains applicable: update only evidence actually checked and link the immutable source and test references. The published version completed its local gate, independent review, and exact-commit hosted qualification. Any changed source snapshot or later publication needs its own qualification. This report is a compatibility evidence record, not an upstream certification or an expansion of the Parser's supported contract.

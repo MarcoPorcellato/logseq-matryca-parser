@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-04
-verified: 2026-10-04
-stale_after: 2026-11-03
+last_verified: 2026-10-11
+verified: 2026-10-11
+stale_after: 2026-11-10
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -51,15 +51,16 @@ These are exact-commit hosted results, not a release or universal correctness
 claim. The composite change remains unreleased; #104 remains open. Historical
 entries below retain the gates that were pending at their respective checkpoints.
 
-The next approved local-only slice checks closed inline code, HTML comments,
+The subsequent merged shielding slice checks closed inline code, HTML comments,
 single-dollar math and double-dollar math against repeated visible references.
 It is separate from composite schema 3 and does not change the parser, serializer,
 dependencies or execution protocol. Qualification of that new test file is
-recorded separately below; the preceding CI results do not qualify new bytes.
+recorded separately below; the preceding composite CI results do not qualify
+the later shielding bytes.
 
 ## Follow-up: closed inline shielding and occurrence order
 
-The maintainer approved a separate, local-only test slice on 2026-10-04 against
+The maintainer initially approved a separate, local-only test slice on 2026-10-04 against
 `bf9bb1dcfa137b7837ec6826e238c23ee4b2f34f`. It adds one pytest file,
 `tests/test_parser_shielding_properties.py`, without changing production code,
 dependencies, existing composite schema 3 or its runner.
@@ -92,7 +93,7 @@ Escaping, nested or malformed regions, delimiter adjacency, multiline/fenced
 states, query blocks, bracketed tags, metadata, graph/filesystem behavior and
 serializer round trips are excluded. Finite synthetic recipe context may
 appear in pytest failures; this is not a source-free logging guarantee.
-Local implementation now passes fifteen focused tests. The observed focused
+The local implementation checkpoint passed fifteen focused tests. The observed focused
 selection contained the four anchors and sixteen distinct generated recipes,
 with forty parser calls across all four families and no parser failure.
 Generation is explicitly limited to `Phase.generate`. A hand-written
@@ -111,9 +112,69 @@ checked separately after recording these results. Independent GPT-6.1 Sol
 Medium implementation review returned PASS_WITH_NOTES, with no test or oracle
 blockers. Its documentary note was addressed by explicitly labeling the older
 composite/pre-publication checkpoint as historical without changing its numbers.
-This is local evidence, not new hosted qualification.
-This tranche does not authorize commit, push, PR, merge,
-release or tracker mutation, and does not close #104.
+Those were local results, not hosted qualification at that checkpoint. The
+initial implementation authorization excluded publication, merge, release and
+tracker mutation; the subsequent publication and merge authorizations were
+separate.
+
+[PR #238](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/238)
+published exactly the shielding test and two documentation updates at
+`8c93769fcf2f48d96afb38c216385778464e98eb`. All fourteen hosted checks passed,
+including the complete native matrix on Ubuntu 24.04, macOS 15 and Windows 2025
+with Python 3.12 and 3.13, quality, dependency audit/review, package contract and
+CodeQL checks. Independent GPT-6.1 Sol Medium merge-readiness review returned
+PASS. Following explicit maintainer authorization, the PR was squash-merged
+on 2026-10-04 as `bda44e60a36cfa73d086159fa7dabea8f29dd519`.
+The merge tree matched the qualified PR head exactly.
+
+Its [post-merge CI](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/37202912593)
+also passed all six native combinations, quality, dependency audit and package
+checks. Separate post-merge security checks passed. These results qualify the
+exact merged snapshot, not every Markdown construct or any later edit. The
+shielding tranche remains unreleased and does not close #104. No tag, release
+or tracker mutation was included in that merge.
+
+## Follow-up: bounded randomized multiline shielding
+
+A separate, unpublished test-only increment extends the shielding oracle to
+closed multiline HTML comments and three- or four-character backtick/tilde
+fences. Its synthetic grammar has one flat root, one or two sequential literal
+regions, and independently specified visible and hidden references. Sources
+are capped at 1,024 UTF-8 bytes and twelve logical lines. Generation selects
+eight unique recipes, each evaluated in adjacent LF/CRLF variants, for at most
+sixteen parse-only evaluations. Serialization, reparse, nested or malformed
+regions, graph loading, and general Markdown conformance are excluded.
+
+One previously authorized macOS pilot on 2026-10-04, with seed `1731073619`,
+completed all sixteen evaluations and matched every expected observation.
+The observed outer supervisor reported verified completion and reaped cleanup;
+a separate file-only check reconciled the provisional receipt with that
+observed result, its source bindings, and the sixteen result records. A
+provisional receipt alone is not a PASS. No production parser defect was
+found in this finite sample. That single-run authorization is consumed; this
+update neither repeats the pilot nor adds a new seed or dataset.
+
+The 2026-10-11 local follow-up strengthens qualification tests rather than
+the parser or randomized helper. It establishes a valid receipt baseline
+before varying only cleanup status, requires exact observed output-cap bytes
+and classifications, and rejects unrelated optimized-runtime startup errors.
+Four representative faults that the previous controls accepted are now
+detected by the same parser-free sensitivity probe. This is four selected
+negative controls, not a comprehensive mutation score. All 68 focused tests
+passed on the corrected macOS snapshot. Harmless lifecycle fixtures also use
+bounded startup margins and atomic readiness/PID publication without removing
+deadline, acknowledgement, cleanup, or descendant-disappearance checks.
+
+The historical pilot qualified the selected dirty snapshot at
+`bda44e60a36cfa73d086159fa7dabea8f29dd519`, not a pristine commit or later
+changes. The helper retains SHA-256
+`e974d215119040b87096052212e1642636c1c935c30df3265a3ab05ebc36a44f`;
+the qualification test bytes have since changed. The separate
+[official-corpus report](OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md)
+and its PR #239 hosted results do not qualify these uncommitted test/helper
+bytes, native Linux/Windows pilot execution, or a release. Production source,
+dependencies, and CI workflows remain unchanged by this increment. #104
+remains open.
 
 ## Scope, baseline, and authority
 
