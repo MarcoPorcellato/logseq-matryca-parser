@@ -136,7 +136,7 @@ or tracker mutation was included in that merge.
 
 ## Follow-up: bounded randomized multiline shielding
 
-A separate, unpublished test-only increment extends the shielding oracle to
+At its pre-publication checkpoint, a separate test-only increment extended the shielding oracle to
 closed multiline HTML comments and three- or four-character backtick/tilde
 fences. Its synthetic grammar has one flat root, one or two sequential literal
 regions, and independently specified visible and hidden references. Sources
@@ -171,10 +171,83 @@ changes. The helper retains SHA-256
 `e974d215119040b87096052212e1642636c1c935c30df3265a3ab05ebc36a44f`;
 the qualification test bytes have since changed. The separate
 [official-corpus report](OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md)
-and its PR #239 hosted results do not qualify these uncommitted test/helper
+and its PR #239 hosted results did not qualify those then-uncommitted test/helper
 bytes, native Linux/Windows pilot execution, or a release. Production source,
 dependencies, and CI workflows remain unchanged by this increment. #104
 remains open.
+
+## Follow-up: independent semantic anchors (S1)
+
+The randomized shielding increment was subsequently published through
+[PR #240](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/240).
+All fourteen submitted-head checks passed, including the six native OS/Python
+combinations. Its controlled squash merge is
+`d6aa5ce2f5b1643e4769ce3e16133e7bb99eb9d7`; the merge tree matches the reviewed
+PR head. Those checks qualify the submitted tests, not a new randomized pilot
+on every platform or the later S1 files.
+
+S1 adds four project-authored, finite mixed-syntax anchors in
+[`semantic_anchors.py`](../../tests/parser_assurance/semantic_anchors.py),
+with calibration and integration tests in
+[`test_parser_semantic_anchors.py`](../../tests/test_parser_semantic_anchors.py):
+
+- `nested-native-property-order-crlf` combines ordered native-ID metadata,
+  task priorities, property and body references, a Unicode continuation,
+  child ownership and CRLF without a final newline.
+- `equal-content-distinct-native-order` checks equal-looking sibling content
+  with distinct native IDs and different explicit property orders. Parser
+  identity must remain unique; no stability across edits is claimed.
+- `fenced-fake-id-does-not-rebind` retains the complete literal fence content
+  while preventing an enclosed fake ID and property-looking text from
+  replacing active metadata or leaking hidden references. Visible wikilink
+  occurrences remain distinct from deduplicated references.
+- `metadata-only-crlf-no-final-newline` checks a resolved page title, alias,
+  ordered properties, page references and zero outline roots.
+
+Literal expectations precede parsing and check raw input, title, page
+properties/order/references, exact preorder paths and child counts, node
+content and owned source lines, native/synthetic identity, ordered reference
+fields, tasks and priorities. Property mappings and explicit order fields
+are checked separately. Existing UUID-uniqueness, parent, left, path and
+outline invariants remain in use; no expected parser UUID is obtained from
+production code.
+
+Parser-free calibration accepts four separately handwritten positive pages.
+Four selected controls then change only an observed node property order,
+page property order, native ID or synthetic flag while leaving expected facts
+unchanged. All **4/4** fail with the exact designated assertion message. This
+is selected-fault sensitivity evidence, not production mutation coverage or
+a general mutation score.
+
+The first local focused check passed all thirteen tests. One complete new
+integration invocation performs ten parser calls: four independently asserted
+first parses, four independently asserted fresh replays and two selected
+round-trip reparses. Replay reuses `exact_parse_v1`; only the first two anchors
+select `semantic_roundtrip_v1`, with recomputed synthetic UUIDs, preserved
+native IDs and outline-path relations. Original source spans and newline
+bytes are not imposed on the serialized reparse. The other two cases finish
+after replay without skip markers.
+
+The admitted allocation is at most twelve new recipes, sixteen nodes, logical
+depth three with root depth zero, three property keys per page/node and
+2 KiB of UTF-8 per page. These four fixed anchors actually use at most two
+nodes and depth one. Indentation is two spaces, line endings are selected
+LF/CRLF variants, and the only new fence is a closed triple-backtick pair.
+Active native IDs are unique within each page; the fenced fake ID is inert.
+
+This is a partial independent oracle. Clean text, assets, date/repeater
+fields, broader malformed/stateful syntax, graph loading, filesystem writes
+and performance retain their existing tests and later roadmap; they are not
+new coverage claimed by S1. Existing generated, shielding, compatibility,
+Org and optional-adapter gates are unchanged. No production code, dependency,
+workflow, fixture schema or projection contract changes here.
+
+This recorded S1 checkpoint is local and uncommitted. Complete local quality
+gates and eventual exact-commit hosted qualification are separate evidence;
+the Mac-focused result does not prove native Linux/Windows behavior. S1 does
+not close [#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104),
+authorize another corpus campaign or establish universal Logseq Markdown
+compatibility.
 
 ## Scope, baseline, and authority
 
