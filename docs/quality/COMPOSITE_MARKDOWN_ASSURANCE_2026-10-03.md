@@ -249,6 +249,107 @@ not close [#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues
 authorize another corpus campaign or establish universal Logseq Markdown
 compatibility.
 
+## Follow-up: independent graph lifecycle assurance (S2)
+
+S2 adds a small, test-only lifecycle model in
+[`graph_lifecycle.py`](../../tests/parser_assurance/graph_lifecycle.py) and
+[`test_graph_lifecycle_properties.py`](../../tests/test_graph_lifecycle_properties.py).
+Its original baseline is `de03c154f55073e469a619728815bef7d83d6299`.
+Production parsing, graph algorithms, dependencies, workflows, existing
+projections and compatibility fixtures are unchanged. The preceding S1
+pre-publication description remains a historical checkpoint, not a statement
+that later S1 integration did not occur.
+
+Two eight-action chains always exercise creation, content/native-ID edits,
+alias replacement, incoming-link changes, rename, deletion and restoration.
+They place alias and link changes in opposite orders and use LF/CRLF. A
+separate generated property draws sixteen short legal traces from four finite
+authoring page IDs, rather than arbitrary strings or filesystem paths. Each
+active page has three nodes, one disjoint alias and two literal native IDs.
+Sources have seven lines, at most 1 KiB each and 4 KiB per active vault.
+
+Independent assertions check canonical/alias routes, exact relative source
+ownership, outline slots, content, spans, ordered properties and links,
+native/parser identity separation, current registry membership and historical
+UUID removal. Backlinks are unique source nodes, not occurrence counts:
+literal incoming links remain queryable when their target disappears, while
+stale resolved contributions and deleted pages' outgoing sources must vanish.
+Expected facts come from authored images, not a parser or index builder.
+Only after these assertions pass does a cold graph satisfy the same model
+and compare the unchanged `exact_parse_v1` projection.
+
+Rename has two graph stages: invalidate the old path and assert the page
+absent; admit the new path and assert its restored current identity. The
+filesystem already contains the moved file during both stages. No cold
+comparison is made against the deliberately incomplete intermediate graph.
+
+Before graph execution, four handwritten positive observations and both
+handwritten action timelines qualified the model. All **8/8** selected
+observed-result corruptions failed with their exact designated assertions;
+**6/6** separate source/root/tree-owner controls also failed as intended.
+These are selected sensitivity controls, not production mutation testing or
+a comprehensive mutation score. Strict finite JSON replay rejects unknown
+or duplicate fields, floats/nonfinite numbers, bool-as-int IDs, illegal
+transitions, expanded bounds, altered producer hashes and wrong source
+digests before filesystem work. Replay metadata excludes raw Markdown,
+absolute paths and environment values; general pytest tracebacks do not
+carry a source-free privacy guarantee.
+
+The recorded pre-documentation local checkpoints are:
+
+| Invocation | Tests | Duration | S2 traces | Actions | Reloads | Directory loads | Accounted page parses |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| First focused S2 file | 49 passed | 1.11 s | 18 | 78 | 82 | 96 | 286 |
+| First full quality gate | 1,335 passed, 5 skipped | 234.59 s for pytest | 18 | 98 | 104 | 116 | 354 |
+| Aggregate of these two S2 invocations | — | — | 36 | 176 | 186 | 212 | 640 |
+
+The complete gate also passed Ruff, Mypy, documentation and vendor checks;
+coverage remained **89.83%**, above the unchanged 80% floor. Separately,
+381 existing graph, collision, concurrency, snapshot, S1, compatibility and
+round-trip regressions passed in 14.68 seconds. They are not counted as new
+S2 trace calls. The initial 46 parser-free calibration tests add no graph
+calls. The expected missing-helper/missing-runner RED outcomes and corrected
+local style/typing errors remain in the execution record; they are not parser
+defects. The two successful S2 invocations used different test-helper bytes
+after formatting and adding source bindings to operation evidence, so their
+generated action counts are recorded separately rather than assumed equal.
+
+Page-parse counts are source-level accounting of selected load/reload calls,
+not instrumented parser telemetry. The generated property has a 24-body
+guard, including confirmation evaluations, and refuses body 25 before writes
+or graph calls. With both fixed chains, one complete S2 pytest invocation
+admits at most 26 traces, 416 reloads, 234 directory loads and 1,144 accounted
+page parses. Repeated qualification invocations have separate counts and are
+aggregated in the local execution ledger; the ceiling is not the total work
+budget or a hard per-call wall-clock guarantee. Generation has no database,
+shrinking, health-check suppression, automatic retry or separate seed campaign.
+
+An independent implementation review identified a minor test-evidence gap:
+outer admission, budget or temporary-directory cleanup failures could fail
+pytest without appearing in the saved first-failure record. The test-only
+correction records typed harness failures separately from graph-operation
+counts and retains the earliest graph or harness failure across later
+callbacks. Eight parser-free controls verify admission/cleanup-stage reporting,
+budget refusal before its callback, and preservation of earlier failure
+evidence, including admission failure before a later cleanup exception. These
+synthetic controls do not force an actual operating-system
+cleanup failure or qualify Hypothesis's internal confirmation scheduling.
+
+No production defect was found in this finite sample. Final-documentation
+qualification and independent implementation review are separate from the
+specific checkpoints in this table. Hosted qualification of the eventual
+submitted commit still requires all six native OS/Python cells; these Mac
+results do not prove Linux/Windows execution, a release, universal Markdown
+compatibility or readiness of every Trama integration.
+
+Collisions, differently cased alias source/routing policy, Unicode
+normalization, namespace/journal paths, block-reference backlinks, filesystem
+adversaries, writers, watchers, randomized concurrency, Org/DB and performance
+remain outside S2. The wider programme and
+[#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104)
+remain open. No Git, tracker, corpus, publication or release action follows
+from local test success.
+
 ## Scope, baseline, and authority
 
 The maintainer approved this bounded, test-only implementation on 2026-10-03.
