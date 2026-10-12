@@ -58,6 +58,114 @@ dependencies or execution protocol. Qualification of that new test file is
 recorded separately below; the preceding composite CI results do not qualify
 the later shielding bytes.
 
+## Follow-up: bounded lexical-state mutation sensitivity (S4a)
+
+The 2026-10-12 local S4a slice adds tests and this record only. Production
+parser code, dependencies, workflows, existing tests and the 80% coverage floor
+are unchanged. It characterizes the private `_LexicalState` protocol, not a
+new public API or complete raw-Markdown grammar.
+
+### Independent expectations and selected faults
+
+Eight handwritten anchors (A1–A8) independently assert the initial state and
+every action prefix: mode, frontmatter eligibility, property eligibility and
+the exact return value. They cover YAML closure, code/query closure asymmetry,
+drawer payload/end/bullet handling, structural recovery after continuation and
+pre-node prose. The four existing direct lexical tests remain unchanged and
+are credited separately; overlapping obligations are not new coverage.
+
+Six curated faults run only in isolated in-memory copies of the exact reviewed
+private module. The canonical UTF-8/LF source SHA-256 is
+`1b14077d0294861859b4ce26aa4573589d3067b08a342467b6a1e9a9b209344b`,
+selected from base commit `c40d700ecbe10f8294c5f25c6c0a185ebfd2bdbb`.
+The original module, class and parser import are never replaced.
+
+| Fault | Deliberate source-copy change | Required witness, zero-based action index |
+|---|---|---|
+| M1 | Code closure leaves properties disabled | A2, index 3, `code_close`, `properties_allowed` |
+| M2 | Query closure incorrectly enables properties | A3, index 3, `query_close`, `properties_allowed` |
+| M3 | Drawer exit requires both end and bullet flags | A4/index 3/`drawer_end` or A5/index 2/`drawer_bullet`, `mode` |
+| M4 | Structural recovery omits the property reset | A6, index 2, `structural`, `properties_allowed` |
+| M5 | Query-continuation guard is negated | A7, index 1, `query_continue`, `mode` |
+| M6 | Pre-node prose incorrectly preserves frontmatter | A8, index 0, `pre_node_prose`, `frontmatter_active` |
+
+The same eight anchors first pass on an unmodified copy, then run against each
+of the six variants. All 48 mutant-anchor rows are retained: **10 DETECTED and
+38 MATCH**, with every designated fault witnessed, including both M3 exits.
+Matching rows are not equivalent mutants or omissions; all six selected
+mutants have a complete required witness. This is selected-fault sensitivity,
+not a global mutation score and not ten production bugs. No supported-contract
+production defect was established by this finite slice.
+
+### Generation, admission and ownership
+
+One deterministic Hypothesis property uses 32 desired examples, generation
+only, no shrinking, profile switch, persistent database or extra replay.
+Its next action is chosen from the independent model's legal set, never from
+product observations. Trace recipes admit exactly the versioned schema and
+actions, at most eight actions and 512 UTF-8 bytes. Duplicate/unknown fields,
+illegal transitions, numeric/nonfinite forms and oversized input are rejected
+before target work.
+
+Trusted Python source admission requires a regular selected file, at most
+16 KiB and the exact canonical hash. CRLF-to-LF conversion applies only to
+this source-copy identity check, not to Markdown input. AST validation admits
+one catalog edit and rejects extra edits or ambiguous selectors before
+executable compilation. No vault text, recipe text or arbitrary source module
+is executed.
+
+Copies use synthetic compilation and file labels, never the production
+pathname. The loader registers only an absent synthetic module identity and
+removes only its own exact object. Foreign collisions/replacements are
+retained and reported as harness errors, not erased or credited as detections.
+Two positive ownership controls instantiate no target. This is trusted-source
+execution, not a general untrusted-code sandbox.
+
+### Observed local invocation and limits
+
+One locally hardened focused invocation passed **80 tests**. Its shared counters
+reported **96** attempted/completed traces and constructed targets:
+16 fixed baselines, 48 mutant-anchor traces and 32 generated admissions.
+All **394** explicit seam dispatch attempts completed; all nine outer
+executable AST compilations completed. No original identity/source change,
+saved actual-class failure or owned-module leak was observed.
+
+The unchanged per-new-file-invocation ceilings are nine outer executable
+compilations, 112 target instances, 896 seam dispatches and 48 admitted generated
+bodies. Dataclass internal code generation and internal method-to-method calls
+are not those instrumented counts. Fake/frozen harness controls add no actual
+or copied target evaluations. Invalid setup, type, ownership or protocol errors
+are not mutant kills. First-failure evidence is immutable and takes precedence
+over later confirmation/budget errors; structured summaries reject overflow
+rather than truncating above 64 KiB.
+
+Nine additional fake/frozen failure-path controls reproduce and guard an
+evidence-retention defect in the test harness, not the production parser.
+Matrix rows are retained as collected, including partial matrices and
+unexpected-field errors. Bounded setup, protocol, ownership and acceptance
+diagnostics remain separate from mutant detections and exclude raw exception
+text. Incomplete accounting or remaining module identities are reported before
+finalization rejects the invocation; preserved diagnostics never turn a
+failure into a pass. These controls instantiate and compile no target copies.
+
+Receipt metadata reports checkout state as `not inspected`; the recorded base
+commit is the historical trusted-source anchor, not a live Git-state claim.
+Two additional loader-entry controls inject zero-edit and extra-edit mutation
+output and require rejection before compilation reservation or registry change.
+A private process-local missing-validation check confirmed that both controls
+fail safely at a forbidden compiler if that guard is removed. No invalid source
+was compiled or executed, and no production or persistent helper was weakened.
+
+Repeated focused and full gates are separate invocations and are accounted
+separately. These numbers describe this recorded invocation, not aggregate
+development work, uniform sampling, all state combinations or a hard time,
+memory, process-cleanup or security guarantee. Full local quality/package
+receipts are recorded separately; the new native hosted matrix and
+installed-wheel typing remain unexecuted until separately authorized
+exact-commit publication. Earlier S3/corpus receipts do not qualify S4.
+The wider programme and #104 remain open; no new corpus or exploratory worker
+is activated by this checkpoint.
+
 ## Follow-up: serialization and structured-export integrity (S3a)
 
 The 2026-10-12 local candidate adds independent preservation checks for native
