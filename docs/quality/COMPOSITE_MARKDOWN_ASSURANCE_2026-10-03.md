@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-11
-verified: 2026-10-11
-stale_after: 2026-11-10
+last_verified: 2026-10-12
+verified: 2026-10-12
+stale_after: 2026-11-11
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -57,6 +57,96 @@ It is separate from composite schema 3 and does not change the parser, serialize
 dependencies or execution protocol. Qualification of that new test file is
 recorded separately below; the preceding composite CI results do not qualify
 the later shielding bytes.
+
+## Follow-up: serialization and structured-export integrity (S3a)
+
+The 2026-10-12 local candidate adds independent preservation checks for native
+scalar Logseq serialization and the JSON/flat exporters. It changes tests and
+this record only; runtime code, dependencies, workflows, existing projections
+and the 80% coverage floor are unchanged. `ForgeExporter` remains experimental.
+
+### Independently protected data
+
+- JSON protects all 28 current node fields, nested children and exact array order.
+  Flat output protects the 27 non-children fields and preorder. Scalars keep
+  exact types, including bool versus int and missing keys versus null.
+- Literal empty, four-node root/child/grandchild/second-root, and equal-content
+  sibling images carry distinct identities, native IDs, metadata and pointers.
+  Property insertion order is distinct from explicit `properties_order`;
+  ordinary JSON object-key ordering is not a promised export contract.
+- Native fixtures independently specify first-parse semantics, canonical LF
+  output and reparsed semantics. Scalar metadata precedes continuation prose;
+  a later property-looking line remains literal. LF/CRLF input, two/four-space
+  widths, page-only and empty input, Unicode, task/reference facts, spans and
+  native ID ownership are covered within this finite grammar.
+- Serialization nonmutation is a separate full-state obligation: immutable,
+  alias-free before/after observations cover all 12 page and recursively all
+  28 node fields, including `clean_text` and coherent parser-identity changes.
+  This snapshot is not semantic truth. Structured export purity uses authored
+  input facts, including deliberate mutation of returned nested payloads.
+
+Expected semantic facts are authored literals and finite recipe choices, never
+computed by the parser, serializer, cleaner, visitor or another exporter.
+Existing tree invariants and `semantic_roundtrip_v1` are secondary checks after
+independent assertions, with explicit recomputed parser IDs, preserved native
+IDs and outline-path relation policy.
+
+### Calibration, generation and local results
+
+Fifty parser-free calibration cases include twenty selected exact-message
+corruption controls and three additional full-state native mutation controls.
+Each corruption control first establishes a passing baseline. Four further
+parser-free harness cases protect body-25 refusal before the callback, earliest
+failure retention, admission before product calls, and attempted/completed
+accounting when an operation raises. These are selected sensitivity checks,
+not a global mutation score.
+
+The complete new file passed 70 tests: the calibration/harness cases, three
+fixed structured cases, twelve fixed native cases and one finite Hypothesis
+property. The recorded invocation admitted sixteen generated bodies and
+explicitly attempted/completed 56 parser calls, 28 native serializations,
+19 JSON exports and 19 flat exports, with no first failure. The separate
+body guard permits at most 24 bodies per invocation, including confirmations;
+ceilings are 72/36/27/27 calls respectively. There is no shrinking, persistent
+example database, automatic retry or extra seed/corpus lane. Counters describe
+test-side API boundaries, not internal parser instrumentation, distinct grammar
+coverage or hard time/resource guarantees. Repeated gates are separate runs.
+
+Existing relevant regressions passed 184 tests. The first full local quality
+gate passed 1,413 tests with five unchanged platform skips and 89.85% coverage,
+plus lint, typing, documentation and vendor checks. Final documentary bytes,
+package checks and independent implementation review require their own recorded
+completion; these initial results alone do not qualify a later published commit.
+
+Original development failures remain preserved: a missing helper, a missing
+reference-list bound in the new admission helper, typing/formatting issues,
+and initially omitted priority-letter references in the native literal. The
+last expectation was corrected against the pre-existing independently authored
+S1 anchors: current Parser semantics include priority letters as tags/refs.
+This slice preserves that established contract; it does not certify upstream
+Logseq application priority-reference semantics. No supported-contract production
+defect was established in these finite S3a cases.
+
+### Limits and later qualification
+
+Native metadata is restricted to non-empty single-line strings. The authored
+domain has at most four nodes, depth two, three property keys/array entries,
+two continuation lines, 2 KiB native text and 8 KiB structured fixture JSON.
+Structured JSON values have bounded nesting and no arbitrary objects.
+
+Roots-only exporters do not receive page metadata. Clean Markdown/Obsidian are
+intentionally transforming formats, not claimed lossless here. Writers, real
+assets, filesystem confinement, graph/watchers, concurrency, CLI/adapters,
+Org/DB/LENS, Trama UI, arbitrary Markdown, YAML, drawers/lists/macros,
+performance, real-vault privacy and new datasets remain outside this slice.
+Native clean-text semantics are not asserted through a production cleaner.
+
+No local wheel installation or installed-wheel typing is part of this tranche.
+That check belongs to the unchanged hosted package job after separate publication
+authorization, alongside the six native OS/Python cells. The candidate is
+local and uncommitted; it is not a release, complete Markdown compatibility,
+security certification or completion of #104. Earlier corpus grants and S2
+results do not qualify these new bytes.
 
 ## Follow-up: closed inline shielding and occurrence order
 
