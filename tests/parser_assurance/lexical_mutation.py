@@ -6,6 +6,7 @@ import ast
 import dataclasses
 import hashlib
 import json
+import reprlib
 import stat
 import sys
 from collections.abc import Callable, Iterator, Mapping
@@ -14,7 +15,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
-from types import CodeType, MappingProxyType, ModuleType
+from types import CodeType, FunctionType, MappingProxyType, ModuleType
 from typing import Literal, Protocol, cast
 
 from hypothesis import strategies as st
@@ -684,6 +685,17 @@ def validate_copy_code(code: CodeType, label: str) -> None:
             validate_copy_code(constant, label)
 
 
+@dataclasses.dataclass
+class _DataclassCodeReference:
+    """Obtain the active standard library's representation wrapper identity."""
+
+
+_REPR_WRAPPER_CODES = (
+    cast(FunctionType, _DataclassCodeReference.__repr__).__code__,
+    cast(FunctionType, reprlib.recursive_repr()(lambda self: "")).__code__,
+)
+
+
 def validate_copy_module(module: ModuleType, label: str) -> None:
     if module.__file__ != label:
         raise CloneAttributionError("copy file label is not synthetic")
@@ -696,13 +708,28 @@ def validate_copy_module(module: ModuleType, label: str) -> None:
             raise CloneAttributionError("copy is missing a source-derived method")
         validate_copy_code(code, label)
     for name in ("__init__", "__repr__", "__eq__"):
-        code = getattr(getattr(factory, name, None), "__code__", None)
+        method = getattr(factory, name, None)
+        code = getattr(method, "__code__", None)
+        if name == "__repr__" and any(code is known for known in _REPR_WRAPPER_CODES):
+            if not isinstance(method, FunctionType) or not isinstance(code, CodeType):
+                raise CloneAttributionError("invalid standard-library representation wrapper")
+            closure = method.__closure__ or ()
+            if len(closure) != len(code.co_freevars):
+                raise CloneAttributionError("representation wrapper closure is incomplete")
+            try:
+                cells = dict(zip(code.co_freevars, closure, strict=True))
+                wrapped = cells["user_function"].cell_contents
+            except (AttributeError, KeyError, ValueError) as error:
+                raise CloneAttributionError("representation wrapper has no captured target") from error
+            if not isinstance(wrapped, FunctionType) or getattr(method, "__wrapped__", wrapped) is not wrapped:
+                raise CloneAttributionError("representation wrapper metadata does not match its target")
+            code = wrapped.__code__
         if (
             not isinstance(code, CodeType)
-            or code.co_filename not in {"<string>", label, dataclasses.__file__}
-            or code.co_filename == str(selected_source_path())
+            or code.co_filename not in {"<string>", label}
         ):
             raise CloneAttributionError("dataclass code claims an inappropriate source identity")
+        validate_copy_code(code, code.co_filename)
 
 
 @contextmanager

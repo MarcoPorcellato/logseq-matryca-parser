@@ -1013,6 +1013,58 @@ def test_outer_supervisor_cleans_descendant_process_group() -> None:
         os.kill(descendant, 0)
 
 
+def _selector_failure_child_script() -> str:
+    """Selected fixture code; its parent must own descendant reaping."""
+    return """
+import os, signal, subprocess, sys, time
+from pathlib import Path
+
+child = subprocess.Popen([sys.executable, '-c', 'import time;time.sleep(30)'])
+
+def stop(signum, frame):
+    child.terminate()
+    child.wait(timeout=0.5)
+    Path(sys.argv[1]).with_suffix('.reaped').write_text(f'{child.pid} {child.returncode}')
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, stop)
+with open(sys.argv[1] + '.pending', 'x') as marker:
+    marker.write(f'{os.getpid()} {child.pid}')
+os.replace(sys.argv[1] + '.pending', sys.argv[1])
+time.sleep(30)
+"""
+
+
+@pytest.mark.skipif(not _POSIX_PROCESS_SUPERVISION, reason="POSIX process groups are required")
+def test_selector_failure_fixture_reaps_its_descendant_before_exit(tmp_path: Path) -> None:
+    """Catch fixture termination leaving its own child for an external reaper."""
+    marker = tmp_path / "children.txt"
+    process = subprocess.Popen(
+        [sys.executable, "-c", _selector_failure_child_script(), str(marker)],
+        start_new_session=True,
+        stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+    try:
+        deadline = time.monotonic() + 4.0
+        while not marker.exists() and time.monotonic() < deadline:
+            time.sleep(0.005)
+        assert marker.exists(), "owned child fixture did not publish readiness"
+        parent_pid, descendant_pid = map(int, marker.read_text().split())
+        assert parent_pid == process.pid
+        os.killpg(process.pid, signal.SIGTERM)
+        process.wait(timeout=1.0)
+        reaped = marker.with_suffix(".reaped")
+        assert reaped.exists(), "fixture parent exited without recording its child wait"
+        assert reaped.read_text().split() == [str(descendant_pid), str(-signal.SIGTERM)]
+        with pytest.raises(ProcessLookupError):
+            os.kill(descendant_pid, 0)
+    finally:
+        if process.poll() is None:
+            with suppress(ProcessLookupError):
+                os.killpg(process.pid, signal.SIGKILL)
+            process.wait(timeout=1.0)
+
+
 @pytest.mark.skipif(not _POSIX_PROCESS_SUPERVISION, reason="POSIX process groups are required")
 @pytest.mark.parametrize("failure_kind", ["exception", "cancellation"])
 def test_outer_supervisor_reaps_group_after_selector_failure(
@@ -1021,12 +1073,7 @@ def test_outer_supervisor_reaps_group_after_selector_failure(
     failure_kind: str,
 ) -> None:
     marker = tmp_path / "children.txt"
-    child_script = (
-        "import os,subprocess,sys,time; "
-        "p=subprocess.Popen([sys.executable,'-c','import time;time.sleep(30)']); "
-        "f=open(sys.argv[1]+'.pending','x');f.write(str(os.getpid())+' '+str(p.pid));"
-        "f.close();os.replace(sys.argv[1]+'.pending',sys.argv[1]);time.sleep(30)"
-    )
+    child_script = _selector_failure_child_script()
     real_selector = selectors.DefaultSelector
     real_popen = randomized_shielding.subprocess.Popen
     owned_processes: list[subprocess.Popen[bytes]] = []

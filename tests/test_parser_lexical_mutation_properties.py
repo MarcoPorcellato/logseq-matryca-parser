@@ -581,6 +581,70 @@ def test_clone_attribution_rejects_production_identity_without_target_work(bad_l
             lex.validate_copy_code(root, label)
 
 
+def _attribution_control_module() -> tuple[Any, Any, str]:
+    """Exercise the real attribution guard without compiling or running a target."""
+    from types import FunctionType, ModuleType
+
+    def inert(self: object) -> None:
+        pass
+
+    label = "<s4-lexical-copy:attribution-control>"
+    methods = {
+        name: FunctionType(inert.__code__.replace(co_filename=label), {})
+        for name in lex._SOURCE_METHODS
+    }
+    for name in ("__init__", "__repr__", "__eq__"):
+        methods[name] = FunctionType(inert.__code__.replace(co_filename="<string>"), {})
+    factory = type("AttributionControl", (), methods)
+    module = ModuleType("attribution_control")
+    module.__file__ = label
+    module.__dict__["_LexicalState"] = factory
+    return module, factory, label
+
+
+def test_clone_attribution_accepts_standard_library_repr_wrapper() -> None:
+    """Catch rejecting the real reprlib wrapper used by Python 3.13 dataclasses."""
+    from reprlib import recursive_repr
+
+    module, factory, label = _attribution_control_module()
+    factory.__repr__ = recursive_repr()(factory.__repr__)
+    lex.validate_copy_module(module, label)
+
+
+@pytest.mark.parametrize("corruption", ("production", "metadata_decoy", "wrapper_spoof"))
+def test_clone_attribution_rejects_disguised_repr_source(corruption: str) -> None:
+    """Catch accepting a standard-library-looking wrapper hiding foreign code."""
+    import reprlib
+    from types import FunctionType
+
+    module, factory, label = _attribution_control_module()
+    generated = factory.__repr__
+    foreign = FunctionType(generated.__code__.replace(co_filename=str(lex.selected_source_path())), {})
+    wrapper: Any = reprlib.recursive_repr()(foreign)
+    if corruption == "metadata_decoy":
+        wrapper.__wrapped__ = generated
+    elif corruption == "wrapper_spoof":
+        wrapper = FunctionType(generated.__code__.replace(co_filename=str(reprlib.__file__)), {})
+        wrapper.__wrapped__ = generated
+    factory.__repr__ = wrapper
+    with pytest.raises(lex.CloneAttributionError):
+        lex.validate_copy_module(module, label)
+
+
+@pytest.mark.parametrize("method", ("__init__", "__eq__"))
+def test_clone_attribution_rejects_nested_generated_production_code(method: str) -> None:
+    """Catch checking only an outer generated label while nested code is foreign."""
+    from types import FunctionType
+
+    module, factory, label = _attribution_control_module()
+    generated = getattr(factory, method)
+    foreign = generated.__code__.replace(co_filename=str(lex.selected_source_path()))
+    disguised = generated.__code__.replace(co_consts=(*generated.__code__.co_consts, foreign))
+    setattr(factory, method, FunctionType(disguised, {}))
+    with pytest.raises(lex.CloneAttributionError):
+        lex.validate_copy_module(module, label)
+
+
 def _collect_mutant_matrix(invocation: dict[str, Any], source: bytes) -> None:
     """Keep one production-used collector available to fake failure controls."""
     rows = invocation["rows"]

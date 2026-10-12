@@ -60,9 +60,10 @@ the later shielding bytes.
 
 ## Follow-up: bounded lexical-state mutation sensitivity (S4a)
 
-The 2026-10-12 local S4a slice adds tests and this record only. Production
-parser code, dependencies, workflows, existing tests and the 80% coverage floor
-are unchanged. It characterizes the private `_LexicalState` protocol, not a
+The initial 2026-10-12 local S4a slice added tests and this record only. Production
+parser code, dependencies, workflows and the 80% coverage floor remain
+unchanged. The CI follow-up below also repairs an existing test fixture.
+This slice characterizes the private `_LexicalState` protocol, not a
 new public API or complete raw-Markdown grammar.
 
 ### Independent expectations and selected faults
@@ -159,12 +160,55 @@ was compiled or executed, and no production or persistent helper was weakened.
 Repeated focused and full gates are separate invocations and are accounted
 separately. These numbers describe this recorded invocation, not aggregate
 development work, uniform sampling, all state combinations or a hard time,
-memory, process-cleanup or security guarantee. Full local quality/package
-receipts are recorded separately; the new native hosted matrix and
-installed-wheel typing remain unexecuted until separately authorized
-exact-commit publication. Earlier S3/corpus receipts do not qualify S4.
+memory, process-cleanup or security guarantee. At the initial checkpoint,
+full local quality/package receipts were separate and the native matrix and
+installed-wheel typing remained pending separately authorized exact-commit
+publication. The subsequent CI result is recorded below. Earlier S3/corpus
+receipts do not qualify S4.
 The wider programme and #104 remain open; no new corpus or exploratory worker
 is activated by this checkpoint.
+
+### Native CI failure and bounded test-harness correction
+
+[Draft PR #244](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/244)
+published the initial slice. Its
+[first native CI run](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/38255225781)
+passed all three Python 3.12 cells but failed all three Python 3.13 cells.
+Quality, dependency checks, package/downstream-wheel typing and CodeQL passed.
+These results remain separate from the earlier local qualification.
+
+The shared Python 3.13 failure was a test-helper attribution rejection, not
+a demonstrated Markdown parsing counterexample. Python 3.13 dataclasses
+wrap their generated representation method through `reprlib`; the original
+guard expected the Python 3.12 wrapper location in `dataclasses` instead.
+An existing-interpreter standard-library diagnostic confirmed that difference.
+The correction recognizes exact standard-library wrapper code identities and
+validates the actual function captured in the wrapper's closure. Optional
+wrapper metadata must agree when present. Generated code and nested code
+still require synthetic labels; a filename that merely resembles a standard
+library path does not confer admission.
+
+Six additional parser-free attribution controls cover the genuine wrapper,
+foreign captured code, deceptive wrapper metadata, spoofed wrapper origin,
+and foreign code nested inside generated initialization/equality methods.
+RED controls exposed the original wrapper rejection and the missing nested
+generated-code check. These are test-harness defects; no arbitrary foreign
+code was executed or admitted as a parser result.
+
+The macOS/Python 3.13 cell also reported `unconfirmed` cleanup in an existing
+cancellation regression. That exact failure did not recur in a local
+diagnostic. Its fixture nevertheless created a descendant without waiting
+for it before parent termination, leaving reaping to an external process.
+The fixture now waits for its own descendant before exiting, and a separate
+regression requires the resulting reaping evidence and absence of that child.
+The supervisor implementation, deadlines, process-group checks, original
+`reaped` assertion and fail-closed treatment of `unconfirmed` are unchanged.
+The precise cause of the historical hosted failure remains unproven; this
+fixture repair must not be presented as retroactively qualifying that run.
+
+Corrective local and new exact-head native results are separate gates. The
+correction does not close #104, demonstrate universal Markdown compatibility,
+or authorize a merge or release.
 
 ## Follow-up: serialization and structured-export integrity (S3a)
 
