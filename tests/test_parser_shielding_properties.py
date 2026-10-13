@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import builtins
 import hashlib
 import json
 import os
@@ -12,10 +13,12 @@ import sys
 import threading
 import time
 from collections.abc import Iterator
-from contextlib import contextmanager, suppress
+from contextlib import contextmanager, redirect_stdout, suppress
 from dataclasses import dataclass, replace
+from io import StringIO
 from itertools import islice, product
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, cast
 
 import pytest
@@ -994,15 +997,188 @@ def test_outer_supervisor_caps_output_while_receiving() -> None:
     assert outcome.cleanup == "reaped"
 
 
+def _descendant_process_group_child_script() -> str:
+    """Let the fixture parent reap, but never independently kill, its child."""
+    return """
+import signal, subprocess, sys, time
+from pathlib import Path
+
+child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'])
+
+def stop(signum, frame):
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    child.wait()
+    Path(sys.argv[1]).with_suffix('.reaped').write_text(f'{child.pid} {child.returncode}')
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, stop)
+print(child.pid, flush=True)
+time.sleep(30)
+"""
+
+
+@contextmanager
+def _owned_descendant_fixture_control(
+    marker: Path,
+) -> Iterator[tuple[Any, subprocess.Popen[bytes], threading.Event, threading.Event]]:
+    """Exercise the trusted fixture without host signal changes or orphan risk."""
+    children: list[subprocess.Popen[bytes]] = []
+    handlers: dict[int, Any] = {}
+    wait_started = threading.Event()
+    fixture_signalled_child = threading.Event()
+
+    class FixturePaused(Exception):
+        pass
+
+    class WaitOnlyChild:
+        def __init__(self, process: subprocess.Popen[bytes]) -> None:
+            self.process = process
+
+        @property
+        def pid(self) -> int:
+            return self.process.pid
+
+        @property
+        def returncode(self) -> int | None:
+            return self.process.returncode
+
+        def wait(self) -> int:
+            wait_started.set()
+            return self.process.wait()
+
+        def terminate(self) -> None:
+            fixture_signalled_child.set()
+            self.process.terminate()
+
+        def kill(self) -> None:
+            fixture_signalled_child.set()
+            self.process.kill()
+
+    def launch_child(arguments: list[str]) -> WaitOnlyChild:
+        process = subprocess.Popen(
+            arguments,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+        children.append(process)
+        return WaitOnlyChild(process)
+
+    def register_handler(signum: int, handler: Any) -> None:
+        handlers[signum] = handler
+
+    def pause_fixture(seconds: float) -> None:
+        raise FixturePaused
+
+    modules = {
+        "subprocess": SimpleNamespace(Popen=launch_child),
+        "signal": SimpleNamespace(
+            SIGTERM=signal.SIGTERM, SIG_IGN=signal.SIG_IGN, signal=register_handler,
+        ),
+        "sys": SimpleNamespace(
+            executable=sys.executable, argv=["fixture", str(marker)], exit=sys.exit,
+        ),
+        "time": SimpleNamespace(sleep=pause_fixture),
+    }
+
+    def fixture_import(name: str, *args: Any, **kwargs: Any) -> Any:
+        if name in modules:
+            return modules[name]
+        return builtins.__import__(name, *args, **kwargs)
+
+    namespace = {
+        "__name__": "trusted_descendant_fixture_control",
+        "__builtins__": {**vars(builtins), "__import__": fixture_import},
+    }
+    try:
+        with redirect_stdout(StringIO()), pytest.raises(FixturePaused):
+            exec(_descendant_process_group_child_script(), namespace)
+        assert len(children) == 1
+        handler = handlers.get(signal.SIGTERM)
+        assert callable(handler), "fixture has no parent-owned termination handler"
+        yield handler, children[0], wait_started, fixture_signalled_child
+    finally:
+        for child in children:
+            if child.poll() is None:
+                child.terminate()
+            try:
+                child.wait(timeout=1.0)
+            except subprocess.TimeoutExpired:
+                child.kill()
+                child.wait(timeout=1.0)
+
+
+@pytest.mark.skipif(not _POSIX_PROCESS_SUPERVISION, reason="POSIX signal return codes are required")
+def test_descendant_fixture_waits_without_killing_its_child(tmp_path: Path) -> None:
+    """Catch a fixture hiding missing group signalling by killing its child itself."""
+    marker = tmp_path / "descendant.txt"
+    with _owned_descendant_fixture_control(marker) as (
+        handler, child, wait_started, fixture_signalled_child,
+    ):
+        exits: list[Any] = []
+        errors: list[BaseException] = []
+
+        def stop_parent() -> None:
+            try:
+                handler(signal.SIGTERM, None)
+            except SystemExit as error:
+                exits.append(error.code)
+            except BaseException as error:
+                errors.append(error)
+
+        thread = threading.Thread(target=stop_parent)
+        try:
+            thread.start()
+            assert wait_started.wait(timeout=1.0), "fixture did not wait for its child"
+            assert not fixture_signalled_child.is_set(), "fixture signalled its child itself"
+            assert child.poll() is None, "fixture terminated its child independently"
+            assert not exits
+        finally:
+            if child.poll() is None:
+                child.terminate()
+            try:
+                child.wait(timeout=1.0)
+            except subprocess.TimeoutExpired:
+                child.kill()
+                child.wait(timeout=1.0)
+            thread.join(timeout=1.0)
+            assert not thread.is_alive()
+
+        assert not errors
+        assert exits == [0]
+        assert not fixture_signalled_child.is_set()
+        assert marker.with_suffix(".reaped").read_text().split() == [
+            str(child.pid), str(-signal.SIGTERM),
+        ]
+
+
+@pytest.mark.skipif(not _POSIX_PROCESS_SUPERVISION, reason="POSIX signal return codes are required")
+def test_descendant_fixture_records_completed_wait_before_parent_exit(tmp_path: Path) -> None:
+    """Catch publishing reaping evidence or exiting before the owned wait completes."""
+    marker = tmp_path / "descendant.txt"
+    with _owned_descendant_fixture_control(marker) as (handler, child, _, fixture_signalled_child):
+        child.terminate()
+        with pytest.raises(SystemExit) as stopped:
+            handler(signal.SIGTERM, None)
+
+        assert stopped.value.code == 0
+        assert not fixture_signalled_child.is_set()
+        assert marker.with_suffix(".reaped").read_text().split() == [
+            str(child.pid), str(-signal.SIGTERM),
+        ]
+        assert child.returncode == -signal.SIGTERM
+        with pytest.raises(ProcessLookupError):
+            os.kill(child.pid, 0)
+
+
 @pytest.mark.skipif(not _POSIX_PROCESS_SUPERVISION, reason="POSIX process groups are required")
-def test_outer_supervisor_cleans_descendant_process_group() -> None:
-    script = (
-        "import subprocess,sys,time; p=subprocess.Popen([sys.executable,'-c',"
-        "'import time; time.sleep(30)']); print(p.pid,flush=True); time.sleep(30)"
-    )
+def test_outer_supervisor_cleans_descendant_process_group(tmp_path: Path) -> None:
+    marker = tmp_path / "descendant.txt"
+    script = _descendant_process_group_child_script()
     started = time.monotonic()
     outcome = _supervise_process(
-        [sys.executable, "-c", script], b"", deadline=started + 3.0,
+        [sys.executable, "-c", script, str(marker)], b"", deadline=started + 3.0,
         cleanup_reserve=1.0, output_limit=1024,
     )
 
@@ -1011,6 +1187,10 @@ def test_outer_supervisor_cleans_descendant_process_group() -> None:
     descendant = int(outcome.stdout.strip())
     with pytest.raises(ProcessLookupError):
         os.kill(descendant, 0)
+    fields = marker.with_suffix(".reaped").read_text().split()
+    assert len(fields) == 2
+    assert fields[0] == str(descendant)
+    assert int(fields[1]) in {-signal.SIGTERM, -signal.SIGKILL}
 
 
 def _selector_failure_child_script() -> str:
