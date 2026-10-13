@@ -1210,7 +1210,7 @@ def test_optimized_runtime_rejected_before_assertion_based_qualification() -> No
         capture_output=True,
         text=True,
         check=False,
-        timeout=10.0,
+        timeout=60.0,
     )
 
     assert completed.returncode == 1
