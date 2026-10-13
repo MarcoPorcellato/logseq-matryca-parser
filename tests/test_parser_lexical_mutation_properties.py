@@ -602,6 +602,79 @@ def _attribution_control_module() -> tuple[Any, Any, str]:
     return module, factory, label
 
 
+def _wrapped_repr_attribution_control() -> tuple[Any, Any, str, Any, Any]:
+    """Build an inert wrapper with matching metadata and its owned capture cell."""
+    from reprlib import recursive_repr
+
+    module, factory, label = _attribution_control_module()
+    wrapper: Any = recursive_repr()(factory.__repr__)
+    factory.__repr__ = wrapper
+    cells = dict(zip(wrapper.__code__.co_freevars, wrapper.__closure__, strict=True))
+    capture = cells["user_function"]
+    wrapper.__wrapped__ = capture.cell_contents
+    return module, factory, label, wrapper, capture
+
+
+def test_clone_attribution_rejects_repr_metadata_mismatch_with_valid_capture() -> None:
+    """Catch losing metadata consistency without a foreign captured-code decoy."""
+    from types import FunctionType
+
+    module, _, label, wrapper, capture = _wrapped_repr_attribution_control()
+    lex.validate_copy_module(module, label)
+    valid = capture.cell_contents
+    wrapper.__wrapped__ = FunctionType(valid.__code__, {})
+
+    with pytest.raises(lex.CloneAttributionError, match="metadata does not match its target"):
+        lex.validate_copy_module(module, label)
+
+
+def test_clone_attribution_rejects_empty_repr_capture() -> None:
+    """Catch leaking an empty capture's ValueError instead of a classified rejection."""
+    module, _, label, _, capture = _wrapped_repr_attribution_control()
+    lex.validate_copy_module(module, label)
+    del capture.cell_contents
+
+    with pytest.raises(lex.CloneAttributionError, match="has no captured target"):
+        lex.validate_copy_module(module, label)
+
+
+def test_clone_attribution_rejects_non_function_repr_capture_with_matching_metadata() -> None:
+    """Catch trusting a non-function capture even when optional metadata agrees."""
+    module, _, label, wrapper, capture = _wrapped_repr_attribution_control()
+    lex.validate_copy_module(module, label)
+    non_function = object()
+    capture.cell_contents = non_function
+    wrapper.__wrapped__ = non_function
+
+    with pytest.raises(lex.CloneAttributionError, match="metadata does not match its target"):
+        lex.validate_copy_module(module, label)
+
+
+def test_clone_attribution_rejects_foreign_code_nested_in_wrapped_repr() -> None:
+    """Catch validating only the outer captured representation's code label."""
+    from types import FunctionType
+
+    module, _, label, wrapper, capture = _wrapped_repr_attribution_control()
+    lex.validate_copy_module(module, label)
+    generated = capture.cell_contents
+    foreign = generated.__code__.replace(co_filename=str(lex.selected_source_path()))
+    disguised = generated.__code__.replace(co_consts=(*generated.__code__.co_consts, foreign))
+    capture.cell_contents = FunctionType(disguised, {})
+    wrapper.__wrapped__ = capture.cell_contents
+
+    with pytest.raises(lex.CloneAttributionError, match="copy code filename"):
+        lex.validate_copy_module(module, label)
+
+
+def test_clone_attribution_accepts_valid_repr_after_optional_metadata_removed() -> None:
+    """Catch requiring wrapper metadata that is explicitly optional at admission."""
+    module, _, label, wrapper, _ = _wrapped_repr_attribution_control()
+    lex.validate_copy_module(module, label)
+    del wrapper.__wrapped__
+
+    lex.validate_copy_module(module, label)
+
+
 def test_clone_attribution_accepts_standard_library_repr_wrapper() -> None:
     """Catch rejecting the real reprlib wrapper used by Python 3.13 dataclasses."""
     from reprlib import recursive_repr
