@@ -58,6 +58,87 @@ dependencies or execution protocol. Qualification of that new test file is
 recorded separately below; the preceding composite CI results do not qualify
 the later shielding bytes.
 
+## Follow-up: paired EOF and newline semantics (S4d)
+
+The 2026-10-18 local S4d slice adds
+`tests/test_parser_final_newline_properties.py` and this section only. It reuses
+the existing finite composite recipes, independent block model, tree invariants
+and `semantic_roundtrip_v1` projection. Production source, existing tests and
+helpers, worker protocols, dependencies, workflows and the 80% coverage floor
+remain unchanged. Existing CRLF and fixed EOF examples retain their own credit;
+the new relation explicitly pairs the four layouts of the same rich source.
+
+### Domain, independent checks and execution lane
+
+Two reused `nested` and `mixed-32` anchors are followed by at most six recipes
+from the unchanged collector with seed metadata 104. Collection finishes before
+target work. Newlines are canonicalized to LF before source deduplication; both
+anchors and at least one generated non-anchor are required, without refill.
+Allowed shapes are `root-child-sibling`, `siblings`, `nested`, `mixed-8` and
+`mixed-32`. The reused collector requests 48 generate-phase examples for a limit
+of six; this is not S4c's separate body-budget contract, and no internal
+Hypothesis-body count is claimed here.
+
+Each selected source is checked as `lf-final`, `lf-eof`, `crlf-final` and
+`crlf-eof`. Transformations remove exactly one known terminal LF or CRLF; they
+never strip the last content bytes or semantic spaces. Every source variant is
+admitted before the first target call: at most 16,384 UTF-8 bytes, 32 nodes and
+depth eight. A fresh parser uses fixed page identity, tab size two and non-strict
+references for each variant. Each result must pass the independent block model,
+including its logical one-based source spans, and tree invariants before its
+semantic projection is compared with the first checked result for that recipe.
+
+The existing identity policy allows recomputed synthetic UUIDs, has no native
+source UUIDs and compares relations by outline paths. This is parse-only
+equivalence, not an additional serialization or identity guarantee. Block
+`clean_text`, `properties_order` and other fields omitted by the composite model
+are relational checks here, not new independent oracles. Existing S1 field and
+order sensitivity controls remain separate evidence.
+
+The maintainer explicitly approved ordinary in-process pytest execution for
+this finite valid-only slice. There is no per-call hard timeout, child
+containment, memory/output quota or source-qualified child receipt. Existing
+isolated profiles and their limits remain unchanged and do not qualify this
+lane. Eight sources times four variants gives a source-derived ceiling of 32
+explicit parse calls per real-test invocation, not a whole-suite or resource
+bound. First parser, model, relation or recording failure stops subsequent
+variants; reporting errors cannot replace an earlier observed error.
+
+### Local observation and residuals
+
+The focused Python 3.12.13 invocation passed 49 tests: 48 parser-free controls
+and one real test. Six returned recipes plus the two anchors retained eight
+distinct sources, with zero source duplicates; all five admitted shapes were
+present. All 32 variants entered the explicit parser call, passed independent
+block/invariant checks and matched their recipe's first semantic projection.
+Thirty-two distinct fresh parser instances were retained and checked. These
+entry counters describe the test's direct call sites, not an independent
+process observer. No production defect was observed in this sample.
+
+Controls verify exact UTF-8 and trailing-space preservation, admission before
+target work, canonical source deduplication, collection shortfall, byte/node/
+depth limits and first-error preservation. A hand-authored observation detects
+common-mode last-content loss and an incorrect final line span even when every
+variant would otherwise agree. Fake callback controls never count as real
+parser execution or qualified runtime evidence.
+
+Ordered source-free events were retained from the exact real testcase's JUnit
+properties, with separate logs, command outcome and before/after source/diff
+bindings, including the new module, model, projection, invariants, identity policy
+and lock. All 100 focused events were preserved. The existing xunit2 reporting
+family emits a `record_property` compatibility warning; the properties were
+present and extracted, and reporting policy was not changed. Full offline
+gate and implementation-review results are retained separately; this focused
+observation does not replace them or qualify another platform.
+
+This sample does not establish exhaustive Markdown compatibility, uniform
+sampling, arbitrary per-node values, Unicode normalization, mixed or bare-CR
+line endings, trailing blank-line behavior, page-only generation, Org/DB,
+writer/export behavior, performance or downstream integration. Root dates vary;
+deeper dates remain absent, deeper task/priority values follow fixed cycles,
+and scalar selectors remain shared within each recipe. #104 remains open.
+Native CI, publication and release qualification remain separate gates.
+
 ## Follow-up: bounded deep mixed-semantic integration (S4c)
 
 The 2026-10-18 local S4c slice adds
