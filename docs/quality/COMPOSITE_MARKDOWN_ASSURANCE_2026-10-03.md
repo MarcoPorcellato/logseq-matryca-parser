@@ -58,6 +58,112 @@ dependencies or execution protocol. Qualification of that new test file is
 recorded separately below; the preceding composite CI results do not qualify
 the later shielding bytes.
 
+## Follow-up: bounded deep mixed-semantic integration (S4c)
+
+The 2026-10-18 local S4c slice adds
+`tests/test_parser_deep_mixed_markdown_properties.py` and this section only.
+Production code, existing tests, the composite helper and worker, identity and
+projection policies, dependencies, workflows and the 80% coverage floor remain
+unchanged. The novelty is permanent generated integration of existing deeper
+and branching shapes, not new syntax or previously untested fixed examples.
+The independent composite model and `semantic_roundtrip_v1` oracle are reused.
+
+### Bounded domain and collection
+
+Only `nested` and `mixed-32` are admitted, with recipe seed metadata fixed at
+104. A source has at most 32 nodes, depth eight and 16 KiB of UTF-8 text.
+The two existing deep/mixed smoke anchors are selected first and count within
+the eight-source cap. A narrow strategy uses the existing finite task,
+priority, date, property, reference, tag, Unicode and newline vocabulary.
+Root task, priority and dates vary by recipe; deeper task/priority values use
+the helper's fixed index cycles, and deeper dates are absent. Property,
+reference, tag and Unicode selectors are shared per recipe, not independently
+varied at every node.
+
+Collection finishes before parser execution. Hypothesis uses eight examples,
+derandomized execution, no database or deadline, and only the generate phase;
+shrinking, targeting, seed overrides, filtering and refill are not enabled.
+An applied-settings guard refuses missing or altered settings and seed markers.
+An independent body budget refuses call 13 before new recipe work. Every recipe
+and built case is validated, then deduplicated by selected-source digest.
+Duplicates are counted before the cap check; an unselected source encountered
+after the cap is a drop, including repeated encounters with that unselected
+source. Successful collection satisfies:
+
+```text
+3 <= selected <= 8
+body_calls <= 12
+body_calls = duplicates + dropped_at_cap + selected - 2
+```
+
+Both fixed anchors and at least one genuinely generated non-anchor must be
+retained. Anchor and generated shape counts are reported separately. The two
+anchors ensure both shapes are selected; generated cases need not cover both.
+
+### Qualification, process observation and failure preservation
+
+Cases run sequentially through the unchanged worker, at most once per case,
+with its existing three-second timeout. A passing result must match its case,
+recipe and source and report `parsed`, completed model and round-trip checks,
+`qualified` status, no exception and no semantic differences. The first non-pass
+stops the loop without retry or shrinking.
+
+The new driver binds its own regular, nonsymlinked module origin and digest to
+the expected repository path and a coherent helper-derived root. A symlinked
+`tests` directory is rejected; symlinks above the repository root remain allowed.
+The binding is checked before and after collection, before and after each
+callback, and at the invocation boundary. Unavailable evidence, including
+filesystem-resolution `RuntimeError`, fails closed. Post-child drift denies
+parent qualification while preserving the original immutable result and source
+context. Later provenance, accounting or summary errors do not replace an
+earlier observed failure.
+
+`attempted` counts selected cases considered, `handed_off` counts worker callback
+entries, and `actual_child_starts` counts positively observed successful worker
+process creation. A passthrough observes the original `Popen` constructor only
+while installed for the invocation, matches the exact worker interpreter,
+arguments and repository working directory, and counts after a positive PID is
+returned. Provenance Git subprocesses are not worker starts. Bookkeeping errors
+after construction cannot interrupt return of the process to normal cleanup;
+they make observation unavailable and deny qualification after the callback.
+Missing observation is unknown, not zero. A real invocation needs one observed
+start per handoff; worker envelopes separately verify execution provenance.
+
+Parser-free controls block parser entry and real process creation. Their explicit
+control mode may traverse fake semantic prefixes, but records zero real starts
+and cannot qualify. Controls cover selection accounting and limits, first-failure
+positions and result corruption, callback refusal, driver topology and every
+resolution-failure gate, observation refusal/bookkeeping, and inconsistent or
+falsely qualified summaries. Existing field-level oracle sensitivity tests are
+credited separately, not counted again as new coverage.
+
+The test-local summary records digests, classifications, counts and qualification
+state without Markdown, paths or PIDs. It is retained before assertions when
+JUnit output is requested. The exact synthetic recipe of a first semantic
+failure is retained separately for diagnosis. Worker and receipt schemas are
+unchanged.
+
+### Local evidence and limits
+
+A retained local Python 3.12.13 invocation selected eight distinct sources:
+two fixed anchors and six generated sources, two `nested` and four `mixed-32`.
+Eight generated body calls produced zero duplicates and two dropped-at-cap
+events. All eight attempts reached a callback and positively observed worker
+start; all returned parsed/model/round-trip/qualified results without drift.
+The focused module passed 108 tests. Later complete offline gate and independent
+review evidence are retained separately; this focused result does not replace
+either gate or qualify unexecuted platforms.
+
+At most eight worker children and sixteen explicit parser calls per S4c
+invocation are source-derived bounds, not measured parser-call telemetry or a
+whole-suite bound. Repeated verification commands are separate invocations.
+This valid-only, deterministic selection does not close #104 or establish
+exhaustive Markdown compatibility, arbitrary per-node metadata/date coverage,
+uniform sampling, a global mutation score, performance or downstream integration.
+It adds no sandbox, descendant supervisor, memory/output quota or protection
+against edit-and-restore races, stale bytecode, import hooks or arbitrary code.
+Native CI and release qualification remain separate gates.
+
 ## Follow-up: bounded mixed-semantic recipe integration (S4b)
 
 The 2026-10-14 local S4b slice adds one test file,
