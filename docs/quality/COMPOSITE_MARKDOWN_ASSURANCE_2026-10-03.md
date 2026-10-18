@@ -58,6 +58,145 @@ dependencies or execution protocol. Qualification of that new test file is
 recorded separately below; the preceding composite CI results do not qualify
 the later shielding bytes.
 
+## Follow-up: bounded mixed-semantic recipe integration (S4b)
+
+The 2026-10-14 local S4b slice adds one test file,
+`tests/test_parser_mixed_markdown_properties.py`, and this record only.
+Production parser code, the composite helper and worker, every existing test,
+dependencies, workflows, identity policies, classifications and the 80% coverage
+floor are unchanged. The slice makes a small mixed-semantic selection a permanent
+test that really parses Markdown, while the parser-free composite harness controls
+stay as they were. It introduces no round-trip definition and no semantic field.
+It reuses the existing composite Recipe vocabulary, the independent `build_case`
+model, the existing worker child (`run_case`, with its unchanged three-second
+limit) and its `semantic_roundtrip_v1` comparison under the existing
+IdentityPolicy and classification vocabulary.
+
+### Domain, oracle and collection
+
+Only the `root-child-sibling` and `siblings` shapes are generated. Each case has
+at most three nodes, depth one and 2 KiB of UTF-8 source, with recipe seed
+metadata fixed at 104. The vocabulary is the existing finite one: LF or CRLF,
+tasks and priorities, fixed supported dates with literal epochs, properties,
+references, tags and Unicode. No malformed syntax is generated. The expected
+model comes from the independent builder, never from a parser result.
+
+A test-local collector builds its strategy directly from that vocabulary. It does
+not call the broader existing strategy or collector, whose shape domain and larger
+generation volume would exceed this slice. Settings are explicit: 32 examples,
+derandomized, no example database, generate phase only, no shrinking, targeting,
+seed override, filtering or refill. A separate counter rejects body call 49 before
+any collection work, and a guard refuses the collector's inner test unless it
+carries exactly these settings and no seed override. Each recipe is validated,
+built and checked against the domain, then deduplicated by source digest. The
+hand-calibrated literal baseline is selected first and counts within the cap of
+32. Collection fails closed unless at least one genuinely generated, non-baseline
+source is selected. No parser call occurs during collection, and the
+real-execution test forbids parser entry for that phase.
+
+### Driver provenance and first-failure controls
+
+Selected cases run one after another, each in at most one fresh worker child.
+A pass requires `parsed`, model and round-trip checks both performed, `qualified`
+status, no exception, no semantic differences, and a result that matches its own
+case identity, source digest and recipe. The first non-pass result is preserved
+with its exact synthetic recipe and the loop stops at once, with no retry,
+shrinking or minimization.
+
+The worker's internal qualification does not cover this new top-level test file,
+so the driver binds itself. Before collection it admits its own regular,
+non-symlinked origin at the expected path, under a repository root that matches
+the root derived from the composite helper's location and a `tests` directory that
+is not a symlink, together with a SHA-256 of that file. The same origin and digest
+are rechecked before and after every child and once more at the invocation
+boundary, and each recheck repeats the admission topology checks, so replacing the
+`tests` directory with a symlink to identical bytes is reported as drift. Symlinks
+above the admitted repository root remain allowed. Unavailable or mismatched
+evidence fails closed at every gate. Drift before a child denies that launch.
+Drift after a child preserves the just-observed result with its original source
+context, marks it `unqualified-source-drift`, stops before the next child and
+never counts that attempt as qualified success. Boundary drift is recorded without
+rewriting results already observed or an earlier stop reason. The parent summary
+holds digests, counts and classifications only, with no Markdown source. It takes
+the helper and lock digests from the frozen worker source context and never
+rereads those files after execution, so a later change to either cannot mix newer
+digests with the original provenance. If that frozen evidence is missing or
+invalid, the outcome and original context are kept and no summary is recorded. A
+strict validator also requires that observed results form a prefix of the
+selection and that each stop reason has a consistent terminal state.
+
+Zero-real-child controls use scripted fake launches while parser and subprocess
+entry are forbidden. They cover eleven kinds of rejected admission, a same-byte
+`tests` symlink replacement that denies the next launch or preserves a
+just-observed child as unqualified, symlinks above the root remaining admitted,
+drift before the first and second child, drift after passing and non-passing first
+children, boundary drift, boundary drift after an earlier stop, the exact check
+cadence, four kinds of first non-pass at the first, middle and last positions of
+the collected selection and of controlled two- and seven-case selections, a result
+belonging to another case, a refused launch, sensitivity of the pass predicate to
+each of its six fields, budget refusal, a lowered cap that exercises the drop
+branch over a finite fixture, the collector's settings guard with a source-text
+check against seed, assume, filter, reject and a second settings call, the exact
+default wiring of the real launcher and driver check, one fake-wired invocation in
+admit, capture, collect, run order that passes the same context object to every
+launch, acceptance of any valid selection size, helper and lock files changed or
+removed after a child, missing or invalid frozen digests, one malformed summary
+for each prefix and terminal-state invariant, and empty, duplicate, out-of-domain
+and over-cap selections. These are selected sensitivity checks, not a global
+mutation score.
+
+Additional parser-free controls normalize resolution-loop failures during
+explicit/default driver admission and before-child, after-child and final-boundary
+checks. They inject the Python 3.12 filesystem-resolution failure without real
+children or repository renames, preserving the original outcome and context.
+
+### Observed local invocation
+
+Counts and gate results reported from earlier local invocations of this file are
+not retained as raw receipts and are not relied on here. The selection accounting
+(Hypothesis body calls, duplicates, drops at the cap and selected cases), the
+classification of each launched child, the focused-test result and the full-gate
+result belong to a fresh retained invocation. The summary is persisted only when a
+JUnit path is supplied.
+
+A fresh retained local invocation on 2026-10-14, using the existing Python
+3.12.13 environment, passed all 142 tests in this file. Its JUnit summary records
+32 generated body calls, 1 duplicate, 0 dropped at the cap and 32 selected,
+source-distinct cases including the literal baseline. All 32 worker launches
+were classified `parsed` with model and round-trip checks performed and
+`qualified` status; no driver drift or first non-pass was observed. A separate
+parser-free invocation passed 141 controls with the real-worker test deselected.
+The retained source bindings were unchanged before and after each invocation.
+These results apply to this bounded local slice, not unexecuted platforms.
+
+The complete offline quality gate remains `make all`, including the full test
+suite and the unchanged 80% coverage floor, plus the explicit vendor-name check.
+Its execution receipts and the independent review are maintained separately;
+neither the earlier external counts nor a focused pass substitutes for them.
+
+The real-execution test checks each child's worker envelope against the frozen
+source-context provenance and counts the real worker process launches, so an
+in-process substitute cannot pass it. It accepts any valid selection of two to 32
+cases. The upper bound of 64 parser calls, two per child, is derived from the
+source and is not measured telemetry. Repeated gates are separate invocations.
+
+### Limits and later qualification
+
+This is a valid-only slice. It does not close #104 and makes no claim about
+malformed input, exhaustive interaction coverage, a global mutation score,
+universal Logseq compatibility, performance or native CI. The selection of at
+most 32 cases is deterministic, not uniform sampling of the recipe space.
+
+The three-second limit applies to each child. It does not bound parent generation
+or provenance work, aggregate suite time, memory or output, arbitrary code or
+descendant cleanup, and this slice is not a new sandbox or supervisor. The
+worker's qualification bit does not extend to the driver, and the sampled driver
+checks do not resist edit-and-restore races, stale bytecode, import hooks or
+already-loaded code. Native CI for the new test source and an independent
+implementation review remain separate gates. Nothing here is committed, pushed,
+tagged or released, and earlier S4a, S3a and corpus receipts do not qualify these
+new bytes.
+
 ## Follow-up: bounded lexical-state mutation sensitivity (S4a)
 
 The initial 2026-10-12 local S4a slice added tests and this record only. Production
