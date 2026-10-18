@@ -58,6 +58,117 @@ dependencies or execution protocol. Qualification of that new test file is
 recorded separately below; the preceding composite CI results do not qualify
 the later shielding bytes.
 
+## Follow-up: mixed-page parser reuse and retained results (S4e)
+
+The 2026-10-18 local S4e slice adds
+`tests/test_parser_reuse_properties.py` and this section only. It asks whether
+one parser can process disjoint page kinds without leaking state or changing
+objects already returned to its caller. Production source, existing tests and
+shared helpers, projection and identity policies, worker protocols, dependencies,
+workflows, stable APIs and the 80% coverage floor remain unchanged. Existing
+strict-reference reset and metadata-only regressions retain their separate
+credit; this slice combines richer inputs and result lifetimes.
+
+### Finite domain and five-stage sequence
+
+The unchanged collector is called once with seed metadata 104 and limit four,
+after two existing `nested` and `mixed-32` anchors. Its requested 32 generate-phase
+examples are not an observed internal body count or a wall-clock bound. Complete
+recipe validation precedes building. Sources are canonicalized to LF before
+deduplication, and both anchors plus at least one generated non-anchor are
+required without refill. Only the existing `root-child-sibling`, `siblings`,
+`nested`, `mixed-8` and `mixed-32` shapes are admitted. All selected rich sources
+and the fixed intermediate input are admitted before target calls: at most
+16,384 UTF-8 bytes per source, 32 model nodes and depth eight. Empty text is a
+separate, deliberate zero-node input, not a generated rich recipe.
+
+For each rich source A, a shared parser observes A, one fixed metadata-only
+page M, empty text E and the identical A again. A separate fresh parser then
+observes that same A. Both parsers use tab size two and non-strict references;
+the rich page title is identical across its three observations. M uses the
+existing literal title, alias, related-reference, property-order and empty-root
+expectations. E must have the supplied empty-page title, original empty raw text
+and empty properties, order, references, namespace and roots. The registry is
+checked immediately after every shared parse: exactly the returned UUID keys,
+with each resolution yielding the identical returned node object. M and E
+therefore require an empty registry. This is internal coherence, not a new
+stable registry API or native-ID policy.
+
+Each A observation passes the unchanged independent block model and tree
+invariants before its semantic projection is compared with the first checked A.
+The model covers content, source spans, task/priority, properties, block dates,
+links/tags/references and outline relations. `clean_text`, property order and
+other omitted model fields remain relational evidence, not independently proven
+conformance. Page title, raw input, tab size and empty rich-page properties/order
+have separate literal assertions. The existing identity policy permits
+recomputed synthetic UUIDs across distinct parses; S4e does not add exact
+cross-parse UUID equality.
+
+### Retained-object oracle and fault controls
+
+Previously returned A, M and E objects are retained and rechecked after every
+later target call, including calls in subsequent sequences. Each must still
+satisfy its independent model or literal expectations and match its detached
+canonical JSON fingerprint. The fingerprint wraps the unchanged
+`exact_parse_v1` projection with raw page content, timestamps, source path and
+graph root, plus ordered recursive node source paths and outline coordinates.
+Exact comparison concerns the same earlier object, not two distinct parses.
+Snapshots remain in test memory and are never written into event receipts.
+
+The supplement matters because `exact_parse_v1` normalizes undeclared page
+timestamps and omits graph-root and node-source-path fields. For these
+in-memory inputs, raw page timestamps, page filesystem context and every
+recursive node source path must also be absent, immediately and on retention
+rechecks. Block scheduled/deadline epochs remain separate modeled values.
+A projection alone cannot establish these raw-field expectations.
+
+Parser-free controls deny parser and subprocess entry points. Hand-built
+observations verify detection of common-mode task/content/span errors, rich
+metadata leakage, nonempty state after an empty page, stale registry keys or
+objects, mutation of earlier rich or metadata results, and a relational-only
+field difference. Timestamp, graph-root and nested-path controls explicitly
+show that the older projection can remain equal while the supplemented oracle
+rejects corruption. Frozen scalar corruption is artificial and confined to
+hand-built test objects; it is not evidence of an observed parser mutation.
+Selection controls cover complete pre-admission, canonical duplicate accounting,
+shortfall without refill and byte/node/depth overflow. First callback, oracle,
+registry, retention or reporting failure stops later calls. Reporting failure
+cannot replace an earlier observed exception, and reporting-only failure also
+fails the invocation after all target work has completed.
+
+### Local observation and limits
+
+The focused Python 3.12.13 invocation passed 104 tests: 103 parser-free controls
+and one real test. Four returned recipes plus the two anchors retained six
+distinct rich sources with zero source duplicates; all five admitted shapes
+were present. All 30 direct parse entries completed their checks. Twelve
+distinct parser instances were retained: four consecutive shared-parser calls
+and one separate fresh-parser call per sequence. All three A observations
+matched semantically, all current shared registries were coherent, and all
+retained results remained unchanged. No production defect was observed in this
+finite sample.
+
+All 94 source-free events were extracted from the exact real testcase's JUnit
+properties and validated for cardinality, order, selection, stage counters and
+actual direct entries. The existing xunit2 `record_property` compatibility
+warning remains disclosed; properties were present, and reporting policy was
+not changed. Entry and object counters describe explicit test call sites, not
+an independent process observer. Complete offline gates and independent Sol
+Max implementation review remain separate required evidence from this focused
+observation; it does not qualify another platform.
+
+The maintainer approved ordinary in-process execution without a per-call hard
+timeout. The source-derived ceiling is six sequences, 30 direct calls and
+twelve parser objects per real-test invocation, not a whole-suite resource or
+performance bound. There is no child containment or source-qualified worker
+receipt in this lane. This sample does not establish exhaustive Markdown
+compatibility, arbitrary per-node combinations, native-ID collision behavior,
+strict references, malformed syntax, other newline policies, external corpora,
+Org/DB, graph/watcher/writer behavior or downstream Plumber/Trama qualification.
+Root dates vary, deeper dates remain absent, deeper task/priority values follow
+fixed cycles, and scalar selectors remain shared within a recipe. #104 remains
+open. Exact-commit native CI, publication and release remain separate gates.
+
 ## Follow-up: paired EOF and newline semantics (S4d)
 
 The 2026-10-18 local S4d slice adds
