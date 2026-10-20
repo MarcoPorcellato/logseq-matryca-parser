@@ -7,16 +7,21 @@ published artifacts and attestations, see
 
 ## Unreleased
 
-Development on `main` includes the following changes, which are not in the
-published v1.11.0 package. See the [changelog](CHANGELOG.md#unreleased) for the
-complete unreleased record.
+No changes are currently listed. See the [changelog](CHANGELOG.md) for the
+current source record.
 
-- Bounded synthetic composite Markdown assurance checks outline shape, source
-  spans, tasks, dates, metadata, references, and semantic round trips. Finite
-  recipes do not establish exhaustive Markdown coverage.
-- A scoped serialization fix preserves genuine scalar metadata and explicit
-  block UUIDs before ordinary multiline prose continuations. Late property-like
-  text stays literal; excluded complex layouts retain their prior output.
+## v1.11.1
+
+
+The v1.11.1 changes fix fenced-code parsing in outline items, preserve eligible
+multiline scalar metadata and explicit block UUIDs across round trips, and add
+bounded synthetic Markdown assurance.
+
+| Area | Change |
+| :--- | :--- |
+| **Fenced code in outline items** | Recognizes list-item fence openers and closes only on a matching delimiter type with sufficient width and a whitespace-only suffix; preserves raw payload, source spans, and neighboring block attachment. |
+| **Multiline scalar metadata** | Emits eligible genuine single-line scalar properties before prose continuations, preserving metadata and explicit block UUIDs when parsed again. |
+| **Composite Markdown assurance** | Adds bounded synthetic cases for outline shape, source spans, tasks, dates, metadata, references, and semantic round trips; does not claim exhaustive Markdown coverage. |
 
 ## v1.11.0
 

@@ -338,20 +338,19 @@ We welcome issues, pull requests, and constructive feedback.
 
 ## 📦 Release history
 
-Latest published release: **[v1.11.0](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.11.0)**,
-published on 2026-10-02 and available on
-[PyPI](https://pypi.org/project/logseq-matryca-parser/1.11.0/).
+Current source version: **v1.11.1**. The [PyPI project page](https://pypi.org/project/logseq-matryca-parser/) and
+[GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases) list available distributions.
 Security support follows the [latest-release policy](SECURITY.md).
 
-Development on `main` also includes bounded composite Markdown assurance and
-a scoped multiline scalar-metadata round-trip fix. These changes are
-**unreleased**, not part of the v1.11.0 package; see
-[Unreleased](CHANGELOG.md#unreleased) for their scope and limits.
+The v1.11.1 source includes fenced-code parsing fixes for outline items, eligible
+multiline scalar-metadata round trips, and bounded composite Markdown assurance.
+See the [changelog](CHANGELOG.md) for scope and limits.
 
 Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
 [changelog](CHANGELOG.md), or the signed artifacts on
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
+- **v1.11.1** — Fixes fenced-code parsing in outline items, preserves eligible multiline scalar-metadata round trips, and adds bounded composite Markdown assurance.
 - **v1.11.0** — Adds an experimental, read-only Logseq Org reader with source retention and explicit support limits.
 - **v1.10.0** — Clarifies the LlamaIndex companion boundary and removes the Parser's NLTK dependency chain.
 - **v1.9.0** — Adds the stable in-memory snapshot graph factory, clarifies the Parser-Plumber boundary, and governs the temporary optional-NLTK advisory exception.
