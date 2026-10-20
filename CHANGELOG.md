@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.1] - 2026-10-20
+
 ### Fixed
 
 - **Fenced code in outline items** — enter code mode from the actual list-item
