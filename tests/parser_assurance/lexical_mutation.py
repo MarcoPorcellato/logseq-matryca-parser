@@ -297,7 +297,7 @@ def replay_trace(
 
 MutationID = Literal["M1", "M2", "M3", "M4", "M5", "M6"]
 MUTATION_IDS: tuple[MutationID, ...] = ("M1", "M2", "M3", "M4", "M5", "M6")
-_CANONICAL_SOURCE = "1b14077d0294861859b4ce26aa4573589d3067b08a342467b6a1e9a9b209344b"
+_CANONICAL_SOURCE = "cc6b69eecfe04e09d475f21f1ba37e2f85da90382ae0e7d266c1c9e4fcff2d34"
 _SOURCE_METHODS = (
     "begin_yaml_frontmatter",
     "finish_yaml_frontmatter",
@@ -557,7 +557,20 @@ def _edit_once(tree: ast.Module, mutation: MutationID, *, reverse: bool = False)
     if mutation not in MUTATION_IDS:
         raise MutationAdmissionError("unknown mutation ID")
     if mutation == "M1":
-        branch = _name_if(_method(tree, "consume_code_line"), "is_code_fence")
+        branch = _one(
+            [
+                node
+                for node in _method(tree, "consume_code_line").body
+                if isinstance(node, ast.If)
+                and isinstance(node.test, ast.BoolOp)
+                and isinstance(node.test.op, ast.And)
+                and len(node.test.values) == 2
+                and all(isinstance(value, ast.Name) for value in node.test.values)
+                and [value.id for value in node.test.values if isinstance(value, ast.Name)]
+                == ["is_code_fence", "matches_opening_fence"]
+            ],
+            "selected code closing branch",
+        )
         assignment = _one(
             [
                 node

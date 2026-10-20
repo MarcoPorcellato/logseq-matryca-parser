@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Fenced code in outline items** — enter code mode from the actual list-item
+  fence opener and require a matching delimiter character, sufficient closing
+  width and whitespace-only closing suffix. Keep literal properties and bullets
+  inside code, preserve raw payload and source spans, and attach metadata and
+  following siblings to their correct blocks after closure.
+
 - **Multiline scalar metadata round trips** — emit genuine nonempty, single-line
   scalar block properties before ordinary prose continuations on eligible
   nodes, preserving their metadata and explicit block UUIDs when parsed again.
