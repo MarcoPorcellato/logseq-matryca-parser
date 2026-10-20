@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Add Obsidian to the README PKM comparison and link one source-backed
+  [comparison study](docs/reference/PKM_OBSIDIAN_COMPARISON.md). Distinguish
+  applications from the parser library, native features from community plugins,
+  and compatible output from lossless cross-app support; replace absolute Git,
+  sovereignty and ordinal AI-readiness claims with concrete capabilities.
+
 ## [1.11.1] - 2026-10-20
 
 ### Fixed
