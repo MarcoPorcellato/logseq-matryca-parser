@@ -54,7 +54,8 @@ flowchart LR
     AST --> Lens[LENS Visualizer]
     
     Forge --> JSON[JSON / Markdown\nPayloads]
-    Synapse --> AI[LangChain /\nLlamaIndex Nodes]
+    Synapse --> LC[LangChain Documents]
+    Synapse -. call-time delegation .-> LI[LlamaIndex companion]
     Lens --> HTML[Interactive\n3D Graph]
 ```
 
@@ -76,7 +77,7 @@ The Matryca Parser is the **deterministic translation layer**: it reads the hier
 
 **Naive / standard RAG** routinely applies **recursive or fixed-size chunkers** to raw Markdown. For Logseq-style graphs this behaves like dropping the disk into a blender: contiguous bytes are diced by character budgets, sibling blocks are fused with unrelated parents, and indentation semantics are erased. The result is embeddings of **ambiguous fragments** disconnected from lineage — a lossy projection of structured storage into unstructured bags of text.
 
-The **Matryca (Logos) approach** rejects that erosion of structure. Implementation-wise, **`StackMachineParser` (alias `LogosParser`)** performs **O(N) deterministic parsing** using spatial indentation as the sole arbiter of parent–child linkage, yielding a rigorous **Abstract Syntax Tree (AST)** (`LogseqPage`, `LogseqNode`). **`SYNAPSE`** acts as driver-level output: adapters emit **LangChain `Document`** and **LlamaIndex `TextNode`** objects whose **metadata encodes lineage** (`parent_id`, `path`, `left_id`, graph tokens), preserving the **exact topological semantics** expected by Sovereign AI and local pipelines.
+The **Matryca (Logos) approach** rejects that erosion of structure. Implementation-wise, **`StackMachineParser` (alias `LogosParser`)** performs **O(N) deterministic parsing** using spatial indentation as the sole arbiter of parent–child linkage, yielding a rigorous **Abstract Syntax Tree (AST)** (`LogseqPage`, `LogseqNode`). **`SYNAPSE`** emits lineage-aware LangChain `Document` objects and context-enriched chunks. A separate optional companion owns native LlamaIndex `TextNode` construction and can reuse the framework-neutral lineage helpers.
 
 Together, LOGOS + SYNAPSE implement **Document-Driven Development** principles. Historical specifications and blueprints are preserved in [`/docs/design-docs/`](./design-docs/) to constrain behavior, while the runtime code enforces deterministic invariants matching those documents.
 
@@ -124,7 +125,7 @@ Person(knowledgeWorker, "Knowledge Worker", "Local operator of a sovereign Logse
 System_Boundary(matrycaEcosystem, "Matryca.ai Ecosystem") {
     Container(kinetic, "KINETIC", "Typer / Rich CLI", "CLI — global `--verbose` / `--graph` callback; export (json, markdown, langchain, langchain-enriched, obsidian), visualize, demo, graph scans, `agent-read` / `agent-write` (X-Ray + headless splice), weekly append (`append`).")
     Container(logos, "LOGOS", "Python / Pydantic", "Stack-Machine AST engine — LogseqPage and LogseqNode models.")
-    Container(synapse, "SYNAPSE", "LangChain / LlamaIndex", "Framework-native exporters with parent-child metadata.")
+    Container(synapse, "SYNAPSE", "LangChain + lazy companion bridge", "LangChain documents and a call-time delegation point for the separate LlamaIndex companion.")
     Container(lens, "LENS", "NetworkX / PyVis", "Reference-topology visualization to interactive HTML.")
 }
 
@@ -183,10 +184,11 @@ flowchart LR
     FO["Obsidian YAML + ^ anchors"]:::logos
   end
 
-  subgraph SYN["SYNAPSE — Framework-native adapters"]
+  subgraph SYN["SYNAPSE — Parser-owned adapters"]
     LC["LangChain Document visitor"]:::synapse
-    LI["LlamaIndex TextNode + NodeRelationship"]:::synapse
   end
+
+  LI["Separate LlamaIndex companion\n(planned; not yet published)"]:::sink
 
   subgraph OUT["DESTINATION — LLM OS plane"]
     VS[("Vector store / index")]:::sink
@@ -204,7 +206,7 @@ flowchart LR
   AST --> FJ
   AST --> FO
   AST --> LC
-  AST --> LI
+  SYN -. call-time delegation .-> LI
   AST --> NX --> PV
   LC --> VS
   LI --> VS
@@ -292,17 +294,17 @@ classDiagram
   RawMarkdown --> LogseqNode : Parsing & Extraction
 ```
 
-### 3.2 SYNAPSE — AST → LangChain / LlamaIndex with lineage injection
+### 3.2 SYNAPSE — AST → LangChain, with a separate LlamaIndex companion
 
 **SYNAPSE** (`logseq_matryca_parser.synapse`) implements **`ASTVisitor`** harnesses rather than brittle string serializers.
 
 - **LangChain.** [`LangChainVisitor`](../src/logseq_matryca_parser/synapse.py) emits one **`Document`** per node with `page_content=node.clean_text` and metadata unioning **`node.properties`** with lineage fields (`uuid`, `parent_id`, `indent_level`, `source`, **`path`** — the UUID ancestry chain — `left_id`, `refs`, `task_status`, repeater, `created_at`). The underlying **`LogseqNode`** additionally carries **`task_priority`**, **`scheduled_at`**, and **`deadline_at`** (§3.1); adapters or custom visitors can project those into metadata when feeding **downstream graph databases** or **GraphRAG** filters. This preserves **parent context** explicitly in retrieval filters and re-ranking.
 
-- **LlamaIndex.** [`LlamaIndexVisitor`](../src/logseq_matryca_parser/synapse.py) constructs **`TextNode`** instances keyed by **`id_=node.uuid`**. It wires **`NodeRelationship.PARENT`** and **`CHILD`** via **`RelatedNodeInfo`**, back-linking when the parent appears earlier in preorder traversal — encoding **topology as first-class edges** beyond flat metadata dictionaries. From **v1.3.0**, it also emits **`SOURCE`** (page-level anchor via **`page_source_node_id`**), **`NEXT`**, and **`PREVIOUS`** sibling edges for spatial traversal in vector stores.
+- **LlamaIndex.** The Parser no longer constructs `TextNode` objects or imports `llama-index-core`. `SynapseAdapter.to_llamaindex_nodes()` is a call-time compatibility shim to the separate `logseq-matryca-parser-llamaindex` companion, which is planned but not yet published on PyPI. The companion owns native node construction and the `PARENT`, `CHILD`, `SOURCE`, `NEXT`, and `PREVIOUS` relationships. It can reuse the Parser's framework-neutral `build_synapse_metadata` and `page_source_node_id` helpers.
 
-- **Vector-store metadata.** **`SynapseMetadata`** and **`build_synapse_metadata`** project **`task_priority`**, temporal epoch fields, **`source_uuid`**, and joined **`path`** / **`refs`** strings into LangChain/LlamaIndex metadata without leaking raw Python list reprs.
+- **Vector-store metadata.** **`SynapseMetadata`** and **`build_synapse_metadata`** project **`task_priority`**, temporal epoch fields, **`source_uuid`**, and joined **`path`** / **`refs`** strings into LangChain metadata without leaking raw Python list reprs; the separate companion may reuse this framework-neutral projection.
 
-Together, adapters guarantee that **embedding units align with intentional block boundaries**, not splitter accidents.
+The Parser-owned LangChain and context-enriched adapters keep **embedding units aligned with intentional block boundaries**, not splitter accidents. Native LlamaIndex behavior is owned and qualified by the separate companion.
 
 #### 3.2.1 Context-enriched RAG — `SynapseAdapter.to_context_enriched_chunks`
 
@@ -637,7 +639,7 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 | **Property ingestion as prose**       | `collapsed:: true`, SCHEDULED markers, drawer noise degrade embedding geometry. |
 | **UUID / reference desynchronization**| Block anchors no longer correspond to embeddings; graph-native references `((uuid))` become orphaned strings. |
 
-**Deterministic AST parsing plus SYNAPSE metadata** restores **semantic sovereignty**: each retrieval unit inherits explicit **ancestor identity** (`parent_id`, cumulative `path`) and optional graph-native LlamaIndex **edges**, enabling **topology-aware augmentation** aligned with Andrej Karpathy’s mental model — the LLM “CPU” issues reads against a hierarchical disk through a **faithful driver**, not a stochastic blender.
+**Deterministic AST parsing plus SYNAPSE metadata** restores **semantic sovereignty**: each retrieval unit inherits explicit **ancestor identity** (`parent_id`, cumulative `path`) and may carry graph-native LlamaIndex **edges through the separate companion**, enabling **topology-aware augmentation** aligned with Andrej Karpathy’s mental model — the LLM “CPU” issues reads against a hierarchical disk through a **faithful driver**, not a stochastic blender.
 
 ---
 

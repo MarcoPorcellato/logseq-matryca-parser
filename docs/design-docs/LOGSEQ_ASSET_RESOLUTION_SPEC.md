@@ -27,7 +27,7 @@ In a typical Markdown environment, a relative path like ../assets/image.png woul
 | :---- | :---- | :---- | :---- |
 | Relative Asset | ../assets/file.png | Graph-Root Relative | Standard for dragged-and-dropped assets; resolves to \[graph-root\]/assets/file.png. 5 |
 | Local Asset | assets/file.png | Root-Relative | Often used in older graphs or specific plugins; assumes the root as the base. 4 |
-| Absolute System | file:///C:/Users/Graph/assets/a.png | OS Path | Fragile and non-portable; bypassed by Logseq's internal relative logic during sync. 5 |
+| Absolute System | file:///example-vault/assets/a.png | OS Path | Fragile and non-portable; bypassed by Logseq's internal relative logic during sync. 5 |
 | External URI | https://example.com/a.png | Remote URL | Handled by the browser/Electron layer; not considered a local asset. 7 |
 
 One of the significant points of friction in the current implementation is the inconsistent handling of the double-dot .. notation in file:// links. Research indicates that Logseq sometimes ignores leading .. segments, incorrectly resolving them to logseq/assets/ instead of stepping up to the parent directory of the graph.4 For the LOGOS parser, the primary resolution algorithm must prioritize a search path that begins at the graph root. If an asset reference begins with assets/ or ../assets/, the parser should immediately prepend the graph root path, effectively normalizing the reference.
@@ -233,7 +233,7 @@ JSON
   "annotation\_id": "1698059081568\_0",
   "source\_pdf": {
     "logical\_name": "how\_to\_take\_smart\_notes.pdf",
-    "absolute\_path": "/home/user/graph/assets/how\_to\_take\_smart\_notes.pdf",
+    "absolute\_path": "/example-vault/assets/how\_to\_take\_smart\_notes.pdf",
     "mime\_type": "application/pdf"
   },
   "highlight\_data": {

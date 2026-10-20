@@ -8,9 +8,9 @@ audience: integrators
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-19
-verified: 2026-08-19
-stale_after: 2027-02-19
+last_verified: 2026-10-02
+verified: 2026-10-02
+stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -33,8 +33,9 @@ separate evidence says so.
 | Optional `ai`, `viz`, and `watch` extras | Supported as optional integrations | Must remain lazy and must not become an implicit base dependency |
 | Wheel typing metadata | Supported | `py.typed` and downstream wheel qualification are covered by package-contract checks |
 
-The current released version is identified by the package version source and
-release notes. Security support is limited to the latest release as defined in
+The package version source identifies the version of this checkout or build.
+The latest released version is the latest published GitHub/PyPI release;
+security support is limited to that release as defined in
 [`SECURITY.md`](../../SECURITY.md).
 
 ## Public interface tiers
@@ -52,6 +53,7 @@ release notes. Security support is limited to the latest release as defined in
 | Area | Current contract | Deliberate limit |
 |---|---|---|
 | Logseq Markdown parsing | Deterministic AST, hierarchy, UUID handling, properties, references, tasks, timestamps, assets, and documented round trips | Not a claim of complete upstream Logseq implementation or formal upstream conformance |
+| Logseq OG Org reader | Experimental, read-only subset included in the v1.11.0 release line; private, non-stable entrypoints only | Reads text or one selected `.org` source; no vault graph; selective diagnostics are not an inventory of unsupported syntax; no complete GNU Org or Logseq semantic conformance |
 | Graph identity | Canonical pages, aliases, backlinks, deterministic ordering, and structured diagnostics | Consumers must use documented APIs rather than internal registries |
 | Filesystem actions | Vault containment, dry run, atomic replacement, path checks, and limits | No authority outside configured vault boundaries |
 | Agent actions | Bounded reads and opt-in writes with caller authorization | No autonomous publication, privilege expansion, or trust in vault instructions |
@@ -62,7 +64,7 @@ release notes. Security support is limited to the latest release as defined in
 | Integration | Status | Dependency | Compatibility boundary |
 |---|---|---|---|
 | LangChain documents | Optional experimental adapter | `langchain-core` | Preserve lineage metadata and lazy import behavior |
-| LlamaIndex nodes | Optional experimental adapter | `llama-index-core` | Preserve relationships and lazy import behavior |
+| LlamaIndex nodes | Compatibility shim to a separate companion; companion not yet published on PyPI | `logseq-matryca-parser-llamaindex` owns `llama-index-core`; neither it nor NLTK is a Parser dependency | Keep native `TextNode` output, relationships, and call-time import; see the [migration recipe](../COOKBOOK.md) |
 | Visualization | Optional experimental adapter | `networkx`, `pyvis` | Do not make visualization a parser requirement |
 | File watching | Optional experimental adapter | `watchdog` | Event handling must preserve graph identity and deterministic reload rules |
 | MCP or A2A | No runtime implementation | None | See the protocol adapter decision before proposing one |

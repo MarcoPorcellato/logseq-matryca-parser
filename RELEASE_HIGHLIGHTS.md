@@ -7,6 +7,49 @@ published artifacts and attestations, see
 
 ## Unreleased
 
+No changes are currently listed. See the [changelog](CHANGELOG.md) for the
+current source record.
+
+## v1.11.1
+
+
+The v1.11.1 changes fix fenced-code parsing in outline items, preserve eligible
+multiline scalar metadata and explicit block UUIDs across round trips, and add
+bounded synthetic Markdown assurance.
+
+| Area | Change |
+| :--- | :--- |
+| **Fenced code in outline items** | Recognizes list-item fence openers and closes only on a matching delimiter type with sufficient width and a whitespace-only suffix; preserves raw payload, source spans, and neighboring block attachment. |
+| **Multiline scalar metadata** | Emits eligible genuine single-line scalar properties before prose continuations, preserving metadata and explicit block UUIDs when parsed again. |
+| **Composite Markdown assurance** | Adds bounded synthetic cases for outline shape, source spans, tasks, dates, metadata, references, and semantic round trips; does not claim exhaustive Markdown coverage. |
+
+## v1.11.0
+
+Published on 2026-10-02:
+[GitHub Release](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.11.0)
+and [PyPI package](https://pypi.org/project/logseq-matryca-parser/1.11.0/).
+
+Minor release — adds an experimental, read-only Logseq Org reader while keeping
+the existing Markdown parser and graph workflow unchanged.
+
+| Area | Change |
+| :--- | :--- |
+| **Org input** | Parses Org text or one caller-selected `.org` file without loading a vault graph; the API remains private and non-stable. |
+| **Scope and diagnostics** | Diagnostics cover selected conditions, not every unsupported construct. Preserved source text or no diagnostic does not establish that Org or Logseq semantics were understood; inspect the original source when needed. |
+| **Source archive hygiene** | Excludes selected ignored local maintainer and tool-cache directories from source distributions; runtime behavior is unchanged. |
+| **Development-toolchain security** | Updates the locked `virtualenv` dependency from 21.5.1 to 21.14.4 for four Dependabot advisories in the `pre-commit` chain; published runtime dependencies are unchanged. |
+
+## v1.10.0
+
+Minor release — clarifies the native LlamaIndex companion boundary and removes
+the Parser's NLTK dependency chain. No intentional breaking changes to the
+existing package API or CLI behavior.
+
+| Area | Change |
+| :--- | :--- |
+| **LlamaIndex boundary** | Keeps `SynapseAdapter.to_llamaindex_nodes()` as a lazy compatibility shim while native node construction moves to a separate companion. |
+| **Dependency security** | Removes `llama-index-core` and NLTK from Parser extras, lock, and package metadata; the `[ai]` extra provides LangChain and `[all]` also adds visualization dependencies. |
+
 ## v1.9.0
 
 Minor release — adds a stable in-memory graph factory and clarifies the
@@ -101,6 +144,10 @@ Minor release — Clean Architecture v1 structural slices, new public graph APIs
 | **Test suite** | **456** pytest cases. |
 
 ## v1.5.0
+
+Historical version entry: no v1.5.0 tag, GitHub Release, or PyPI distributions
+are currently listed (verified 2026-10-04). These notes preserve the documented
+source changes; they are not evidence of package publication.
 
 Minor release — CLI vault hygiene for broken block references. **No intentional
 breaking changes** to default `scan` behavior (`--broken-refs` is opt-in).

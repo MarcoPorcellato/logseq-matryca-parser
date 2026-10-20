@@ -11,13 +11,21 @@ and safely extend a vault without flattening its structure.
 Markdown files are the source of truth. The in-memory graph, registries,
 backlinks, exports, visualizations, and AI chunks are derived views.
 
+The v1.11.0 release line also contains an experimental read-only Org reader
+behind a private, non-stable module API. It accepts Org text or one selected
+`.org` file and does not load a vault graph. Its diagnostics cover selected
+conditions only; unknown syntax may be retained without a warning. Do not
+present this subset as complete GNU Org or Logseq support. Markdown remains the
+primary supported parser surface; see
+[`docs/internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md`](docs/internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md).
+
 ## Capability map
 
 | Layer | Use it for | Primary entry point |
 |---|---|---|
 | **LOGOS** | Parse Logseq Markdown into a deterministic AST | `LogosParser`, `StackMachineParser` |
 | **Graph** | Load a vault, resolve pages and aliases, query nodes, inspect backlinks | `LogseqGraph` |
-| **SYNAPSE** | Export lineage-aware LangChain documents, LlamaIndex nodes, and enriched chunks | `SynapseAdapter` |
+| **SYNAPSE** | Export lineage-aware LangChain documents and enriched chunks; delegate native LlamaIndex nodes to the separate companion | `SynapseAdapter` |
 | **FORGE** | Serialize JSON, clean Markdown, Logseq pages, and Obsidian-compatible output | `ForgeExporter`, `serialize_logseq_page` |
 | **KINETIC** | Run CLI parse, export, scan, visualize, agent-read, and agent-write workflows | `matryca-parse` |
 | **LENS** | Build a compatible reference-topology visualization; planned compatible deprecation follows a later Trama UI migration | `GraphVisualizer` |
@@ -79,6 +87,12 @@ make vendor-name-check
 - Treat paths, symlinks, `file://` assets, atomic replacement, and vault
   containment as security boundaries.
 - Keep optional integrations lazy; the base parser must remain lightweight.
+- The Parser `[ai]` extra provides LangChain; `[all]` also includes the
+  visualization dependencies. Neither extra installs `llama-index-core` or
+  NLTK. Do not add them back to the Parser dependency graph; native LlamaIndex
+  nodes belong to the separately maintained companion. Its proposed
+  package name is not yet published, so do not present it as currently
+  installable until its repository and distribution are verified.
 - Add focused regression tests for behavioral changes and do not lower the
   coverage floor.
 - Do not commit local caches, generated audit data, vault contents, credentials,

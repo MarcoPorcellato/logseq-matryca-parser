@@ -21,3 +21,4 @@ repos:
         - pytest>=9.0.3
         - networkx>=3.0.0
         - pyvis>=0.3.2
+        - hypothesis==6.168.1

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "source_text": "* TODO [#B] Schedule the review :calendar:\nSCHEDULED: <2026-10-04 Sun>\nDEADLINE: <2026-10-08 Thu>\nCLOSED: [2026-10-02 Fri]\nCLOCK: [2026-10-02 Fri 09:00]--[2026-10-02 Fri 09:20] => 0:20\n",
+  "elements": [
+    {"kind": "heading", "line_start": 1, "line_end": 1, "level": 1, "title": "Schedule the review", "marker": "TODO", "priority": "B", "tags": ["calendar"]},
+    {"kind": "timestamp", "line_start": 2, "line_end": 2, "kind_name": "SCHEDULED", "raw": "SCHEDULED: <2026-10-04 Sun>"},
+    {"kind": "timestamp", "line_start": 3, "line_end": 3, "kind_name": "DEADLINE", "raw": "DEADLINE: <2026-10-08 Thu>"},
+    {"kind": "timestamp", "line_start": 4, "line_end": 4, "kind_name": "CLOSED", "raw": "CLOSED: [2026-10-02 Fri]"},
+    {"kind": "timestamp", "line_start": 5, "line_end": 5, "kind_name": "CLOCK", "raw": "CLOCK: [2026-10-02 Fri 09:00]--[2026-10-02 Fri 09:20] => 0:20"}
+  ]
+}

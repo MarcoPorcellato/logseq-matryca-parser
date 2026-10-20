@@ -5,7 +5,7 @@ type: Document
 
 ## Safe resume point
 
-- Repository: `/Users/marco1/Documents/CODICE con VS CODE/logseq-matryca-parser`
+- Repository: Logseq Matryca Parser (historical handoff; local checkout path omitted)
 - Isolated worktree: none; the dedicated delivery branch is checked out in the
   primary repository directory.
 - Branch: `agent/parser-assurance-m1`

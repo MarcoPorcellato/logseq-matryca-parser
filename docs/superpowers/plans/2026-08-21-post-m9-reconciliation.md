@@ -54,7 +54,7 @@
   Run:
 
   ```bash
-  rtk env UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-post-m9-uv-cache uv run python scripts/check_documentation.py --root . --profile docs/maintained.toml --as-of-date 2026-08-21
+  rtk env UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-post-m9-uv-cache" uv run python scripts/check_documentation.py --root . --profile docs/maintained.toml --as-of-date 2026-08-21
   rtk make vendor-name-check
   rtk git diff --check
   ```
@@ -89,7 +89,7 @@
   Run:
 
   ```bash
-  rtk env UV_CACHE_DIR=/private/tmp/logseq-matryca-parser-post-m9-uv-cache make all
+  rtk env UV_CACHE_DIR="${TMPDIR%/}/logseq-matryca-parser-post-m9-uv-cache" make all
   rtk make vendor-name-check
   rtk git diff --check origin/main...HEAD
   rtk git status --short --branch

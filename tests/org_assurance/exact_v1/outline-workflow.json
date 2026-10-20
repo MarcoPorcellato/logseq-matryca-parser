@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "source_text": "* TODO [#A] Review the parser boundary :engineering:org:\nThe body stays attached to its heading.\n- Preserve this list\n  - Keep nested order\n\n** DONE [#B] Keep the child section :review:\nChild body.\n* WAITING [#C] Retain an unfamiliar workflow marker\nFinal body.\n",
+  "elements": [
+    {"kind": "heading", "line_start": 1, "line_end": 1, "level": 1, "title": "Review the parser boundary", "marker": "TODO", "priority": "A", "tags": ["engineering", "org"]},
+    {"kind": "paragraph", "line_start": 2, "line_end": 2, "text": "The body stays attached to its heading."},
+    {"kind": "list", "line_start": 3, "line_end": 4, "ordered": false, "items": [{"text": "Preserve this list", "items": [{"text": "Keep nested order", "items": []}]}]},
+    {"kind": "heading", "line_start": 6, "line_end": 6, "level": 2, "title": "Keep the child section", "marker": "DONE", "priority": "B", "tags": ["review"]},
+    {"kind": "paragraph", "line_start": 7, "line_end": 7, "text": "Child body."},
+    {"kind": "heading", "line_start": 8, "line_end": 8, "level": 1, "title": "Retain an unfamiliar workflow marker", "marker": "WAITING", "priority": "C", "tags": []},
+    {"kind": "paragraph", "line_start": 9, "line_end": 9, "text": "Final body."}
+  ]
+}

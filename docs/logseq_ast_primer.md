@@ -153,7 +153,8 @@ Both map into **`LogseqPage.properties`** with **lowercase keys**. **`serialize_
 | **`:LOGBOOK:`** | Drawer blocks re-emit as `:LOGBOOK:` / `:END:`, not `logbook::` lines. |
 | **Derived temporal keys** | `scheduled::`, `repeater::`, and related parsed fields are omitted from serialized `key::` output. |
 | **Soft-break bodies** | Continuation lines keep single alignment at `parent + 2` spaces without double-indent. |
-| **Block UUIDs** | Parse → serialize → parse preserves block UUIDs on the same outline (see `tests/test_pre_release_roundtrip.py`). |
+| **Scalar metadata before prose** | Eligible multiline blocks emit genuine nonempty, single-line scalar properties before ordinary prose continuations, including explicit `id::` metadata. Property-like text already after a continuation stays literal. Drawers, list-shaped/multiline values, and excluded complex layouts retain legacy output; no general mixed-layout round-trip guarantee is implied. |
+| **Block UUIDs** | Parse → serialize → parse preserves block UUIDs in supported round-trip layouts (see `tests/test_pre_release_roundtrip.py` and `tests/test_logseq_markdown.py`). |
 
 ### `LogseqGraph` enrichment
 

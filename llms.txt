@@ -5,9 +5,11 @@
 Logseq Markdown files are the source of truth. The parser preserves outliner
 hierarchy, block UUIDs, page aliases, backlinks, properties, tasks, timestamps,
 and assets instead of flattening a vault into unrelated text chunks. Derived
-views include graph queries, LangChain documents, LlamaIndex nodes,
-context-enriched chunks, JSON and Obsidian exports, interactive visualization,
-and token-efficient agent reads and writes.
+views include graph queries, LangChain documents, context-enriched chunks,
+JSON and Obsidian exports, interactive visualization, and token-efficient
+agent reads and writes. Native LlamaIndex nodes are delegated to the separate
+`logseq-matryca-parser-llamaindex` companion, which is planned but not yet
+published on PyPI; it is not a Parser dependency.
 
 Use documented package-root imports for stable APIs. Treat filesystem writes,
 symlinks, asset paths, graph identity, and parse/serialize round trips as safety
@@ -30,12 +32,14 @@ boundaries. Read AGENTS.md before changing the repository.
 - [Filesystem safety](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/FILESYSTEM_SAFETY.md): Vault containment, symlink policy, atomic replacement, dry runs, metadata, and limits.
 - [Agent action contract](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/AGENT_ACTION_CONTRACT.md): Read/write authority, approval boundaries, provenance, and prompt-injection rules.
 - [Support and compatibility matrix](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/CONFORMANCE_SUPPORT_MATRIX.md): Supported runtimes, public API tiers, optional adapters, and explicit limits.
+- Experimental Org reader: private, non-stable, read-only parsing of Org text or one selected `.org` file; no vault graph and no complete GNU Org/Logseq conformance. Diagnostics are selective, not a full unsupported-syntax inventory. See [API stability](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/API_STABILITY.md) and [maintainer status](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md).
 - [Supply-chain evidence policy](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/DEPENDENCY_LICENSE_POLICY.md): Release SBOM, dependency/license inventory, checksums, and provenance verification.
 - [Daily metrics threat model](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/security/DAILY_METRICS_THREAT_MODEL.md): Security and privacy boundary for repository traffic automation.
 
 ## Runnable entry points
 
-- [Offline SYNAPSE RAG example](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/examples/run_synapse_rag.py): LangChain, LlamaIndex, enriched chunks, and page-embed expansion without a user vault.
+- [Offline SYNAPSE RAG example](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/examples/run_synapse_rag.py): LangChain, the optional LlamaIndex companion path, enriched chunks, and page-embed expansion without a user vault. The companion is not yet published.
+- [Support and compatibility matrix](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/CONFORMANCE_SUPPORT_MATRIX.md): Current Parser and optional-companion boundaries.
 - [Demo example](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/examples/run_demo.py): Small end-to-end parser demonstration.
 - [CLI implementation](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/src/logseq_matryca_parser/kinetic.py): Parse, scan, export, visualize, agent-read, agent-write, append, and demo commands.
 - [Public package API](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/src/logseq_matryca_parser/__init__.py): Supported package-root exports.
@@ -43,6 +47,8 @@ boundaries. Read AGENTS.md before changing the repository.
 ## Build, test, and contribute
 
 - [Contributing](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/CONTRIBUTING.md): Environment setup, quality gates, tests, and pull-request workflow.
+- [Official Logseq Markdown compatibility evidence](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md): Verified results for all 313 selected official documents, metadata-only page semantics, corpus provenance and explicit coverage limits.
+- [Additional Logseq Markdown datasets](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md): Research-backed corpus candidates, syntax diversity, content rights and proposed priorities; these datasets have not yet been tested.
 - [Security policy](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/SECURITY.md): Supported versions and private vulnerability reporting.
 - [Public roadmap](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/ROADMAP_2026-2027.md): Milestones, dependencies, and evidence gates without release promises.
 - [Issue triage policy](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/ISSUE_TRIAGE_POLICY.md): Issue labels, priorities, good-first issue lifecycle, stale-work, and closure rules.

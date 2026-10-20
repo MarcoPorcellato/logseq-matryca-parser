@@ -16,8 +16,12 @@ def _wheel(
     version: str = "1.7.0",
     include_marker: bool = True,
     record_marker: bool = True,
+    requires_dist: tuple[str, ...] = (),
 ) -> Path:
-    metadata = f"Metadata-Version: 2.5\nName: logseq-matryca-parser\nVersion: {version}\n"
+    metadata = (
+        f"Metadata-Version: 2.5\nName: logseq-matryca-parser\nVersion: {version}\n"
+        + "".join(f"Requires-Dist: {requirement}\n" for requirement in requires_dist)
+    )
     record = io.StringIO()
     writer = csv.writer(record, lineterminator="\n")
     if record_marker:
@@ -34,7 +38,7 @@ def _wheel(
 
 
 def test_source_version_reads_lightweight_version_module() -> None:
-    assert source_version() == "1.9.0"
+    assert source_version() == "1.11.1"
 
 
 def test_valid_wheel_contract(tmp_path: Path) -> None:

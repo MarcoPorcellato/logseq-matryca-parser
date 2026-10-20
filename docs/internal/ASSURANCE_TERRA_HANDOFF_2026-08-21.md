@@ -4,7 +4,7 @@ This handoff records a checkpoint; it is not a validation or release receipt.
 
 ## Safe resume point
 
-- Repository: `/Users/marco1/Documents/CODICE con VS CODE/logseq-matryca-parser`
+- Repository: Logseq Matryca Parser (historical handoff; local checkout path omitted)
 - Additional worktree: none; the maintainer prefers in-place execution when a
   clean checkout can preserve every branch remotely.
 - Branch: `feat/graph-mutation-coherence-103`

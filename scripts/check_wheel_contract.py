@@ -13,7 +13,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILE = ROOT / "src" / "logseq_matryca_parser" / "_version.py"
 MARKER = "logseq_matryca_parser/py.typed"
+FORBIDDEN_REQUIREMENTS = {"llama-index-core", "nltk"}
 VERSION_PATTERN = re.compile(r'^__version__\s*=\s*["\']([^"\']+)["\']$', re.MULTILINE)
+REQUIREMENT_NAME_PATTERN = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)")
+
+
+def _normalized_requirement_name(requirement: str) -> str | None:
+    match = REQUIREMENT_NAME_PATTERN.match(requirement)
+    if match is None:
+        return None
+    return re.sub(r"[-_.]+", "-", match.group(1)).casefold()
 
 
 def source_version(path: Path = VERSION_FILE) -> str:
@@ -44,6 +53,9 @@ def check_wheel(path: Path, expected_version: str) -> list[str]:
                 failures.append(
                     f"wheel version {wheel_version!r} does not match source version {expected_version!r}"
                 )
+            for requirement in metadata.get_all("Requires-Dist", []):
+                if _normalized_requirement_name(requirement) in FORBIDDEN_REQUIREMENTS:
+                    failures.append(f"forbidden dependency in wheel metadata: {requirement}")
 
         if len(record_files) != 1:
             failures.append(f"expected one RECORD file, found {len(record_files)}")

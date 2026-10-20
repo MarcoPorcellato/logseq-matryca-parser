@@ -48,6 +48,8 @@ version; use `vX.Y.Z` for the git tag).
 - [ ] Leave an empty `## [Unreleased]` section at the top
 - [ ] Set `__version__ = "X.Y.Z"` in `src/logseq_matryca_parser/_version.py`; the pinned Hatchling backend derives package metadata from this single source
 - [ ] Update `README.md`, `SECURITY.md`, and contributor-facing current-version references
+- [ ] Reconcile `RELEASE_HIGHLIGHTS.md`, support/API contracts, `AGENTS.md`, `llms.txt`, and maintained documentation indexes with shipped capabilities; keep historical records dated and append current status rather than rewriting past evidence
+- [ ] Audit the exact source distribution for ignored local caches, maintainer state, private paths, and secret-like values; do not rely on a clean checkout assumption alone
 - [ ] Verify every file, command, issue disposition, and shipped capability
       named in the versioned changelog against the exact release commit
 - [ ] Run `make all` (Ruff, Mypy, documentation checks, and Pytest)

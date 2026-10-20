@@ -1,1 +1,2 @@
 tests/fixtures/compat/** text eol=lf
+tests/fixtures/org/** text eol=lf

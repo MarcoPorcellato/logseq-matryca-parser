@@ -11,26 +11,20 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_nltk_security_floor_uses_a_stable_registry_constraint() -> None:
+def test_nltk_is_absent_from_parser_extras_and_lock() -> None:
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    constraints = pyproject["tool"]["uv"]["constraint-dependencies"]
-
-    assert "nltk>=3.10.3" in constraints
-
-
-def test_nltk_is_not_declared_as_a_vcs_override() -> None:
-    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    overrides = pyproject["tool"]["uv"].get("override-dependencies", [])
-
-    assert not any(dependency.startswith("nltk") for dependency in overrides)
-
-
-def test_nltk_lock_uses_a_patched_registry_release() -> None:
     lock = tomllib.loads((ROOT / "uv.lock").read_text(encoding="utf-8"))
-    nltk = next(package for package in lock["package"] if package["name"] == "nltk")
 
-    assert nltk["source"] == {"registry": "https://pypi.org/simple"}
-    assert tuple(int(part) for part in nltk["version"].split(".")) >= (3, 10, 3)
+    assert all(
+        "nltk" not in dependency.casefold()
+        for dependencies in pyproject["project"]["optional-dependencies"].values()
+        for dependency in dependencies
+    )
+    assert all(
+        "nltk" not in dependency.casefold()
+        for dependency in pyproject["tool"]["uv"]["constraint-dependencies"]
+    )
+    assert not any(package["name"].casefold() == "nltk" for package in lock["package"])
 
 
 class MakefileContractError(AssertionError):
@@ -113,9 +107,7 @@ def _read_makefile_recipes(target: str, makefile: Path = ROOT / "Makefile") -> l
 def test_structural_reader_preserves_depth_first_recipe_order(tmp_path: Path) -> None:
     makefile = tmp_path / "Makefile"
     makefile.write_text(
-        "all: first second\n\tprintf aggregate\n"
-        "first:\n\tprintf first\n"
-        "second:\n\tprintf second\n",
+        "all: first second\n\tprintf aggregate\nfirst:\n\tprintf first\nsecond:\n\tprintf second\n",
         encoding="utf-8",
     )
 
@@ -196,9 +188,7 @@ def test_all_external_actions_are_immutable_sha_pins() -> None:
 
 
 def test_release_builds_once_and_orders_publication() -> None:
-    workflow = (ROOT / ".github" / "workflows" / "pypi_publish.yml").read_text(
-        encoding="utf-8"
-    )
+    workflow = (ROOT / ".github" / "workflows" / "pypi_publish.yml").read_text(encoding="utf-8")
 
     assert workflow.count("uv build --out-dir release-bundle/dist") == 1
     assert workflow.count('version: "0.11.7"') == 2
@@ -218,9 +208,7 @@ def test_build_backend_pin_keeps_release_metadata_twine_compatible() -> None:
 
 
 def test_release_publishes_and_verifies_supply_chain_evidence() -> None:
-    workflow = (ROOT / ".github" / "workflows" / "pypi_publish.yml").read_text(
-        encoding="utf-8"
-    )
+    workflow = (ROOT / ".github" / "workflows" / "pypi_publish.yml").read_text(encoding="utf-8")
 
     assert "--format cyclonedx1.5" in workflow
     assert "scripts/generate_supply_chain_evidence.py" in workflow
@@ -260,9 +248,7 @@ def test_scorecard_follows_the_restricted_official_job_shape() -> None:
 
 
 def test_daily_metrics_write_job_is_main_only() -> None:
-    workflow = (ROOT / ".github" / "workflows" / "daily-metrics.yml").read_text(
-        encoding="utf-8"
-    )
+    workflow = (ROOT / ".github" / "workflows" / "daily-metrics.yml").read_text(encoding="utf-8")
 
     assert "if: github.ref == 'refs/heads/main'" in workflow
     assert "ref: main" in workflow
@@ -283,7 +269,7 @@ def test_ci_uses_locked_cross_platform_native_actions_jobs() -> None:
     assert workflow.count("uv sync --locked --all-extras") == 4
     assert workflow.count("pip-audit") == 1
     assert "uv run pip-audit --no-deps --disable-pip" in workflow
-    assert "--ignore-vuln PYSEC-2026-3740" in workflow
+    assert "--ignore-vuln PYSEC-2026-3740" not in workflow
     assert '-r "${{ runner.temp }}/requirements-audit.txt"' in workflow
     for flag in ("--all-extras", "--no-dev", "--no-emit-workspace"):
         assert flag in workflow
@@ -311,9 +297,7 @@ def test_ci_keeps_quality_checks_out_of_the_runtime_matrix() -> None:
 
 
 def test_workflow_analysis_is_path_scoped_read_only_and_blocking() -> None:
-    workflow = (ROOT / ".github/workflows/workflow-analysis.yml").read_text(
-        encoding="utf-8"
-    )
+    workflow = (ROOT / ".github/workflows/workflow-analysis.yml").read_text(encoding="utf-8")
 
     assert "pull_request:" in workflow
     assert "push:" in workflow
@@ -334,9 +318,7 @@ def test_workflow_analysis_is_path_scoped_read_only_and_blocking() -> None:
 
 
 def test_dependency_hygiene_is_periodic_and_not_a_pull_request_gate() -> None:
-    workflow = (ROOT / ".github/workflows/dependency-hygiene.yml").read_text(
-        encoding="utf-8"
-    )
+    workflow = (ROOT / ".github/workflows/dependency-hygiene.yml").read_text(encoding="utf-8")
 
     assert "schedule:" in workflow
     assert "workflow_dispatch:" in workflow
@@ -431,9 +413,7 @@ def test_specialized_read_only_checkouts_do_not_persist_credentials() -> None:
 
 
 def test_adversarial_workflow_uses_the_locked_environment() -> None:
-    workflow = (ROOT / ".github/workflows/parser-adversarial.yml").read_text(
-        encoding="utf-8"
-    )
+    workflow = (ROOT / ".github/workflows/parser-adversarial.yml").read_text(encoding="utf-8")
 
     assert 'version: "0.11.7"' in workflow
     assert "uv sync --locked --all-extras" in workflow

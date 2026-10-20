@@ -7,6 +7,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Add Obsidian to the README PKM comparison and link one source-backed
+  [comparison study](docs/reference/PKM_OBSIDIAN_COMPARISON.md). Distinguish
+  applications from the parser library, native features from community plugins,
+  and compatible output from lossless cross-app support; replace absolute Git,
+  sovereignty and ordinal AI-readiness claims with concrete capabilities.
+
+## [1.11.1] - 2026-10-20
+
+### Fixed
+
+- **Fenced code in outline items** — enter code mode from the actual list-item
+  fence opener and require a matching delimiter character, sufficient closing
+  width and whitespace-only closing suffix. Keep literal properties and bullets
+  inside code, preserve raw payload and source spans, and attach metadata and
+  following siblings to their correct blocks after closure.
+
+- **Multiline scalar metadata round trips** — emit genuine nonempty, single-line
+  scalar block properties before ordinary prose continuations on eligible
+  nodes, preserving their metadata and explicit block UUIDs when parsed again.
+  Property-like text after a continuation remains literal. Drawers, list-shaped
+  or multiline values, and excluded complex layouts retain their prior output;
+  this is not a general mixed-layout round-trip guarantee.
+
+### Added
+
+- **Composite Markdown assurance** — add a bounded synthetic valid-input family
+  with independent expectations for outline shape, source spans, tasks,
+  priorities, dates, metadata and visible references, followed by semantic
+  round-trip checks. Finite recipes and source-free receipts complement the
+  existing tests; they do not establish exhaustive Markdown coverage (#104).
+
+## [1.11.0] - 2026-10-02
+
+### Added
+
+- **Experimental Logseq Org reader** — add a read-only, source-preserving
+  parser for Org text or one caller-selected `.org` file. It remains a private,
+  non-stable API and does not load a vault graph. Its fixed diagnostics cover
+  selected conditions only; unsupported syntax may be retained without a
+  warning. Retained text or a diagnostic-free result does not mean that Org or
+  Logseq semantics were understood. Review the original source when omitted
+  behavior matters.
+
+### Fixed
+
+- **Source archive hygiene** — exclude selected ignored local maintainer and
+  tool-cache directories from source distributions; runtime behavior is unchanged.
+
+### Security
+
+- **Development-toolchain security** — update the locked `virtualenv` from
+  21.5.1 to 21.14.4, closing four Dependabot advisories in the `pre-commit`
+  development dependency chain. Published runtime dependencies are unchanged.
+
+## [1.10.0] - 2026-09-27
+
+### Changed
+
+- **LlamaIndex companion boundary** — keep `SynapseAdapter.to_llamaindex_nodes()`
+  as a lazy compatibility shim while moving native node construction out of the
+  Parser distribution. The proposed companion package is not yet published;
+  `[ai]` provides LangChain, while `[all]` also includes visualization
+  dependencies. Neither extra installs LlamaIndex or NLTK.
+
+### Security
+
+- **Remove Parser's NLTK dependency chain** — exclude `llama-index-core` and
+  NLTK from Parser extras, lock, and package metadata, and remove the temporary
+  Parser audit waiver. This does not resolve the upstream NLTK advisory or set
+  the separate companion's security policy.
+
 ## [1.9.0] - 2026-09-06
 
 ### Added

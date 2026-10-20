@@ -11,8 +11,7 @@ merge, or universal quality claim.
 - Exact source commit:
   `bb8ec6b758e0e7b3429de49ca252ae8b62f97689`
 - Isolated branch: `agent/post-v1.8.1-backlog-reconciliation`
-- Isolated worktree:
-  `/private/tmp/logseq-matryca-parser-post-v181-20260825`
+- Isolated worktree: temporary isolated checkout (ephemeral path omitted)
 - Primary checkout: preserved and not used as the writer workspace
 - Dependency state: `uv sync --locked --all-extras` completed
 - Baseline gate: `make all` completed with 760 tests and 91.20% statement

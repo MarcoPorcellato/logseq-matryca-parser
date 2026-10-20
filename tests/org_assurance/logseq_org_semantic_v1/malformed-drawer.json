@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "page_title": "synthetic-malformed-drawer",
+  "blocks": [{"ordinal": 0, "title": "Incomplete property drawer", "marker": null, "priority": null, "tags": [], "parent_ordinal": null, "line_start": 1}],
+  "page_properties": [],
+  "references": [],
+  "timestamps": [],
+  "opaque": [{"kind": "unterminated_property_drawer", "line_start": 2, "line_end": 4}],
+  "diagnostics": [{"code": "ORG_UNCLOSED_DRAWER", "severity": "error", "line": 2}]
+}

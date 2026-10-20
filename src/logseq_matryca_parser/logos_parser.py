@@ -160,15 +160,22 @@ def clean_node_content(raw_content: str, properties: dict[str, Any]) -> str:
     """Strip Logseq properties and bullet syntax from block text."""
     cleaned_lines: list[str] = []
     property_keys = tuple(properties.keys())
-    in_code_block = False
+    fence_char: str | None = None
+    fence_length = 0
 
     for line_index, line in enumerate(raw_content.splitlines()):
         stripped = line.strip()
-        if _is_code_fence_line(stripped):
-            in_code_block = not in_code_block
+        fence_parts = _code_fence_parts(line)
+        if fence_char is None and fence_parts is not None:
+            fence_char, fence_length = fence_parts[0], fence_parts[1]
             cleaned_lines.append(stripped)
             continue
-        if in_code_block:
+        if fence_char is not None:
+            if _is_closing_code_fence(fence_parts, fence_char, fence_length):
+                fence_char = None
+                fence_length = 0
+                cleaned_lines.append(stripped)
+                continue
             cleaned_lines.append(line)
             continue
         if property_keys and any(
@@ -196,7 +203,38 @@ def clean_node_content(raw_content: str, properties: dict[str, Any]) -> str:
 
 
 def _is_code_fence_line(stripped_line: str) -> bool:
-    return stripped_line.startswith("```") or stripped_line.startswith("~~~")
+    return _code_fence_parts(stripped_line) is not None
+
+
+def _code_fence_parts(line: str) -> tuple[str, int, str] | None:
+    """Return a fence marker, run width, and trailing text for a fence line."""
+    candidate = line.lstrip(" \t")
+    if not candidate or candidate[0] not in ("`", "~"):
+        return None
+
+    fence_char = candidate[0]
+    fence_end = 0
+    while fence_end < len(candidate) and candidate[fence_end] == fence_char:
+        fence_end += 1
+    if fence_end < 3:
+        return None
+    suffix = candidate[fence_end:]
+    if fence_char == "`" and "`" in suffix:
+        return None
+    return fence_char, fence_end, suffix
+
+
+def _is_closing_code_fence(
+    fence_parts: tuple[str, int, str] | None,
+    fence_char: str,
+    fence_length: int,
+) -> bool:
+    return (
+        fence_parts is not None
+        and fence_parts[0] == fence_char
+        and fence_parts[1] >= fence_length
+        and not fence_parts[2].strip()
+    )
 
 
 def _is_query_begin_line(stripped_line: str) -> bool:
@@ -395,13 +433,17 @@ def _extract_task_status(first_line: str) -> tuple[str | None, str]:
 
 def _extract_time_properties(raw_content: str) -> dict[str, Any]:
     properties: dict[str, Any] = {}
-    in_code_block = False
+    fence_char: str | None = None
+    fence_length = 0
     for line in raw_content.splitlines():
-        stripped = line.strip()
-        if _is_code_fence_line(stripped):
-            in_code_block = not in_code_block
+        fence_parts = _code_fence_parts(line)
+        if fence_char is None and fence_parts is not None:
+            fence_char, fence_length = fence_parts[0], fence_parts[1]
             continue
-        if in_code_block:
+        if fence_char is not None:
+            if _is_closing_code_fence(fence_parts, fence_char, fence_length):
+                fence_char = None
+                fence_length = 0
             continue
         for key, value in TIME_PATTERN.findall(line):
             marker_lower = key.lower()
@@ -751,7 +793,13 @@ class StackMachineParser:
                 updated = self._refresh_node(current_node, merged_content, line_end=line_number)
                 self._replace_stack_tail_node(stack, root_nodes, updated)
                 current_node = updated
-                lexical_state.consume_code_line(is_code_fence=line.is_code_fence)
+                fence_parts = _code_fence_parts(stripped_line)
+                lexical_state.consume_code_line(
+                    is_code_fence=fence_parts is not None,
+                    fence_char=fence_parts[0] if fence_parts is not None else None,
+                    fence_length=fence_parts[1] if fence_parts is not None else 0,
+                    fence_suffix=fence_parts[2] if fence_parts is not None else "",
+                )
                 pending_list_key = None
                 pending_list_items = []
                 pending_list_indent = None
@@ -907,6 +955,12 @@ class StackMachineParser:
                 current_node = node
                 self.registry.register(node)
                 lexical_state.observe_structural_node()
+                fence_parts = _code_fence_parts(bullet_match.group(2) or "")
+                if fence_parts is not None:
+                    lexical_state.begin_code_block(
+                        fence_char=fence_parts[0],
+                        fence_length=fence_parts[1],
+                    )
                 continue
 
             heading_match = line.heading_match
@@ -1040,9 +1094,12 @@ class StackMachineParser:
                 line_number,
                 len(stack),
             )
+            fence_parts = _code_fence_parts(stripped_line)
             lexical_state.observe_continuation(
-                is_code_fence=line.is_code_fence,
+                is_code_fence=fence_parts is not None,
                 is_query_begin=line.is_query_begin,
+                fence_char=fence_parts[0] if fence_parts is not None else None,
+                fence_length=fence_parts[1] if fence_parts is not None else 0,
             )
 
         if pending_list_key is not None and current_node is not None:

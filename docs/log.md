@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-30
-verified: 2026-08-30
-stale_after: 2027-02-26
+last_verified: 2026-10-20
+verified: 2026-10-20
+stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -18,6 +18,413 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-10-20 — Obsidian comparison and PKM scope clarified
+
+- Consolidate two independent Luna Max studies into one
+  [official-source comparison](reference/PKM_OBSIDIAN_COMPARISON.md). Cover local
+  storage, outline/block identity, graphs, native properties/Search/Bases, community
+  plugins, Canvas, current CLI/Headless, history and export limitations.
+- Add Obsidian to the README landscape table. Separate the parser-library layer
+  from note-taking applications and replace unsupported “perfect Git,” universal
+  sovereignty and ordinal AI-readiness claims with concrete, qualified behavior.
+- Clarify that Obsidian-compatible output is not a native Obsidian-vault input
+  contract or lossless bidirectional conversion. Preserve the experimental Org,
+  native Logseq DB and optional-adapter boundaries and all earlier release and
+  assurance evidence.
+- Register the study in source documentation navigation and the maintained
+  inventory. This is not private federation or a new compatibility qualification;
+  no app/plugin installation, parser/test change, issue closure, tag or release
+  follows from the comparison.
+
+## 2026-10-10 — Official Markdown corpus evidence and broader dataset research
+
+- Prepare the [official Logseq Markdown compatibility report](quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) and a sanitized per-document evidence ledger for all 313 selected official documents. Each recorded input passed raw-content retention and tree invariants; this is a bounded compatibility result, not complete upstream semantic conformance.
+- Explain the 60 property-only pages that correctly produced no block nodes. Add focused synthetic tests for exact page metadata, key normalization, references, LF/CRLF text and the page-versus-root-list file APIs. The initial fixture expectation was corrected against official Logseq label syntax and the existing alias-reference contract; production code is unchanged.
+- Research [additional public datasets](quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) for broader syntax and graph coverage, distinguishing verified candidates, content rights and future admission from executed tests. No additional corpus has been downloaded or parsed in this phase.
+- Link the evidence through human and machine documentation entry points. Final local quality results and independent review are recorded in the report; publication and hosted qualification of this new documentation/test diff remain separate.
+
+## 2026-10-04 — Published release status reconciled across entrypoints
+
+- Fresh GitHub Release and PyPI metadata confirm v1.11.0 was published on
+  2026-10-02 and is the latest released package. Correct the stale preparation
+  wording in README, release highlights, contributing guidance, security support,
+  architecture orientation, and the active experimental Org status record.
+- Keep the concise release list at the bottom of README and the detailed
+  highlights in their dedicated file. Add the development-toolchain security
+  highlight already present in the v1.11.0 release notes.
+- Cross-check all 19 existing README version entries against registry metadata.
+  v1.5.0 has a historical source/changelog record, but no tag, GitHub Release,
+  or PyPI distributions currently listed. Label it as a documented version
+  and preserve its highlights without claiming it was never published.
+- Keep composite Markdown assurance and the scoped scalar-metadata fix under
+  Unreleased; their integration in PR #234 does not put them in the existing
+  v1.11.0 distribution. The separate LlamaIndex companion remains unavailable
+  on PyPI at this verification date, so its current availability guidance stays.
+- Preserve earlier preparation entries as chronology, not current publication
+  status. No runtime, dependency, API, tag, distribution, or security-support
+  policy change is made; only the release that the existing policy supports is
+  corrected. This source-document update does not replace README metadata
+  already embedded in the previously published wheel and source archive.
+
+## 2026-10-04 — Composite increment completes local package qualification
+
+- One authorized offline cycle passed build, wheel contract, Twine 6.2.0,
+  isolated wheel-installed strict API typing with Mypy 1.20.2 and bounded
+  artifact inspection. All nine external stages exited 0, without retry.
+  Independent Sol High review returned PASS_WITH_NOTES without blocking findings.
+- Frozen source, configuration/lock and recorded project environment metadata
+  were unchanged. Exact artifacts and original failed attempts are preserved;
+  the [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  distinguishes local success from hosted/native-platform and release evidence.
+- The maintainer then authorized this documentary completion update, commit,
+  push and draft PR for CI. Add the bounded scalar-metadata behavior under
+  Unreleased and document it in the AST primer. This later documentary update
+  changes the previously inspected sdist snapshot; hosted package qualification
+  must rebuild the exact submitted commit. Local pre-publication quality and
+  hosted results are pending at the time of this entry. No merge, tag, release,
+  package publication, tracker mutation or additional campaign is authorized.
+
+## 2026-10-04 — Corrected isolated package prerequisites prepared
+
+- One separately authorized corrected installation reused the existing 27
+  hash-pinned requirements, without another compilation or new version selection.
+  All installed pins matched; Twine 6.2.0 and Mypy 1.20.2 version probes passed.
+- Project source/test, configuration/lock and environment metadata matched before
+  and after. The prior failed invocation remains unchanged. Tools and evidence
+  were preserved in persistent ignored storage, separate from the project.
+- Preparation is not package qualification. The
+  [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md) retains
+  pending final-documentation build, artifact metadata and wheel-installed typing
+  gates. No actual package check, build, Parser test, Git or publication action.
+
+## 2026-10-04 — Isolated package prerequisites resolve; install stops
+
+- The authorized isolated Twine 6.2.0/Mypy 1.20.2 preparation resolved 27
+  hash-pinned packages from PyPI. The one installer invocation stopped at
+  argument parsing because of mutually exclusive options; no installation
+  or automatic retry occurred. Independent isolated inventory is empty.
+- This is an operator command-construction error, not a Parser defect or failed
+  artifact check. Source/test, project lock/configuration and environment metadata
+  matched before and after. Exact requirements and failure were preserved.
+- The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  distinguishes successful resolution from incomplete preparation. Next proposal:
+  one corrected install reusing frozen pins, then metadata/version probes only.
+  Actual package qualification, Git and publication actions remain separate.
+
+## 2026-10-03 — Broad composite campaign and current quality pass
+
+- One authorized broad profile passed 119 recipes, representing 117 distinct
+  source digests, under cap 120 and fixed seeds 104/417/911. All independent
+  models and semantic round-trips passed, without retry or minimization.
+  Luna VALIDATED strict evidence and reconstructed sources; Sol High returned
+  PASS_WITH_NOTES. Historical FAIL remains unchanged. Diversity is finite,
+  not exhaustive syntax or Cartesian coverage.
+- Current complete quality passed 1,202 tests, with five native-platform skips
+  and 89.83% coverage; Ruff, mypy, maintained-document and vendor-name checks
+  passed. Protected source/test bytes and existing checkout ownership matched.
+- Offline wheel and sdist build and wheel contract passed. Twine tool resolution
+  stopped on unavailable cached metadata before Twine ran; no download or retry.
+  Distribution metadata and isolated wheel-installed typing remain unexecuted.
+  Bounded archive inspection passed, and exact artifacts were preserved locally.
+  The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  records fingerprints, current limits and required final-documentation rebuild.
+- Package qualification remains incomplete; #104 and hosted/release gates remain
+  separate. No commit, push, PR, release, dependency change or tracker mutation.
+- Independent Sol High terminal review returned PASS_WITH_NOTES for truthful
+  interpretation, not package/publication readiness; pending prerequisites,
+  installed-wheel typing and the final-documentation rebuild remain explicit.
+
+## 2026-10-03 — Fresh bounded composite smoke passes
+
+- The separately authorized new smoke executed three cases under cap four:
+  literal LF, nested August CRLF, and mixed thirty-two-block CRLF. All passed
+  their independent models and semantic round-trips. Post-context and local
+  origins matched; source/test bytes and the existing checkout were preserved.
+- Luna independently validated strict receipt identity, all three reconstructed
+  synthetic inputs, canonical hashes and the 38-file manifest without executing
+  project code. Sol High returned PASS_WITH_NOTES for bounded interpretation.
+  The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  preserves the new receipt digest, actual counts and limitations.
+- The historical FAIL is unchanged. The receipt does not preserve the skipped
+  candidate list; no fourth distinct case or whole-increment readiness is
+  claimed. Next proposal: separately authorized broad profile, fixed seeds
+  104/417/911, cap 120, three seconds per child, fail-first and no retry.
+  Current complete quality/package gates remain separate. No further child,
+  broad run, full suite, source correction, commit or publication followed.
+
+## 2026-10-03 — Fresh August single-case evaluation passes
+
+- The maintainer authorized one fresh child for the previously failing finite
+  August recipe, three-second timeout, no retry. Fresh source/runtime/origin
+  checks passed; a read-only controller preflight-membership mistake was
+  corrected before any child. Existing source and execution contracts were
+  unchanged. The sole invocation exited 0: original-input model and semantic
+  serialization/reparse checks both passed, with no semantic differences.
+- Luna independently validated source-free receipt identities, stage fields,
+  canonical hashes, synthetic input, all 38 manifest files and pre/post context.
+  Sol High assessment returned PASS_WITH_NOTES for scope and interpretation.
+  The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  preserves receipt/context digests and limits. This is cross-source diagnosis,
+  not historical replay or a full smoke campaign; the historical smoke remains
+  failed and its precise assertion unidentified.
+- No further child, retry, broad campaign, full-suite execution, source edit,
+  commit, push, publication or tracker change followed. The smallest next
+  proposal is a separately authorized fresh smoke, cap four, fail-first and
+  no retry; broader randomized and full-project qualification remain deferred.
+
+## 2026-10-03 — Parser-free date expectation repair passes review
+
+- Following explicit approval, Luna added independent fixed-literal controls
+  for all four supported schedule/deadline dates and generated root fields.
+  Focused RED caught exactly the two August mismatches; the harness correction
+  changed only those two integer literals. Five focused controls and the full
+  guarded file passed; controller verification confirmed 84 passes in 1.86
+  seconds, focused Ruff/mypy, and whitespace checks.
+- Independent Sol High review returned PASS with no findings. Existing parser
+  and process guards, strict assertions, corruption controls, protocol,
+  provenance and execution bounds are unchanged. No parser or real child ran,
+  and no assertion instrumentation was introduced.
+- The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  preserves the new harness/test hashes and evidence limits. The historical
+  smoke remains failed and its exact rejected assertion unknown. A new runtime
+  evaluation requires separate authority; no full-suite/campaign execution,
+  commit, push, publication or tracker mutation followed this repair.
+
+## 2026-10-03 — Read-only diagnosis identifies incorrect date expectations
+
+- Luna source/receipt diagnosis and independent Sol High assessment
+  (`PASS_WITH_NOTES`) establish two August oracle epochs eight hours ahead of
+  UTC midnight. Production date handling and existing tests support UTC;
+  the April/May expectation literals are correct.
+- The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  records both exact corrections, severity, assertion ordering and causal
+  uncertainty. The historical smoke remains failed; its exact rejected
+  assertion was not preserved. No new production defect, security incident,
+  or data loss is established.
+- The next proposal is a separately authorized parser-free, two-literal repair
+  with independent date controls and review. Runtime discrimination and any
+  assertion instrumentation are separate gates. No parser, test, worker,
+  diagnostic, replay or campaign ran during diagnosis; no source edit, Git
+  mutation, publication or tracker change occurred.
+
+## 2026-10-03 — Single composite smoke stops on model assertion
+
+- The maintainer authorized one bounded smoke after the parser-free repair's
+  final Sol PASS. Fresh source/runtime/origin preflight passed; the sole run
+  stopped after two children under a four-child cap, with no retry.
+- The previously failing three-block synthetic case now passes the independent
+  model and semantic round-trip on the corrected serializer. A nine-block
+  nested CRLF/Unicode case returned `invariant_failure` / `AssertionError`
+  before model completion, so no round-trip was reached for that case.
+- The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  preserves the exact finite recipe, source and receipt digests, matched
+  pre/post provenance, runtime compatibility and remaining uncertainty.
+  Independent receipt inspection passed without replay. Campaign success is
+  false despite valid source provenance. No broad run, diagnostic, full-suite
+  rerun, correction, commit, publication or tracker mutation followed.
+
+## 2026-10-03 — Developmental composite replay qualification repair
+
+- The maintainer approved a bounded test-only repair after Sol High design
+  review returned PASS_WITH_NOTES. Schema 3 distinguishes source-qualified
+  developmental replay from historical schema-2 evidence and from runtime-byte
+  attestation. The [assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  records complete local source inventory, strict receipt validation, selected
+  runtime compatibility, child acknowledgment and pre/post drift requirements.
+- The first checkpoint passed 49 guarded controls but Sol High review returned
+  BLOCKED on five entry-point/probe/error/inventory/metadata paths. Parser-free
+  RED reproduced twenty expected failures. The repaired checkpoint and one
+  strengthened assertion passed 79 guarded tests, focused Ruff/mypy, and final
+  Sol High PASS. The selected checkout, scalar correction and historical
+  receipts are preserved. This repair is locally complete and uncommitted;
+  actual replay, diagnostic, smoke/broad execution, full-suite requalification
+  and publication remain separately gated. No real parser or child ran here.
+
+## 2026-10-03 — Bounded scalar metadata serialization correction
+
+- The maintainer accepted the historical CRITICAL impact warning and approved
+  the [correction plan](superpowers/plans/2026-10-03-scalar-metadata-serialization.md)
+  for local implementation, Sol review, and complete regression gates, without
+  commit or push. Design review returned PASS_WITH_NOTES; its empty-value and
+  conservative-prose conditions are incorporated.
+- Actual-parse regressions reproduced metadata loss before the source edit in
+  all four newline/indent combinations. The narrow eligibility/order correction
+  now passes 312 focused regressions, Ruff, and mypy. It preserves explicit child
+  UUIDs and late property-like literal content in those tests. Excluded layouts
+  keep legacy output; no complete mixed-layout correctness claim is made.
+- Independent Sol High implementation review returned PASS_WITH_NOTES, without
+  blocking new findings. Complete local quality gates passed: Ruff, mypy on 103
+  files, documentation/vendor validation, 1,153 tests, five native-platform
+  skips, and 89.83% coverage above the unchanged 80% floor. The bounded correction
+  is locally complete and remains uncommitted. Its content eligibility is a
+  documented conservative heuristic, not an exhaustive complex-layout classifier.
+- The composite harness and generic replay limitations remain separate; no
+  campaign, tracker update, hosted qualification, or publication followed. Full
+  logs and review evidence are preserved on persistent local storage.
+
+## 2026-10-03 — Composite valid Markdown assurance design
+
+- The maintainer approved a bounded, test-only mixed-input increment of #104
+  from `0e2b0187ddc54abd92f6a50e7dbde5166e474ffd`. Independent recipe and
+  logical-line expectations cover task/property/reference interactions,
+  hierarchy, and original source ranges before round-trip comparison.
+- The [implementation record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md)
+  preserves the approved bounds, read-only Sol design review notes, execution
+  budgets, replay contract, and deferred work. Local implementation is in
+  progress; no new test result or hosted qualification is claimed yet.
+  Production code, dependencies, workflows, Org, and tracker state remain
+  outside scope. Commit and publication require separate authorization.
+- Initial implementation stopped on its first smoke child. The parent
+  misclassified a partial-stage result and failed while reading its receipt;
+  one additional in-process diagnostic attempt reported a semantic round-trip
+  mismatch after the independent original-input model passed. That extra
+  attempt violated the selected no-rerun boundary and is recorded explicitly.
+  No broad campaign or production fix followed. The implementation record
+  preserves the finite recipe, exact source and draft-code digests, known
+  reporting defects, and missing field-level evidence. The new increment is
+  not qualified; read-only diagnosis precedes a correction decision.
+- Read-only Sol High implementation review returned BLOCKED. The maintainer
+  subsequently approved test-only harness repairs and one exact-recipe
+  diagnostic, with no production change or campaign. Parser-free validation
+  denies direct parsing and real subprocess execution; review and fresh
+  anchors precede the controller-owned diagnostic.
+- The repaired checkpoint passed 35 guarded parser-free tests, Ruff, and mypy.
+  Sol High returned PASS_WITH_NOTES for one exact local diagnostic only.
+  Fresh source/hash checks passed; the single worker produced a valid semantic
+  round-trip failure receipt, with original model success and twelve sanitized
+  differences across three blocks. Content, clean text, properties, and
+  property order differ. Receipt and worker evidence were preserved separately;
+  post-checks verified unchanged source and reviewed hashes. No retry or
+  production edit followed. The record distinguishes selected-file provenance
+  from incomplete generic replay/import/runtime binding, and preserves the
+  separate production correction decision.
+
+## 2026-10-03 — Bounded graph construction property assurance
+
+- Completed the maintainer-approved, test-only local graph-routing increment for
+  #104 from `3070a8f1d788a295849ad34f263f63ef83b464ab`. A finite synthetic
+  model supplies independent canonical-page, alias-ownership, and backlink
+  expectations before comparing disk and snapshot constructions.
+- The [implementation record](quality/GRAPH_PROPERTY_ASSURANCE_2026-10-03.md)
+  records the reviewed scope, generation limits, oracle sensitivity,
+  qualification status, and deferred work. Eleven focused tests pass;
+  read-only GPT-6.1 Sol re-review returned PASS after repairs to replay
+  metadata, independent outline validation, and corruption-control baselines.
+  The final full local gate passed with 1,081 tests, five native-platform
+  skips, and 89.79% coverage. No production code, dependency, workflow, or Org
+  behavior changed. This evidence describes the uncommitted local
+  qualification checkpoint; no hosted qualification or completion of #104
+  is claimed. The maintainer subsequently authorized a feature-branch
+  commit, push, and draft pull request for exact-head hosted qualification,
+  without authorizing merge or release.
+- The maintainer subsequently authorized controlled integration. PR #233
+  passed all fourteen hosted checks and was squash-merged as
+  `0e2b0187ddc54abd92f6a50e7dbde5166e474ffd`. Its
+  [post-merge CI](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/37112297184)
+  passed all nine jobs, including the six native-platform test combinations.
+  The prior local checkpoint remains historical evidence; #104 is still open.
+
+## 2026-10-03 — Bounded malformed Markdown assurance
+
+- Added a test-only follow-up to #104, based on v1.11.0 source
+  `5d577631e68e695071a0badd440c7b374ea8931d`. Five synthetic stress families
+  use finite recipe fields and the existing adversarial subprocess runner;
+  the production parser, dependencies, workflows, and Org reader are unchanged.
+- Fast and broad generation are opt-in and independently cap parser children
+  at twenty and sixty. Each child retains the existing three-second timeout.
+  Failures stop the profile without retries or automatic minimization and emit
+  source-free replay metadata. This is not a hard parent-command time limit,
+  exhaustive malformed grammar, or semantic round-trip claim.
+- The initial broad profile passed sixty cases (48 parsed, 12 typed errors).
+  Independent Sol review identified a wrong-error acceptance gap, now repaired
+  with a specific `BlockReferenceError` oracle and negative controls. The
+  thirty-two focused harness tests pass. Post-review `make all` passed with
+  1064 tests, five native-platform skips, and 89.79% coverage; the focused
+  Markdown regression set passed 119 tests. Wheel/source metadata, isolated
+  downstream typing, exact archive byte matching, and bounded artifact privacy
+  inspection passed; the full record is in the
+  [implementation record](superpowers/plans/2026-10-03-hypothesis-malformed-markdown.md).
+- #104 remains open. Trama benefits through the accepted Parser → Plumber →
+  Trama/Brain boundary; this increment adds no direct consumer integration.
+- Draft PR #232's initial hosted checks completed with thirteen successes and
+  one failure in the existing adversarial fast-profile assertion on Windows
+  Python 3.13. All thirty-two new harness tests passed there; the opaque
+  assertion did not identify the failed case or classification. Added only
+  source-free failure receipts and six negative controls to that test, without
+  changing the parser, timeout, accepted outcomes, workflow, or retry policy.
+  The forty-four focused tests pass locally. This diagnostic change does not
+  establish the original failure's cause or resolve it; hosted qualification
+  remains required before the draft can be considered merge-ready.
+- The diagnostic revision passed local `make all` with 1,070 tests, five
+  native-platform skips, and 89.79% coverage, as well as package/typing checks
+  and a bounded exact-artifact inspection. Independent read-only Sol review
+  returned PASS. These results do not qualify the unexecuted diagnostic CI
+  matrix or supersede the initial hosted failure.
+- Subsequent hosted qualification passed all fourteen checks on the
+  diagnostic revision. PR #232 was squash-merged as
+  `3070a8f1d788a295849ad34f263f63ef83b464ab`; its post-merge hosted run
+  [37096526012](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/37096526012)
+  passed all nine jobs, including the six native-platform test combinations.
+  The original Windows failure did not recur, but its cause remains unknown;
+  a later passing run does not explain or erase that historical result.
+
+## 2026-10-02 — v1.11.0 release preparation and Org reader limits
+
+- Reconciled the release-facing docs for v1.11.0 while preserving the verified
+  latest-published and supported version as v1.10.0. The 1.11.0 tag does not yet
+  exist; a tag push follows the separate PyPI and GitHub Release workflow.
+- Documented that the experimental Org reader is private, read-only, and
+  non-stable; its diagnostics are selected rather than exhaustive, and retained
+  source is not proof of semantic understanding. D3 graph integration is
+  deferred; Markdown remains the primary supported parser surface.
+- Fixed source-distribution hygiene so selected ignored local maintainer and
+  tool-cache directories are excluded. The exact release-candidate source
+  archive and wheel were rebuilt and checked; this is artifact evidence, not a
+  publication.
+- Updated the AI-agent, LLM, support, API-stability, compatibility, and
+  documentation indexes to expose the experimental boundary without claiming
+  full GNU Org or Logseq conformance.
+- Added a dated status refresh to the LlamaIndex companion migration records:
+  Parser v1.10.0 is published, Parser PR #225 and Org parser PR #229 are merged,
+  and companion PR #1 remains a draft. Rebind its live state before resuming.
+
+## 2026-09-30 — Org reader design gate closed
+
+- The maintainer selected one absolute caller-supplied `.org` path, without a
+  vault-root containment promise, and accepted the bounded platform policy and
+  stated residuals: OS/provider effects may precede rejection; remote-backed
+  I/O may occur; physical locality, immutable snapshots under concurrent
+  writes, and a hard wall-clock I/O deadline are not promised.
+- The experimental D1 contract records Linux ext-family, macOS APFS, and
+  Windows NTFS runner profiles, component-at-a-time no-follow handling,
+  same-handle checks, fixed path-free diagnostics, and fail-closed behavior
+  outside the selected matrix. These mechanisms are not yet runtime-qualified;
+  Windows ABI/adversarial tests and the parser security review remain later
+  D2 gates.
+- The project-authored corpus and design gates passed before implementation.
+  Those results describe the design phase only; they do not qualify the parser
+  implementation or any native runtime.
+- Sol XHigh approved the final design and D1 contract. This approval covers
+  the specification only; it does not qualify the implementation or native
+  Windows behavior.
+- The design and plan preserve a finite, source-only Org subset; they do not
+  claim complete GNU Org or Logseq OG parity. No production parser/API,
+  Beads/GitHub mutation, commit, push, PR, merge, or release was made.
+
+## 2026-09-27 — LlamaIndex companion boundary
+
+- Began the LlamaIndex companion separation: Parser `[ai]` and `[all]` now
+  exclude `llama-index-core` and NLTK; `SynapseAdapter.to_llamaindex_nodes()`
+  remains as a lazy bridge, with native node tests moving to the companion gate.
+- Removed the temporary NLTK advisory waiver from Parser CI and release audits.
+  A fresh no-waiver audit of the exact locked all-extras production export found
+  no known vulnerabilities; this resolves Parser exposure only, not the
+  upstream advisory or the companion's future dependency policy.
+- Updated the support matrix, API contract, cookbook, architecture guides, and
+  agent-facing indexes to mark the proposed companion as not yet published on
+  PyPI. Its repository, package ownership, real-node tests, and release remain
+  separate authorization and acceptance gates.
 
 ## 2026-08-30 — v1.8.2 publication
 
@@ -489,3 +896,53 @@ not current quality claims.
   and fails closed when Git cannot enumerate or read repository content.
 - Added regression tests for hidden-path detection, explicit exemptions,
   binary files, untracked files, and Git-enumeration failure.
+
+## 2026-09-26
+
+- Recorded one partial local increment for parser assurance issue #104:
+  bounded, grammar-valid Hypothesis outline and semantic round-trip properties.
+  Validation used source `HEAD` `d85ea35ec2dbd37f5121d5052bf1e481bded973d`
+  plus the uncommitted Task 1–3 worktree changes; it is not a hosted CI or
+  released-artifact claim.
+- With CI-pinned uv 0.11.7 and Python 3.12.13, the focused parser/corpus tests
+  passed (70 tests), `make all` passed (821 tests, 91.18% coverage against the
+  unchanged 80% floor), and the wheel/sdist package contract passed, including
+  wheel metadata, pinned Twine 6.2.0, and downstream strict typing with mypy
+  1.20.2. Hypothesis 6.168.1 remains development-only; its locked dependency
+  `sortedcontainers` 2.4.0 was already present in the lock and both packages
+  are absent from the production dependency export. No separate high-example
+  CI job was added; the local full suite took 67.10 seconds, while hosted CI
+  duration and cost impact were not measured.
+- The isolated mypy pre-commit environment pins Hypothesis 6.168.1 so the
+  repository's test-tree check can resolve the new development-only import;
+  no hosted CI workflow or job was added.
+- The generated input is bounded by the recorded strategy limits, but Hypothesis
+  example count is a target rather than a hard execution cap. This slice adds
+  no hard timeout, general parser-correctness, or no-hang claim. Existing M3
+  adversarial, replay, and subprocess-timeout evidence remains separate and
+  authoritative. This work does not close issue #104; malformed-input strategies,
+  graph/filesystem behavior, and concurrency remain deferred Hypothesis-specific
+  expansions.
+
+## 2026-10-01 — Org parser enters native CI qualification
+
+- Added a private, read-only Org parser and synthetic adversarial coverage
+  without changing Markdown parsing, graph loading, package-root exports, or
+  runtime dependencies.
+- The documented scope remains experimental and limited to a finite Logseq OG
+  subset. Graph loading, writing, watcher integration, Logseq DB support, and
+  full Org-mode conformance remain out of scope.
+- The earlier local checkpoint passed 1,027 tests with five platform-specific
+  skips at 89.78% coverage; its whole-branch review was **BLOCKED** pending
+  filesystem-transition coverage and clean-source package evidence. Those
+  repairs were completed and reviewed in the subsequent checkpoint.
+- The final local macOS arm64 gate passed 1,032 tests with five platform-specific
+  skips at 89.79% coverage. The skips include native Linux and Windows reader
+  checks; local results do not qualify either platform.
+- The final clean-source package gate passed wheel contract, Twine 6.2.0,
+  downstream strict typing, and scoped artifact privacy checks. Its sdist had
+  303 entries, included each of the 16 changed Markdown documents exactly once,
+  and excluded the local restart handoff and cache/build artifacts.
+- Native Linux x86-64 and Windows x64 qualification remains open for the draft
+  GitHub Actions matrix. This CI-qualification draft is not merge-ready.
+- No release, package publication, public API promotion, or merge is implied.

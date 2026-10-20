@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "source_text": "#+TITLE: Synthetic File Title\n#+FILETAGS: :parser:org:\n\n* Inspect the page contract\n:PROPERTIES:\n:ALIAS: Alternate Study Name\n:CUSTOM_ID: contract-9\n:END:\nOpen [[Reference Page]] without resolving its target.\nSee [[https://example.invalid/guide][external guide]].\n",
+  "elements": [
+    {"kind": "directive", "line_start": 1, "line_end": 1, "name": "TITLE", "value": "Synthetic File Title"},
+    {"kind": "directive", "line_start": 2, "line_end": 2, "name": "FILETAGS", "value": ":parser:org:"},
+    {"kind": "heading", "line_start": 4, "line_end": 4, "level": 1, "title": "Inspect the page contract", "marker": null, "priority": null, "tags": []},
+    {"kind": "property_drawer", "line_start": 5, "line_end": 8, "properties": [["ALIAS", "Alternate Study Name"], ["CUSTOM_ID", "contract-9"]]},
+    {"kind": "paragraph", "line_start": 9, "line_end": 9, "text": "Open [[Reference Page]] without resolving its target."},
+    {"kind": "paragraph", "line_start": 10, "line_end": 10, "text": "See [[https://example.invalid/guide][external guide]]."}
+  ]
+}

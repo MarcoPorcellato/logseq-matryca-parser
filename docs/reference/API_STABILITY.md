@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-09-05
-verified: 2026-09-05
-stale_after: 2027-02-03
+last_verified: 2026-10-02
+verified: 2026-10-02
+stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -91,6 +91,24 @@ The following integrations remain public but experimental:
 Everything not exported from `logseq_matryca_parser.__all__` is internal unless
 another maintained contract explicitly promotes it.
 
+The experimental read-only Org reader included in the v1.11.0 release line is
+internal. Its private `logseq_matryca_parser._org_parser` entrypoints are not
+package-root exports and carry no stable or public experimental compatibility
+guarantee. The release does not promote them to a supported public API or make
+a complete Org-support claim. See the
+[maintainer-only implementation status](../internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md)
+for the bounded subset, selected-diagnostic limits, verification evidence, and
+deferred scope.
+
+`SynapseAdapter.to_llamaindex_nodes()` remains a compatibility entry point, but
+its native `TextNode` implementation is no longer in this distribution. It
+imports `logseq-matryca-parser-llamaindex` only when called and delegates to the
+separate companion. That package is planned but not yet published on PyPI. The
+`[ai]` extra provides LangChain; `[all]` also includes visualization
+dependencies. Neither extra installs LlamaIndex or NLTK. See the
+[support matrix](CONFORMANCE_SUPPORT_MATRIX.md) for the current migration
+boundary.
+
 `GraphVisualizer` remains experimental, compatible, transitional, and
 feature-frozen in this release line. Stage 0 changes no API and emits no
 deprecation warning. Future user-facing graph intelligence belongs in Matryca
@@ -101,8 +119,9 @@ decision, release notes, and migration guidance.
 
 `src/logseq_matryca_parser/_version.py` is the single authoritative version
 source. Hatchling derives wheel and source-distribution metadata from that file;
-the package root re-exports the same value. Release preparation changes that
-one assignment only. Tests compare runtime and installed distribution metadata.
+the package root re-exports the same value. Set the package version only at
+that assignment; release preparation may also update release notes, docs, and
+packaging rules. Tests compare runtime and installed distribution metadata.
 
 ## PEP 561 and wheel qualification
 

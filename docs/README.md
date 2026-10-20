@@ -8,9 +8,9 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-30
-verified: 2026-08-30
-stale_after: 2027-02-26
+last_verified: 2026-10-10
+verified: 2026-10-10
+stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -45,24 +45,31 @@ entry points.
 | [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) | Contributors, maintainers | Uncle Bob rings, SOLID, module maps, layer CI |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Contributors, integrators | LOGOS, SYNAPSE, `LogseqGraph`, agents, data flow |
 | [`quality/`](quality/) | Maintainers | Architecture backlog (v1 complete), GitHub roadmap, triage |
+| [`quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md`](quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) | Users, integrators, maintainers | Evidence from all 313 selected official Logseq documents, metadata-only semantics, test coverage and remaining limits |
+| [`quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md`](quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) | Parser contributors, maintainers | Additional public corpus candidates, content rights, syntax diversity and proposed admission sequence |
 | [`internal/LOCAL_CODE_STUDY.md`](internal/LOCAL_CODE_STUDY.md) | Maintainers | Local code audit runbook (graph-based MCP) |
 | [`logseq_ast_primer.md`](logseq_ast_primer.md) | Parser contributors | Logseq Spatial Markdown domain rules |
 | [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | New contributors | Curated starter tasks; Clean Architecture v1 shipped in **v1.6.0** ([#78](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/78)) |
-| [`COOKBOOK.md`](COOKBOOK.md) | Integrators | Copy-paste recipes (Synapse, graph query, watcher, agents, contributor test patterns) |
+| [`COOKBOOK.md`](COOKBOOK.md) | Integrators | Copy-paste recipes (Synapse, optional companion status, graph query, watcher, agents, contributor test patterns) |
 | [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) | Maintainers | Semver, tag, and PyPI publish checklist |
 | [`CODEQL.md`](CODEQL.md) | Maintainers | CodeQL default setup notes |
 | [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) | Maintainers, contributors | Local static analysis bug audit (Clean Architecture lens, runtime evidence) |
 | [`REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Maintainers, contributors | Dated evidence-backed audit baseline, confirmed defects, and original issue map; the public roadmap is the current execution view |
 | [`REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md`](REPOSITORY_GOVERNANCE_AAIF_STUDY_2026-08-19.md) | Maintainers | GitHub governance, supply-chain, agent interoperability, and AAIF-readiness study |
 | [`LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md`](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | Maintainers, parser contributors | License-safe comparative study and execution plan for semantic, complexity, and source-location assurance |
+| [`superpowers/specs/2026-09-29-logseq-org-parser-design.md`](superpowers/specs/2026-09-29-logseq-org-parser-design.md) | Maintainers | Approved, review-gated design for a read-only Org parser scoped to Logseq OG file graphs |
+| [`superpowers/plans/2026-09-29-logseq-org-parser.md`](superpowers/plans/2026-09-29-logseq-org-parser.md) | Maintainers | D2 implementation and six-cell hosted qualification; D3 deferred and Markdown parser work prioritized |
+| [`internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md`](internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md) | Maintainers | Experimental Org subset, selected diagnostics, explicit non-conformance limits, and deferred scope |
+| [`internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md`](internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md) | Maintainers | Historical Parser/companion checkpoint with a dated 2026-10-02 live-status refresh |
 | [`README_READABILITY_REPORT_2026-08-08.md`](README_READABILITY_REPORT_2026-08-08.md) | Maintainers | Measured human and AI README assessment with a phased simplification proposal |
-| [`quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md`](quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md) | Maintainers | Current disposition of all 33 live open issues and four open PRs |
+| [`quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md`](quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md) | Maintainers | Dated 2026-09-24 issue/PR snapshot; rebind live GitHub state before acting |
 | [`decisions/index.md`](decisions/index.md) | Maintainers | Canonical decision registry, including the external-oracle boundary |
 | [`reference/index.md`](reference/index.md) | Maintainers, integrators | Provenance and Matryca ecosystem relations |
 | [`reference/DIAGNOSTICS.md`](reference/DIAGNOSTICS.md) | Integrators, contributors | Stable diagnostic codes, payload schema, path safety, CLI rendering, and escalation |
 | [`reference/FILESYSTEM_SAFETY.md`](reference/FILESYSTEM_SAFETY.md) | Integrators, contributors | Vault containment, atomic replacement, dry-run, metadata, limits, and asset-read policy |
 | [`reference/AGENT_ACTION_CONTRACT.md`](reference/AGENT_ACTION_CONTRACT.md) | Integrators, contributors | Agent authority, approvals, provenance, and prompt-injection boundary |
 | [`reference/CONFORMANCE_SUPPORT_MATRIX.md`](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Integrators, contributors | Supported runtimes, public contract tiers, optional adapters, and deprecation rules |
+| [`reference/PKM_OBSIDIAN_COMPARISON.md`](reference/PKM_OBSIDIAN_COMPARISON.md) | Users, integrators | Source-backed Obsidian/Logseq/Parser differences, native versus community features, automation and conversion limits |
 | [`reference/DEPENDENCY_LICENSE_POLICY.md`](reference/DEPENDENCY_LICENSE_POLICY.md) | Maintainers, release reviewers | Release SBOM, dependency/license inventory, checksum, override, and attestation contract |
 | [`security/DAILY_METRICS_THREAT_MODEL.md`](security/DAILY_METRICS_THREAT_MODEL.md) | Maintainers, security reviewers | Trust boundaries and fail-closed controls for the self-mutating metrics archive |
 | [`security/DEPENDENCY_ADVISORY_EXCEPTIONS.md`](security/DEPENDENCY_ADVISORY_EXCEPTIONS.md) | Maintainers, security reviewers | Exact, time-bounded dependency advisory exceptions and compensating controls |

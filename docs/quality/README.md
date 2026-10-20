@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-30
-verified: 2026-08-30
+last_verified: 2026-10-10
+verified: 2026-10-10
 stale_after: 2027-02-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -23,6 +23,9 @@ Maintainer-facing triage and backlog for Clean Architecture / Clean Code work.
 
 | Document | Purpose |
 |----------|---------|
+| [`OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md`](OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) | Public evidence for all 313 selected official Logseq documents, page metadata semantics and precise compatibility claims |
+| [`LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md`](LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) | Research-backed candidates for broader Markdown corpus coverage, with provenance and licensing limits |
+| [`official_logseq_corpus_2026-10-10.json`](official_logseq_corpus_2026-10-10.json) | Sanitized per-document results and integrity bindings for the official corpus campaign |
 | [`OPEN_ISSUE_RECONCILIATION_2026-09-24.md`](OPEN_ISSUE_RECONCILIATION_2026-09-24.md) | Current disposition and maintainer next action for all 33 live open issues, plus four open PRs |
 | [`ISSUE_RECONCILIATION_2026-08-06.md`](ISSUE_RECONCILIATION_2026-08-06.md) | Historical issue snapshot superseded by the September 24 reconciliation |
 | [`../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Current repository-wide evidence, priorities and MKQ-4 plan |

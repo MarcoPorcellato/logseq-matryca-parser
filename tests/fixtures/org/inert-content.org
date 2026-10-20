@@ -1,0 +1,16 @@
+* Inert examples
+#+BEGIN_SRC sh
+printf '%s\n' 'must never run'
+#+END_SRC
+
+#+BEGIN_QUERY
+{:query [:find ?block :where [?block :block/name _]]}
+#+END_QUERY
+
+#+BEGIN: custom-report
+arbitrary generator body
+#+END:
+
+#+MACRO: external-task echo-danger
+Literal expansion: {{{external-task}}}.
+[[file:../../private/marker.txt]]

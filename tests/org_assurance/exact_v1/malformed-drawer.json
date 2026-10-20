@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "source_text": "* Incomplete property drawer\n:PROPERTIES:\n:ID: unfinished\nBody remains under the unmatched opener.\n",
+  "elements": [
+    {"kind": "heading", "line_start": 1, "line_end": 1, "level": 1, "title": "Incomplete property drawer", "marker": null, "priority": null, "tags": []},
+    {"kind": "opaque_unterminated", "line_start": 2, "line_end": 4, "element": "property_drawer", "raw": ":PROPERTIES:\n:ID: unfinished\nBody remains under the unmatched opener.\n"}
+  ]
+}

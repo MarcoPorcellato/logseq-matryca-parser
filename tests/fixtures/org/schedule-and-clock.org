@@ -1,0 +1,5 @@
+* TODO [#B] Schedule the review :calendar:
+SCHEDULED: <2026-10-04 Sun>
+DEADLINE: <2026-10-08 Thu>
+CLOSED: [2026-10-02 Fri]
+CLOCK: [2026-10-02 Fri 09:00]--[2026-10-02 Fri 09:20] => 0:20

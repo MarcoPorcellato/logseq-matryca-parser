@@ -1,0 +1,9 @@
+* TODO [#A] Review the parser boundary :engineering:org:
+The body stays attached to its heading.
+- Preserve this list
+  - Keep nested order
+
+** DONE [#B] Keep the child section :review:
+Child body.
+* WAITING [#C] Retain an unfamiliar workflow marker
+Final body.
