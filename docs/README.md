@@ -69,6 +69,7 @@ entry points.
 | [`reference/FILESYSTEM_SAFETY.md`](reference/FILESYSTEM_SAFETY.md) | Integrators, contributors | Vault containment, atomic replacement, dry-run, metadata, limits, and asset-read policy |
 | [`reference/AGENT_ACTION_CONTRACT.md`](reference/AGENT_ACTION_CONTRACT.md) | Integrators, contributors | Agent authority, approvals, provenance, and prompt-injection boundary |
 | [`reference/CONFORMANCE_SUPPORT_MATRIX.md`](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Integrators, contributors | Supported runtimes, public contract tiers, optional adapters, and deprecation rules |
+| [`reference/PKM_OBSIDIAN_COMPARISON.md`](reference/PKM_OBSIDIAN_COMPARISON.md) | Users, integrators | Source-backed Obsidian/Logseq/Parser differences, native versus community features, automation and conversion limits |
 | [`reference/DEPENDENCY_LICENSE_POLICY.md`](reference/DEPENDENCY_LICENSE_POLICY.md) | Maintainers, release reviewers | Release SBOM, dependency/license inventory, checksum, override, and attestation contract |
 | [`security/DAILY_METRICS_THREAT_MODEL.md`](security/DAILY_METRICS_THREAT_MODEL.md) | Maintainers, security reviewers | Trust boundaries and fail-closed controls for the self-mutating metrics archive |
 | [`security/DEPENDENCY_ADVISORY_EXCEPTIONS.md`](security/DEPENDENCY_ADVISORY_EXCEPTIONS.md) | Maintainers, security reviewers | Exact, time-bounded dependency advisory exceptions and compensating controls |

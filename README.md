@@ -73,10 +73,17 @@ evidence; they are not included in the current results.
 
 ## 🌐 The Vision: Virtual Centralization vs. Binary Lock-in
 
-The PKM (Personal Knowledge Management) world is currently forcing users to make a painful choice between **Data Longevity** and **AI Power**.
+PKM (Personal Knowledge Management) tools differ in where knowledge lives,
+how it is structured, and how other tools can use it. Local files and rich
+structure are not mutually exclusive.
 
-* **Vanilla Logseq / Obsidian** is a "Forest" of decentralized Markdown files. It guarantees the Lindy effect (plain-text lasts forever) and perfect Git versioning, but standard AI chunkers treat it like a blender, destroying the outliner hierarchy.
-* **Tana** is a centralized "Tree". It offers incredible semantic power, but traps your brain in a proprietary cloud database.
+* **Logseq OG file graphs and Obsidian** keep Markdown notes locally but use
+  different block, property and reference conventions. Obsidian also provides
+  a note-link graph, structured properties, Search and Bases; it is not simply
+  a folder without structure.
+* **Tana Outliner** provides linked nodes, fields and supertags in a hosted
+  workspace, with documented Markdown and JSON exports. Export availability
+  and fidelity should be evaluated separately from the working storage model.
 * **The new Logseq DB (SQLite)** uses a local database and provides official
   export paths. Its primary working state is not line-diffable Markdown,
   however, and the semantic fidelity of exported Markdown remains a separate
@@ -103,13 +110,23 @@ does not claim that the separate NLTK advisory is fixed for other consumers.
 
 ## ⚖️ The PKM Landscape
 
-| Feature | Vanilla Markdown | **Matryca Parser** | Logseq DB (SQLite) | Tana |
-| :--- | :--- | :--- | :--- | :--- |
-| **Data Format** | Plain-text (.md) | **Plain-text (.md)** | Local SQLite database with official exports | Proprietary Cloud |
-| **Version Control** | Perfect (Git) | **Perfect (Git)** | Database backup/export; no native line-by-line graph diff | None |
-| **Data Structure** | Decentralized Forest | **Virtually Centralized Graph** | Relational Database | Centralized Tree |
-| **AI Readiness** | Low (Linear Chunks) | **High (Topological AST)** | DB-native; external semantic mapping remains tool-specific | High (Proprietary) |
-| **Sovereignty** | 100% Local | **100% Local (Sovereign AI)** | Local database plus official export paths | Cloud-Only |
+This compares workflows, not product rankings: Markdown is a format;
+Obsidian, Logseq DB and Tana are applications; **Matryca Parser is a Python
+library for Logseq Markdown**, not a replacement editor or sync service.
+
+| Dimension | Vanilla Markdown | Obsidian | **Matryca Parser** | Logseq DB | Tana Outliner |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Working data** | Plain-text `.md` files | Local Markdown vault; optional cloud services | **Logseq Markdown source; derived in-memory AST/graph** | DB graph; local SQLite on desktop | Hosted workspace; documented exports |
+| **Structure and links** | Headings, lists and link conventions | Note-link graph; headings/lists; optional `^block-id` anchors | **Typed block hierarchy, UUIDs, parent/left/path relations** | Linked nodes, properties and tags | Outline and node references |
+| **Metadata and queries** | Depend on chosen tools | YAML properties; native Search and Bases | **Page/block properties, reference resolution, graph queries** | Typed properties and DB queries | Fields, supertags and search nodes |
+| **Automation** | External scripts/tools | TypeScript plugins; CLI requires app; Headless services beta | **Python API and CLI without a note-taking app** | Official CLI and scripting | Product-specific commands and integrations |
+| **History and control** | Git/backup configured separately | Local recovery; external Git; optional Sync history | Local source files; no built-in Git/sync or model-locality guarantee | Database backups and export snapshots | Hosted state and export snapshots |
+| **Portability limits** | Syntax/rendering varies by tool | Extensions, Bases and Canvas need compatible tooling | Obsidian-compatible output; no lossless cross-app round trip promised | SQLite/EDN; Markdown export omits data | Markdown/JSON; Markdown ZIP excludes media |
+
+[Full Obsidian comparison and official sources](docs/reference/PKM_OBSIDIAN_COMPARISON.md)
+explain block identity, native versus community features, current CLI/Headless
+scope and export limits. Obsidian-compatible export does **not** establish a
+native Obsidian-vault input contract.
 
 ---
 

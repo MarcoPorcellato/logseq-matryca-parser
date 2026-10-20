@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-10
-verified: 2026-10-10
+last_verified: 2026-10-20
+verified: 2026-10-20
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,24 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-10-20 — Obsidian comparison and PKM scope clarified
+
+- Consolidate two independent Luna Max studies into one
+  [official-source comparison](reference/PKM_OBSIDIAN_COMPARISON.md). Cover local
+  storage, outline/block identity, graphs, native properties/Search/Bases, community
+  plugins, Canvas, current CLI/Headless, history and export limitations.
+- Add Obsidian to the README landscape table. Separate the parser-library layer
+  from note-taking applications and replace unsupported “perfect Git,” universal
+  sovereignty and ordinal AI-readiness claims with concrete, qualified behavior.
+- Clarify that Obsidian-compatible output is not a native Obsidian-vault input
+  contract or lossless bidirectional conversion. Preserve the experimental Org,
+  native Logseq DB and optional-adapter boundaries and all earlier release and
+  assurance evidence.
+- Register the study in source documentation navigation and the maintained
+  inventory. This is not private federation or a new compatibility qualification;
+  no app/plugin installation, parser/test change, issue closure, tag or release
+  follows from the comparison.
 
 ## 2026-10-10 — Official Markdown corpus evidence and broader dataset research
 

@@ -36,6 +36,7 @@ navigation layers only.
 | [AI contribution policy](AI_CONTRIBUTION_POLICY.md) | Human accountability, privacy, disclosure, and review rules for AI-assisted work |
 | [Agent action contract](reference/AGENT_ACTION_CONTRACT.md) | Read/write authority, provenance, prompt-injection boundary, and approval matrix |
 | [Support and compatibility matrix](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Supported runtimes, public API tiers, optional integrations, companion boundary, and explicit limits |
+| [Obsidian and PKM comparison](reference/PKM_OBSIDIAN_COMPARISON.md) | Official-source comparison of application/library layers, block identity, properties, current automation and export limits |
 | [Official Logseq Markdown compatibility evidence](quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) | Results for all 313 selected official documents, focused metadata semantics, reproducible provenance and explicit coverage limits |
 | [Additional Logseq Markdown datasets](quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) | Researched corpus candidates, licensing, syntax diversity and priorities for future qualification |
 | [Org reader limits](internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md) | Experimental private Org subset, selected diagnostics, and explicit non-conformance limits |

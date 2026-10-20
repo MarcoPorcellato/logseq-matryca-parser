@@ -48,6 +48,7 @@ maintained_documents = [
   "docs/reference/AGENT_ACTION_CONTRACT.md",
   "docs/reference/API_STABILITY.md",
   "docs/reference/CONFORMANCE_SUPPORT_MATRIX.md",
+  "docs/reference/PKM_OBSIDIAN_COMPARISON.md",
   "docs/reference/DEPENDENCY_LICENSE_POLICY.md",
   "docs/reference/DIAGNOSTICS.md",
   "docs/reference/FILESYSTEM_SAFETY.md",
