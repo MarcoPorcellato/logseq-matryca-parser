@@ -368,7 +368,7 @@ def test_clone_source_admits_only_hash_bound_lf_or_crlf(monkeypatch: pytest.Monk
     assert (
         lf.canonical_digest
         == crlf.canonical_digest
-        == ("1b14077d0294861859b4ce26aa4573589d3067b08a342467b6a1e9a9b209344b")
+        == ("cc6b69eecfe04e09d475f21f1ba37e2f85da90382ae0e7d266c1c9e4fcff2d34")
     )
     assert lf.raw_digest != crlf.raw_digest
     for invalid in (b"\xff", source + b"\n", b"x" * 16385, source.replace(b"\n", b"\r", 1)):
@@ -426,6 +426,29 @@ def test_mutant_selector_rejects_before_executable_compilation(
     mutation: Any = "unknown" if selector_case == "unknown" else "M1"
     with pytest.raises(lex.MutationAdmissionError):
         lex.apply_mutation(tree, mutation)
+
+
+@pytest.mark.parametrize(
+    "condition",
+    (
+        "is_code_fence",
+        "is_code_fence or matches_opening_fence",
+        "matches_opening_fence and is_code_fence",
+        "is_code_fence and matches_opening_fence and extra_guard",
+        "is_code_fence and unrelated_guard",
+    ),
+)
+def test_code_close_mutant_selector_rejects_unreviewed_guard(condition: str) -> None:
+    """Keep M1 tied to the exact reviewed guard before any copy is compiled."""
+    import ast
+
+    tree = lex.admit_source(lex.read_selected_source()).tree
+    method = lex._method(tree, "consume_code_line")
+    branch = next(node for node in method.body if isinstance(node, ast.If))
+    branch.test = ast.parse(condition, mode="eval").body
+
+    with pytest.raises(lex.MutationAdmissionError):
+        lex._edit_once(tree, "M1")
 
 
 @pytest.mark.parametrize("output_kind", ("unchanged", "extra_edit"))
