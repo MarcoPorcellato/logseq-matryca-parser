@@ -8,8 +8,8 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-10
-verified: 2026-10-10
+last_verified: 2026-10-21
+verified: 2026-10-21
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -44,12 +44,14 @@ entry points.
 | [`AAIF_ALIGNMENT.md`](AAIF_ALIGNMENT.md) | Maintainers, integrators | AAIF-aligned practices and explicit non-membership boundary |
 | [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) | Contributors, maintainers | Uncle Bob rings, SOLID, module maps, layer CI |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Contributors, integrators | LOGOS, SYNAPSE, `LogseqGraph`, agents, data flow |
-| [`quality/`](quality/) | Maintainers | Architecture backlog (v1 complete), GitHub roadmap, triage |
+| [`quality/`](quality/) | Maintainers | Current assurance evidence, residual architecture ownership and dated audit/triage records |
+| [`quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md`](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) | Contributors, maintainers | Merged delivery, v1.11.1 boundary and local depth-matrix follow-up; historical checkpoints retained |
+| [`quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md`](quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md) | Maintainers | #104 crosswalk, approved scalar policy, selected depth coverage and remaining acceptance gates |
 | [`quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md`](quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) | Users, integrators, maintainers | Evidence from all 313 selected official Logseq documents, metadata-only semantics, test coverage and remaining limits |
 | [`quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md`](quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) | Parser contributors, maintainers | Additional public corpus candidates, content rights, syntax diversity and proposed admission sequence |
 | [`internal/LOCAL_CODE_STUDY.md`](internal/LOCAL_CODE_STUDY.md) | Maintainers | Local code audit runbook (graph-based MCP) |
 | [`logseq_ast_primer.md`](logseq_ast_primer.md) | Parser contributors | Logseq Spatial Markdown domain rules |
-| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md) | New contributors | Curated starter tasks; Clean Architecture v1 shipped in **v1.6.0** ([#78](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/78)) |
+| [`GOOD_FIRST_ISSUES.md`](GOOD_FIRST_ISSUES.md#recommended-starter-pack) | New contributors | Dated starter pack, Wave 5/6 tasks and preserved earlier GFI IDs; verify assignments before claiming |
 | [`COOKBOOK.md`](COOKBOOK.md) | Integrators | Copy-paste recipes (Synapse, optional companion status, graph query, watcher, agents, contributor test patterns) |
 | [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) | Maintainers | Semver, tag, and PyPI publish checklist |
 | [`CODEQL.md`](CODEQL.md) | Maintainers | CodeQL default setup notes |

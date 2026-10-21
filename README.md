@@ -340,13 +340,14 @@ We welcome issues, pull requests, and constructive feedback.
 
 | Resource | Link |
 | :--- | :--- |
-| **Good first issues** | [docs/GOOD_FIRST_ISSUES.md](docs/GOOD_FIRST_ISSUES.md) — starter tasks ([#19](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/19)–[#52](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/52)) |
+| **Good first issues** | [Recommended starter pack](docs/GOOD_FIRST_ISSUES.md#recommended-starter-pack) — dated Wave 5/6 selection and preserved earlier IDs; recheck GitHub before claiming |
 | **Contributing** | [CONTRIBUTING.md](CONTRIBUTING.md) — setup, tests, PR workflow |
 | **Cookbook** | [docs/COOKBOOK.md](docs/COOKBOOK.md) — integration recipes (Synapse, graph query, watcher) |
 | **Documentation index** | [docs/README.md](docs/README.md) — active vs historical docs |
 | **Documentation system** | [docs/DOCUMENTATION_SYSTEM.md](docs/DOCUMENTATION_SYSTEM.md) — authority, lifecycle, metadata, and federation |
 | **Roadmap** | [docs/ROADMAP_2026-2027.md](docs/ROADMAP_2026-2027.md) — milestones, dependencies, and evidence gates |
 | **Markdown compatibility evidence** | [Official Logseq corpus report](docs/quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) — all 313 selected official documents passed raw-content and tree checks; semantic coverage and limits are explained |
+| **Generated assurance and acceptance** | [Current delivery](docs/quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) and [#104 acceptance package](docs/quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md) — bounded checks, selected depth coverage and explicit acceptance gates |
 | **Support** | [SUPPORT.md](SUPPORT.md) — safe issue routing, support scope, and response boundaries |
 | **Governance** | [GOVERNANCE.md](GOVERNANCE.md) — decisions, maintainer path, and conflict handling |
 | **Agent safety** | [docs/reference/AGENT_ACTION_CONTRACT.md](docs/reference/AGENT_ACTION_CONTRACT.md) — authority, approvals, provenance, and prompt-injection boundary |

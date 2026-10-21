@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-20
-verified: 2026-10-20
+last_verified: 2026-10-21
+verified: 2026-10-21
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,26 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-10-21 — Depth matrix and acceptance policy reconciled
+
+- Complete the selected [refresh-depth matrix](../tests/test_parser_deep_refresh.py):
+  five named families at depths 1, 2, 3, 4, 8 and 32. The focused file passes
+  36 tests locally. Keep production, corpus, identity policy, existing bounds
+  and the six other deep-regression cases unchanged.
+- Record the maintainer's 2026-10-20 approval of #234's permanent regressions:
+  no duplicate formal corpus fixture is required. Keep formal admission rules
+  and separate #104 acceptance/closure authority.
+- Reconcile the [current assurance overlay](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status)
+  and [acceptance package](quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md)
+  with published v1.11.1, #256 and the integrated Obsidian comparison.
+  Preserve all prior dated evidence rather than rewriting earlier pending states.
+- Restore the original consolidation's navigation, residual architecture and
+  dated contributor catalog. Keep #109, #111/#108, settings, sidecar and
+  federation verification outside this source-document slice.
+- Bind full local gates and independent review to the exact new candidate;
+  earlier CI and package receipts do not qualify it. Native CI, publication,
+  issue updates, tag and release remain separate authorized stages.
 
 ## 2026-10-20 — Obsidian comparison and PKM scope clarified
 
@@ -36,6 +56,34 @@ superseded_by: null
   inventory. This is not private federation or a new compatibility qualification;
   no app/plugin installation, parser/test change, issue closure, tag or release
   follows from the comparison.
+
+## 2026-10-18 — Delivered assurance and acceptance package consolidated
+
+- Add a concise [current delivery overlay](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-status-as-of-2026-10-18)
+  for merged assurance through S4e. Rebind the exact-main hosted CI result
+  without dispatching another workflow; retain all earlier local, failed,
+  pending and published checkpoints as dated evidence.
+- Prepare the [#104 acceptance package](quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md)
+  with criterion/source/evidence mapping and explicit finite execution limits.
+  The scalar-metadata finding already has permanent targeted regressions; the
+  owner must decide whether formal compatibility-corpus admission is also
+  required. No new campaign, fixture, parser change or issue closure follows.
+- Reconcile the active roadmap and residual architecture ownership with the
+  existing #104, #111 and #108 sequence. Preserve the closed v1.6 scope, remove
+  misleading LOC estimates, and keep broader refactors and optional work gated.
+- Refresh [Wave 5/6 contributor navigation](GOOD_FIRST_ISSUES.md) from dated
+  public issue, assignment and discussion evidence. Preserve earlier GFI IDs,
+  mark closed work, avoid assigned/in-flight duplicates, and remove the stale
+  v1.6 suite total rather than substituting another mutable count.
+- Link the acceptance and assurance records from human, machine and quality
+  entry points; include both in the maintained source profile. This is source
+  documentation maintenance, not a private Knowledge-profile or projection
+  verification and not completion of #109.
+- Keep the serializer fix and broader assurance summary under Unreleased.
+  v1.11.0 remains the published baseline. Local gates and independent review
+  qualify the proposed documentation diff separately; no commit, push, PR,
+  settings, dependency, tag or release action is part of this update.
+
 
 ## 2026-10-10 — Official Markdown corpus evidence and broader dataset research
 
