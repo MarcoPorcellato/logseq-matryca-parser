@@ -427,6 +427,13 @@ def run_case(case: GeneratedCase, *, timeout_seconds: float = DEFAULT_TIMEOUT_SE
             exception_type=None,
             semantic_roundtrip_checked=False,
         )
+    except OSError:
+        return _base_result(
+            case,
+            classification="runner_failure",
+            exception_type="OSError",
+            semantic_roundtrip_checked=False,
+        )
     if completed.returncode != 0:
         return _base_result(
             case,
