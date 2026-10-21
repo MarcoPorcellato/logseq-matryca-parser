@@ -21,6 +21,75 @@ superseded_by: null
 
 ## Current acceptance status
 
+The five-family matrix and earlier documentation were published in
+[#259](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/259) and
+merged as
+[`4d96d248bf60c3d9ee24e5691cf93daf612680a9`](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/4d96d248bf60c3d9ee24e5691cf93daf612680a9).
+Its [main CI](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/39569903453)
+completed successfully, including all six native operating-system/Python test
+cells. That evidence qualifies the published baseline, not the local
+completion candidate below.
+
+### Local worker-diagnostic and refresh-path completion candidate
+
+The subsequent acceptance audit identified a parent-runner diagnostic gap:
+a process-start `OSError` could escape without a source-safe case receipt.
+The local candidate catches it only at the subprocess launch boundary and
+returns the existing nonpassing `runner_failure` classification, fixed
+exception type `OSError`, case/family/seed/index, input length/digest and a
+false semantic-roundtrip flag. Exception messages, filenames and source text
+are not included. The timeout handler and existing limits are unchanged.
+Cancellation/control-flow exceptions are not swallowed.
+
+Focused fault-injection regressions exercise the actual launch boundary,
+the fast-profile reporting assertion, and malformed profile/replay reporting.
+The malformed caller stops after its first failed launch and retains its
+exact source-safe recipe. The runner does not retry that launch; this does
+not change the separate deterministic profile's existing minimization policy.
+
+The [depth suite](../../tests/test_parser_deep_refresh.py) additionally covers
+empty LOGBOOK initialization, LOGBOOK clock payload, and both `collapsed::`
+boolean values at depths **1, 2, 3, 4, 8 and 32**. These parse-level assertions
+check independent metadata values, prose separation, source ranges, outline
+relations and repeat-parse UUIDs. They add no serializer round-trip promise
+for system metadata. All five existing families and the six other original
+deep regressions remain.
+
+A bounded runtime caller observation mapped the following eleven distinct
+`_refresh_node` call sites to actual cases at every declared depth:
+
+| Immutable refresh caller | Witness family at each declared depth |
+|---|---|
+| Pending list finalization | List-property |
+| Query payload | Query |
+| Fenced-code payload | Fenced-code |
+| LOGBOOK payload and clock metadata | LOGBOOK clock |
+| LOGBOOK initialization | Empty LOGBOOK and LOGBOOK clock |
+| Collapsed metadata | Collapsed true and false |
+| List-property item update | List-property |
+| List-property declaration/order | List-property |
+| Scalar block property | Block-property |
+| Soft-break continuation | Soft-break |
+| Bottom-up metadata finalization | Existing and new selected families |
+
+This is a finite caller/depth crosswalk, not every branch, arbitrary depth or
+universal Logseq conformance. Targeted process-local metadata-loss mutations
+were rejected by the new assertions; production parser files were not edited.
+
+At the local-review snapshot on **2026-10-21**, the completion candidate was
+local and uncommitted. Its final exact-diff
+offline gates, independent review and any later publication/native-CI evidence
+are separate records. This section does not assert those later gates passed
+or close [#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104).
+The approved scalar-regression policy remains unchanged. No #111 benchmark,
+cache, default-executor change, tag or release follows from this candidate.
+
+## Preserved PR #259 candidate record
+
+The following record retains its pre-publication source and status wording.
+Its then-pending publication/native-CI statements are superseded only by the
+published-baseline read-back above, not by the later local candidate.
+
 Verified on **2026-10-21**. The source baseline is
 [`a00a7ccb72accca696ab3fcd9ebb0a48023fcdf5`](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/a00a7ccb72accca696ab3fcd9ebb0a48023fcdf5),
 which includes the published v1.11.1 source and the later Obsidian

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from collections.abc import Callable
 from dataclasses import asdict
 
@@ -126,6 +127,53 @@ def test_cli_replay_does_not_generate_or_rerun_other_cases(capsys: pytest.Captur
     receipt = json.loads(capsys.readouterr().out)
     assert len(receipt["results"]) == 1
     assert receipt["results"][0]["result"]["classification"] == "expected_parser_error"
+
+
+@pytest.mark.parametrize("selection", ["fast", "replay"])
+def test_process_start_failure_stops_profile_and_retains_source_free_replay(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], selection: str,
+) -> None:
+    recipe = (
+        malformed.recipes_for_profile("fast")[0] if selection == "fast"
+        else malformed.Recipe("unresolved-reference", 1, 1, 1, 0, "lf", "ascii")
+    )
+    case = malformed.build_case(recipe)
+    attempted_ids: list[str] = []
+
+    def refuse(*_args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        raw = kwargs["input"]
+        assert isinstance(raw, str)
+        attempted_ids.append(json.loads(raw)["case_id"])
+        raise FileNotFoundError(2, "synthetic-launch-secret", "/private/launch-fixture.md")
+
+    monkeypatch.setattr(adversarial.subprocess, "run", refuse)
+    args = (
+        ["--profile", "fast"] if selection == "fast"
+        else ["--recipe", json.dumps(asdict(recipe))]
+    )
+    assert malformed.main(args) == 1
+    captured = capsys.readouterr()
+    receipt = json.loads(captured.out)
+    assert captured.err == ""
+    assert attempted_ids == [case.case_id]
+    assert receipt["profile"] == ("fast" if selection == "fast" else "replay")
+    assert receipt["child_timeout_seconds"] == 3.0
+    assert len(receipt["results"]) == 1
+    entry = receipt["results"][0]
+    assert entry["recipe"] == asdict(recipe)
+    assert entry["result"]["case_id"] == case.case_id
+    assert entry["result"]["classification"] == "runner_failure"
+    assert entry["result"]["exception_type"] == "OSError"
+    assert entry["result"]["semantic_roundtrip_checked"] is False
+    assert entry["result"]["source_sha256"] == case.source_sha256
+    assert entry["result"]["source_bytes"] == case.source_bytes
+    assert "source" not in entry["result"]
+    replayed = malformed.build_case(
+        malformed.recipe_from_json(json.dumps(entry["recipe"]))
+    )
+    assert replayed == case
+    for forbidden in (case.source, "synthetic-launch-secret", "/private/launch-fixture.md"):
+        assert forbidden not in captured.out
 
 
 @pytest.mark.parametrize("error_type,expected_exit", [

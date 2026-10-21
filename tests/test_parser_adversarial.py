@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 from dataclasses import asdict
@@ -67,6 +68,93 @@ def test_timeout_is_classified_without_accepting_a_partial_result(
 
     assert result.classification == "timeout"
     assert result.semantic_roundtrip_checked is False
+
+
+@pytest.mark.parametrize("error_type", [OSError, FileNotFoundError, PermissionError])
+def test_process_start_failure_retains_source_free_case_receipt(
+    monkeypatch: pytest.MonkeyPatch, error_type: type[OSError],
+) -> None:
+    case = adversarial.GeneratedCase(
+        case_id="m3-launch-104-0", family="launch", seed=104, index=0,
+        source="- synthetic launch fixture\n", input_kind="valid",
+        strict_refs=False, semantic_roundtrip=True, expected_classifications=("parsed",),
+    )
+    attempts: list[object] = []
+
+    def refuse(*_args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        attempts.append(kwargs["timeout"])
+        raise error_type(13, "synthetic-launch-secret", "/private/launch-fixture.md")
+
+    monkeypatch.setattr(adversarial.subprocess, "run", refuse)
+    result = adversarial.run_case(case, timeout_seconds=0.2)
+    receipt = asdict(result)
+
+    assert attempts == [0.2]
+    assert result.classification == "runner_failure"
+    assert result.exception_type == "OSError"
+    assert result.semantic_roundtrip_checked is False
+    assert not result.is_expected_for(case)
+    assert receipt["case_id"] == "m3-launch-104-0"
+    assert receipt["family"] == "launch"
+    assert receipt["seed"] == 104
+    assert receipt["index"] == 0
+    assert receipt["input_kind"] == "valid"
+    assert receipt["source_bytes"] == len(case.source.encode("utf-8"))
+    assert receipt["source_sha256"] == hashlib.sha256(case.source.encode("utf-8")).hexdigest()
+    assert receipt["minimized_source_bytes"] is None
+    assert receipt["minimized_source_sha256"] is None
+    rendered = json.dumps(receipt)
+    assert "source" not in receipt
+    for forbidden in (case.source, "synthetic-launch-secret", "/private/launch-fixture.md"):
+        assert forbidden not in rendered
+
+
+def test_fast_profile_process_start_failure_reports_real_launch_boundary(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cases = adversarial.cases_for_profile("fast")
+    attempted_ids: list[str] = []
+
+    def refuse(*_args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        raw = kwargs["input"]
+        assert isinstance(raw, str)
+        attempted_ids.append(json.loads(raw)["case_id"])
+        raise PermissionError(13, "synthetic-launch-secret", "/private/launch-fixture.md")
+
+    monkeypatch.setattr(adversarial.subprocess, "run", refuse)
+    with pytest.raises(AssertionError) as failure:
+        test_fast_profile_has_expected_classifications_and_semantic_roundtrips()
+
+    message = str(failure.value)
+    results = json.loads(message.splitlines()[0])["unexpected_results"]
+    assert attempted_ids == [case.case_id for case in cases]
+    assert len(results) == len(cases)
+    for case, result in zip(cases, results, strict=True):
+        assert result["case_id"] == case.case_id
+        assert result["family"] == case.family
+        assert result["seed"] == case.seed
+        assert result["index"] == case.index
+        assert result["classification"] == "runner_failure"
+        assert result["exception_type"] == "OSError"
+        assert result["semantic_roundtrip_checked"] is False
+        assert result["source_bytes"] == len(case.source.encode("utf-8"))
+        assert result["source_sha256"] == hashlib.sha256(case.source.encode("utf-8")).hexdigest()
+        assert "source" not in result
+        assert case.source not in message
+    assert "synthetic-launch-secret" not in message
+    assert "/private/launch-fixture.md" not in message
+
+
+@pytest.mark.parametrize("error_type", [KeyboardInterrupt, SystemExit, RuntimeError])
+def test_process_start_non_os_errors_are_not_swallowed(
+    monkeypatch: pytest.MonkeyPatch, error_type: type[BaseException],
+) -> None:
+    def interrupt(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        raise error_type("synthetic control-flow signal")
+
+    monkeypatch.setattr(adversarial.subprocess, "run", interrupt)
+    with pytest.raises(error_type):
+        adversarial.run_case(adversarial.cases_for_profile("fast")[0])
 
 
 @pytest.mark.parametrize(

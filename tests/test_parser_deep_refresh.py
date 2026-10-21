@@ -201,3 +201,69 @@ def test_deep_refresh_families_survive_roundtrip(
         identity_policy=_DEEP_IDENTITY_POLICY,
     )
     assert len(list(_walk(reparsed.root_nodes[0]))) == depth
+
+
+@pytest.mark.parametrize(
+    "depth", _REFRESH_DEPTHS, ids=[f"depth-{depth}" for depth in _REFRESH_DEPTHS]
+)
+@pytest.mark.parametrize(
+    ("tail", "expected_properties", "line_extension"),
+    [
+        (
+            [(0, ":LOGBOOK:"), (0, ":END:")],
+            {"logbook": []},
+            1,
+        ),
+        (
+            [
+                (0, ":LOGBOOK:"),
+                (0, "CLOCK: [2024-04-25 Thu 10:00]--[2024-04-25 Thu 11:30] => 01:30:00"),
+                (0, ":END:"),
+            ],
+            {
+                "logbook": [
+                    "CLOCK: [2024-04-25 Thu 10:00]--[2024-04-25 Thu 11:30] => 01:30:00"
+                ],
+                "clock": [{
+                    "start_iso": "2024-04-25T10:00:00",
+                    "end_iso": "2024-04-25T11:30:00",
+                    "duration": "01:30:00",
+                    "duration_seconds": 5400,
+                }],
+            },
+            2,
+        ),
+        ([(0, "collapsed:: true")], {"collapsed": True}, 1),
+        ([(0, "collapsed:: false")], {"collapsed": False}, 1),
+    ],
+    ids=["logbook-empty", "logbook-clock", "collapsed-true", "collapsed-false"],
+)
+def test_system_metadata_refresh_propagates_at_each_depth(
+    tail: list[tuple[int, str]],
+    expected_properties: dict[str, Any],
+    line_extension: int,
+    depth: int,
+) -> None:
+    """System metadata survives immutable ancestor propagation without becoming prose."""
+    source = _nested_source(depth, tail)
+    first = StackMachineParser().parse(source, page_title="deep-system-metadata")
+    second = StackMachineParser().parse(source, page_title="deep-system-metadata")
+
+    for page in (first, second):
+        assert_tree_invariants(page)
+        branch = _branch(page.root_nodes[0])
+        assert len(branch) == depth
+        assert len(list(walk_nodes(page.root_nodes))) == depth
+        for level, node in enumerate(branch, start=1):
+            assert node.content == f"node-{level}"
+            assert node.clean_text == f"node-{level}"
+            assert node.line_start == level
+            assert node.line_end == (depth + line_extension if level == depth else level)
+            assert node.indent_level == level - 1
+            assert node.outline_path == [1] * level
+            assert node.properties == (expected_properties if level == depth else {})
+        assert branch[-1].children == []
+
+    assert [node.uuid for node in _branch(first.root_nodes[0])] == [
+        node.uuid for node in _branch(second.root_nodes[0])
+    ]
