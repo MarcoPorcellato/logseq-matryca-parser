@@ -95,6 +95,7 @@ dev = [
 [tool.uv]
 constraint-dependencies = [
     "aiohttp>=3.14.3",
+    "certifi>=2026.10.19",
     "setuptools>=83.0.0",
 ]
 
