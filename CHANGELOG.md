@@ -7,8 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Focused refresh-depth matrix** — exercise soft-break, block-property,
+  fenced-code, query and list-property refresh at depths 1, 2, 3, 4, 8 and 32.
+  Extend the existing round-trip families by 20 combinations without changing
+  production code, identity policy or limits; this is not exhaustive coverage.
+
 ### Documentation
 
+- Consolidate the [current assurance delivery](docs/quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status),
+  [#104 acceptance package](docs/quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md),
+  architecture residuals and dated contributor catalog. Record approval of
+  #234's permanent regressions without duplicating a formal corpus fixture;
+  preserve release history and separate qualification and issue-closure gates.
 - Add Obsidian to the README PKM comparison and link one source-backed
   [comparison study](docs/reference/PKM_OBSIDIAN_COMPARISON.md). Distinguish
   applications from the parser library, native features from community plugins,

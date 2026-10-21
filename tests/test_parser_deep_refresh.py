@@ -14,6 +14,8 @@ from logseq_matryca_parser.logseq_markdown import serialize_logseq_page
 from tests.parser_assurance.invariants import assert_tree_invariants, walk_nodes
 from tests.parser_assurance.projection import IdentityPolicy, project_page
 
+_REFRESH_DEPTHS = (1, 2, 3, 4, 8, 32)
+
 _DEEP_IDENTITY_POLICY = IdentityPolicy(
     synthetic_uuid="stable",
     source_uuid="absent",
@@ -41,7 +43,7 @@ def _walk(node: LogseqNode) -> Iterator[LogseqNode]:
         yield from _walk(child)
 
 
-@pytest.mark.parametrize("depth", [1, 2, 3, 4, 8, 32])
+@pytest.mark.parametrize("depth", _REFRESH_DEPTHS)
 def test_soft_break_refresh_propagates_to_root_at_any_depth(depth: int) -> None:
     source = _nested_source(depth, [(0, "continuation-at-leaf")])
     first = StackMachineParser().parse(source, page_title="deep-soft-break")
@@ -139,6 +141,9 @@ def test_parse_page_file_handles_a_1024_node_chain_without_recursion(tmp_path: P
 
 
 @pytest.mark.parametrize(
+    "depth", _REFRESH_DEPTHS, ids=[f"depth-{depth}" for depth in _REFRESH_DEPTHS]
+)
+@pytest.mark.parametrize(
     ("tail", "assertion"),
     [
         ([(0, "status:: active")], "block-property"),
@@ -149,15 +154,20 @@ def test_parse_page_file_handles_a_1024_node_chain_without_recursion(tmp_path: P
         ),
         ([(0, "tags::"), (1, "- [[AI]]")], "list-property"),
     ],
+    ids=["block-property", "fenced-code", "query", "list-property"],
 )
 def test_deep_refresh_families_survive_roundtrip(
     tail: list[tuple[int, str]],
     assertion: str,
+    depth: int,
 ) -> None:
-    source = _nested_source(8, tail)
+    source = _nested_source(depth, tail)
     parser = StackMachineParser()
     page = parser.parse(source, page_title=f"deep-{assertion}")
-    leaf = _branch(page.root_nodes[0])[-1]
+    assert_tree_invariants(page)
+    branch = _branch(page.root_nodes[0])
+    assert len(branch) == depth
+    leaf = branch[-1]
 
     if assertion == "block-property":
         assert leaf.properties["status"] == "active"
@@ -172,6 +182,7 @@ def test_deep_refresh_families_survive_roundtrip(
 
     rendered = serialize_logseq_page(page)
     reparsed = parser.parse(rendered, page_title=f"deep-{assertion}")
+    assert_tree_invariants(reparsed)
 
     if assertion == "list-property":
         reparsed_leaf = _branch(reparsed.root_nodes[0])[-1]
@@ -189,4 +200,4 @@ def test_deep_refresh_families_survive_roundtrip(
         profile="semantic_roundtrip_v1",
         identity_policy=_DEEP_IDENTITY_POLICY,
     )
-    assert len(list(_walk(reparsed.root_nodes[0]))) == 8
+    assert len(list(_walk(reparsed.root_nodes[0]))) == depth

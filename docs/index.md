@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-10
-verified: 2026-10-10
+last_verified: 2026-10-21
+verified: 2026-10-21
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -36,6 +36,8 @@ navigation layers only.
 | [AI contribution policy](AI_CONTRIBUTION_POLICY.md) | Human accountability, privacy, disclosure, and review rules for AI-assisted work |
 | [Agent action contract](reference/AGENT_ACTION_CONTRACT.md) | Read/write authority, provenance, prompt-injection boundary, and approval matrix |
 | [Support and compatibility matrix](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Supported runtimes, public API tiers, optional integrations, companion boundary, and explicit limits |
+| [Current generated-assurance delivery](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) | Merged delivery, v1.11.1 boundary and local depth-matrix follow-up, distinct from historical qualification |
+| [Issue #104 acceptance package](quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md) | Approved scalar policy, selected depth coverage and remaining evidence/acceptance gates; issue remains open |
 | [Obsidian and PKM comparison](reference/PKM_OBSIDIAN_COMPARISON.md) | Official-source comparison of application/library layers, block identity, properties, current automation and export limits |
 | [Official Logseq Markdown compatibility evidence](quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) | Results for all 313 selected official documents, focused metadata semantics, reproducible provenance and explicit coverage limits |
 | [Additional Logseq Markdown datasets](quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) | Researched corpus candidates, licensing, syntax diversity and priorities for future qualification |
@@ -56,7 +58,7 @@ navigation layers only.
 | [AAIF submission gate](decisions/ADR-0003-AAIF-SUBMISSION-GATE.md) | Current NO-GO and evidence required before sponsor or submission discussion |
 | [Parser assurance extension](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md) | License-safe comparative study and dependency-ordered semantic and complexity plan |
 | [README readability report](README_READABILITY_REPORT_2026-08-08.md) | Measured human and AI readability assessment and phased proposal |
-| [Current issue reconciliation](quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md) | Live open-issue dispositions and PR next actions |
+| [Dated issue reconciliation](quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md) | September 24 issue/PR dispositions; rebind live GitHub status before acting |
 | [Decision index](decisions/index.md) | Architectural decisions, including the external-oracle boundary |
 | [Reference index](reference/index.md) | Provenance and external relations |
 | [Structured diagnostics](reference/DIAGNOSTICS.md) | Stable diagnostic schema, codes, path safety, rendering, and escalation |

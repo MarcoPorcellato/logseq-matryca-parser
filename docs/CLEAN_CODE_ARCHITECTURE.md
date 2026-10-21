@@ -8,8 +8,8 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-04
-verified: 2026-10-04
+last_verified: 2026-10-21
+verified: 2026-10-21
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -19,13 +19,22 @@ superseded_by: null
 
 # Clean Code & Clean Architecture — Logseq Matryca Parser
 
-**Version:** maintainer contracts refreshed for **v1.11.0**, published on 2026-10-02; the release includes the experimental Org-reader slice (v1 structural backlog complete; parser, graph-coherence, local-assurance, and stable snapshot-graph slices merged)
+**Release baseline:** **v1.11.1**, published on 2026-10-20, includes the fenced-code correction, scoped scalar-metadata serializer fix and bounded assurance source. The experimental Org reader remains the private subset introduced in v1.11.0. The selected depth-matrix completion and documentation consolidation are a later local candidate; see the [current assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status).
 **Audience:** contributors and Cursor agents patching `src/logseq_matryca_parser/`  
 **Companion:** [`ARCHITECTURE.md`](ARCHITECTURE.md) (LOGOS domain contract) · [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) (audit evidence) · [`CONTRIBUTING.md`](../CONTRIBUTING.md)
 
 This document applies **Robert C. Martin's** *Clean Architecture* (dependency rule, boundaries, use cases) and *Clean Code* (SRP, meaningful names, tests as specification) to the **entire** logseq-matryca-parser codebase.
 
 **Adoption model:** **incremental v1**. A full hexagonal package split (`domain/ports.py`, separate driver packages) is **out of scope** for routine PRs. Uncle Bob here is a **quality contract**, not a mandate to rewrite the flat `src/logseq_matryca_parser/` layout in one change.
+
+**Residual parser work:** line classification and lexical-state extraction are
+delivered. [#108](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/108)
+owns the remaining private reducer and semantic-enrichment slices, after accepted
+[#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104)
+semantic evidence and
+[#111](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/111)
+decision benchmarks. The [#104 acceptance package](quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md)
+prepares that decision; it does not authorize a refactor or close an issue.
 
 **Cross-repository boundary:** Parser owns deterministic OG parsing, typed ASTs,
 the in-memory graph, and parser-native serialization. [Matryca
@@ -117,7 +126,7 @@ flowchart TB
 | Pattern | Why it exists | Tracking |
 |---------|---------------|----------|
 | Flat module layout (no `domain/` package) | Library shipped as one PyPI package; low ceremony for contributors | This doc — incremental slices only |
-| `kinetic.py` ~230 lines | Typer app factory + `export` orchestration | **Shipped** — handlers in `kinetic_export.py`, subcommands in `kinetic_commands.py` |
+| Thin KINETIC orchestration | Typer app factory + `export` orchestration | **Shipped** — handlers in `kinetic_export.py`, subcommands in `kinetic_commands.py` |
 | Monolithic SYNAPSE embed `while` loop | Deterministic expansion with cycle guards | **Shipped** — `synapse_embed.py` strategy ([#70](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/70)) |
 | `LogseqGraph.pages` dict with alias keys | Logseq `alias::` / `title::` parity | Point-in-time compatibility mapping; consumers must not mutate it and must use `iter_canonical_pages()` — DEBT-001 **shipped** |
 
@@ -127,7 +136,7 @@ Audit backlog: [`quality/CLEAN_ARCH_BACKLOG.md`](quality/CLEAN_ARCH_BACKLOG.md).
 
 ## Module maps (fat modules)
 
-### `logos_parser.py` (~1,440 lines) — LOGOS stack machine
+### `logos_parser.py` — LOGOS stack machine
 
 | Area | Responsibility |
 |------|----------------|
@@ -145,7 +154,7 @@ uv run pytest tests/test_logos_parser.py -q
 make check
 ```
 
-### `graph.py` (~920 lines) — in-memory graph RAM image
+### `graph.py` — in-memory graph RAM image
 
 | Area | Responsibility |
 |------|----------------|
@@ -183,7 +192,7 @@ Parser.
 The private inventory and snapshot representations are implementation details,
 not stable public API.
 
-### `kinetic.py` (~230 lines) — KINETIC app factory
+### `kinetic.py` — KINETIC app factory
 
 | Area | Responsibility | Module |
 |------|----------------|--------|

@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-12
-verified: 2026-10-12
+last_verified: 2026-10-21
+verified: 2026-10-21
 stale_after: 2026-11-11
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,88 @@ superseded_by: null
 ---
 
 # Composite valid Markdown property assurance
+
+## Current delivery and release status
+
+Verified on **2026-10-21** against main
+[`a00a7ccb72accca696ab3fcd9ebb0a48023fcdf5`](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/a00a7ccb72accca696ab3fcd9ebb0a48023fcdf5)
+and the local depth-matrix follow-up. **v1.11.1 is published**, not a planned
+release. Its source at
+[`f65c7baee284f828b191e73570acda8e41e88887`](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/f65c7baee284f828b191e73570acda8e41e88887)
+contains the scalar correction and merged assurance through S4e listed below.
+
+The later fenced-code correction from
+[#256](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/256)
+and its lexical-mutation source re-admission are also in that release source.
+The older S4a source admission and runtime receipts do not automatically
+qualify those changed bytes. The existing
+[nine-job CI run](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/39447719967)
+qualifies exact main `a00a7ccb`, not the new local candidate.
+
+The [depth tests](../../tests/test_parser_deep_refresh.py) now exercise each
+of five named refresh families at depths 1, 2, 3, 4, 8 and 32: **30 selected
+matrix combinations**, with **36 focused tests passing** including unchanged
+deep-chain, sibling, file-entrypoint and copy-budget cases. Only tests and
+documentation change. The identity policy and existing bounds are preserved;
+this is not coverage of every internal refresh branch or arbitrary input.
+These additional tests and this consolidation are **unreleased**.
+
+The maintainer approved #234's retained permanent regressions on 2026-10-20
+without requiring a duplicate formal corpus fixture. Formal corpus admission
+rules remain unchanged. The [#104 acceptance record](PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md#current-acceptance-status)
+distinguishes that approval and focused evidence from remaining qualification,
+native CI, publication and issue-closure authority. #104 remains open.
+
+All dated sections below are historical snapshots. Their “unreleased,” local
+failure, pending review or policy language describes that checkpoint, not the
+current release or acceptance state. Preserve those outcomes; do not infer
+new campaigns, release-artifact qualification or universal Markdown semantics.
+Further randomized expansion remains parked.
+
+## Current delivery status as of 2026-10-18
+
+The following changes are merged through S4e at
+[`0f357160be3dd9c15ccd3600f112e60ae201b987`](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/0f357160be3dd9c15ccd3600f112e60ae201b987).
+They remain **unreleased**, not part of the published v1.11.0 distributions.
+This is the current delivery overlay. Subsequent sections preserve their dated
+local observations, failures, review findings and then-pending gates; a phrase
+such as “publication remains separate” in an earlier checkpoint is not the
+current merge status, and no historical failure is converted into a pass.
+
+| Delivered scope | Merged change |
+|---|---|
+| Composite valid-input assurance and scoped scalar-metadata serializer correction | [#234](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/234) |
+| Closed inline shielding and visible-reference occurrence order | [#238](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/238) |
+| Bounded randomized multiline shielding | [#240](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/240) |
+| S1: independent semantic anchors | [#241](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/241) |
+| S2: independent graph lifecycle assurance | [#242](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/242) |
+| S3a: serialization and structured-export integrity | [#243](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/243) |
+| S4a: lexical-state fault sensitivity, with guard and child-reaping fixture follow-ups | [#244](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/244), [#245](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/245), [#246](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/246) |
+| S4b: bounded mixed-Markdown properties | [#247](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/247) |
+| S4c: bounded deep mixed-semantic properties | [#248](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/248) |
+| S4d: paired EOF and final-newline semantics | [#249](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/249) |
+| S4e: mixed-page parser reuse and retained results | [#255](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/255) |
+
+The existing [main CI run](https://github.com/MarcoPorcellato/logseq-matryca-parser/actions/runs/39121335890)
+for that exact commit completed successfully: quality, dependency audit, package
+contract and all six Ubuntu/macOS/Windows with Python 3.12/3.13 combinations.
+This is an existing exact-source result, not a new campaign, per-recipe native
+telemetry, qualification of a later documentation diff, or release evidence.
+
+Complementary [malformed-input](../superpowers/plans/2026-10-03-hypothesis-malformed-markdown.md)
+and [graph-construction](GRAPH_PROPERTY_ASSURANCE_2026-10-03.md) increments
+merged in [#232](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/232)
+and [#233](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/233).
+The separate [official corpus report](OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md)
+retains its structural/raw-source limits; none of these increments establishes
+exhaustive Logseq semantics. The assurance follow-ups after #234 do not change
+production code.
+
+[#104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104)
+remains open pending the [acceptance package](PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md)
+and owner decision, including the explicit regression-promotion interpretation.
+Further randomized expansion, including S4f, is parked. No new implementation,
+benchmark, refactor, dependency, API or publication is authorized by this overlay.
 
 ## Composite checkpoint and current follow-up status
 

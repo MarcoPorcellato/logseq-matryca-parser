@@ -7,8 +7,13 @@ published artifacts and attestations, see
 
 ## Unreleased
 
-No changes are currently listed. See the [changelog](CHANGELOG.md) for the
-current source record.
+- Complete the selected five-family/six-depth refresh matrix without changing
+  parser behavior, identity policy or limits. These focused tests complement,
+  not replace, the existing bounded generated assurance.
+- Consolidate the [current delivery record](docs/quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status)
+  and [#104 acceptance package](docs/quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md).
+  The scalar-regression policy is approved; issue closure and publication remain
+  separate gates. See the [changelog](CHANGELOG.md) for all Unreleased changes.
 
 ## v1.11.1
 
