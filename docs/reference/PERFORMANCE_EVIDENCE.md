@@ -1,7 +1,7 @@
 ---
 type: ReferenceGuide
 title: Runtime evidence
-description: Diagnostic evidence, deterministic synthetic fixtures, and decision-comparison metadata contracts.
+description: Diagnostic evidence, deterministic fixtures, small-graph semantic qualification, and decision-comparison metadata contracts.
 status: stable
 classification: active
 audience: maintainers
@@ -198,13 +198,71 @@ cover these Python files. The checks perform no Parser call, graph load,
 materialization or timing/memory sampling. A profile's meaning or bytes
 changing requires a reviewed new identifier/version, not a golden refresh.
 
+### Small full-load workload qualification
+
+The private [workload descriptions](../../tests/performance/decision_workload.py)
+bind only `vault-small-96-v1` and the scenarios `full_load_cold_instance` and
+`full_load_unchanged_repeat`. They include the frozen dataset, explicit caller
+bindings for generator and semantic sources, native per-file tab detection,
+both graph strict options set to false, source ordering and the complete
+`load_directory` interval. They do not accept an arbitrary graph or worker-count
+option, inspect the host or execute an operation.
+
+Unchanged-repeat differs only by its scenario and priming fields: one untimed
+priming load before all three future warmups. Every eventual sample still uses
+a fresh graph and executor. Neither scenario claims cold operating-system
+caches. The descriptions run no warmup/sample loop and report no duration.
+
+Canonical compact sorted-key UTF-8 JSON produces separate workload, operation,
+parser-option and semantic-contract hashes. Explicit source-digest syntax is
+not verified provenance: complete harness, installed source/dependencies and
+runtime admission still need separate reviewed bindings.
+
+The independent [small-graph semantic oracle](../../tests/performance/decision_semantics.py)
+derives expectations from the closed source grammar, without using Parser
+output, generator helpers or production normalization/UUID helpers. It checks
+96 physical pages, 95 aliases, 3,304 nodes and the complete 1,024-node chain,
+including ordered registries/backlinks and the absence of extra members.
+
+Observation uses bounded iterative traversal and flat immutable rows. The
+selected compatibility meaning is `semantic_roundtrip_v1`, with stable
+synthetic IDs, absent source IDs and direct-ID relations. Exact source ranges,
+owned logical source paths and raw-page hashes supplement that projection.
+Every declared page/node field is mapped or explicitly validated; filesystem
+page timestamps are normalized only when the closed source has no timestamp
+properties. Stable IDs here mean identical source, not a new guarantee after
+rewriting or changing source positions.
+
+The observer rejects malformed nested properties, wrong scalar/container
+types, cycles, shared nodes and excess members before reusing structural
+helpers. It does not recursively dump native models, change the recursion
+limit or call the recursive canonical projection on the deep page. Controlled
+shallow parity checks retain the existing projection contract.
+
+[Workload metadata tests](../../tests/test_performance_decision_workload.py)
+check independently assembled payload/hash vectors, strict closed inputs,
+revalidation and fresh-import purity.
+[Semantic tests](../../tests/test_performance_decision_semantics.py) materialize
+the small fixture once and call the native graph loader twice per
+fixture-using pytest invocation. Both fresh graphs independently match the
+oracle; a separate comparison checks ordered same-source UUIDs. Reversible
+in-memory mutations check alias targets, source/index membership, registry
+identity/order, references/backlinks, malformed containers and the deepest
+node's content/ranges. Mutation tests perform no additional graph loads.
+
+These are ordinary bounded correctness tests, not independently launched
+decision observations or additional official Logseq corpus qualification.
+Larger fixtures remain unparsed and unmaterialized by these tests. No Parser,
+public API, dependency, worker default or legacy diagnostic behavior changes.
+
 ### What remains deferred
 
-Fixture identity does not establish a runtime-admitted dataset or workload.
-Scenario parameters, independent semantic projections, workload manifests,
-loaded source/dependency identity and actual runtime admission remain separate
-reviewed work. A generator namespace or matching fixture fingerprint is not a
-positive admission attestation.
+Fixture identity and small full-load correctness do not establish a
+runtime-admitted dataset or workload. Larger-profile semantics, query/reload/
+embed workloads, loaded source/dependency identity, actual runtime admission
+and measurement adapters remain separate reviewed work. A generator namespace,
+matching fingerprint or passing semantic test is not a positive admission
+attestation.
 
 The focused #87 pathological input and #113 deep-refresh case need their own
 reviewed source, descriptor and semantic manifest before execution. A guessed
