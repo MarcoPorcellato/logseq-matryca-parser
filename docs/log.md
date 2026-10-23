@@ -19,6 +19,21 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-10-23 — Deterministic decision-vault source fixtures
+
+- Add a private, closed-profile builder for 96-, 1,000- and 10,000-page synthetic
+  sources. Preserve the legacy small builder and every small-profile path/byte.
+- Extend the [runtime evidence reference](reference/PERFORMANCE_EVIDENCE.md#deterministic-source-fixtures)
+  with independently corroborated source fingerprints, file/block/byte counts
+  and the versioned fixture-identity policy.
+- Keep default tests on the small profile. Explicit opt-in scale checks verify
+  complete bytes, stable ordering, links, the unchanged deep source and mutation
+  sensitivity without parsing or materializing either larger vault.
+- Keep fixture identity distinct from scenario semantics, runtime admission and
+  performance evidence. No measurement adapter, collector, benchmark campaign,
+  budget, cache, executor change or new dependency is included. Issue #111
+  remains open; production Parser behavior and workflows are unchanged.
+
 ## 2026-10-23 — Pure decision-comparison evidence contract
 
 - Add a separate test-support contract for the future [#111 decision benchmarks](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/111):
