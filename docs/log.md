@@ -19,6 +19,23 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-10-23 — Small full-load workload identities and semantics
+
+- Add two closed, pure descriptions for the existing small synthetic full-load
+  workload. Bind dataset, source, options, semantic policy and priming identities;
+  distinguish one priming load before future warmups from per-sample priming.
+- Extend the [runtime evidence reference](reference/PERFORMANCE_EVIDENCE.md#small-full-load-workload-qualification)
+  with independent 96-page graph expectations, complete deep-chain observation,
+  exact ranges, logical source ownership and repeated-source identity checks.
+- Keep observation depth-safe and bounded before structural helper reuse.
+  Check shallow canonical-projection parity and reject count-preserving
+  alias/registry/backlink changes, malformed containers, cycles and deepest-node
+  content/range changes with reversible in-memory mutations.
+- State that two native loads per fixture-using pytest invocation qualify only
+  small-fixture correctness. No larger-profile parsing, benchmark, runtime
+  admission, collector, numerical budget, cache/executor decision, dependency
+  or production Parser change is included. Issue #111 remains open.
+
 ## 2026-10-23 — Deterministic decision-vault source fixtures
 
 - Add a private, closed-profile builder for 96-, 1,000- and 10,000-page synthetic
