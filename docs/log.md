@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-21
-verified: 2026-10-21
+last_verified: 2026-10-23
+verified: 2026-10-23
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,22 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-10-23 — Pure decision-comparison evidence contract
+
+- Add a separate test-support contract for the future [#111 decision benchmarks](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/111):
+  immutable records, bounded strict JSON, explicit trusted policies and
+  admissions, complete selection, outer-launch independence and purpose-specific
+  timing/memory eligibility. Preserve legacy diagnostic runtime evidence v1.
+- Add deterministic synthetic metadata tests for the fixed validation vectors;
+  do not describe them as actual workload admission or performance observations.
+- Extend the [runtime evidence reference](reference/PERFORMANCE_EVIDENCE.md#decision-comparison-contract)
+  with the distinction between schema validity, reviewed evidence and comparison
+  eligibility. Keep unavailable capabilities honest and retain selected failures.
+- Keep parser behavior, dependencies, worker defaults, workflows and the original
+  small-vault generator unchanged. Larger generators/fingerprints, measurement
+  adapters, collectors, numeric budgets and cache/process decisions remain
+  deferred. #111 remains open; no tag, release or benchmark campaign is included.
 
 ## 2026-10-21 — Depth matrix and acceptance policy reconciled
 
