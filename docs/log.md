@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-23
-verified: 2026-10-23
+last_verified: 2026-10-24
+verified: 2026-10-24
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,21 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-10-24 — Unmeasured native small-load binding
+
+- Add a private, lazy connection between the closed 96-page workload and the
+  unchanged native graph loader. Keep source preparation, complete load-call
+  bookkeeping, post-return disk integrity and independent semantics separate.
+- Document configured thread-cap metadata, non-owning result identity,
+  single-owner lifecycle and original-abort/cleanup-co-failure preservation in
+  the [runtime evidence reference](reference/PERFORMANCE_EVIDENCE.md#unmeasured-native-small-load-binding).
+- Add fake-native default tests for source drift, lifecycle, cleanup and weak
+  identity. Keep the separate two-load correctness file outside default
+  discovery and explicitly unexecuted; it requires its own bounded authority.
+- Preserve production source, helpers, sampling/legacy contracts, dependencies,
+  workflows and existing native-call counts. No benchmark, admission,
+  performance budget, cache/process decision or issue #111 closure is delivered.
 
 ## 2026-10-23 — Injected small full-load sampling contract
 
