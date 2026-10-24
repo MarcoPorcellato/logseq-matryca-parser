@@ -407,7 +407,7 @@ def test_baseexception_propagates_without_receipt(stage: str, exception: Any) ->
     kernel_frames = 0
     while traceback is not None:
         frame = traceback.tb_frame
-        if frame.f_code.co_filename.endswith("/performance/decision_sampling.py"):
+        if frame.f_code.co_filename == sample_small_full_load.__code__.co_filename:
             kernel_frames += 1
             assert frame.f_locals.get("result") is None
             assert frame.f_locals.get("verification") is None
