@@ -1,7 +1,7 @@
 ---
 type: ReferenceGuide
 title: Runtime evidence
-description: Diagnostic evidence, deterministic fixtures, small-graph semantic qualification, and decision-comparison metadata contracts.
+description: Diagnostic evidence, deterministic fixtures, small-graph semantics, and injected decision-sampling contracts.
 status: stable
 classification: active
 audience: maintainers
@@ -255,12 +255,47 @@ decision observations or additional official Logseq corpus qualification.
 Larger fixtures remain unparsed and unmaterialized by these tests. No Parser,
 public API, dependency, worker default or legacy diagnostic behavior changes.
 
+### Injected small-load sampling kernel
+
+The private [sampling kernel](../../tests/performance/decision_sampling.py)
+accepts the existing small full-load description, explicit source-free metadata
+and caller-supplied load, verification and clock callbacks. It selects no native
+loader or clock and does not inspect files, CPUs, memory or the environment.
+The caller is responsible for any later native binding and execution authority.
+
+Preflight revalidates the immutable inputs, binds all dataset fields to the
+frozen small fixture and derives workload/options/semantic identities from the
+same description. Only current-thread metadata is supported; a supplied worker
+count does not prove the actual pool size or native execution.
+
+Cold-instance sequencing has three untimed warmups and 21 measured loads.
+Unchanged-repeat adds exactly one untimed priming load before all warmups.
+Every returned result is verified outside its load interval before acceptance.
+Chronological integer durations retain all samples; median and nearest-rank p95
+remain items 11 and 20 of a sorted copy. The six secondary phases are explicitly
+uninstrumented and memory is unavailable. No parse-cost attribution is implied.
+
+A failure stops that invocation without retry. Truthful completion counters and
+stage-specific semantic/clock/infrastructure status remain, but all invalid
+timing vectors and summaries are discarded. Abort exceptions propagate without
+a fabricated receipt. Dropping the kernel's own result references does not prove
+garbage collection, native executor cleanup or callback-owned object release.
+
+[Sampling tests](../../tests/test_performance_decision_sampling.py) exercise the
+real kernel with opaque fake results and scripted integer clocks only. They
+check event order, late/co-occurring failures, strict metadata, reference
+retention, lazy imports and bounded privacy sentinels. The receipt's
+`perf_counter_ns` schema label in these tests is not evidence that a real clock
+or Parser workload ran. A schema-valid receipt is still not runtime admission;
+this module creates no attestation, comparison selection or positive verified
+flag. It adds no native sampling campaign to default CI.
+
 ### What remains deferred
 
 Fixture identity and small full-load correctness do not establish a
 runtime-admitted dataset or workload. Larger-profile semantics, query/reload/
 embed workloads, loaded source/dependency identity, actual runtime admission
-and measurement adapters remain separate reviewed work. A generator namespace,
+and native measurement adapters remain separate reviewed work. A generator namespace,
 matching fingerprint or passing semantic test is not a positive admission
 attestation.
 
@@ -272,7 +307,7 @@ Deterministic tests in
 [`tests/test_performance_comparison_contract.py`](../../tests/test_performance_comparison_contract.py)
 use synthetic metadata and attestations to check contract behavior only.
 They do not constitute real admitted observations, benchmark results or
-additional Logseq conformance evidence. No benchmark runner, native adapter,
+additional Logseq conformance evidence. No native benchmark runner or adapter,
 new collector, cache, executor-default change or CI timing gate is added.
 Issue #111 remains open; actual measurements, budgets and separate cache/process
 decisions require later reviewed plans and execution authority.

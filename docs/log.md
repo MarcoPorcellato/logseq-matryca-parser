@@ -19,6 +19,22 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-10-23 — Injected small full-load sampling contract
+
+- Add a private sampling kernel with explicit callbacks and source-free input
+  bindings for the existing small full-load workloads. Separate verification
+  from load timing; retain one repeat priming call, three warmups and 21 samples.
+- Extend the [runtime evidence reference](reference/PERFORMANCE_EVIDENCE.md#injected-small-load-sampling-kernel)
+  with exact sequence/statistics, closed failures, unavailable phase/memory
+  semantics and the distinction between kernel-reference release and cleanup.
+- Exercise the real kernel with fake results and scripted clocks only. Check
+  strict dataset/workload consistency, event order, last-sample and co-occurring
+  failures, aborts, retention, lazy imports and bounded privacy sentinels.
+- Keep native binding, actual source/runtime/worker/lifecycle admission, larger
+  workloads, measurements, thresholds and cache/process decisions deferred.
+  No production Parser, dependency, workflow, public API or benchmark campaign
+  changes. Issue #111 remains open.
+
 ## 2026-10-23 — Small full-load workload identities and semantics
 
 - Add two closed, pure descriptions for the existing small synthetic full-load
