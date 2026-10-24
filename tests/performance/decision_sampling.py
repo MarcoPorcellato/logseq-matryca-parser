@@ -217,4 +217,3 @@ def sample_small_full_load[GraphT](
             raise RuntimeError("small sampling invariant failure") from None
         samples.append(step.duration_ns)
     return _finish(base, contract.Outcome("available", "passed", "none"), warmups, tuple(samples))
-

@@ -637,5 +637,3 @@ def test_import_and_collection_are_operationally_lazy(monkeypatch: pytest.Monkey
             sys.modules.pop(alias, None)
         else:
             sys.modules[alias] = old_alias
-
-
