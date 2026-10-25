@@ -917,7 +917,3 @@ def test_native_selection_guard_fails_before_preparation(
     with pytest.raises(RuntimeError, match="^native small-load correctness selection rejected$"):
         module._claim_native_selection(config)
     assert events == []
-
-
-
-

@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-24
-verified: 2026-10-24
+last_verified: 2026-10-25
+verified: 2026-10-25
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,22 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-10-25 — Issue-ledger factual refresh
+
+- Refresh the existing [issue reconciliation](quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md)
+  from repository-scoped, read-only GitHub observations: 32 open issues and nine
+  open pull requests at the recorded snapshot time. Preserve its original path
+  and September body as explicitly labelled history.
+- Record #94 and #104 as closed GitHub states without re-claiming their complete
+  acceptance evidence. Keep #111 open and its separate native qualification,
+  admission and benchmark work unexecuted.
+- Distinguish successful, failed, neutral and absent check reports on recorded
+  PR heads. Do not infer dependency approval or merge readiness, and state that
+  subsequent updates or merges change the live counters rather than the snapshot.
+- Renew freshness only after verifying current facts. Preserve the current-date
+  documentation gate, all earlier evidence and the distinction between a local
+  correction and its still-pending hosted qualification.
 
 ## 2026-10-24 — Unmeasured native small-load binding
 

@@ -325,4 +325,3 @@ class NativeSmallLoadContext:
     @property
     def cleanup_status(self) -> CleanupStatus:
         return self._cleanup_status
-

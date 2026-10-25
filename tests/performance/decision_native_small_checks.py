@@ -183,4 +183,3 @@ def test_native_binding_owned_cleanup_counts(native_binding_pair: _NativePair) -
         "build": 1, "materialize": 1, "expected": 1, "native_load": 2, "verify": 2, "cleanup": 1,
     }
     assert (native_binding_pair.final_state, native_binding_pair.cleanup_status) == ("closed", "succeeded")
-
