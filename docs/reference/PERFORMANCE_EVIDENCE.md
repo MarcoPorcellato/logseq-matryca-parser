@@ -1,15 +1,15 @@
 ---
 type: ReferenceGuide
 title: Runtime evidence
-description: Diagnostic evidence, deterministic fixtures, small-graph semantics, and injected decision-sampling contracts.
+description: Diagnostic evidence, deterministic fixtures, small-graph semantics, injected sampling, and unmeasured native bindings.
 status: stable
 classification: active
 audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-23
-verified: 2026-10-23
+last_verified: 2026-10-24
+verified: 2026-10-24
 stale_after: 2027-02-20
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -290,12 +290,51 @@ or Parser workload ran. A schema-valid receipt is still not runtime admission;
 this module creates no attestation, comparison selection or positive verified
 flag. It adds no native sampling campaign to default CI.
 
+### Unmeasured native small-load binding
+
+The private [native binding](../../tests/performance/decision_native_binding.py)
+connects the closed 96-page workload to the existing graph loader. Explicit
+context entry prepares one owned synthetic vault, checks its exact file types,
+inventory and bytes, and builds the existing independent expectation once.
+Import and construction perform no native loading or fixture preparation.
+No arbitrary vault path, worker override, clock or sampling loop is accepted.
+
+Each fresh-load callback calls the unchanged native loader with both strict
+options false. Its enclosing future interval includes bounded ownership/state
+checks and weak-reference bookkeeping as well as the complete native call;
+it is not exclusive native-only time. Disk integrity and independent graph
+verification happen after callback return, before accepting the result or
+allowing another load. A dead or foreign result cannot pass identity checking.
+Configured thread metadata comes from the graph module's imported cap, not a
+later CPU estimate or observed concurrent-thread count.
+
+The synchronous context rejects foreign-thread access and cleanup during an
+active load or verification. It attempts owned cleanup once, requires positive
+root absence and preserves an original abort alongside a private cleanup
+failure. This does not guarantee hard termination, object destruction or
+race-proof filesystem isolation. Caller references and exception tracebacks
+can still retain objects and paths; raw working objects are not public evidence.
+
+[Default binding tests](../../tests/test_performance_decision_native_binding.py)
+use fake native resolution and semantic observations, with fixed synthetic
+files for filesystem checks. They add no native graph calls to default CI;
+the existing semantic fixture's two native calls remain unchanged.
+The separate [two-load correctness file](../../tests/performance/decision_native_small_checks.py)
+is outside default discovery and remains unexecuted. It needs explicit
+authorization for one bounded, single-process invocation without parallel,
+repeat or rerun plugins. Static checking and inert collection are not native
+qualification, including qualification of native model weak-reference support.
+
+The binding invokes no sampling kernel and creates no timing receipt,
+attestation or positive verified flag. Actual runtime/source admission,
+measurements and performance claims remain separate gates.
+
 ### What remains deferred
 
 Fixture identity and small full-load correctness do not establish a
 runtime-admitted dataset or workload. Larger-profile semantics, query/reload/
 embed workloads, loaded source/dependency identity, actual runtime admission
-and native measurement adapters remain separate reviewed work. A generator namespace,
+and admitted native timing campaigns remain separate reviewed work. A generator namespace,
 matching fingerprint or passing semantic test is not a positive admission
 attestation.
 
@@ -307,7 +346,7 @@ Deterministic tests in
 [`tests/test_performance_comparison_contract.py`](../../tests/test_performance_comparison_contract.py)
 use synthetic metadata and attestations to check contract behavior only.
 They do not constitute real admitted observations, benchmark results or
-additional Logseq conformance evidence. No native benchmark runner or adapter,
+additional Logseq conformance evidence. No native benchmark runner,
 new collector, cache, executor-default change or CI timing gate is added.
 Issue #111 remains open; actual measurements, budgets and separate cache/process
 decisions require later reviewed plans and execution authority.
