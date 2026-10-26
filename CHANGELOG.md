@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Graph ownership enumeration** — resolve distinct published pages and node
+  source paths once per attached-node read instead of rescanning every page
+  for every block. Preserve aliases, collision filtering, node order and
+  coordinated graph snapshots without retaining a cross-operation cache.
+
 ### Added
 
 - **Focused refresh-depth matrix** — exercise soft-break, block-property,

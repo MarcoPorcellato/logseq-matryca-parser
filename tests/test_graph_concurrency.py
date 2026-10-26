@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from threading import Event
+from threading import Event, current_thread
 
 import pytest
 
@@ -62,6 +62,62 @@ def _graph_with_reload_target(tmp_path: Path) -> tuple[LogseqGraph, Path]:
     reload_path = pages / "Refresh.md"
     reload_path.write_text("- Original source [[Target]]\n", encoding="utf-8")
     return LogseqGraph.load_directory(graph_root), reload_path
+
+
+def test_attached_ownership_capture_and_reload_do_not_mix_versions(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Removing coordination must not expose an ownership tuple across publication."""
+    graph, reload_path = _graph_with_reload_target(tmp_path)
+    expected_old = tuple(graph.iter_attached_nodes())
+    reload_path.write_text("- Updated source\n", encoding="utf-8")
+    reader_entered = Event()
+    allow_reader = Event()
+    writer_requested = Event()
+    candidate_entered = Event()
+    original_resolve = Path.resolve
+    original_build = LogseqGraph._build_incremental_candidate_locked
+
+    def pause_resolve(path: Path, strict: bool = False) -> Path:
+        if (
+            path == reload_path
+            and current_thread().name.startswith("ownership-reader")
+            and not reader_entered.is_set()
+        ):
+            reader_entered.set()
+            assert allow_reader.wait(timeout=5), "ownership reader did not resume"
+        return original_resolve(path, strict=strict)
+
+    def record_build(self: LogseqGraph, resolved: Path) -> object:
+        candidate_entered.set()
+        return original_build(self, resolved)
+
+    def reload() -> None:
+        writer_requested.set()
+        graph.invalidate_and_reload_page(reload_path)
+
+    monkeypatch.setattr(Path, "resolve", pause_resolve)
+    monkeypatch.setattr(LogseqGraph, "_build_incremental_candidate_locked", record_build)
+    with ThreadPoolExecutor(max_workers=2, thread_name_prefix="ownership-reader") as pool:
+        reader = pool.submit(lambda: tuple(graph.iter_attached_nodes()))
+        writer = None
+        try:
+            assert reader_entered.wait(timeout=3), "reader did not enter ownership capture"
+            writer = pool.submit(reload)
+            assert writer_requested.wait(timeout=3), "reload was not requested"
+            assert not candidate_entered.wait(timeout=1), "reload crossed active read coordination"
+        finally:
+            allow_reader.set()
+        actual_old = reader.result(timeout=5)
+        assert writer is not None
+        writer.result(timeout=5)
+
+    assert all(left is right for left, right in zip(actual_old, expected_old, strict=True))
+    assert [node.content for node in actual_old] == ["Original source [[Target]]", "Target anchor"]
+    assert [node.content for node in graph.iter_attached_nodes()] == [
+        "Updated source",
+        "Target anchor",
+    ]
 
 
 def test_collect_graph_diagnostics_reads_one_snapshot_during_incremental_reload(
