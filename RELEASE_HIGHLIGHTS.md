@@ -7,13 +7,26 @@ published artifacts and attestations, see
 
 ## Unreleased
 
-- Complete the selected five-family/six-depth refresh matrix without changing
-  parser behavior, identity policy or limits. These focused tests complement,
-  not replace, the existing bounded generated assurance.
-- Consolidate the [current delivery record](docs/quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status)
-  and [#104 acceptance package](docs/quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md).
-  The scalar-regression policy is approved; issue closure and publication remain
-  separate gates. See the [changelog](CHANGELOG.md) for all Unreleased changes.
+## v1.11.2 (release preparation)
+
+Prepared source candidate; this section does not establish that a GitHub Release
+or PyPI distributions have been published. Use the public artifact listings above
+to check availability.
+
+This patch candidate removes repeated page scans from attached-node graph reads
+and includes the focused assurance and documentation work already merged after
+v1.11.1. Existing public APIs and dependency selections are unchanged.
+
+| Area | Change |
+| :--- | :--- |
+| **Graph ownership reads** | Resolves each distinct published page object and each distinct nonempty node source spelling once per read, preserving aliases, collision filtering, node order and coordinated snapshots without a cross-operation cache. |
+| **Focused refresh-depth tests** | Completes the selected five-family/six-depth matrix at depths 1, 2, 3, 4, 8 and 32, adding 20 round-trip combinations without changing parser behavior, identity policy or limits; this complements, not replaces, bounded generated assurance. |
+| **Assurance documentation** | Consolidates the [current delivery record](docs/quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) and [#104 acceptance package](docs/quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md), preserving dated evidence and separate issue-closure and publication gates. |
+| **PKM comparison** | Adds Obsidian and a [source-backed comparison study](docs/reference/PKM_OBSIDIAN_COMPARISON.md), distinguishing applications, native features, community plugins and compatible export from lossless cross-app support. |
+
+The ownership correction does not qualify whole-request dashboard latency,
+reference-fallback performance, cancellation or downstream Plumber integration.
+See the [changelog](CHANGELOG.md) for the complete candidate scope.
 
 ## v1.11.1
 
