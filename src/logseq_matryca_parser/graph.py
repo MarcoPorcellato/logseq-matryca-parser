@@ -561,6 +561,19 @@ def _page_for_source_path(pages: dict[str, LogseqPage], resolved_file: Path) -> 
     return found
 
 
+def _page_ownership_index(pages: dict[str, LogseqPage]) -> dict[Path, LogseqPage]:
+    """Resolve each published page once, preserving the last distinct path match."""
+    owners: dict[Path, LogseqPage] = {}
+    seen: set[int] = set()
+    for page in pages.values():
+        page_id = id(page)
+        if page_id in seen or not page.source_path:
+            continue
+        seen.add(page_id)
+        owners[Path(page.source_path).resolve()] = page
+    return owners
+
+
 def _build_lower_title_map(pages: dict[str, LogseqPage]) -> dict[str, str]:
     """Map lowercased page titles to canonical ``page.title`` (Logseq case-insensitive routing)."""
     title_map: dict[str, str] = {}
@@ -1093,10 +1106,17 @@ class LogseqGraph(BaseModel):
     def _iter_attached_nodes(self) -> Iterator[LogseqNode]:
         """Internal alias for :meth:`iter_attached_nodes` (backward-compatible call sites)."""
         with self._mutation_scope():
+            source_paths = dict.fromkeys(
+                node.source_path for node in self._node_registry.values() if node.source_path
+            )
+            owners = _page_ownership_index(self.pages) if source_paths else {}
+            attached_sources = {
+                source for source in source_paths if Path(source).resolve() in owners
+            }
             nodes = tuple(
                 node
                 for node in self._node_registry.values()
-                if self._page_for_node(node) is not None
+                if node.source_path in attached_sources
             )
         yield from nodes
 
