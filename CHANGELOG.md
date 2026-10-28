@@ -36,6 +36,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and compatible output from lossless cross-app support; replace absolute Git,
   sovereignty and ordinal AI-readiness claims with concrete capabilities.
 
+### Security
+
+- **Development-toolchain updates** — refresh locked `virtualenv` and `filelock`
+  versions in the `pre-commit` development dependency chain (#266). These
+  packages are not part of the base or optional-extra dependency closures.
+- **Locked optional extras** — refresh `packaging` and `certifi` in the locked
+  `ai`/`all` extras closure (#266, #259). The lock supports project audits and
+  release evidence; it does not constrain versions installed by downstream users.
+- **Reading-skill dependency setup** — the bundled reading-skill helper no
+  longer installs Parser from the repository's unpinned default branch when it
+  is missing. It stops and prints manual PyPI installation guidance instead.
+  Earlier source distributions and copied repository skills retain the old
+  behavior; update any copied skill separately.
+
+### Known issues
+
+- **Snapshot graph paths** — some checks and graph reads resolve logical paths
+  against host filesystem metadata. Symlinks can affect ordering or results;
+  see the [API stability contract](docs/reference/API_STABILITY.md).
+- **X-Ray read state** — `matryca-parse agent-read` writes
+  `.matryca_xray_state.json` under the selected graph path. Until the state-write
+  boundary is corrected, use X-Ray only with trusted vaults. The state write is
+  not covered by the Markdown writer's guarantees.
+
 ## [1.11.1] - 2026-10-20
 
 ### Fixed

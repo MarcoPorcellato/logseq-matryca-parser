@@ -73,11 +73,12 @@ The script returns structured markdown containing:
 
 ---
 
-## Automatic setup
+## Dependency setup
 
-The script installs `logseq-matryca-parser` automatically if missing.
-If installation fails, install manually with:
+The script does not install dependencies. If the Parser is missing, it prints
+manual installation guidance and exits without reading the vault. Install a
+published release in the same Python environment before running the skill:
 
 ```bash
-uv pip install logseq-matryca-parser
+python -m pip install "logseq-matryca-parser>=1.11.2,<2"
 ```

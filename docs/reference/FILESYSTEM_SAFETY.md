@@ -19,9 +19,11 @@ superseded_by: null
 
 # Vault-bound filesystem safety contract
 
-Graph-bound reads and writes treat the selected Logseq graph as a security
-boundary. A path discovered in Markdown or cached in a node is not trusted merely
-because parsing succeeded.
+The Markdown writer treats the selected Logseq graph as a security boundary. A
+path discovered in Markdown or cached in a node is not trusted merely because
+parsing succeeded. The X-Ray read command also writes an alias-state file; that
+write is outside the writer policy below. Use X-Ray only with trusted vaults
+until the state-write boundary is corrected.
 
 ## Writer policy
 

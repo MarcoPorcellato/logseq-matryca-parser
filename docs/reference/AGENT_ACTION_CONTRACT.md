@@ -31,7 +31,7 @@ repository, release, or external service.
 
 | Capability | Default | Reads | Writes | Required approval | Minimum receipt |
 |---|---|---|---|---|---|
-| X-Ray outline read | Allowed | Confined vault Markdown | None | None | Source path, query, parser version |
+| X-Ray outline read | Allowed for trusted vaults | Vault Markdown | Overwrites `.matryca_xray_state.json` under the selected graph path | None for this state write | Source path, query, parser version |
 | Parse, scan, or export | Allowed | Confined vault Markdown | Derived output chosen by caller | None | Command, source scope, output path or hash |
 | Dry-run write | Allowed | Target page and bounded context | Patch preview only | None | Unified diff, target identity, limits |
 | Append or write | Opt-in | Confined vault Markdown | One bounded target through documented writer APIs | Explicit caller or human authorization | Caller, target identity, action, result, source revision |
@@ -41,6 +41,9 @@ repository, release, or external service.
 `Allowed` is not blanket authority. It still requires paths and caller input to
 pass the parser's vault-containment and validation rules. `Opt-in` actions must
 remain disabled until a caller deliberately invokes the documented write path.
+The X-Ray state write is not covered by the Markdown writer's containment or
+atomic-replacement guarantees. Until this is corrected, use X-Ray only with
+trusted vaults.
 
 ## Provenance for agent results
 
