@@ -1,16 +1,16 @@
 ---
 type: RepositoryAudit
 title: Logseq Matryca Parser - Code audit and stellar roadmap
-description: Verified audit, reproducible findings, and MKQ-4 roadmap aligned to Matryca Knowledge.
+description: Historical audit with a current, evidence-linked repository roadmap and explicit qualification limits.
 status: stable
 classification: active
 audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-08
-verified: 2026-08-08
-stale_after: 2026-11-06
+last_verified: 2026-10-28
+verified: 2026-10-28
+stale_after: 2027-01-26
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 source_commit: 8e90b44
@@ -20,14 +20,67 @@ superseded_by: null
 
 # Logseq Matryca Parser — Code audit and roadmap to a “stellar” repository
 
-> **Status:** study executed and verified on 2026-08-06
+> **Original study:** executed and verified on 2026-08-06; retained as historical evidence.
 > **Analyzed checkout:** `main` @ `8e90b44`
+> **Current-status review:** 2026-10-28; see the checkpoint below. The frontmatter `source_commit` identifies the original audit, not the current release.
 > **Document nature:** decision record and technical backlog; no implementation, commit, push, PR, merge, or release is authorized from this document.
 > **Relationship to previous study:** supersedes and fixes `REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md`, which was untracked during the previous audit.
 
+## Current roadmap checkpoint — 2026-10-28
+
+This checkpoint supersedes present-tense backlog statements in the August audit
+and its dated follow-ups below. It does not rewrite their probes, metrics,
+release evidence or original priorities, and does not authorize new work.
+
+The published baseline is
+[v1.11.2](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.11.2),
+at source commit `df1322a19f3aefb0b50f8a7fb4f46ebbb9d1b729`.
+The following GitHub issue states were checked on 2026-10-28; subsequent changes
+require another live reconciliation rather than copying this snapshot.
+
+| Workstream | Verified disposition | Remaining boundary |
+|---|---|---|
+| Original #101–#107 foundations | Closed; #113's depth fix and #124's action-runtime follow-up are also closed | Preserve their regressions and release evidence; do not schedule their original defects as new work. |
+| [#103 graph consistency](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/103) | Closed; the [acceptance record](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/103#issuecomment-5394726127) identifies PR #180 | Use the current graph coordination and incremental/cold-load contracts, not the audit's pre-fix description. |
+| [#104 compatibility assurance](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104) | Closed; the [bounded final acceptance](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104#issuecomment-6318777965) records PRs #259 and #260 | This is not proof of universal Markdown compatibility, complete renderer parity or benchmark performance. |
+| [#108 parser phase extraction](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/108) | Open | Remaining reducer, enrichment, final-equivalence and measurement gates still apply; do not restart already delivered slices. |
+| [#109 documentation](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/109) and [#110 diagnostics](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/110) | Open | Source documentation checks and diagnostic foundations are delivered, not evidence that each issue's remaining acceptance criteria are complete. |
+| [#111 qualified scale](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/111) | Open | Synthetic fixtures and test contracts are not a completed benchmark campaign, RSS/p95 budget or cache/executor decision. |
+
+Dated supporting assurance evidence is retained in
+[Composite Markdown assurance](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md).
+Current issue disposition follows the linked final acceptance above, not that
+record's older open or unreleased labels. Measurement claims follow the separate
+[performance evidence contract](reference/PERFORMANCE_EVIDENCE.md).
+The [experimental Org reader](internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md)
+remains a private, non-stable, read-only subset for text or a selected file,
+not complete Org support or an Org vault-graph loader.
+
+### Next work, with existing gates preserved
+
+1. Preserve the current [filesystem safety](reference/FILESYSTEM_SAFETY.md) and
+   [agent-action](reference/AGENT_ACTION_CONTRACT.md) limits. This documentation
+   refresh changes no runtime guarantee and claims no outstanding hardening
+   complete.
+2. Advance #111's explicit workload, semantic, runtime and evidence gates before
+   adopting performance budgets or changing cache/process policy. Correctness
+   tests and deterministic work counts remain distinct from runtime comparisons.
+3. Apply #104's bounded regression baseline to the remaining #108 slices, with
+   fresh impact review and semantic equivalence rather than a parser rewrite.
+4. Qualify downstream consumers independently. Parser improvements alone do not
+   resolve [Plumber #656](https://github.com/MarcoPorcellato/matryca-plumber/issues/656)
+   or establish dashboard latency, cancellation and cleanup behavior.
+5. Continue #109/#110 from their unfulfilled criteria. Retain dated evidence,
+   avoid unsupported compatibility claims, and renew freshness only after a real
+   source and issue review.
+
+The review window is renewed under the active-roadmap policy in
+[Documentation system](DOCUMENTATION_SYSTEM.md). No new tests, benchmarks or
+consumer qualification are implied by this checkpoint.
+
 ## 1. Executive summary
 
-The repository is already above average: local quality gate passes with **462 tests**, **3,233 statements** measured, and **91% coverage**, Ruff and Mypy are clean, **0 import cycles**, modern packaging, useful graph APIs, deterministic parsing, file-level atomic writer, and good optional-adapter separation.
+At the 2026-08-06 audit baseline, the local quality gate passed with **462 tests**, **3,233 statements** measured, and **91% coverage**; Ruff and Mypy were clean, with **0 import cycles**, modern packaging, useful graph APIs, deterministic parsing, a file-level atomic writer, and good optional-adapter separation. These are historical measurements, not current suite counts.
 
 The next step is not a rewrite or indiscriminate feature expansion. It is, in order:
 
@@ -99,6 +152,9 @@ This is why the final roadmap starts with a **Wave 0 containment and correction*
 
 ## 4. Evidence and live baseline
 
+This section records the 2026-08-06 audit baseline. Its commands, counts and
+local observations are historical, not a re-run for the current checkpoint.
+
 ### 4.1 Git state
 
 At audit start:
@@ -151,6 +207,10 @@ The analysis server initially used stale context cache; therefore stale results 
 | `_expand_macros_and_embeds_impl` | LOW | 6 symbols, 2 flows | Seams already narrow; not a top performance hotspot |
 
 ## 5. Current architecture
+
+The diagram and risks below describe the original audit's architectural view.
+For current ownership and coordination contracts, use
+[Clean code architecture](CLEAN_CODE_ARCHITECTURE.md).
 
 ```mermaid
 flowchart TD
@@ -265,7 +325,9 @@ coverage for internal targets, external targets, escapes, and symlink loops.
 
 ### P1.2 — Stale backlinks after incremental rename
 
-**Status:** current bug, high confidence, adjacent to #103 but not explicitly stated in current criteria.
+**Status:** historical 2026-08-06 finding. #103 is now closed with the PR #180
+acceptance record linked in the current checkpoint. The original probe below
+is retained, not presented as a current reproduction.
 
 Full load reconstructs all backlinks. `invalidate_and_reload_page` removes only nodes for the modified page and adds outgoing backlinks from fresh page data; it does not recalculate keys for incoming links from unchanged pages when a target page title or alias changes.
 
@@ -298,7 +360,9 @@ alias collisions without ghost nodes.
 
 ### P1.4 — Writer, watcher, and readers do not share an atomic snapshot
 
-**Status:** confirmed architectural risk; covered by #103.
+**Status:** historical 2026-08-06 architectural risk. #103's completed scope and
+current graph coordination contract supersede this pre-fix description; see
+the current checkpoint and [API stability](reference/API_STABILITY.md).
 
 Writer provides `mkstemp` + `os.replace`, which protects against partial file reads, but it does not serialize two concurrent read-modify-write cycles. Incremental reload updates multiple derived structures in multiple passes.
 
@@ -403,15 +467,18 @@ phase on 2026-08-06:
 
 ### 8.4 Remaining issues
 
-- The private source profile must declare parser entry points before the shared
-  validator can audit the bundle.
-- Source CI does not yet enforce maintained links, anchors, lifecycle,
-  canonical roles, documented CLI commands, and Python snippets.
+- At the August audit, external profile admission and projection remained
+  separate work. Do not infer their current private-repository status from
+  this source-only refresh; #109 remains open.
+- Source CI now enforces the maintained-document profile, including its
+  declared link, anchor, lifecycle and freshness checks. Use
+  [Documentation system](DOCUMENTATION_SYSTEM.md) for the exact supported
+  checks; this does not imply every snippet or external projection is verified.
 - Some release-era documents intentionally retain historical metrics; active
   guidance must avoid copying those values as current claims.
-- Asset resolution documentation states a boundary that `file://` handling
-  currently violates; this remains a product defect, not a documentation-only
-  correction.
+- The original `file://` boundary defect was addressed in PR #121 as recorded
+  in section 6. Preserve the current filesystem contract and regression tests;
+  do not present the original probe as an outstanding defect.
 
 ### 8.5 Metadata contract
 
@@ -506,6 +573,9 @@ Classify surfaces as `stable`, `experimental`, `internal`. AI adapters, visualiz
 
 ## 10. Proposed roadmap
 
+These waves preserve the August sequencing rationale. Their original issue
+lists are not the current ready-work queue; use the dated checkpoint above.
+
 ### Wave 0 — Containment and correctness (before any parser refactor)
 
 | Slice | Priority | Deliverable | Gate |
@@ -546,7 +616,9 @@ originally stacked on feature branches.
 ### Wave 4 — Release confidence
 
 - #105: completed in v1.7.0 — build once / publish exact bytes;
-- #124: wait for official Node.js 24 artifact-action manifests, then repin;
+- #124: the original action-runtime follow-up is now closed; use
+  [CI assurance](CI_ASSURANCE.md) and the current pinned workflows rather than
+  treating the historical Node.js warning as a pending task;
 - pin actions by SHA;
 - pin VCS dependency commits;
 - install typed wheel in clean environment, verify `RECORD` and checksum;
@@ -566,6 +638,10 @@ originally stacked on feature branches.
 - each slice must pass corpus, metamorphic suite, benchmarks, and impact review.
 
 ## 11. Agent-ready backlog
+
+This is the original August backlog and dependency rationale, not a claim that
+its closed issues are ready to implement again. Current issue dispositions and
+the remaining #108–#111 work are summarized in the dated checkpoint.
 
 ### [Issue #113](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/113) — `bug(parser): propagate immutable node refreshes through arbitrary depth`
 
@@ -663,7 +739,8 @@ FILE_URI_RESULT /private/etc/passwd
 
 ## 14. Limits and non-authoritative claims
 
-- No benchmark was run against a real or 10k-page vault.
+- This 2026-08-06 study ran no benchmark against a real or 10k-page vault; the
+  current checkpoint makes no new runtime measurement claim.
 - At the 2026-08-06 baseline, no public release was qualified and no clean wheel
   installation was verified. Section 17 records the v1.7.0 resolution.
 - The follow-up phase opened PR #112, created issue #113, updated impacted issues, and closed only completed/duplicate entries in the reconciliation log. Milestones, branch protection, and remote workflows were not changed.
@@ -728,11 +805,13 @@ every merged tranche reported seven passes and zero failures.
 5. #122 consolidates the documentation and issue ledger; release or downstream
    federation still requires final checks on the resulting merged `main`.
 
-The unresolved roadmap is intentionally not folded into this stack: #103 and
+At the 2026-08-07 stack checkpoint, the unresolved roadmap was intentionally
+not folded into this stack: #103 and
 #104 are the next correctness foundations; #111 remains measurement work; #108
 remains blocked on the corpus and benchmarks. #105 is completed by the release
 record below. Product RFCs and contributor issues retain their existing
-dispositions in the issue reconciliation ledger.
+dispositions at that checkpoint. Use the current-status review above instead
+of treating this historical paragraph as today's backlog.
 
 ## 17. v1.7.0 release execution record — 2026-08-08
 
@@ -815,6 +894,9 @@ the only release annotation remains the upstream Node.js 20 action warning
 tracked by #124.
 
 ## 19. Parser assurance extension — 2026-08-16
+
+This extension is a dated planning record. The current checkpoint supersedes
+its historical open-issue wording without changing its provenance or limits.
 
 The
 [lsdoc reference study and execution plan](LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md)
