@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-25
-verified: 2026-10-25
+last_verified: 2026-10-28
+verified: 2026-10-28
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,20 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-10-28 — Historical roadmap reconciliation
+
+- Reconcile the [stellar repository roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md)
+  with the published v1.11.2 baseline and read-only GitHub issue observations.
+  Record #101–#107, #113 and #124 as closed; retain #108–#111 as open.
+- Link the bounded #103/#104 acceptance records, current Markdown assurance,
+  measurement policy and experimental Org status. Do not infer universal
+  compatibility, new runtime results or resolution of downstream Plumber #656.
+- Preserve the original audit source commit, probes and release records as
+  dated history. Correct obsolete present-tense CI, asset-boundary and backlog
+  claims, then renew freshness under the active-roadmap review policy.
+- Change documentation only. No runtime behavior, dependency, workflow, release
+  version or issue disposition changes follow from this reconciliation.
 
 ## 2026-10-25 — Issue-ledger factual refresh
 
