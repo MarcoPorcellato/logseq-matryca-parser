@@ -188,6 +188,10 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 | **Export and integrate — SYNAPSE, FORGE, LENS** | Lineage-aware LangChain exports and context-enriched chunks; LlamaIndex nodes through a separate companion; JSON and Markdown serialization, Obsidian vault generation, and interactive graph visualization. |
 | **Automate safely — KINETIC and agent tools** | CLI parse, scan, export, and visualization; token-efficient X-Ray reads; append-only logging; bounded AST writes; vault containment, dry-run patches, and atomic replacement. |
 
+`agent-read` also writes `.matryca_xray_state.json` under the selected graph
+path. Until its state-write boundary is corrected, use X-Ray only with trusted
+vaults; this state write is not covered by the Markdown writer's guarantees.
+
 The v1.11.0 release line also contains an **experimental, read-only Org
 reader** behind a private, non-stable API. It reads Org text or one selected
 `.org` file; it does not load a vault graph or claim complete GNU Org or
@@ -275,7 +279,7 @@ graph = LogseqGraph.load_directory("/path/to/logseq/graph")
 page_obj = graph.get_page("My Page")  # case-insensitive
 effective = graph.get_effective_properties(page_obj.root_nodes[0].uuid)
 
-# Build the same in-memory indexes from caller-captured Markdown without filesystem access.
+# Build in-memory indexes from captured Markdown; some reads resolve host paths.
 from logseq_matryca_parser import SnapshotPage
 
 snapshot_graph = LogseqGraph.from_snapshot_pages(
@@ -356,23 +360,21 @@ We welcome issues, pull requests, and constructive feedback.
 
 ## 📦 Release history
 
-Current source version: **v1.11.2 (release preparation)**. This source candidate
-is not a claim that the corresponding distributions have been published.
-The [PyPI project page](https://pypi.org/project/logseq-matryca-parser/) and
+Current source version: **v1.11.2**. The [PyPI project page](https://pypi.org/project/logseq-matryca-parser/) and
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases) list available distributions.
 Security support follows the [latest-release policy](SECURITY.md).
 
-The v1.11.2 candidate removes repeated page scans from attached-node graph reads
+The v1.11.2 source removes repeated page scans from attached-node graph reads
 while preserving aliases, collision filtering and node order. It also adds a
 focused refresh-depth test matrix and consolidates assurance documentation.
 This does not establish end-to-end Plumber dashboard performance or cancellation.
-See the [changelog](CHANGELOG.md) for scope and limits.
+See the [changelog](CHANGELOG.md) for scope, limits and known issues.
 
 Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
 [changelog](CHANGELOG.md), or the signed artifacts on
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
-- **v1.11.2 (prepared source)** — Bounds graph ownership-resolution work per read, extends focused refresh-depth tests, and consolidates assurance and PKM comparison documentation.
+- **v1.11.2** — Bounds graph ownership-resolution work per read, extends focused refresh-depth tests, and consolidates assurance and PKM comparison documentation.
 - **v1.11.1** — Fixes fenced-code parsing in outline items, preserves eligible multiline scalar-metadata round trips, and adds bounded composite Markdown assurance.
 - **v1.11.0** — Adds an experimental, read-only Logseq Org reader with source retention and explicit support limits.
 - **v1.10.0** — Clarifies the LlamaIndex companion boundary and removes the Parser's NLTK dependency chain.

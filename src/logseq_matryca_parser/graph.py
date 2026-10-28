@@ -1009,7 +1009,7 @@ class LogseqGraph(BaseModel):
         strict_refs: bool = False,
         strict_title_collisions: bool = False,
     ) -> LogseqGraph:
-        """Build a graph from bounded caller-captured Markdown without filesystem discovery or reads."""
+        """Build from captured Markdown; some checks and reads resolve paths on the host."""
         resolved = _normalize_snapshot_graph_path(graph_path)
         source_pages: dict[str, LogseqPage] = {}
         for logical_path, text in _normalize_snapshot_pages(snapshot_pages):

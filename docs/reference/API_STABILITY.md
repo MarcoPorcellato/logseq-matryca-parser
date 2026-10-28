@@ -64,11 +64,12 @@ either a mapping of graph-relative POSIX Markdown paths to already-captured text
 a sequence of `SnapshotPage` values. It normalizes and orders unique `pages/` and
 `journals/` paths deterministically, accepts at most 1,024 pages and 16 MiB of UTF-8
 text, parses with the existing in-memory parser, and reuses the ordinary graph index
-builders and strict modes. It never discovers or reopens logical source paths.
-Synthetic source paths on the resulting models are metadata for graph behavior, not
-filesystem-read authority; capture, source selection, hashing, and revisions remain
-the caller's responsibility. Its graph-root label is normalized lexically without
-expanding, resolving, or inspecting the caller path.
+builders and strict modes without discovering source files. The graph-root label
+is normalized lexically at construction, but collision diagnostics, strict
+reference checks, and later graph reads may resolve logical paths and the root
+label against host filesystem metadata. Symlinks can affect ordering or results.
+Synthetic paths are not authority to reopen source files; capture, source
+selection, hashing, and revisions remain the caller's responsibility.
 
 Diagnostic code compatibility, serialization, and path-safety rules are defined
 in the [structured diagnostics contract](DIAGNOSTICS.md).

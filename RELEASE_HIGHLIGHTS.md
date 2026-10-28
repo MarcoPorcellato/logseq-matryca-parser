@@ -7,15 +7,12 @@ published artifacts and attestations, see
 
 ## Unreleased
 
-## v1.11.2 (release preparation)
+## v1.11.2
 
-Prepared source candidate; this section does not establish that a GitHub Release
-or PyPI distributions have been published. Use the public artifact listings above
-to check availability.
-
-This patch candidate removes repeated page scans from attached-node graph reads
+This patch removes repeated page scans from attached-node graph reads
 and includes the focused assurance and documentation work already merged after
-v1.11.1. Existing public APIs and dependency selections are unchanged.
+v1.11.1. Existing public APIs and declared install requirements are unchanged;
+locked development-tool and optional-extra dependency versions were refreshed.
 
 | Area | Change |
 | :--- | :--- |
@@ -26,7 +23,9 @@ v1.11.1. Existing public APIs and dependency selections are unchanged.
 
 The ownership correction does not qualify whole-request dashboard latency,
 reference-fallback performance, cancellation or downstream Plumber integration.
-See the [changelog](CHANGELOG.md) for the complete candidate scope.
+The snapshot-path and X-Ray state-write limitations remain; the reading-skill
+helper now stops instead of installing an unpinned dependency. See the
+[changelog](CHANGELOG.md) for scope, dependency notes and known issues.
 
 ## v1.11.1
 

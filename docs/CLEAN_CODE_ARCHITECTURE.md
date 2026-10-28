@@ -183,11 +183,11 @@ close.
 `SnapshotPage` plus `LogseqGraph.from_snapshot_pages()` is the additive
 in-memory bulk-load boundary. It accepts caller-captured Markdown text and safe
 graph-relative logical paths, parses only through `StackMachineParser.parse()`, and
-then reuses the normal graph index builders. The factory neither discovers nor
-reopens or inspects source paths or the graph-root label; those synthetic paths are
-graph metadata only. Capture,
-filesystem authority, revisions, and cross-product DTO projection remain outside
-Parser.
+then reuses the normal graph index builders. The factory does not discover
+source files. Some checks and graph reads resolve logical paths and the root
+label against host filesystem metadata; symlinks can therefore affect ordering
+or results. Capture, filesystem authority, revisions, and cross-product DTO
+projection remain outside Parser.
 
 The private inventory and snapshot representations are implementation details,
 not stable public API.

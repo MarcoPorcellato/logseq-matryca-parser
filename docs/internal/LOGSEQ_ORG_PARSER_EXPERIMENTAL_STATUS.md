@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-04
-verified: 2026-10-04
-stale_after: 2026-10-31
+last_verified: 2026-10-28
+verified: 2026-10-28
+stale_after: 2026-11-27
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -19,11 +19,15 @@ superseded_by: null
 
 # Experimental Logseq Org parser implementation status
 
-> Experimental work included in the published v1.11.0 package. This page is not a stable API,
+> Experimental work included since the published v1.11.0 package. This page is not a stable API,
 > compatibility promise, product support statement, or Logseq Org conformance
 > claim. No package-root export or supported public API is authorized. The
 > informational row in the public support matrix records this boundary; it
 > does not promote the private entrypoints to a supported interface.
+
+The current implementation boundary was rechecked against the source on
+2026-10-28. Dated test, review, and release records below remain historical
+evidence for their named candidates and platforms.
 
 ## Scope and API boundary
 

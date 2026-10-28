@@ -15,7 +15,6 @@ Usage:
 import argparse
 import os
 import re
-import subprocess
 import sys
 from datetime import date
 from pathlib import Path
@@ -30,13 +29,15 @@ TASK_ICONS = {"TODO": "☐", "DOING": "🔄", "DONE": "✓", "LATER": "⏳"}
 def ensure_installed():
     try:
         from logseq_matryca_parser import LogosParser  # noqa: F401
-    except ImportError:
-        print("[setup] Installing logseq-matryca-parser...", file=sys.stderr)
-        subprocess.run(
-            [sys.executable, "-m", "pip", "install",
-             "git+https://github.com/MarcoPorcellato/logseq-matryca-parser.git"],
-            check=True, capture_output=True,
+    except ModuleNotFoundError as exc:
+        if exc.name != "logseq_matryca_parser":
+            raise
+        print(
+            'logseq-matryca-parser is not installed. Install it yourself from PyPI: '
+            'python -m pip install "logseq-matryca-parser>=1.11.2,<2"',
+            file=sys.stderr,
         )
+        raise SystemExit(2) from exc
 
 
 def format_node(node, depth=0) -> list[str]:
