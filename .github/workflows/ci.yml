@@ -80,7 +80,7 @@ jobs:
           --cov=src/logseq_matryca_parser
           --cov-report=term-missing
           --cov-fail-under=80
-          -v tests/
+          -v -rs tests/
 
   dependency-audit:
     name: Production dependency audit
