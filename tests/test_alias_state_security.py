@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import errno
 import json
 import os
 import stat
@@ -221,9 +223,15 @@ def test_changed_leaf_is_rejected_before_mutation_even_without_no_follow_flag(
     other.write_bytes(b"replacement")
     real_open = os.open
     opened: list[int] = []
+    fixture_failures: list[tuple[str, str, int | None, int | None]] = []
+    fixture_errors: list[OSError] = []
+    stage = "open"
 
     def swap() -> None:
+        nonlocal stage
+        stage = "rename"
         state.rename(backup)
+        stage = "replace"
         if replacement_kind == "symlink":
             state.symlink_to(other)
         else:
@@ -236,15 +244,28 @@ def test_changed_leaf_is_rejected_before_mutation_even_without_no_follow_flag(
         *,
         dir_fd: int | None = None,
     ) -> int:
+        nonlocal stage
         if path != state:
             return real_open(path, flags, mode, dir_fd=dir_fd)
         assert not flags & os.O_TRUNC
-        if not after_open:
-            swap()
-        fd = real_open(path, flags, mode, dir_fd=dir_fd)
+        fd: int | None = None
+        try:
+            if not after_open:
+                swap()
+            stage = "open"
+            fd = real_open(path, flags, mode, dir_fd=dir_fd)
+            if after_open:
+                swap()
+        except OSError as exc:
+            fixture_errors.append(exc)
+            fixture_failures.append(
+                (stage, type(exc).__name__, exc.errno, getattr(exc, "winerror", None))
+            )
+            if fd is not None:
+                with contextlib.suppress(OSError):
+                    os.close(fd)  # ownership never reached the helper
+            raise
         opened.append(fd)
-        if after_open:
-            swap()
         return fd
 
     monkeypatch.delattr(os, "O_NOFOLLOW", raising=False)
@@ -253,9 +274,25 @@ def test_changed_leaf_is_rejected_before_mutation_even_without_no_follow_flag(
     with pytest.raises(OSError) as raised:
         _registry().save_to_disk(state)
 
-    assert backup.read_bytes() == b"original"
-    assert (other if replacement_kind == "symlink" else state).read_bytes() == b"replacement"
+    # os.open on Windows does not share delete access, so the OS itself blocks the after-open
+    # rename with a sharing violation; prove that instead of a swap that cannot happen there.
+    expected: list[tuple[str, str, int | None, int | None]] = (
+        [("rename", "PermissionError", errno.EACCES, 32)]
+        if os.name == "nt" and after_open
+        else []
+    )
+    assert fixture_failures == expected, f"unexpected fixture failures: {fixture_failures!r}"
     _assert_sanitized(str(raised.value), state)
+    if expected:
+        assert raised.value.__context__ is fixture_errors[0]
+        assert raised.value.__suppress_context__ is True
+        assert state.read_bytes() == b"original"
+        assert not state.is_symlink()
+        assert not backup.exists()
+        assert other.read_bytes() == b"replacement"
+    else:
+        assert backup.read_bytes() == b"original"
+        assert (other if replacement_kind == "symlink" else state).read_bytes() == b"replacement"
     for fd in opened:
         with pytest.raises(OSError):
             os.fstat(fd)

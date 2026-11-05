@@ -155,26 +155,57 @@ def test_inherited_ace_oracle_rejects_malformed_record() -> None:
     )
 
 
+def _windows_powershell() -> str:
+    system_root = os.environ.get("SYSTEMROOT")
+    assert system_root, "Windows system root is not set"
+    executable = Path(system_root) / "System32" / "WindowsPowerShell" / "v1.0" / "powershell.exe"
+    assert executable.is_file(), "Windows PowerShell 5.1 executable is missing"
+    return str(executable)
+
+
+def _acl_diagnostic(stage: str, exit_code: int) -> str:
+    """PowerShell catch body: one path-free stderr line, then a stage-specific exit code."""
+    return (
+        "[Console]::Error.WriteLine('matryca-acl-diagnostic edition=' + "
+        "$PSVersionTable.PSEdition + ' version=' + $PSVersionTable.PSVersion + "
+        f"' stage={stage} error=' + $_.FullyQualifiedErrorId + "
+        "' type=' + $_.Exception.GetType().FullName); "
+        f"exit {exit_code}"
+    )
+
+
 def _windows_acl_records(path: Path) -> object:
     script = (
         "$ErrorActionPreference = 'Stop'; "
+        "try { Import-Module Microsoft.PowerShell.Security -ErrorAction Stop } "
+        f"catch {{ {_acl_diagnostic('import', 3)} }}; "
+        "try { "
         "$acl = Get-Acl -LiteralPath $env:MATRyCA_TEST_ACL_PATH; "
         "$rules = @($acl.GetAccessRules($true, $true, "
         "[System.Security.Principal.SecurityIdentifier]) | ForEach-Object { "
         "@{ sid = $_.IdentityReference.Value; rights = [int]$_.FileSystemRights; "
         "inherited = $_.IsInherited; kind = $_.AccessControlType.ToString() } }); "
-        "ConvertTo-Json -InputObject $rules -Compress"
+        "ConvertTo-Json -InputObject $rules -Compress "
+        f"}} catch {{ {_acl_diagnostic('acl', 4)} }}"
     )
-    environment = os.environ.copy()
+    # An inherited PowerShell 7 module path breaks Windows PowerShell 5.1 module autoload, so drop it.
+    environment = {key: value for key, value in os.environ.items() if key.upper() != "PSMODULEPATH"}
     environment["MATRyCA_TEST_ACL_PATH"] = str(path)
     result = subprocess.run(
-        ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+        [_windows_powershell(), "-NoProfile", "-NonInteractive", "-Command", script],
         capture_output=True,
         check=False,
         timeout=10,
         env=environment,
     )
-    assert result.returncode == 0, "required Windows DACL inspection failed"
+    if result.returncode != 0:
+        lines = result.stderr.decode(errors="replace").splitlines()
+        marker = "matryca-acl-diagnostic"
+        diagnostic = " ".join(line.strip() for line in lines if line.strip().startswith(marker))
+        pytest.fail(
+            f"required Windows DACL inspection failed (returncode={result.returncode}) "
+            f"{diagnostic[:300]}".rstrip()
+        )
     return json.loads(result.stdout)
 
 
