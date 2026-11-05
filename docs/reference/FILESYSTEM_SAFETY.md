@@ -22,8 +22,12 @@ superseded_by: null
 The Markdown writer treats the selected Logseq graph as a security boundary. A
 path discovered in Markdown or cached in a node is not trusted merely because
 parsing succeeded. The X-Ray read command also writes an alias-state file; that
-write is outside the writer policy below. Use X-Ray only with trusted vaults
-until the state-write boundary is corrected.
+write is outside the writer policy below. It refuses a state file that is a
+symlink, hard link or non-regular file, or whose identity changes while it is
+opened, and rewrites an existing file in place. It assumes trusted, stable
+parent directories, is not atomic, does not detect every concurrent replacement
+or new hard link after validation, and keeps an unauthenticated alias cache.
+Use X-Ray only with trusted vaults.
 
 ## Writer policy
 

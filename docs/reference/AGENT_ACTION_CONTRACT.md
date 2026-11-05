@@ -42,8 +42,10 @@ repository, release, or external service.
 pass the parser's vault-containment and validation rules. `Opt-in` actions must
 remain disabled until a caller deliberately invokes the documented write path.
 The X-Ray state write is not covered by the Markdown writer's containment or
-atomic-replacement guarantees. Until this is corrected, use X-Ray only with
-trusted vaults.
+atomic-replacement guarantees. It refuses a state file that is a symlink, hard
+link or non-regular file, or whose identity changes while it is opened, but it
+assumes trusted, stable parent directories, is not atomic, and keeps an
+unauthenticated alias cache. Use X-Ray only with trusted vaults.
 
 ## Provenance for agent results
 
