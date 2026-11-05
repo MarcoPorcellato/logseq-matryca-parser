@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Agent file writes** — the `agent-read` X-Ray state file and the weekly
+  `logseq_agent_write` page now share one validated writer. It refuses
+  symlinked, hard-linked, non-regular or swapped targets before changing any
+  bytes, updates existing files in place (keeping inode, mode, extended
+  attributes and ACLs) and creates new files exclusively: at most `0600` on
+  POSIX, subject to umask; new Windows files inherit the parent DACL. Their
+  error messages no longer contain file paths, and `agent-read` exits 1 before
+  printing when the state cannot be saved. Writes remain non-atomic and
+  unserialized across processes, and the alias state is still an
+  unauthenticated cache. Native Windows CI now covers DACL inheritance and the
+  after-open swap case, where the OS refuses to rename an open file.
+
 ## [1.11.2] - 2026-10-26
 
 ### Fixed
