@@ -61,7 +61,7 @@ is incremental private extraction, not a new v2 package-reorganization epic.
 
 | Action | Entry and exit gates |
 |--------|----------------------|
-| Accept the delivered semantic-assurance scope | [#104 acceptance record](PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md); no automatic new randomized tranche |
+| Preserve the accepted bounded semantic-assurance scope | [#104 acceptance record](PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md); #104 is closed, with no exhaustive-coverage claim or automatic new randomized tranche |
 | Complete comparative performance decisions | [#111](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/111); separate cache/executor GO or NO-GO evidence, not an optimization implementation |
 | Select one residual reducer or semantic-enrichment child slice | Separately reviewed #108 child scope, exact-hub impact analysis, required HIGH/CRITICAL approval, frozen corpus equivalence and regression gates |
 

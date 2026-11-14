@@ -34,7 +34,7 @@ User-facing behavior is documented in:
 - [`docs/quality/`](docs/quality/) — architecture backlog, GitHub roadmap (v1.6), triage
 - [`docs/internal/STATIC_ANALYSIS_POLICY.md`](docs/internal/STATIC_ANALYSIS_POLICY.md) — Ghost Tooling policy (vendor-agnostic CI and public docs)
 
-When you add or change observable parser or graph behavior, update the relevant doc sections and add a bullet under **`## [Unreleased]`** in `CHANGELOG.md` (see [`.cursor/rules/05-auto-changelog.mdc`](.cursor/rules/05-auto-changelog.mdc)).
+When you add or change observable parser or graph behavior, update the relevant doc sections and add a bullet under **`## [Unreleased]`** in [`CHANGELOG.md`](CHANGELOG.md). Follow the repository-owned [release process](docs/RELEASE_PROCESS.md), not an editor-specific local rule.
 
 For documentation changes, first classify the target as maintained, active,
 historical, or generated. Follow the metadata, freshness, supersession, and
@@ -102,7 +102,7 @@ The project applies **Robert C. Martin's** *Clean Architecture* (dependency rule
 | **Public graph API** | `iter_canonical_pages()`, `page_for_node()`, `iter_attached_nodes()`, `is_tracked_markdown_path()` |
 | **Tests as spec** | pytest + `tmp_path` vaults; `make all` gate |
 
-**SSOT:** [`docs/CLEAN_CODE_ARCHITECTURE.md`](docs/CLEAN_CODE_ARCHITECTURE.md) · audit backlog: [`docs/quality/CLEAN_ARCH_BACKLOG.md`](docs/quality/CLEAN_ARCH_BACKLOG.md) · Cursor rule: [`.cursor/rules/08-clean-code-architecture.mdc`](.cursor/rules/08-clean-code-architecture.mdc).
+**SSOT:** [`docs/CLEAN_CODE_ARCHITECTURE.md`](docs/CLEAN_CODE_ARCHITECTURE.md) · audit backlog: [`docs/quality/CLEAN_ARCH_BACKLOG.md`](docs/quality/CLEAN_ARCH_BACKLOG.md) · local audit workflow: [`docs/internal/LOCAL_CODE_STUDY.md`](docs/internal/LOCAL_CODE_STUDY.md).
 
 **Good first issues (Clean Architecture — Tier 4):** [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) § Tier 4 (label `clean-code`).
 

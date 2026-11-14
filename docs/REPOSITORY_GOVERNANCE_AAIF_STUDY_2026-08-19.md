@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-19
-verified: 2026-08-19
-stale_after: 2026-11-17
+last_verified: 2026-11-14
+verified: 2026-11-14
+stale_after: 2026-12-14
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -18,6 +18,14 @@ superseded_by: null
 ---
 
 # GitHub and AAIF repository readiness study
+
+**Scope of this record:** The observations, execution plan and handoff below
+describe the 2026-08-19 study checkpoint, not current repository or external
+state. For later release and assurance status, see the
+[reconciled roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md). Recheck external
+governance, adoption, settings and profile evidence before relying on it.
+The 2026-11-14 review covers this retrospective wrapper, source navigation and
+retained gates, not renewed external, legal or dual-profile qualification.
 
 > **Decision record:** The repository has a strong technical and documentation
 > foundation, but it is not yet ready to present itself as an AAIF project or to
@@ -645,7 +653,7 @@ Document every agent capability using this table shape:
 
 | Capability | Default | Reads | Writes | Approval | Evidence |
 |---|---|---|---|---|---|
-| X-Ray / outline read | Allowed | vault Markdown | none | none | source paths and query |
+| X-Ray / outline read | Trusted vaults only | vault Markdown | alias-state file | caller-selected operation | source paths and query |
 | Parse / scan / export | Allowed | vault Markdown | derived output only | none | command, version, output hash |
 | Dry-run write | Allowed | vault Markdown | patch preview only | none | unified diff and target |
 | Append/write | Opt-in | bounded target | confined Markdown | human or explicit caller | action receipt and target identity |
@@ -736,7 +744,8 @@ The study is complete as a planning artifact when these items remain true:
 
 ## 15. Copy-paste persistent execution goal
 
-Use this as the next bounded execution pointer:
+The following was the bounded execution pointer at the study checkpoint; it is
+not current execution authority:
 
 ```text
 Qualify the implemented GitHub and AAIF readiness source tranche defined in

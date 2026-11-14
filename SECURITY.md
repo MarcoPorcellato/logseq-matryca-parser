@@ -37,11 +37,22 @@ We recommend always running the current release and upgrading promptly when a se
 | **Within 7 days** | Initial assessment and severity classification |
 | **Ongoing** | Status updates until the issue is resolved or declined with explanation |
 
-When a fix is ready, we will:
+When preparing a fix, we will first prepare a generic, non-exploit release note
+in the private release candidate's versioned [`CHANGELOG.md`](CHANGELOG.md)
+`Security` section. The [release contract](docs/RELEASE_PROCESS.md) requires
+versioned notes before tag qualification; preparing them does not authorize
+public disclosure of private security details or publication of the fix.
+Any public fix review is a separate maintainer disclosure decision.
 
-1. Release a patched version on PyPI
-2. Publish a [GitHub Security Advisory](https://github.com/MarcoPorcellato/logseq-matryca-parser/security/advisories) with credit to the reporter (unless you prefer to remain anonymous)
-3. Document the fix in [`CHANGELOG.md`](CHANGELOG.md) under a `Security` section
+We will then:
+
+1. Release the patched version on PyPI and verify the fixed distribution.
+2. Under separate maintainer authority, publish a [GitHub Security Advisory](https://github.com/MarcoPorcellato/logseq-matryca-parser/security/advisories) with credit to the reporter (unless you prefer to remain anonymous).
+3. Link the published advisory from subsequent documentation where appropriate.
+
+The advisory, reproduction or exploitation details, and affected-version
+disclosure remain private until the fixed distribution is verified. A later
+documentation update does not move the release tag or alter published artifacts.
 
 ## Scope
 

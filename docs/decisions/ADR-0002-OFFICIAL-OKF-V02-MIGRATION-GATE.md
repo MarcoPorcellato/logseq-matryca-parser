@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-19
-verified: 2026-08-19
-stale_after: 2026-11-17
+last_verified: 2026-11-14
+verified: 2026-11-14
+stale_after: 2026-12-14
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -19,6 +19,9 @@ superseded_by: null
 
 # ADR-0002: official OKF v0.2 migration gate
 
+The 2026-11-14 source review retains this decision and its dated evidence;
+no current dual-profile audit or external conformance was established.
+
 ## Status
 
 Accepted — **defer repository-wide official conformance; continue the separate
@@ -26,7 +29,7 @@ Matryca quality profile**.
 
 ## Context
 
-The current deterministic official-profile audit of `docs/` reports 38
+The 2026-08-19 deterministic official-profile audit of `docs/` reported 38
 findings:
 
 - 35 documents without official-profile frontmatter;
@@ -65,7 +68,8 @@ is intentionally deferred until the bundle contract is coherent.
 
 ## Consequences
 
-- The current 38 findings remain an explicit, measured migration backlog.
+- The 38 findings are a historical measured migration backlog; a current count
+  requires a fresh exact-source audit.
 - Maintained source documents may continue to improve under the Matryca profile.
 - Historical documents are not mass-rewritten for a score.
 - The private generated projection is never hand-edited to hide source

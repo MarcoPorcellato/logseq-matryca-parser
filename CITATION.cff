@@ -8,8 +8,8 @@ authors:
     given-names: Marco
     email: marco@matryca.ai
     affiliation: Matryca.ai
-version: 1.7.1
-date-released: 2026-08-08
+version: 1.11.2
+date-released: 2026-10-28
 repository-code: "https://github.com/MarcoPorcellato/logseq-matryca-parser"
 url: "https://github.com/MarcoPorcellato/logseq-matryca-parser"
 license: Apache-2.0

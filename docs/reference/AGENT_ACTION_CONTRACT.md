@@ -8,8 +8,8 @@ audience: integrators
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-19
-verified: 2026-08-19
+last_verified: 2026-11-14
+verified: 2026-11-14
 stale_after: 2027-02-19
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -31,7 +31,7 @@ repository, release, or external service.
 
 | Capability | Default | Reads | Writes | Required approval | Minimum receipt |
 |---|---|---|---|---|---|
-| X-Ray outline read | Allowed for trusted vaults | Vault Markdown | Overwrites `.matryca_xray_state.json` under the selected graph path | None for this state write | Source path, query, parser version |
+| X-Ray outline read | Allowed for trusted vaults | Vault Markdown | Rewrites `.matryca_xray_state.json` in place under the selected graph path | None for this state write | Source path, query, parser version |
 | Parse, scan, or export | Allowed | Confined vault Markdown | Derived output chosen by caller | None | Command, source scope, output path or hash |
 | Dry-run write | Allowed | Target page and bounded context | Patch preview only | None | Unified diff, target identity, limits |
 | Append or write | Opt-in | Confined vault Markdown | One bounded target through documented writer APIs | Explicit caller or human authorization | Caller, target identity, action, result, source revision |
@@ -42,8 +42,13 @@ repository, release, or external service.
 pass the parser's vault-containment and validation rules. `Opt-in` actions must
 remain disabled until a caller deliberately invokes the documented write path.
 The X-Ray state write is not covered by the Markdown writer's containment or
-atomic-replacement guarantees. Until this is corrected, use X-Ray only with
-trusted vaults.
+atomic-replacement guarantees. It rejects symlink, hard-linked, and non-regular
+targets, plus identity mismatches detected by checking the path before opening,
+the opened descriptor, and the path immediately before writing. These checks
+do not guarantee detection of every later path replacement or a hard link
+added after validation. The writer assumes trusted, stable parent directories;
+it is not atomic or serialized across processes, and the alias cache is
+unauthenticated. Use X-Ray only with trusted vaults.
 
 ## Provenance for agent results
 

@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-19
-verified: 2026-08-19
-stale_after: 2026-11-17
+last_verified: 2026-11-14
+verified: 2026-11-14
+stale_after: 2026-12-14
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -18,6 +18,10 @@ superseded_by: null
 ---
 
 # Daily repository metrics threat model
+
+The 2026-11-14 review compares this source contract with the workflow and
+archive script. Live token scope, effective permissions and hosted-run
+qualification remain unknown until the residual receipts below are obtained.
 
 ## Decision
 
@@ -33,7 +37,7 @@ they never authorize product, release, or community decisions by themselves.
 | `METRICS_TOKEN` | Disclosure or use outside the target repository | Fine-grained token restricted to this repository with **Administration: read** only; pass by environment; never print or accept it as a CLI argument |
 | Workflow `GITHUB_TOKEN` | Unintended repository writes | Workflow default is `contents: read`; only the metrics job receives `contents: write`; checkout and push are hard-coded to `main` |
 | Checked-out code | Untrusted PR code executing with write authority | No `pull_request` or `pull_request_target` trigger; job requires `refs/heads/main`; checkout explicitly selects `main` |
-| GitHub API responses | Oversized, malformed, or attacker-influenced data | Fixed API host and repository slug, versioned API header, 30-second timeout, 2 MB response cap, strict top-level shape checks, field allowlist |
+| GitHub API responses | Oversized, malformed, or attacker-influenced data | Fixed API host; the trusted workflow supplies `github.repository`, while standalone CLI use may select a repository; versioned API header, 30-second timeout, 2 MB response cap, strict top-level shape checks, field allowlist |
 | `metrics/` archive | Partial or corrupt writes | Fetch the complete snapshot before mutation; atomic JSON replacement; fail closed on any missing endpoint |
 | Concurrent default-branch updates | Lost commits or forceful overwrite | One concurrency group, fast-forward before collection, bounded rebase/push retries, no force push |
 | Archived paths and referrers | Personal or sensitive analytics | Store only GitHub's aggregate counts, published referrer labels, public content paths, release tags, and asset download counts; no usernames, IP addresses, tokens, or raw events |
@@ -45,7 +49,7 @@ from the job-scoped `GITHUB_TOKEN`, which performs the bounded `metrics/` push.
 ## Failure and retry policy
 
 - Each API request has a bounded size and timeout.
-- HTTP 408, 429, and 5xx responses plus transient transport failures receive at
+- HTTP 408, 429, 500, 502, 503, and 504 responses plus transient transport failures receive at
   most three attempts with short linear backoff.
 - Authentication, authorization, schema, decoding, and size failures abort the
   complete snapshot.

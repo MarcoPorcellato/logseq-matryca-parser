@@ -7,13 +7,27 @@ type: Document
 
 Many advanced development tools (AST indexers, code RAG systems, or specialized MCP servers) are released under restrictive commercial-use licenses, such as **PolyForm Noncommercial 1.0.0**.
 
-Because projects under the Matryca.ai umbrella are commercial in nature (e.g., Matryca Plumber Enterprise), including these tools in the public project pipeline represents a serious legal risk. Source code developed by us (e.g., `src/`) is **not** "contaminated" when such tools are used only for local inspection.
+Tool licenses must be reviewed for the intended use, including business use.
+Running a tool locally does not establish license entitlement, exempt that use
+from restrictions, or determine the legal status of resulting source code.
+For example, the [official PolyForm Noncommercial terms](https://polyformproject.org/licenses/noncommercial/1.0.0)
+grant rights for permitted purposes; local placement alone is not a permitted-purpose test.
+This repository policy is a hygiene boundary, not a legal opinion.
 
 ## 2. Strategy: Ghost Tooling
 
-To benefit from these tools without violating license terms or exposing the brand, all Matryca.ai projects adopt **Ghost Tooling**:
+**Ghost Tooling** keeps optional maintainer tools out of the product repository
+and its automated pipelines. It does not establish compliance with a tool's
+license, replace mandatory notices, or remove other applicable obligations:
 
-> Experimental or non-commercially licensed tools may be used **EXCLUSIVELY locally** by individual developers, but must **NEVER** leave traces in the public repository.
+> Subject to applicable license rights or a separate entitlement, optional
+> maintainer tools may be used **only locally** and must not be added to this
+> public repository or its CI. This additional repository restriction does not
+> authorize an otherwise unlicensed use.
+
+Uncertain business use requires maintainer and appropriate license review before
+use. This document does not decide whether any existing tool use is lawful or
+unlawful and does not change the Parser's license.
 
 ## 3. Operational Rules
 

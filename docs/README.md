@@ -8,8 +8,8 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-21
-verified: 2026-10-21
+last_verified: 2026-11-14
+verified: 2026-11-14
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -45,8 +45,8 @@ entry points.
 | [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) | Contributors, maintainers | Uncle Bob rings, SOLID, module maps, layer CI |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Contributors, integrators | LOGOS, SYNAPSE, `LogseqGraph`, agents, data flow |
 | [`quality/`](quality/) | Maintainers | Current assurance evidence, residual architecture ownership and dated audit/triage records |
-| [`quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md`](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) | Contributors, maintainers | Merged delivery, v1.11.1 boundary and local depth-matrix follow-up; historical checkpoints retained |
-| [`quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md`](quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md) | Maintainers | #104 crosswalk, approved scalar policy, selected depth coverage and remaining acceptance gates |
+| [`quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md`](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) | Contributors, maintainers | v1.11.2 delivery boundary, with dated historical checkpoints retained |
+| [`quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md`](quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md) | Maintainers | Closed, bounded #104 acceptance and preserved crosswalk; not exhaustive compatibility or #111 performance qualification |
 | [`quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md`](quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) | Users, integrators, maintainers | Evidence from all 313 selected official Logseq documents, metadata-only semantics, test coverage and remaining limits |
 | [`quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md`](quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) | Parser contributors, maintainers | Additional public corpus candidates, content rights, syntax diversity and proposed admission sequence |
 | [`internal/LOCAL_CODE_STUDY.md`](internal/LOCAL_CODE_STUDY.md) | Maintainers | Local code audit runbook (graph-based MCP) |

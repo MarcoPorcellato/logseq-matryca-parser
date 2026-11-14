@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-21
-verified: 2026-08-21
+last_verified: 2026-11-14
+verified: 2026-11-14
 stale_after: 2027-02-17
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -21,6 +21,14 @@ reference_commit: c79cb059da5b4360ebde2e5fd953fa1f43ddabc3
 ---
 
 # lsdoc reference study and parser assurance plan
+
+**Checkpoint scope, reviewed 2026-11-14:** The study, source anchors and
+execution observations below describe their dated checkpoints. For current
+delivery and bounded #104 acceptance, use the [current roadmap](ROADMAP_2026-2027.md)
+and [acceptance record](quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md).
+This review verifies historical framing and navigation, not a new external
+oracle run or permission to resume an old execution step. #111 and #108 retain
+their separate gates.
 
 This document is the canonical subordinate execution contract for the parser
 assurance improvements selected from a comparative study of

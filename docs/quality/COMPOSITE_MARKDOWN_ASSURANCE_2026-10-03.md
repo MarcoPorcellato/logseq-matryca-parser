@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-21
-verified: 2026-10-21
-stale_after: 2026-11-11
+last_verified: 2026-11-14
+verified: 2026-11-14
+stale_after: 2026-12-05
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -20,6 +20,15 @@ superseded_by: null
 # Composite valid Markdown property assurance
 
 ## Current delivery and release status
+
+v1.11.2 includes the selected depth matrix and documentation consolidation.
+The [reconciled roadmap](../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md)
+records bounded #104 acceptance and closure, confirmed by a read-only GitHub
+check on 2026-11-14. Closure does not prove exhaustive parser coverage. #111
+performance qualification remains separate.
+The dated snapshots below preserve their original evidence and limitations.
+
+### Historical delivery snapshot as of 2026-10-21
 
 Verified on **2026-10-21** against main
 [`a00a7ccb72accca696ab3fcd9ebb0a48023fcdf5`](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/a00a7ccb72accca696ab3fcd9ebb0a48023fcdf5)
@@ -61,7 +70,7 @@ Further randomized expansion remains parked.
 The following changes are merged through S4e at
 [`0f357160be3dd9c15ccd3600f112e60ae201b987`](https://github.com/MarcoPorcellato/logseq-matryca-parser/commit/0f357160be3dd9c15ccd3600f112e60ae201b987).
 They remain **unreleased**, not part of the published v1.11.0 distributions.
-This is the current delivery overlay. Subsequent sections preserve their dated
+This was the delivery overlay at that date. Subsequent sections preserve their dated
 local observations, failures, review findings and then-pending gates; a phrase
 such as “publication remains separate” in an earlier checkpoint is not the
 current merge status, and no historical failure is converted into a pass.

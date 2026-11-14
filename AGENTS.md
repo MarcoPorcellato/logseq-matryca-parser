@@ -62,9 +62,15 @@ filesystem scope, repository scope, network authority, or release decision.
 - Read, parse, scan, export, and dry-run operations may proceed only within the
   documented path and vault-containment rules.
 - Bounded Markdown writes are opt-in and require explicit caller or human authority.
-- An X-Ray read also writes an alias-state file; use it only with trusted vaults
-  until that state-write boundary is corrected. It is not covered by the
-  Markdown writer's containment or atomic-replacement guarantees.
+- An X-Ray read also writes an alias-state file. Its writer rejects symlink,
+  hard-linked, and non-regular targets. It also rejects identity mismatches
+  detected by checking the path before opening, the opened descriptor, and the
+  path immediately before writing. It does not guarantee detection of every
+  later path replacement or a hard link added after validation. It assumes
+  trusted, stable parent directories; the in-place write is not atomic or
+  serialized across processes, and the alias cache is unauthenticated. Use
+  X-Ray only with trusted vaults. This write is not covered by the Markdown
+  writer's containment or atomic-replacement guarantees.
 - Repository changes require a reviewable diff and the documented validation
   gate; releases and external publication require an explicit maintainer gate.
 - Record source path, source revision when available, action, applied/proposed

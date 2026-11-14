@@ -8,8 +8,8 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-21
-verified: 2026-10-21
+last_verified: 2026-11-14
+verified: 2026-11-14
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -19,7 +19,7 @@ superseded_by: null
 
 # Clean Code & Clean Architecture — Logseq Matryca Parser
 
-**Release baseline:** **v1.11.1**, published on 2026-10-20, includes the fenced-code correction, scoped scalar-metadata serializer fix and bounded assurance source. The experimental Org reader remains the private subset introduced in v1.11.0. The selected depth-matrix completion and documentation consolidation are a later local candidate; see the [current assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status).
+**Release baseline:** **v1.11.2** includes the selected depth matrix and documentation consolidation, alongside earlier bounded assurance and serializer corrections. The experimental Org reader remains the private subset introduced in v1.11.0. See the [current assurance record](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status).
 **Audience:** contributors and Cursor agents patching `src/logseq_matryca_parser/`  
 **Companion:** [`ARCHITECTURE.md`](ARCHITECTURE.md) (LOGOS domain contract) · [`BUG_HUNT_REPORT.md`](BUG_HUNT_REPORT.md) (audit evidence) · [`CONTRIBUTING.md`](../CONTRIBUTING.md)
 
@@ -34,7 +34,7 @@ owns the remaining private reducer and semantic-enrichment slices, after accepte
 semantic evidence and
 [#111](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/111)
 decision benchmarks. The [#104 acceptance package](quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md)
-prepares that decision; it does not authorize a refactor or close an issue.
+records the historical preparation; the [reconciled roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) records bounded acceptance and closure. Neither authorizes a refactor.
 
 **Cross-repository boundary:** Parser owns deterministic OG parsing, typed ASTs,
 the in-memory graph, and parser-native serialization. [Matryca

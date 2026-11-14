@@ -33,7 +33,7 @@ settings boundary is documented in [`CI_ASSURANCE.md`](CI_ASSURANCE.md).
 
 ## During development
 
-Add user-facing bullets under **`## [Unreleased]`** (`Added` / `Changed` / `Fixed` / `Removed` / `Security`). One line per notable change. See [`.cursor/rules/05-auto-changelog.mdc`](../.cursor/rules/05-auto-changelog.mdc).
+Add user-facing bullets under **`## [Unreleased]`** (`Added` / `Changed` / `Fixed` / `Removed` / `Security`). One line per notable change in the repository-owned [`CHANGELOG.md`](../CHANGELOG.md).
 
 ---
 
@@ -42,12 +42,13 @@ Add user-facing bullets under **`## [Unreleased]`** (`Added` / `Changed` / `Fixe
 Replace `X.Y.Z` with the semver you are shipping (no `v` prefix in the source
 version; use `vX.Y.Z` for the git tag).
 
-### 1. Prepare (Cursor or manual)
+### 1. Prepare the release candidate
 
 - [ ] Move everything from `[Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD` in `CHANGELOG.md`
 - [ ] Leave an empty `## [Unreleased]` section at the top
 - [ ] Set `__version__ = "X.Y.Z"` in `src/logseq_matryca_parser/_version.py`; the pinned Hatchling backend derives package metadata from this single source
 - [ ] Update `README.md`, `SECURITY.md`, and contributor-facing current-version references
+- [ ] Reconcile `CITATION.cff` version and release date with the selected release; do not leave citation metadata pointing at an older distribution
 - [ ] Reconcile `RELEASE_HIGHLIGHTS.md`, support/API contracts, `AGENTS.md`, `llms.txt`, and maintained documentation indexes with shipped capabilities; keep historical records dated and append current status rather than rewriting past evidence
 - [ ] Audit the exact source distribution for ignored local caches, maintainer state, private paths, and secret-like values; do not rely on a clean checkout assumption alone
 - [ ] Verify every file, command, issue disposition, and shipped capability
@@ -58,7 +59,9 @@ version; use `vX.Y.Z` for the git tag).
 - [ ] Review [the dependency/license policy](reference/DEPENDENCY_LICENSE_POLICY.md),
       including every direct dependency, VCS source, and version-exact override
 
-**Cursor shortcut:** ask the agent to *“prepare release vX.Y.Z”* (see [`.cursor/rules/04-release-preparation.mdc`](../.cursor/rules/04-release-preparation.mdc)).
+An agent may help prepare these changes, but this checklist does not authorize
+it to commit, push, merge or publish. Review the exact diff and obtain the
+separate maintainer gates described below.
 
 ### 2. Verify release notes and package contract
 
@@ -75,13 +78,34 @@ command rejects a malformed tag, a tag/source/runtime mismatch, non-empty
 
 ### 3. Commit, tag, push
 
+The examples below are not a batch to execute. Commit and branch publication,
+pull-request integration, and tag/publication are separate maintainer gates.
+Select only the exact reviewed files for a commit; do not stage a broad `docs/`
+directory or assume an example file list covers every release surface.
+
+Use the approved repository integration path, normally a reviewed pull request,
+rather than assuming direct pushes to `main` are permitted. After integration,
+verify the complete approved commit and its checks independently.
+
+Before creating or pushing the tag, obtain explicit authorization naming the
+repository, release version and complete commit SHA. The maintainer must
+acknowledge that a matching tag can automatically publish to PyPI and create
+the GitHub Release after workflow gates pass. A green PR, an environment named
+`pypi`, or permission to merge does not supply that tag/publication authority;
+do not assume the environment will pause for a reviewer.
+
+Only after those gates, replace `APPROVED_FULL_COMMIT_SHA` with the verified
+commit and `X.Y.Z` with the approved version:
+
 ```bash
-git add CHANGELOG.md src/logseq_matryca_parser/_version.py README.md CONTRIBUTING.md SECURITY.md docs/
-git commit -m "chore: release X.Y.Z"
-git tag vX.Y.Z
-git push origin main
-git push origin vX.Y.Z
+git tag vX.Y.Z APPROVED_FULL_COMMIT_SHA
+git push origin refs/tags/vX.Y.Z
 ```
+
+Do not replace an existing tag or retry a failed publication by inference. For
+security releases, follow the coordinated [security policy](../SECURITY.md):
+prepare generic notes before the tag, verify the patched distribution, then
+publish the separately authorized advisory.
 
 ### 4. CI publishes the verified bundle
 

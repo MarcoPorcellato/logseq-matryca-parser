@@ -7,6 +7,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from logseq_matryca_parser._agent_file_io import _write_agent_file
 from logseq_matryca_parser.exceptions import SessionAliasRegistryError
 from logseq_matryca_parser.logos_core import LogseqNode
 
@@ -81,7 +82,7 @@ class SessionAliasRegistry:
     def save_to_disk(self, filepath: Path) -> None:
         """Persist ``alias -> uuid`` mapping as JSON for cross-invocation state."""
         payload = {str(alias): uuid for alias, uuid in self._alias_to_uuid.items()}
-        filepath.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+        _write_agent_file(filepath, json.dumps(payload, indent=2, sort_keys=True))
         logger.debug("SessionAliasRegistry saved %s aliases to %s", len(payload), filepath)
 
     @classmethod
