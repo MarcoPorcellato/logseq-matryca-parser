@@ -342,7 +342,9 @@ Both paths keep **existing topology intact** relative to their contract: append-
 
 **FORGE** ([`forge.py`](../src/logseq_matryca_parser/forge.py)) hosts **AST visitors** that project the same immutable `LogseqNode` trees into transport-friendly artifacts. Besides nested **JSON** and hierarchy-preserving **clean Markdown**, **`ObsidianForgeVisitor`** emits **Obsidian-flavored Markdown**: a YAML **`---` frontmatter** block from merged page properties, list lines derived from the first line of each block’s **`content`** (so `((uuid))` survives when stripped from `clean_text`), **`[[Page#^anchor]]`** link rewriting via an optional embed resolver, and trailing **`^`** anchors on blocks that are referenced anywhere in the vault. **KINETIC** exposes this as **`matryca-parse export … --format obsidian`**, writing one file per page and mirroring **namespace segments** as nested directories.
 
-### 3.6 `LogseqGraph` — namespace scoping, O(1) invalidation, live watch
+<a id="36-logseqgraph--namespace-scoping-o1-invalidation-live-watch"></a>
+
+### 3.6 `LogseqGraph` — namespace scoping, targeted reload, live watch
 
 The **in-memory graph** ([`graph.py`](../src/logseq_matryca_parser/graph.py)) is the runtime **RAM image** of the sovereign vault: `pages: dict[str, LogseqPage]`, a private **`_node_registry`** keyed by synthetic block UUID, and a **`_backlink_registry`** mapping normalized link targets to source node UUIDs. **`LogseqGraph`** uses **`ConfigDict(strict=True, validate_assignment=True)`** (not frozen) so **`invalidate_and_reload_page`** can mutate registries and page maps without `object.__setattr__` workarounds.
 
@@ -364,6 +366,13 @@ Every parsed physical Markdown page is first retained in a private source invent
 **`LogseqPage.refs`** merges wikilinks and tags harvested from page-level properties (native `key::` frontmatter and **YAML `---` blocks** at parse time). **`page-tags::`** is treated like **`tags::`** for implicit injection. Block-level list-shaped **`tags::`** / **`page-tags::`** values also contribute tokens to **`LogseqNode.refs`** so list bullets and comma-separated strings stay aligned with Logseq’s graph indexing semantics.
 
 **Incremental parity:** **`invalidate_and_reload_page`** reparses only the touched physical file and builds a complete candidate for the graph. The candidate refreshes the source inventory, public page index, lowercase routing, nodes, backlinks, and diagnostics together. **`_page_title_for_source_path`** returns the canonical **`page.title`**, not an arbitrary alias key.
+
+Targeted reparsing is not an O(1) guarantee for the complete operation. Reload
+copies the source inventory, rebuilds candidate page/node indexes and compares
+node contributions to repair affected backlinks. It avoids reparsing every
+file, but total publication work can still grow with the graph. The legacy
+section anchor remains available for existing links; it is not a complexity
+claim.
 
 ```python
 graph = LogseqGraph.load_directory("/vault")
@@ -462,7 +471,7 @@ typed **`PageTitleCollisionError`** instead of accepting the winner.
 
 #### AST reference linter (`get_broken_references`)
 
-**`LogseqGraph.get_broken_references()`** scans every node in **`_node_registry`**. When **`block_refs`** contains a `((uuid))` target absent from the registry, the **originating node** is collected. Downstream apps (MCP servers, CI, pre-embed hooks) get **structural link validation** aligned with LOGOS identity rules — not brittle regex over raw Markdown. **KINETIC** exposes the same check via **`matryca-parse scan --broken-refs`** (v1.5.0): Rich table output and exit status **1** when any broken refs exist — suitable for vault hygiene pipelines without custom Python glue.
+**`LogseqGraph.get_broken_references()`** scans attached nodes and checks each **`block_refs`** target through **`get_node_by_embed_ref`**. That resolver accepts synthetic registry UUIDs, native **`source_uuid`** values and **`properties["id"]`**, including supported UUID normalization. The **originating node** is collected once if any target cannot be resolved; absence from the synthetic-key registry alone does not make a native reference broken. Downstream apps (MCP servers, CI, pre-embed hooks) get **structural link validation** aligned with LOGOS identity rules — not brittle regex over raw Markdown. **KINETIC** exposes the same check via **`matryca-parse scan --broken-refs`** (v1.5.0): Rich table output and exit status **1** when any broken refs exist — suitable for vault hygiene pipelines without custom Python glue.
 
 ### 3.7 AGENT PRESS — Agent-native printing press & X-Ray mode
 
@@ -664,7 +673,7 @@ Recursive and character-budget chunkers assume **approximately flat prose**. Log
 
 ### Quality gate (v1.8.1)
 
-Local and CI parity: `uv sync --all-extras` → `make lint` → `make check` →
+Local and CI parity: `uv sync --locked --all-extras` → `make lint` → `make check` →
 `make test` → `make vendor-name-check` → `make docs-check`. These targets are
 non-mutating; CI then runs `make verify-clean` as an explicit checkout-integrity
 assertion. Local lint rewrites remain opt-in through `make lint-fix`. The test

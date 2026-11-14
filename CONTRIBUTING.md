@@ -139,14 +139,16 @@ This project uses [uv](https://docs.astral.sh/uv/) for dependency management and
 
 3. **Sync the environment** (project + optional extras + dev tools from `pyproject.toml`):
    ```bash
-   uv sync --all-extras
+   uv sync --locked --all-extras
    ```
 
-4. **Optional — install pre-commit hooks** (Ruff + Mypy, aligned with CI):
+4. **Optional — install pre-commit hooks** (actionlint, Ruff auto-fix and Mypy):
    ```bash
    uv run pre-commit install
    ```
-   If `pre-commit` is not yet available, add it once with `uv tool install pre-commit` or `uv add --dev pre-commit`.
+   `pre-commit` is already a development dependency after the locked sync.
+   Ruff's hook may modify files; inspect those changes and rerun the gate.
+   Hooks are not a replacement for the complete, non-fixing CI checks.
 
 ---
 
@@ -176,10 +178,12 @@ git checkout -b feat/add-html-exporter
 
 ### 4. Code Quality & Linting (Mandatory)
 
-CI runs the same non-mutating checks as your local environment: `uv sync
---all-extras`, then `make lint`, `make check`, `make test`, and
-`make docs-check`. It finishes with `make verify-clean` to prove that no quality
-step changed the submitted checkout. Before committing, run the full local gate:
+After `uv sync --locked --all-extras`, CI's quality job runs `make lint`,
+`make check`, `make vendor-name-check` and `make docs-check`, then
+`make verify-clean` to prove that those quality steps left the checkout
+unchanged. Separate operating-system/Python matrix jobs run the complete
+pytest suite directly with the same coverage gate as `make test`, plus skip
+reporting (`-rs`). Before committing, run the full local gate:
 
 ```bash
 make all
@@ -196,8 +200,10 @@ Or run each step individually:
 
 ```bash
 make lint   # Ruff verification; never rewrites files
-make check  # Mypy on src/, tests/, examples/, and the documentation checker
-make test   # Pytest on tests/
+make check  # Mypy on src/, tests/, examples/, and the six gate/support scripts
+make vendor-name-check
+make docs-check
+make test   # Pytest on tests/, including the coverage gate
 ```
 
 When you explicitly want Ruff to repair local lint findings, use
@@ -207,8 +213,15 @@ Equivalent `uv run` invocations:
 
 ```bash
 uv run ruff check .
-uv run mypy src/ tests/ examples/ scripts/check_documentation.py
-uv run pytest -v tests/
+uv run mypy src/ tests/ examples/ scripts/check_documentation.py \
+  scripts/check_release_contract.py scripts/check_vendor_free_docs.py \
+  scripts/check_wheel_contract.py scripts/generate_supply_chain_evidence.py \
+  scripts/update_compat_snapshots.py
+bash scripts/check_vendor_free_docs.sh
+uv run python scripts/check_documentation.py --root . \
+  --profile docs/maintained.toml --as-of-date "$(date -u +%F)"
+uv run pytest --cov=src/logseq_matryca_parser --cov-report=term-missing \
+  --cov-fail-under=80 -v tests/
 ```
 
 ### 5. Commit Standards

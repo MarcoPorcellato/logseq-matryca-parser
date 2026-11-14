@@ -186,7 +186,7 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 | **Parse faithfully — LOGOS** | Deterministic AST parsing for outlines, YAML and native properties, tasks, temporal markers, references, assets, code/math/query shields, stable UUIDs, line ranges, and format-preserving round trips. |
 | **Understand the vault — Graph** | Canonical pages, aliases, backlinks, inherited properties, case-insensitive lookup, namespace resolution, fluent queries, broken-reference diagnostics, and optional per-file live reloads. |
 | **Export and integrate — SYNAPSE, FORGE, LENS** | Lineage-aware LangChain exports and context-enriched chunks; LlamaIndex nodes through a separate companion; JSON and Markdown serialization, Obsidian vault generation, and interactive graph visualization. |
-| **Automate safely — KINETIC and agent tools** | CLI parse, scan, export, and visualization; token-efficient X-Ray reads; append-only logging; bounded AST writes; vault containment, dry-run patches, and atomic replacement. |
+| **Automate safely — KINETIC and agent tools** | CLI scan, assure, export, and visualization; token-efficient X-Ray reads; append-only logging; bounded AST writes; graph-bound write containment, dry-run patches, and atomic replacement. |
 
 `agent-read` also writes `.matryca_xray_state.json` under the selected graph
 path. Its writer rejects symlink, hard-linked, and non-regular targets, plus

@@ -42,6 +42,12 @@ Add user-facing bullets under **`## [Unreleased]`** (`Added` / `Changed` / `Fixe
 Replace `X.Y.Z` with the semver you are shipping (no `v` prefix in the source
 version; use `vX.Y.Z` for the git tag).
 
+First prepare the locked project environment with
+`uv sync --locked --all-extras`. The Python checks below use `uv run --locked`
+so installed-package validation runs in that project environment, not an
+unrelated system interpreter. A prepared isolated environment may be used
+instead when its source and locked dependencies are explicitly verified.
+
 ### 1. Prepare the release candidate
 
 - [ ] Move everything from `[Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD` in `CHANGELOG.md`
@@ -54,8 +60,8 @@ version; use `vX.Y.Z` for the git tag).
 - [ ] Verify every file, command, issue disposition, and shipped capability
       named in the versioned changelog against the exact release commit
 - [ ] Run `make all` (Ruff, Mypy, documentation checks, and Pytest)
-- [ ] Run `python -m scripts.check_release_contract --tag vX.Y.Z`
-- [ ] Build wheel and sdist once locally, run `python scripts/check_wheel_contract.py path/to/wheel.whl`, `twine check`, and record SHA-256 digests; keep the build backend pin when metadata compatibility matters
+- [ ] Run `uv run --locked python -m scripts.check_release_contract --tag vX.Y.Z`
+- [ ] Build wheel and sdist once locally, run `uv run --locked python scripts/check_wheel_contract.py path/to/wheel.whl`, `twine check`, and record SHA-256 digests; keep the build backend pin when metadata compatibility matters
 - [ ] Review [the dependency/license policy](reference/DEPENDENCY_LICENSE_POLICY.md),
       including every direct dependency, VCS source, and version-exact override
 
@@ -66,8 +72,8 @@ separate maintainer gates described below.
 ### 2. Verify release notes and package contract
 
 ```bash
-python scripts/extract_changelog.py vX.Y.Z | less
-python -m scripts.check_release_contract --tag vX.Y.Z
+uv run --locked python scripts/extract_changelog.py vX.Y.Z | less
+uv run --locked python -m scripts.check_release_contract --tag vX.Y.Z
 ```
 
 The first command shows exactly the section that will appear on GitHub. Review
@@ -179,10 +185,10 @@ only explanatory text — are wrong.
 |---------|-----|
 | Tag on GitHub but no **Release** page | Confirm whether PyPI succeeded; recover only from the checksummed artifact of that exact workflow run. |
 | PyPI version already exists | Bump patch version; never re-use a published version. |
-| Notes look wrong before publication | Re-run locally: `python scripts/extract_changelog.py vX.Y.Z`, compare to `CHANGELOG.md`, and verify every named file and capability against the tag candidate. |
+| Notes look wrong before publication | Re-run locally: `uv run --locked python scripts/extract_changelog.py vX.Y.Z`, compare to `CHANGELOG.md`, and verify every named file and capability against the tag candidate. |
 | Notes are factually wrong after publication | Preserve the tag and artifacts; follow the documentation-correction procedure above and keep undelivered issues open. |
 | CI fails on tests | Run `make all` locally before tagging. |
-| Tag/version mismatch | Run `python -m scripts.check_release_contract --tag vX.Y.Z`; align `_version.py`, runtime metadata, and changelog before creating a new tag. |
+| Tag/version mismatch | Run `uv run --locked python -m scripts.check_release_contract --tag vX.Y.Z`; align `_version.py`, runtime metadata, and changelog before creating a new tag. |
 | Hash verification fails | Stop. Do not publish or attach the bundle; create a clean patch release after diagnosis. |
 | Direct dependency license is unresolved | Stop. Correct upstream metadata or add a reviewed version-exact override with immutable evidence; never downgrade the failure silently. |
 | GitHub attestation verification fails | Stop before publication. Diagnose identity, repository, permissions, and artifact digest; never rebuild or attest different bytes under the same tag. |

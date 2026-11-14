@@ -24,7 +24,7 @@ Maintainer-facing triage and backlog for Clean Architecture / Clean Code work.
 | Document | Purpose |
 |----------|---------|
 | [`PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md`](PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md) | Bounded #104 acceptance and historical crosswalk; closure is not proof of exhaustive coverage |
-| [`COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md`](COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) | v1.11.2 delivery boundary and historical checkpoints |
+| [`COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md`](COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) | Source/release boundaries through v1.11.3 and historical checkpoints |
 | [`GRAPH_PROPERTY_ASSURANCE_2026-10-03.md`](GRAPH_PROPERTY_ASSURANCE_2026-10-03.md) | Separate bounded graph-construction model and its dated qualification |
 | [`OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md`](OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) | Public evidence for all 313 selected official Logseq documents, page metadata semantics and precise compatibility claims |
 | [`LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md`](LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) | Research-backed candidates for broader Markdown corpus coverage, with provenance and licensing limits |

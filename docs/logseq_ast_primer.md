@@ -58,7 +58,7 @@ Logseq allows injecting metadata directly into blocks. These are not standard Ma
 4. Outer **`"`** / **`'`** on property values are stripped in the AST.
 5. Comma-separated **`tags::`**, **`alias::`**, **`aliases::`**, and **`page-tags::`** split on commas but **ignore commas inside `[[wikilink]]` tokens**.
 6. They must be stripped from the raw text content to avoid polluting the AI's context window (`clean_node_content` uses case-insensitive matching).
-7. The `id::` property is sacred: it overrides any deterministic UUID generation because it is the native anchor for Logseq's internal block-references `((uuid))`.
+7. Native `id::` supplies Logseq's source identity for `((uuid))` references. It is retained in `source_uuid` and `properties["id"]`; it does **not** replace the AST's synthetic `uuid`. The parser derives that synthetic UUID from the page title, starting line, extracted block text and parent UUID. This is not a hash of `clean_text`, and edits or movement can change it. Graph reference resolution accepts synthetic UUIDs and native IDs through `get_node_by_embed_ref`.
 
 **Bullet-list property values** (Logseq-native):
 
@@ -166,7 +166,7 @@ When you call **`LogseqGraph.load_directory`**, a post-parse pass:
 - Resolves **`get_page`** and relative links **case-insensitively** (Datomic parity)
 - Registers nodes only from **canonical indexed pages** — use **`iter_canonical_pages()`** when exporting or scanning to avoid duplicate alias keys (v1.4.0)
 
-See [Architecture §3.6](ARCHITECTURE.md#36-logseqgraph--namespace-scoping-o1-invalidation-live-watch) for the full pipeline.
+See [Architecture §3.6](ARCHITECTURE.md#36-logseqgraph--namespace-scoping-targeted-reload-live-watch) for the full pipeline.
 
 **File encoding:** `parse_page_file` uses **`utf-8-sig`** so a UTF-8 BOM from Windows-synced files does not corrupt the first bullet.
 
@@ -217,7 +217,7 @@ If you feed Logseq Markdown into `RecursiveCharacterTextSplitter` (LangChain) or
 - It completely loses the parent-child indentation context.
 - It ingests system properties (e.g., `collapsed:: true`) as semantic text, confusing the LLM.
 
-The **Logos Protocol** solves this by walking the AST deterministically, isolating properties, shielding dead-zone literals, and using the `SYNAPSE` adapter to export native LangChain `Document` or LlamaIndex `TextNode` objects. Every generated object retains its exact hierarchical lineage in the metadata, feeding your local LLM perfectly structured data.
+The **Logos Protocol** walks the AST deterministically, isolates properties and shields dead-zone literals. With the optional `[ai]` extra, the Parser-owned `SYNAPSE` adapter emits LangChain `Document` objects and context-enriched chunks with lineage metadata. Native LlamaIndex `TextNode` construction and relationships belong to the separate companion: `SynapseAdapter.to_llamaindex_nodes()` is a lazy compatibility shim, not a bundled implementation. The proposed companion distribution is not yet published on PyPI; do not treat its repository or the shim as proof that it is installable. See the [cookbook](COOKBOOK.md) and [API stability contract](reference/API_STABILITY.md) for requirements and boundaries.
 
 For vault-wide navigation (aliases, backlinks, namespace shadowing, assets), load the graph with **`LogseqGraph`** — see the [README](../README.md) and [CHANGELOG](../CHANGELOG.md) (graph parity from **v1.2.0**; **v1.3.0** adds watcher debounce, `strict_refs`, public API exports, and LlamaIndex spatial relationships; **v1.4.0** adds canonical page iteration, case-insensitive tag/search, watcher delete/move handling, and SYNAPSE embed safety; **v1.4.1** adds community test coverage for parser helpers, CLI agents, and FORGE visitors — **378** pytest cases, no runtime API changes).
 

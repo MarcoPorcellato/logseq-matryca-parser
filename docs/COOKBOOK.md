@@ -54,7 +54,14 @@ for doc in docs[:3]:
 matryca-parse export /path/to/graph output --format langchain
 ```
 
-Requires optional `[ai]` extra (`uv sync --extra ai`).
+Requires optional `[ai]` extra (`uv sync --locked --extra ai` in this checkout).
+
+The page recipe above works without the LlamaIndex companion. For an
+independent context-enriched export with `[ai]` alone, use:
+
+```bash
+matryca-parse export /path/to/graph output --format langchain-enriched
+```
 
 For an offline example that exercises the LangChain, LlamaIndex, and
 context-enriched exports—including a resolved Logseq page embed—install the
@@ -65,9 +72,11 @@ companion when it is published, then run
 uv run python examples/run_synapse_rag.py
 ```
 
-Until then, the example's LangChain and context-enriched paths can run with
-`uv sync --extra ai`; its LlamaIndex path exits with a specific companion
-installation message.
+The combined script calls LlamaIndex before the context-enriched export and
+before printing its results. Without the companion, it exits at that call with
+an installation message; it is **not** a complete runnable `[ai]`-only demo.
+Do not follow the proposed package-install hint until that distribution is
+published and verified. The independent recipes above do not require it.
 
 ---
 
@@ -122,7 +131,7 @@ Install the watcher extra:
 uv sync --extra watch
 ```
 
-Debouncing (~500ms) and editor temp-file ignores are built in — see [Architecture §3.6 — Live watch](ARCHITECTURE.md#36-logseqgraph--namespace-scoping-o1-invalidation-live-watch).
+Debouncing (~500ms) and editor temp-file ignores are built in — see [Architecture §3.6 — Live watch](ARCHITECTURE.md#36-logseqgraph--namespace-scoping-targeted-reload-live-watch).
 
 ---
 

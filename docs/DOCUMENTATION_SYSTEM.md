@@ -71,7 +71,15 @@ content hash identify the exact source bytes.
 
 Maintained documents describe current behavior, governance, or decisions. They
 carry the complete metadata contract and are reviewed before their freshness
-date expires.
+date expires, except for the reserved nested-index case described below.
+
+The source checker deliberately accepts frontmatter-free nested `index.md`
+files other than the bundle root `docs/index.md`. The maintained list currently
+includes `docs/reference/index.md` and `docs/decisions/index.md` in that form:
+their links are validated, but metadata, freshness and canonical-role checks
+are skipped. A nested index that carries frontmatter receives those checks as
+usual. This is an implemented source-profile exception, not official OKF
+conformance or permission to omit metadata from other maintained documents.
 
 | Path | Canonical responsibility |
 |---|---|
