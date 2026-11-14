@@ -379,7 +379,11 @@ def agent_read(
     registry = SessionAliasRegistry()
     registry.generate_aliases(nodes)
     state_path = resolved / XRAY_STATE_FILENAME
-    registry.save_to_disk(state_path)
+    try:
+        registry.save_to_disk(state_path)
+    except OSError:
+        typer.echo("X-Ray state could not be saved.", err=True)
+        raise typer.Exit(code=1) from None
 
     output = to_xray_markdown(nodes, registry)
     if output:

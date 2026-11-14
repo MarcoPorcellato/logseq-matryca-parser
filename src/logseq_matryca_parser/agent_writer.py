@@ -14,6 +14,8 @@ from difflib import unified_diff
 from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn, NotRequired, TypedDict
 
+from logseq_matryca_parser._agent_file_io import _write_agent_file
+
 if TYPE_CHECKING:
     from logseq_matryca_parser.graph import LogseqGraph
 
@@ -276,11 +278,11 @@ def logseq_agent_write(
 
     try:
         os.makedirs(pages_dir, exist_ok=True)
-        with open(file_path, mode="a", encoding="utf-8") as out:
-            out.write(block_text)
-    except OSError as exc:
-        logger.exception("logseq_agent_write failed for path %s", file_path)
-        return {"status": "error", "message": str(exc)}
+        _write_agent_file(Path(file_path), block_text, append=True)
+    except OSError:
+        message = "Weekly agent page could not be written safely."
+        logger.error(message)
+        return {"status": "error", "message": message}
     return {"status": "success", "path": file_path}
 
 

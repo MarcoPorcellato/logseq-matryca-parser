@@ -8,8 +8,8 @@ audience: contributors
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-07
-verified: 2026-08-07
+last_verified: 2026-11-14
+verified: 2026-11-14
 stale_after: 2027-02-03
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -22,8 +22,14 @@ superseded_by: null
 The Markdown writer treats the selected Logseq graph as a security boundary. A
 path discovered in Markdown or cached in a node is not trusted merely because
 parsing succeeded. The X-Ray read command also writes an alias-state file; that
-write is outside the writer policy below. Use X-Ray only with trusted vaults
-until the state-write boundary is corrected.
+write is outside the writer policy below. Before writing, it rejects symlink,
+hard-linked, and non-regular targets, plus identity mismatches detected by
+checking the path before opening, the opened descriptor, and the path
+immediately before writing. These checks do not guarantee detection of every
+later path replacement or a hard link added after validation. The writer
+rewrites existing files in place, assumes trusted, stable parent directories,
+and is not atomic or serialized across processes. The alias cache is
+unauthenticated. Use X-Ray only with trusted vaults.
 
 ## Writer policy
 

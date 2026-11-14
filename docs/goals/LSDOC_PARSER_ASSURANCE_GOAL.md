@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-25
-verified: 2026-08-25
+last_verified: 2026-11-14
+verified: 2026-11-14
 stale_after: 2027-02-17
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,13 @@ superseded_by: null
 ---
 
 # lsdoc reference parser assurance goal
+
+**Checkpoint scope, reviewed 2026-11-14:** This ledger preserves earlier
+execution and release checkpoints. Read the [current roadmap](../ROADMAP_2026-2027.md)
+and [bounded #104 acceptance](../quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md)
+for present delivery status before acting. Old source anchors, issue states and
+execution instructions below are dated evidence, not new authority to run
+experiments or repeat publication. The #111 and #108 gates remain separate.
 
 Complete the license-safe parser assurance program defined in
 [`docs/LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md`](../LSDOC_REFERENCE_STUDY_AND_EXECUTION_PLAN_2026-08-16.md).

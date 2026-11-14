@@ -56,7 +56,7 @@ flowchart LR
     Forge --> JSON[JSON / Markdown\nPayloads]
     Synapse --> LC[LangChain Documents]
     Synapse -. call-time delegation .-> LI[LlamaIndex companion]
-    Lens --> HTML[Interactive\n3D Graph]
+    Lens --> HTML[Interactive\nTopology HTML]
 ```
 
 ## 1. Title & High-Level Philosophy
@@ -77,7 +77,7 @@ The Matryca Parser is the **deterministic translation layer**: it reads the hier
 
 **Naive / standard RAG** routinely applies **recursive or fixed-size chunkers** to raw Markdown. For Logseq-style graphs this behaves like dropping the disk into a blender: contiguous bytes are diced by character budgets, sibling blocks are fused with unrelated parents, and indentation semantics are erased. The result is embeddings of **ambiguous fragments** disconnected from lineage — a lossy projection of structured storage into unstructured bags of text.
 
-The **Matryca (Logos) approach** rejects that erosion of structure. Implementation-wise, **`StackMachineParser` (alias `LogosParser`)** performs **O(N) deterministic parsing** using spatial indentation as the sole arbiter of parent–child linkage, yielding a rigorous **Abstract Syntax Tree (AST)** (`LogseqPage`, `LogseqNode`). **`SYNAPSE`** emits lineage-aware LangChain `Document` objects and context-enriched chunks. A separate optional companion owns native LlamaIndex `TextNode` construction and can reuse the framework-neutral lineage helpers.
+The **Matryca (Logos) approach** preserves that structure. **`StackMachineParser` (alias `LogosParser`)** combines explicit stack state, line classification and spatial indentation to construct a deterministic **Abstract Syntax Tree (AST)** (`LogseqPage`, `LogseqNode`). This architecture description does not establish a universal linear-time bound; the [performance evidence contract](reference/PERFORMANCE_EVIDENCE.md) separates bounded work models and measured workloads from general complexity claims. **`SYNAPSE`** emits lineage-aware LangChain `Document` objects and context-enriched chunks. A separate optional companion owns native LlamaIndex `TextNode` construction and can reuse the framework-neutral lineage helpers.
 
 Together, LOGOS + SYNAPSE implement **Document-Driven Development** principles. Historical specifications and blueprints are preserved in [`/docs/design-docs/`](./design-docs/) to constrain behavior, while the runtime code enforces deterministic invariants matching those documents.
 
@@ -143,11 +143,11 @@ Rel(logos, logseqVault, "Reads Spatial Markdown deterministically")
 
 Rel(kinetic, logseqVault, "KINETIC / LOGOS: append-only Agent Writer — safe vault append, topology preserved")
 
-Rel(logos, synapse, "Hands off immutable AST subgraphs")
+Rel(logos, synapse, "Supplies typed AST subgraphs")
 
 Rel(logos, lens, "Supplies semantic references for graph layout")
 
-Rel(synapse, aiPlane, "Supplies lineage-injected Documents / TextNodes")
+Rel(synapse, aiPlane, "Supplies LangChain Documents; native LlamaIndex nodes require the separate companion")
 
 Rel(lens, knowledgeWorker, "Delivers inspectable topology (HTML)")
 ```
@@ -332,7 +332,7 @@ LENS remains fully compatible as a Parser reference-topology tool. Trama owns fu
 
 In the **LLM OS** metaphor, **LOGOS** is the **read path** into the hierarchical “disk”: it materializes Spatial Markdown into a **deterministic AST** that downstream adapters trust. **`agent_writer`** ([`logseq_matryca_parser.agent_writer`](../src/logseq_matryca_parser/agent_writer.py)) is the complementary **bounded write syscall** with two surfaces:
 
-1. **Weekly append sandbox (`logseq_agent_write`).** A **deterministic**, **configuration-aware** channel that **dynamically reads `config.edn`** (for example **`:journal/page-title-format`**) so filenames and titles align with the vault’s own conventions. Writes use **`open(..., mode="a")`** **append-only** I/O — agents **append** new block material **after** existing bytes; they do **not** rewrite, merge, or re-indent prior content. Surfaced through the **`append`** command in **KINETIC**.
+1. **Weekly append sandbox (`logseq_agent_write`).** A **deterministic**, **configuration-aware** channel that **dynamically reads `config.edn`** (for example **`:journal/page-title-format`**) so filenames and titles align with the vault’s own conventions. Writes go through the validated agent-file writer in **append-only** mode (`O_APPEND`, no truncation). Its path and opened-descriptor checks reject symlink, hard-linked and non-regular targets, plus identity mismatches detected during admission. The writer assumes trusted, stable parent directories; it does not guarantee detection of every later path replacement or hard link added after validation. Writes are not crash-atomic or serialized across processes. Agents **append** new block material **after** existing bytes; they do **not** rewrite, merge, or re-indent prior content. Surfaced through the **`append`** command in **KINETIC**.
 
 2. **Headless Markdown splicer (`append_child_to_node`).** For **in-place graph mutation** under an existing parent block, the engine resolves `target_uuid` via `LogseqGraph.get_node_by_uuid`, walks to the **deepest last descendant** to obtain a **1-based `line_end` insertion index**, and computes child indentation as **`(target_node.indent_level + 1) × graph.tab_size`** spaces before the `- {content}` bullet prefix. The raw file is split into lines (normalizing a missing final newline first so the last logical row is not concatenated with the splice), the new row is inserted at that index, and the result is flushed through a **same-directory `tempfile.mkstemp` + `os.replace`** — an atomic swap that avoids torn reads during concurrent tooling. **KINETIC** exposes this as **`matryca-parse agent-write`**, resolving parent blocks by **`--alias`** (from the X-Ray state file) or **`--target-uuid`**.
 
@@ -470,7 +470,7 @@ Human-facing RAG (SYNAPSE enriched chunks, breadcrumbs, inherited properties) op
 
 #### Stateful session registry (`.matryca_xray_state.json`)
 
-X-Ray is designed for **stateless LLM toolchains**: each `agent-read` invocation is a fresh process, yet agents must still **write back** to blocks they only saw as `[n]` tokens. After **`generate_aliases`**, **KINETIC** persists the alias map to **`<graph_root>/.matryca_xray_state.json`** via **`SessionAliasRegistry.save_to_disk`**. A later **`matryca-parse agent-write --alias N`** loads that JSON with **`load_from_disk`**, resolves `N → uuid`, and hands off to **`append_child_to_node`**. Malformed or empty state files yield a controlled CLI exit (empty registry for whitespace-only files; **`SessionAliasRegistryError`** for invalid JSON) rather than an uncaught traceback. The read/write pair therefore composes as **two independent CLI exits** without stuffing UUIDs into the model context — the filesystem holds session continuity.
+X-Ray is designed for **stateless LLM toolchains**: each `agent-read` invocation is a fresh process, yet agents must still **write back** to blocks they only saw as `[n]` tokens. After **`generate_aliases`**, **KINETIC** persists the alias map to **`<graph_root>/.matryca_xray_state.json`** via **`SessionAliasRegistry.save_to_disk`**, which uses the same validated writer to rewrite the file in place (not atomically); if the save fails, `agent-read` exits 1 before printing. A later **`matryca-parse agent-write --alias N`** loads that JSON with **`load_from_disk`**, resolves `N → uuid`, and hands off to **`append_child_to_node`**. Malformed or empty state files yield a controlled CLI exit (empty registry for whitespace-only files; **`SessionAliasRegistryError`** for invalid JSON) rather than an uncaught traceback. The read/write pair therefore composes as **two independent CLI exits** without stuffing UUIDs into the model context — the filesystem holds session continuity.
 
 #### Session alias mechanics (`SessionAliasRegistry`)
 
@@ -592,7 +592,7 @@ sequenceDiagram
   participant INV as Indent & Line Classifier<br/>(bullet / heading / property / continuation)
   participant PSI as Content & UUID Builder<br/>_build_node (+ clean_text derivation)
   participant STK as Stack Machine<br/>pop · push · attach
-  participant AST as Immutable LogseqNode<br/>(registered in PageRegistry)
+  participant AST as Frozen LogseqNode<br/>(registered in PageRegistry)
 
   LR->>INV: Deliver raw_line (spatial text + leading whitespace)
 

@@ -3,11 +3,17 @@ type: Document
 ---
 # Local Code Audit — Maintainer Runbook (audit code)
 
-**Audience:** repository maintainers with a local Cursor / MCP setup  
+**Audience:** repository maintainers with approved local code-audit tooling
 **Public contract:** [`../CLEAN_CODE_ARCHITECTURE.md`](../CLEAN_CODE_ARCHITECTURE.md) (generic "audit code" / "local code study" language)  
 **Policy:** [`STATIC_ANALYSIS_POLICY.md`](STATIC_ANALYSIS_POLICY.md) — Ghost Tooling; **never** add local audit indexers to CI or `pyproject.toml`
 
 This file describes **generic** graph-based **audit code** workflows. Do not copy vendor tool names into issues, PR descriptions, CHANGELOG bullets, or public docs.
+
+Tool names and arguments below describe a generic interface, not a guarantee
+that every local service exposes it. Use the selected tool's current contract.
+Examples do not authorize enabling a service, installing a tool, executing a
+runtime probe, or changing the repository. Honor the active task's permission
+and resource boundaries.
 
 ---
 
@@ -17,7 +23,7 @@ A **local code audit** indexer builds a knowledge graph over repositories: symbo
 
 ### Prerequisites
 
-1. Local code-audit MCP server enabled in Cursor (user-level MCP config — not committed to this repo).
+1. Approved local code-audit service available in the selected environment (user-level configuration is not committed to this repo).
 2. Repository indexed locally (`logseq-matryca-parser` path on disk).
 3. After large merges, refresh the index if `list_repos` reports `commitsBehind > 0`.
 
@@ -44,6 +50,10 @@ A **local code audit** indexer builds a knowledge graph over repositories: symbo
 ```
 
 ### High-risk symbols (always `impact` first)
+
+The labels below are orientation, not a fresh impact result. Recompute impact
+on the selected source and honor any higher risk reported there; this table
+does not override approval requirements for HIGH or CRITICAL changes.
 
 | Symbol | Typical risk |
 |--------|--------------|

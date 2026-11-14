@@ -135,7 +135,15 @@ matryca-parse agent-read /path/to/graph --tag idea
 matryca-parse agent-write /path/to/graph --alias 0 --content "Follow-up from the agent"
 ```
 
-The alias map is persisted at `.matryca_xray_state.json` in the graph root between CLI invocations.
+The alias map is persisted at `.matryca_xray_state.json` in the graph root
+between CLI invocations. `agent-read` rewrites this unauthenticated cache in
+place. It rejects unsafe targets and identity mismatches detected by checking
+the path before opening, the opened descriptor, and the path immediately
+before writing; it does not guarantee detection of every later path replacement
+or a hard link added after validation. The write is non-atomic and not
+serialized across processes. Use X-Ray only with trusted vaults and trusted,
+stable parent directories. See the
+[filesystem safety contract](reference/FILESYSTEM_SAFETY.md).
 
 ---
 

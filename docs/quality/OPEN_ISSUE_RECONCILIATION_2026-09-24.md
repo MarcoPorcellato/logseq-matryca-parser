@@ -33,7 +33,7 @@ preserved below as labelled history; its uses of “current,” “live” and �
 refer only to that earlier snapshot. Extending this document's review window
 follows a factual refresh, not a waiver of the documentation freshness gate.
 
-## Current open issues
+## Open issues at the October 25 snapshot
 
 All 32 observed open issues are listed below. Scope descriptions are in English;
 the linked GitHub issue remains authoritative for its exact title and criteria.

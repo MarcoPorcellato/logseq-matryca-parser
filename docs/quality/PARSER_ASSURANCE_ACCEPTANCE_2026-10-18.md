@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-21
-verified: 2026-10-21
+last_verified: 2026-11-14
+verified: 2026-11-14
 stale_after: 2027-01-16
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -20,6 +20,15 @@ superseded_by: null
 # Issue #104: bounded parser assurance acceptance package
 
 ## Current acceptance status
+
+The [reconciled roadmap](../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md)
+records bounded #104 acceptance and closure, with its linked acceptance
+comment and PRs #259 and #260. The selected depth work is included in v1.11.2.
+A read-only GitHub check on 2026-11-14 confirmed #104 closed as completed on
+2026-10-21. This acceptance is not a claim of universal compatibility or #111
+performance qualification.
+
+### Historical acceptance snapshot as of 2026-10-21
 
 The five-family matrix and earlier documentation were published in
 [#259](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/259) and

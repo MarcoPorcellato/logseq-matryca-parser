@@ -15,6 +15,14 @@ Use documented package-root imports for stable APIs. Treat filesystem writes,
 symlinks, asset paths, graph identity, and parse/serialize round trips as safety
 boundaries. Read AGENTS.md before changing the repository.
 
+`agent-read` writes an unauthenticated X-Ray alias cache in place. It rejects
+identity mismatches detected by checking the path before opening, the opened
+descriptor, and the path immediately before writing, but does not guarantee
+detection of every later path replacement or a hard link added after
+validation. The write is non-atomic and not serialized across processes. Use
+X-Ray only with trusted vaults and trusted, stable parent directories. See the
+[filesystem safety contract](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/reference/FILESYSTEM_SAFETY.md).
+
 ## Start here
 
 - [Human overview](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/README.md): Product purpose, capabilities, installation, CLI, Python API, and support routes.
@@ -62,4 +70,4 @@ boundaries. Read AGENTS.md before changing the repository.
 - [Release highlights](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/RELEASE_HIGHLIGHTS.md): Reader-focused history of shipped capability milestones.
 - [Changelog](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/CHANGELOG.md): Exhaustive versioned changes.
 - [Repository improvement roadmap](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/REPOSITORY_STELLAR_ROADMAP_2026-08-06.md): Dated audit evidence and sequenced improvement record.
-- [Issue reconciliation](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/quality/ISSUE_RECONCILIATION_2026-08-06.md): Dated backlog decisions and shipped evidence.
+- [Current issue reconciliation](https://raw.githubusercontent.com/MarcoPorcellato/logseq-matryca-parser/main/docs/quality/OPEN_ISSUE_RECONCILIATION_2026-09-24.md): Dated backlog decisions and shipped evidence; rebind live GitHub status before acting.
