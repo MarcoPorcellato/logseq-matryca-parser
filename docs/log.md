@@ -8,8 +8,8 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-10-28
-verified: 2026-10-28
+last_verified: 2026-11-14
+verified: 2026-11-14
 stale_after: 2027-03-31
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
@@ -18,6 +18,21 @@ superseded_by: null
 ---
 
 # Documentation evolution log
+
+## 2026-11-14 — v1.11.3 source preparation
+
+- Prepare source version, versioned changelog, citation and reader-focused
+  highlights for v1.11.3. Distinguish source metadata from actual distribution
+  availability; local preparation does not publish a release.
+- Describe the bounded agent-state/weekly-page correction and development-only
+  msgpack update already integrated through #271 and #272. Preserve the
+  filesystem contract's metadata, trust, concurrency and race limitations.
+- Align current human/agent navigation and source-delivery overlays without
+  rewriting historical release or assurance evidence. No new corpus campaign,
+  benchmark, parser behavior, Plumber qualification or issue disposition follows.
+- Keep release details in the highlights/changelog and only one-line entries
+  at the bottom of the README. Candidate citation/changelog dates must be
+  reconfirmed before an eventual separately authorized publication.
 
 ## 2026-11-14 — Release and assurance navigation reconciliation
 

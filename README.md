@@ -377,20 +377,16 @@ We welcome issues, pull requests, and constructive feedback.
 
 ## 📦 Release history
 
-Current source version: **v1.11.2**. The [PyPI project page](https://pypi.org/project/logseq-matryca-parser/) and
+Current source version: **v1.11.3**. This source-version label does not establish
+publication. The [PyPI project page](https://pypi.org/project/logseq-matryca-parser/) and
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases) list available distributions.
 Security support follows the [latest-release policy](SECURITY.md).
-
-The v1.11.2 source removes repeated page scans from attached-node graph reads
-while preserving aliases, collision filtering and node order. It also adds a
-focused refresh-depth test matrix and consolidates assurance documentation.
-This does not establish end-to-end Plumber dashboard performance or cancellation.
-See the [changelog](CHANGELOG.md) for scope, limits and known issues.
 
 Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
 [changelog](CHANGELOG.md), or the signed artifacts on
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
+- **v1.11.3 (source)** — Hardens agent-state and weekly-page writes, preserves existing file metadata, and refreshes development-tool security and documentation.
 - **v1.11.2** — Bounds graph ownership-resolution work per read, extends focused refresh-depth tests, and consolidates assurance and PKM comparison documentation.
 - **v1.11.1** — Fixes fenced-code parsing in outline items, preserves eligible multiline scalar-metadata round trips, and adds bounded composite Markdown assurance.
 - **v1.11.0** — Adds an experimental, read-only Logseq Org reader with source retention and explicit support limits.

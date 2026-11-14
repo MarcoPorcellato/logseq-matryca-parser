@@ -7,6 +7,27 @@ published artifacts and attestations, see
 
 ## Unreleased
 
+## v1.11.3
+
+This source version hardens the X-Ray alias-state and weekly-page write paths
+without changing parser behavior, graph APIs, alias JSON shape or declared
+install requirements. A documented source version is not proof of publication;
+use the distribution links above to confirm availability.
+
+| Area | Change |
+| :--- | :--- |
+| **Agent file safety** | Validates selected file targets before mutation; updates existing state files in place and keeps weekly pages append-only, preserving existing file metadata. |
+| **Native regression coverage** | Exercises metadata preservation, Windows DACL inheritance and rejected leaf replacements. On Windows, the after-open case proves operating-system rename refusal, not execution of the helper's identity check. |
+| **Development dependencies** | Updates locked msgpack to 1.2.3 in the development-only audit chain; base and optional-extra runtime dependencies are unchanged. |
+| **Documentation** | Reconciles human and AI entry points, safety contracts, architecture claims, release procedures and dated assurance navigation. |
+
+Trusted vaults and stable parent directories remain required. Agent writes are
+not crash-atomic or serialized across processes; alias state is unauthenticated
+and residual filesystem races remain. Snapshot-path semantics, performance
+qualification and downstream Plumber acceptance are separate work. See the
+[filesystem safety contract](docs/reference/FILESYSTEM_SAFETY.md) and
+[changelog](CHANGELOG.md) for the exact boundaries.
+
 ## v1.11.2
 
 This patch removes repeated page scans from attached-node graph reads
