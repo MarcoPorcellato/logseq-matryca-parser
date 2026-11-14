@@ -45,7 +45,7 @@ entry points.
 | [`CLEAN_CODE_ARCHITECTURE.md`](CLEAN_CODE_ARCHITECTURE.md) | Contributors, maintainers | Uncle Bob rings, SOLID, module maps, layer CI |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Contributors, integrators | LOGOS, SYNAPSE, `LogseqGraph`, agents, data flow |
 | [`quality/`](quality/) | Maintainers | Current assurance evidence, residual architecture ownership and dated audit/triage records |
-| [`quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md`](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) | Contributors, maintainers | v1.11.2 delivery boundary, with dated historical checkpoints retained |
+| [`quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md`](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) | Contributors, maintainers | Source/release boundaries through v1.11.3, with dated historical checkpoints retained |
 | [`quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md`](quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md) | Maintainers | Closed, bounded #104 acceptance and preserved crosswalk; not exhaustive compatibility or #111 performance qualification |
 | [`quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md`](quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) | Users, integrators, maintainers | Evidence from all 313 selected official Logseq documents, metadata-only semantics, test coverage and remaining limits |
 | [`quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md`](quality/LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) | Parser contributors, maintainers | Additional public corpus candidates, content rights, syntax diversity and proposed admission sequence |

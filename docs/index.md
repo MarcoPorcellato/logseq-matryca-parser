@@ -36,7 +36,7 @@ navigation layers only.
 | [AI contribution policy](AI_CONTRIBUTION_POLICY.md) | Human accountability, privacy, disclosure, and review rules for AI-assisted work |
 | [Agent action contract](reference/AGENT_ACTION_CONTRACT.md) | Read/write authority, provenance, prompt-injection boundary, and approval matrix |
 | [Support and compatibility matrix](reference/CONFORMANCE_SUPPORT_MATRIX.md) | Supported runtimes, public API tiers, optional integrations, companion boundary, and explicit limits |
-| [Current generated-assurance delivery](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) | v1.11.2 delivery boundary, distinct from historical qualification |
+| [Current generated-assurance delivery](quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) | Source/release boundaries through v1.11.3, distinct from historical qualification |
 | [Issue #104 acceptance package](quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md) | Bounded acceptance and historical crosswalk; #104 is closed, not proof of exhaustive coverage |
 | [Obsidian and PKM comparison](reference/PKM_OBSIDIAN_COMPARISON.md) | Official-source comparison of application/library layers, block identity, properties, current automation and export limits |
 | [Official Logseq Markdown compatibility evidence](quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) | Results for all 313 selected official documents, focused metadata semantics, reproducible provenance and explicit coverage limits |

@@ -21,6 +21,12 @@ superseded_by: null
 
 ## Current delivery and release status
 
+The v1.11.3 source line carries the agent-file safety correction and its native
+metadata/leaf regressions. It does not change Markdown parser semantics,
+rerun the official corpus or add a new randomized campaign. Source-version
+metadata and earlier exact-head CI are not publication or final-candidate
+artifact evidence; availability must be checked on PyPI and GitHub Releases.
+
 v1.11.2 includes the selected depth matrix and documentation consolidation.
 The [reconciled roadmap](../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md)
 records bounded #104 acceptance and closure, confirmed by a read-only GitHub

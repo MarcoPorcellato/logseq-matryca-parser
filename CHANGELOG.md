@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.3] - 2026-11-14
+
 ### Fixed
 
 - **Agent file writes** — the `agent-read` X-Ray state file and the weekly
@@ -25,6 +27,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   unauthenticated cache, so X-Ray remains for trusted vaults only. Native
   Windows CI now covers DACL inheritance and the after-open swap case, where
   the OS refuses to rename an open file.
+
+### Security
+
+- **Bounded agent file writes** — harden admission checks for X-Ray state
+  updates and weekly-page appends while preserving existing file metadata and
+  append behavior. Use trusted vaults and stable parent directories; the
+  [filesystem contract](docs/reference/FILESYSTEM_SAFETY.md) records the
+  remaining concurrency, crash and filesystem-race limitations.
+- **Development-toolchain update** — update transitive `msgpack` from 1.2.1
+  to 1.2.3 in the `pip-audit` / `cachecontrol` development chain (#272).
+  Base and optional-extra dependency closures do not include this package;
+  declared install requirements are unchanged.
+
+### Documentation
+
+- Align human and agent entry points, architecture, assurance navigation and
+  release procedures with the implemented contracts. Preserve dated evidence,
+  bounded #104 acceptance and the separate #111 performance gate; do not infer
+  exhaustive Markdown compatibility or downstream Plumber qualification.
 
 ## [1.11.2] - 2026-10-26
 
