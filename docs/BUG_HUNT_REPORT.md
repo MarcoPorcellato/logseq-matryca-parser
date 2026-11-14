@@ -3,6 +3,11 @@ type: Document
 ---
 # Bug Hunt Report — logseq-matryca-parser
 
+This is historical audit and probe evidence, not a current defect inventory or
+a fresh assurance result. Preserve its original observations; use the
+[current roadmap](ROADMAP_2026-2027.md), [assurance index](quality/README.md)
+and [residual backlog](quality/CLEAN_ARCH_BACKLOG.md) for current work.
+
 **Date:** 2026-06-23 (audit) · **Resolution:** 2026-06-23
 **Scope:** static + dynamic repository audit (The Logos Protocol)
 **Tools:** local graph-based static analysis, `make all`, `scripts/debug_pre_release.py`, ad-hoc Python probes

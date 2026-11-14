@@ -11,18 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Agent file writes** — the `agent-read` X-Ray state file and the weekly
   `logseq_agent_write` page now share one validated writer. Before changing any
-  bytes, it refuses a target that is a symlink, hard link or non-regular file,
-  or whose identity changes while it is opened. It updates existing files in
-  place (keeping inode, mode, extended attributes and ACLs); the weekly page
-  stays append-only. New files are created exclusively: at most `0600` on
-  POSIX, subject to umask; new Windows files inherit the parent DACL. Their
-  error messages no longer contain file paths, and `agent-read` exits 1 before
-  printing when the state cannot be saved. The writer assumes trusted, stable
-  parent directories and does not guard against every concurrent replacement.
-  Writes remain non-atomic and unserialized across processes, and the alias
-  state is still an unauthenticated cache, so X-Ray remains for trusted vaults
-  only. Native Windows CI now covers DACL inheritance and the after-open swap
-  case, where the OS refuses to rename an open file.
+  bytes, it rejects symlink, hard-linked, and non-regular targets, plus identity
+  mismatches detected by checking the path before opening, the opened
+  descriptor, and the path immediately before writing. It does not guarantee
+  detection of every later path replacement or a hard link added after
+  validation. It updates existing files in place (keeping inode, mode,
+  extended attributes and ACLs); the weekly page stays append-only. New files
+  are created exclusively: at most `0600` on POSIX, subject to umask; new
+  Windows files inherit the parent DACL. Error messages no longer contain file
+  paths, and `agent-read` exits 1 before printing when the state cannot be
+  saved. The writer assumes trusted, stable parent directories. Writes remain
+  non-atomic and unserialized across processes, and the alias state is still an
+  unauthenticated cache, so X-Ray remains for trusted vaults only. Native
+  Windows CI now covers DACL inheritance and the after-open swap case, where
+  the OS refuses to rename an open file.
 
 ## [1.11.2] - 2026-10-26
 
@@ -477,7 +479,7 @@ Minor release — Clean Architecture v1 structural slices (SRP/OCP), new public 
 ### Meta (contributor tracking)
 
 - **Clean Architecture epic** — [#78](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/78) (phases [#79](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/79)–[#83](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/83)).
-- **Contributor waves 3–5** — issues [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73) filed from local code study; agent rule [`.cursor/rules/07-clean-architecture-audit.mdc`](.cursor/rules/07-clean-architecture-audit.mdc).
+- **Contributor waves 3–5** — issues [#59](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/59)–[#73](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/73) filed from local code study; historical agent-rule path `.cursor/rules/07-clean-architecture-audit.mdc` (not distributed in the current checkout).
 
 ## [1.5.0] - 2026-06-29
 

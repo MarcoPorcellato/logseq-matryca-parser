@@ -8,9 +8,9 @@ audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
 execution_mode: reviewed
-last_verified: 2026-08-19
-verified: 2026-08-19
-stale_after: 2026-11-17
+last_verified: 2026-11-14
+verified: 2026-11-14
+stale_after: 2026-12-14
 okf_profile: matryca_okf_inspired_quality
 okf_spec_version: null
 supersedes: null
@@ -19,13 +19,16 @@ superseded_by: null
 
 # ADR-0003: AAIF submission gate
 
+The 2026-11-14 source review retains the NO-GO and reconsideration gate; it
+does not establish current legal, adoption, sponsorship or external qualification.
+
 ## Status and decision
 
 Accepted — **NO-GO for submission; continue AAIF-aligned repository hardening
 without claiming membership, certification, sponsorship, or official OKF
 conformance**.
 
-## Evidence behind the decision
+## Evidence behind the 2026-08-19 decision
 
 The repository has a credible technical foundation, a public permissive
 license, automated tests and releases, contributor guidance, a roadmap, and an
@@ -40,7 +43,12 @@ does not prove:
 - live GitHub security/ruleset settings from an authenticated current receipt;
 - a successful real release carrying the new GitHub attestations, SBOM, and
   license inventory;
-- official OKF v0.2 conformance—the current source audit has 38 findings.
+- official OKF v0.2 conformance—the dated source audit had 38 findings; a
+  current count requires a fresh exact-source audit.
+
+These are the evidence gaps at the decision checkpoint, not a claim that every
+item remains unfulfilled today. Current receipts and a new decision are needed
+before changing the NO-GO.
 
 ## Reconsideration gate
 

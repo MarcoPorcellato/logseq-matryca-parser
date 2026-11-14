@@ -189,11 +189,15 @@ Logseq Matryca Parser is a deterministic **Stack-Machine engine** that acts as t
 | **Automate safely — KINETIC and agent tools** | CLI parse, scan, export, and visualization; token-efficient X-Ray reads; append-only logging; bounded AST writes; vault containment, dry-run patches, and atomic replacement. |
 
 `agent-read` also writes `.matryca_xray_state.json` under the selected graph
-path. That write refuses a state file that is a symlink, hard link or
-non-regular file, or whose identity changes while it is opened, and rewrites an
-existing file in place. It assumes trusted, stable parent directories, is not
-atomic, and keeps an unauthenticated alias cache, so use X-Ray only with trusted
-vaults; this state write is not covered by the Markdown writer's guarantees.
+path. Its writer rejects symlink, hard-linked, and non-regular targets, plus
+identity mismatches detected by checking the path before opening, the opened
+descriptor, and the path immediately before writing. It does not guarantee
+detection of every later path replacement or a hard link added after
+validation. It rewrites existing files in place, assumes trusted, stable parent
+directories, and is not atomic or serialized across processes. The alias cache
+is unauthenticated, so use X-Ray only with trusted vaults; this state write is
+not covered by the Markdown writer's containment or atomic-replacement
+guarantees.
 
 The v1.11.0 release line also contains an **experimental, read-only Org
 reader** behind a private, non-stable API. It reads Org text or one selected
@@ -309,7 +313,17 @@ boundary. The Parser itself does not install `llama-index-core` or NLTK.
 
 ### 🤖 Agentic Write Access (Append-Only)
 
-Agents such as Hermes or OpenClaw can record structured notes into a Logseq graph **without rewriting existing pages**. The helper `logseq_agent_write` only **appends to the weekly agent page** through a validated writer (`O_APPEND`, no truncation). It refuses a page that is a symlink, hard link or non-regular file, writes a new bullet (journal link + optional tag links + body), and never truncates or replaces prior content—so routine logging cannot wipe blocks that already live in that file. The writer assumes trusted, stable parent directories.
+Agents such as Hermes or OpenClaw can record structured notes into a Logseq
+graph **without rewriting existing pages**. The helper `logseq_agent_write`
+only **appends to the weekly agent page** through a validated writer
+(`O_APPEND`, no truncation). It rejects symlink, hard-linked, and non-regular
+targets, plus identity mismatches detected by checking the path before opening,
+the opened descriptor, and the path immediately before writing. It does not
+guarantee detection of every later path replacement or a hard link added after
+validation. Appends are not atomic or serialized across processes, and the
+writer assumes trusted, stable parent directories. It writes a new bullet
+(journal link + optional tag links + body) and never truncates or replaces
+prior content.
 
 Point it at your graph’s **`pages`** directory and **`config.edn`** so journal titles match Logseq’s `:journal/page-title-format` (including ordinal days when you use `do` in the pattern).
 

@@ -3,6 +3,11 @@ type: Document
 ---
 # GitHub roadmap — Clean Architecture v1.6
 
+This is a historical v1.6 planning record, not a current execution checklist.
+Do not rerun its bootstrap, label-sync or milestone commands without a new
+maintainer decision. For current residual work and approval gates, use the
+[maintained backlog](CLEAN_ARCH_BACKLOG.md) and [current roadmap](../ROADMAP_2026-2027.md).
+
 **Status:** 2026-07-02 · **v1.6.0 shipped** — close milestone after tag `v1.6.0`  
 **SSOT (code):** [`../CLEAN_CODE_ARCHITECTURE.md`](../CLEAN_CODE_ARCHITECTURE.md)  
 **Backlog:** [`CLEAN_ARCH_BACKLOG.md`](CLEAN_ARCH_BACKLOG.md)  

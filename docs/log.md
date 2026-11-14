@@ -19,6 +19,38 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-11-14 — Release and assurance navigation reconciliation
+
+- Reconcile current navigation and delivery summaries with the v1.11.2 release
+  and the recorded bounded #104 acceptance; preserve dated snapshots and #111's
+  separate performance-evidence gate. A read-only GitHub check confirmed #104
+  closed as completed on 2026-10-21; closure does not prove exhaustive coverage.
+- Review the composite record's current and historical boundaries and renew its
+  three-week review window. No new test, benchmark, release or issue action follows.
+- Label the 2026-08-19 governance study and OKF audit counts as historical,
+  correct the X-Ray state-write boundary, and preserve the AAIF NO-GO. Current
+  external qualification remains separate from the source review.
+- Review the roadmap, retrospective governance wrapper, two decision records
+  and metrics source contract; correct the metrics repository and retry scope.
+  Renew their review window for 30 days because external and runtime evidence
+  remains separately qualified or unknown. This is not conformance or a new
+  governance decision.
+- Align the human portal, agent navigation and residual backlog with bounded
+  #104 closure and the published v1.11.2 boundary. Label the v1.6 bootstrap
+  roadmap as historical rather than current execution authority.
+- Reconcile pre-tag generic changelog preparation with post-publication
+  advisory disclosure. Clarify exact-file staging, approved integration and
+  separate exact-commit tag authority; no workflow or publication is triggered.
+- Correct citation metadata to the published v1.11.2 release and add it to the
+  release checklist. Replace links to absent editor-local rules with public
+  repository authorities. Clarify that local tooling hygiene is not license
+  permission or a legal guarantee; retain the no-CI and vendor-neutral rules.
+- Refresh verification dates only on the reviewed current-status and safety
+  documents, without extending their existing expiry windows. Add current-status
+  pointers to dated assurance ledgers and the old bug audit. Correct architecture
+  diagrams and prose that implied 3D rendering, native companion ownership or
+  an unqualified linear-time guarantee; no new runtime claim follows.
+
 ## 2026-10-28 — Historical roadmap reconciliation
 
 - Reconcile the [stellar repository roadmap](REPOSITORY_STELLAR_ROADMAP_2026-08-06.md)
