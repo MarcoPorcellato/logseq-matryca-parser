@@ -95,7 +95,7 @@ before proposing a new integration.
 For repository changes, run the documented gate:
 
 ```bash
-uv sync --all-extras
+uv sync --locked --all-extras
 make all
 make vendor-name-check
 ```

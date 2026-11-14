@@ -1,6 +1,14 @@
 ---
 type: Document
 ---
+# Historical implementation error log
+
+These dated entries preserve earlier implementation states, not the current
+API contract. In particular, the early `id::` override note below predates the
+current separation of synthetic `uuid` and native `source_uuid`; see the
+[AST primer](logseq_ast_primer.md#2-block-properties-the-metadata-layer).
+Original resolutions and verification notes are retained as historical evidence.
+
 ## [2026-04-24] Static Analysis & Linter Refactoring (Mypy / Pylance / Ruff)
 
 ### Module: `kinetic.py`

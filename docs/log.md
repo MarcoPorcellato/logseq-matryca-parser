@@ -19,6 +19,26 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-11-14 — Documentation and implementation concordance
+
+- Distinguish synthetic AST UUIDs from native Logseq IDs, describe reference
+  resolution through the actual resolver, and scope targeted reload costs
+  without promising constant-time graph publication.
+- Align human/agent CLI inventories with registered commands and explain why
+  the combined SYNAPSE example stops without the separate companion. Provide
+  independent LangChain/enriched recipes without changing example code.
+- Align contributor and local release instructions with the locked project
+  environment, complete Mypy/coverage gates and auto-fixing hook behavior.
+- Document the existing reserved nested-index exception and reconcile the
+  migration ADR with current source metadata without claiming official OKF
+  conformance or changing the profile/checker.
+- Correct current assurance navigation and add an explicit historical banner
+  to the error log. Preserve dated entries, release records, measured audit
+  counts and unexecuted plan steps; broader lifecycle cleanup remains separate.
+- These are source-documentation corrections, not new parser behavior, a new
+  corpus/benchmark result, an issue action, a release or a Knowledge projection
+  update. Existing release tags and artifacts are unchanged.
+
 ## 2026-11-14 — v1.11.3 source preparation
 
 - Prepare source version, versioned changelog, citation and reader-focused

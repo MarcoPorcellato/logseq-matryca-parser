@@ -30,7 +30,7 @@ Matryca quality profile**.
 ## Context
 
 The 2026-08-19 deterministic official-profile audit of `docs/` reported 38
-findings:
+findings. The following list is that historical snapshot, not a current count:
 
 - 35 documents without official-profile frontmatter;
 - two nested reserved `index.md` files whose current Matryca metadata conflicts
@@ -39,10 +39,20 @@ findings:
 
 Most of the 35 documents are historical roadmaps, blueprints, audits, and
 internal records. Rewriting them in bulk would blur their original evidence
-context. Removing metadata from `docs/reference/index.md` and
-`docs/decisions/index.md` would also break the currently enforced maintained
-Matryca profile. Therefore a mechanical zero-finding rewrite would trade one
-declared contract for another and is not an acceptable migration.
+context. The original audit rationale treated nested-index metadata as a
+conflict between profiles. A mechanical zero-finding rewrite is not a
+substitute for a coherent, reviewed bundle contract.
+
+### Current source-profile state (2026-11-14)
+
+`docs/reference/index.md` and `docs/decisions/index.md` now have no frontmatter.
+The source checker deliberately accepts that reserved nested-index form and
+validates its links without applying metadata/freshness checks. It remains in
+the maintained path list; removing its metadata does not currently break that
+checker. The bundle root `docs/index.md` already contains `okf_version: "0.2"`
+while retaining `okf_spec_version: null`. These observations reconcile source
+state only: they do not renew the historical audit or prove that the whole
+bundle passes both profiles. See the [documentation system](../DOCUMENTATION_SYSTEM.md#31-maintained-bundle).
 
 ## Decision
 
@@ -63,8 +73,9 @@ all of these prerequisites are met:
 5. The generated Knowledge projection is refreshed only through its proposal,
    review, apply, and verification workflow.
 
-Adding `okf_version` to the root index alone is not treated as conformance and
-is intentionally deferred until the bundle contract is coherent.
+The existing root `okf_version` field alone is not treated as conformance.
+Repository-wide official migration remains deferred until the complete bundle
+contract and the separate qualification gates above are satisfied.
 
 ## Consequences
 
@@ -81,7 +92,8 @@ is intentionally deferred until the bundle contract is coherent.
 
 - **Mass-add generic `type: Document` frontmatter.** Rejected because it erases
   meaningful document types and rewrites historical evidence without review.
-- **Remove nested-index frontmatter immediately.** Rejected because it breaks
-  the current enforced profile.
+- **Treat a nested-index metadata change as conformance.** Rejected: the source
+  checker already accepts the frontmatter-free reserved-index form, but that
+  exception does not establish a successful dual-profile migration.
 - **Narrow the bundle silently.** Rejected because it would inflate a
   conformance claim by excluding findings without a reviewed source policy.
