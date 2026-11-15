@@ -2,8 +2,8 @@
 type: DesignSpecification
 title: Separate LlamaIndex adapter from parser distribution
 description: Move the framework-native LlamaIndex bridge into a separately maintained distribution so the parser dependency graph no longer includes NLTK.
-status: proposed
-classification: active
+status: deprecated
+classification: historical
 audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
@@ -15,6 +15,19 @@ base_commit: 1c28aa6ceb01ada0ed8f4838ffb58903dc56f6f4
 ---
 
 # Separate LlamaIndex adapter from parser distribution
+
+<!-- lifecycle-note:start -->
+> **Lifecycle review — 2026-11-15 (UTC): historical separation design.**
+> Original metadata: `status: proposed`; `classification: active`.
+> Use the [dated execution checkpoint](../plans/2026-09-27-llamaindex-companion-separation.md#current-status-refresh--2026-10-02)
+> and [migration record](../../internal/LLAMAINDEX_COMPANION_MIGRATION_CHECKPOINT_2026-09-27.md)
+> for navigation. This review does not establish current companion distribution
+> availability, every original plan step, or resolution of historical dependency
+> advisories. `deprecated` retires this document as a current execution contract,
+> not the integration capability or historical decisions. Original dates and
+> evidence remain unchanged. No historical qualification or instruction replay
+> is authorized by this notice.
+<!-- lifecycle-note:end -->
 
 ## Purpose
 

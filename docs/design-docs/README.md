@@ -13,4 +13,8 @@ For current architecture and APIs, use:
 * [logseq_ast_primer.md](../logseq_ast_primer.md) — Logseq Spatial Markdown domain rules
 * [README.md](../../README.md) — documentation index
 
-Each file in this folder includes the same historical banner at the top. When implementing parser behavior, prefer tests in tests/test_logos_parser.py and OFFICIAL_MLDOC_SPECS.md as reference, then confirm against the running code in src/logseq_matryca_parser/.
+Each file in this folder includes a historical banner. When implementing parser
+behavior, start with the [current compatibility evidence](../quality/OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md)
+and [parser tests](../../tests/test_logos_parser.py), then confirm against the
+current implementation. [OFFICIAL_MLDOC_SPECS.md](OFFICIAL_MLDOC_SPECS.md)
+remains historical mldoc research, not a current official-conformance contract.

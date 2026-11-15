@@ -2,8 +2,8 @@
 type: DesignSpecification
 title: Per-graph mutation and coherent snapshot contract
 description: A one-process concurrency design for atomic writer, watcher, and graph-index updates under issue 103.
-status: approved
-classification: active
+status: deprecated
+classification: historical
 audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
@@ -17,6 +17,17 @@ base_commit: 8e2bc893dea34b756edb6632e04917b04a68c1e6
 ---
 
 # Per-graph mutation and coherent snapshot contract
+
+<!-- lifecycle-note:start -->
+> **Lifecycle review — 2026-11-15 (UTC): historical approved concurrency design.**
+> Original metadata: `status: approved`; `classification: active`.
+> The [current roadmap](../../ROADMAP_2026-2027.md#evidence-gated-improvement-decisions)
+> records bounded #103 / #180 delivery in v1.8.1; it does not certify every old
+> checklist item or add a cross-process guarantee. `deprecated` retires this
+> document as a current execution contract, not the capability or its original
+> approval. Dates, decisions and evidence remain unchanged. This review does
+> not rerun historical qualification or authorize replay of the instructions.
+<!-- lifecycle-note:end -->
 
 ## Purpose
 

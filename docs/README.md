@@ -37,6 +37,7 @@ entry points.
 | :--- | :--- | :--- |
 | [`index.md`](index.md) | Tools, maintainers | Canonical machine entry point for the maintained knowledge bundle |
 | [`DOCUMENTATION_SYSTEM.md`](DOCUMENTATION_SYSTEM.md) | Contributors, maintainers | Canonical documentation governance, metadata, lifecycle, validation, and federation workflow |
+| [`superpowers/README.md`](superpowers/README.md) | Maintainers, contributors | Planning-record discovery by lifecycle, with historical evidence and unverified completion kept distinct |
 | [`CI_ASSURANCE.md`](CI_ASSURANCE.md) | Contributors, maintainers, agents | Pull-request, scheduled, settings-managed, and release assurance map |
 | [`AI_CONTRIBUTION_POLICY.md`](AI_CONTRIBUTION_POLICY.md) | Contributors, maintainers | AI assistance disclosure, privacy, human accountability, and review rules |
 | [`ISSUE_TRIAGE_POLICY.md`](ISSUE_TRIAGE_POLICY.md) | Contributors, maintainers | Labels, priorities, good-first issue lifecycle, stale work, and closure policy |
@@ -89,6 +90,7 @@ entry points.
 
 | Path | Note |
 | :--- | :--- |
+| [`superpowers/plans/2026-11-14-historical-documentation-lifecycle.md`](superpowers/plans/2026-11-14-historical-documentation-lifecycle.md) | Local lifecycle-cleanup implementation record; original proposal retained and publication separately gated |
 | [`design-docs/`](design-docs/) | Original DDD scaffolds and mldoc parity research |
 | [`error_log.md`](error_log.md) | Informal internal fix log |
 | [`REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md`](REPOSITORY_IMPROVEMENT_STUDY_2026-07-28.md) | Superseded audit baseline; retained for provenance |

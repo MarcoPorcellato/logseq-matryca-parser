@@ -2,8 +2,8 @@
 type: DesignSpecification
 title: Private parser lexical-state extraction
 description: A behavior-preserving second #108 parser phase slice after M7 line classification.
-status: proposed
-classification: active
+status: deprecated
+classification: historical
 audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
@@ -17,6 +17,18 @@ base_commit: b56c0c6a6f9f2bc4766c07736c6c566da8c77c3e
 ---
 
 # Private parser lexical-state extraction
+
+<!-- lifecycle-note:start -->
+> **Lifecycle review — 2026-11-15 (UTC): historical extraction design.**
+> Original metadata: `status: proposed`; `classification: active`.
+> The [current backlog](../../quality/CLEAN_ARCH_BACKLOG.md) records delivered
+> private lexical phases and separate residual #108 work, not completion of
+> every step in the original plan. `deprecated` retires this document as a
+> current execution contract; it does not deprecate the capability, cancel
+> proposals, or revoke historical decisions. Original dates and evidence are
+> retained. This review does not rerun historical qualification or authorize
+> replay of the original instructions.
+<!-- lifecycle-note:end -->
 
 ## Purpose
 

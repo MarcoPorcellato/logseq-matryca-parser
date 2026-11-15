@@ -2,8 +2,8 @@
 type: ImplementationRecord
 title: Bounded graph construction property assurance
 description: Reviewed scope, evidence, and limits for the synthetic graph-routing increment of issue 104.
-status: draft
-classification: active
+status: deprecated
+classification: historical
 audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
@@ -18,6 +18,19 @@ superseded_by: null
 ---
 
 # Bounded graph construction property assurance
+
+<!-- lifecycle-note:start -->
+> **Lifecycle review — 2026-11-15 (UTC): historical local assurance checkpoint.**
+> Original metadata: `status: draft`; `classification: active`.
+> Use [bounded #104 acceptance](PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md) and
+> [current composite delivery](COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status)
+> for present navigation. The original record distinguishes local completion
+> of its then-uncommitted increment from CI on its earlier baseline; neither
+> is new qualification of this lifecycle edit. `deprecated` retires this record
+> as current execution authority, not the tests or historical decisions.
+> Original dates, including `stale_after: 2026-11-03`, remain unchanged.
+> No historical qualification or instruction replay is authorized here.
+<!-- lifecycle-note:end -->
 
 ## Delivery status and authority
 

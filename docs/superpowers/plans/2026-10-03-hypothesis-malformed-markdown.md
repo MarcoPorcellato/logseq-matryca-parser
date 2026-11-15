@@ -1,5 +1,15 @@
 # Bounded malformed Markdown properties — local implementation record
 
+<!-- lifecycle-note:start -->
+> **Lifecycle review — 2026-11-15 (UTC): historical local and hosted execution record.**
+> Use the [current bounded #104 acceptance](../../quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md)
+> for issue-level disposition. The draft-PR statement below belongs to its
+> original checkpoint; this review does not reverify that PR state or every
+> plan step. Preserve the failed Windows evidence and its distinction from
+> local success. This review does not rerun historical qualification, erase
+> a failure, or authorize replay of the original instructions.
+<!-- lifecycle-note:end -->
+
 ## Approved scope
 
 Extend [issue #104](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/104)

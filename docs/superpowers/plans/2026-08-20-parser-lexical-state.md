@@ -1,5 +1,15 @@
 # Private Parser Lexical State Implementation Plan
 
+<!-- lifecycle-note:start -->
+> **Lifecycle review — 2026-11-15 (UTC): historical implementation plan.**
+> The [current architecture backlog](../../quality/CLEAN_ARCH_BACKLOG.md)
+> records delivered private lexical-state and line-classification phases;
+> residual #108 reducer/enrichment work is separate. That summary does not
+> prove completion of every unchecked step below. Original commands, approvals,
+> checklists and evidence remain unchanged. This review does not rerun historical
+> qualification or authorize replay of the original instructions.
+<!-- lifecycle-note:end -->
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Extract private YAML, fence, query, drawer, and eligibility state from `StackMachineParser.parse()` without changing parser semantics or public API.

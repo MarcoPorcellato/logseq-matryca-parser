@@ -29,6 +29,7 @@ navigation layers only.
 | Resource | Role |
 |---|---|
 | [Documentation portal](README.md) | Human navigation by audience |
+| [Planning-record lifecycle index](superpowers/README.md) | Supporting discovery for active designs, historical execution records and unverified completion; not a new technical contract or profile admission |
 | [AI agent guide](../AGENTS.md) | Product map, execution contract, safety boundaries, and repository gates |
 | [LLM discovery index](../llms.txt) | Concise standard-format project and capability map for inference-time discovery |
 | [Documentation system](DOCUMENTATION_SYSTEM.md) | Canonical governance, lifecycle, metadata, and federation guide |

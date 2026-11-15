@@ -2,7 +2,7 @@
 type: DesignSpecification
 title: Logseq Org-mode reader for OG file graphs
 description: Evidence-gated design for a read-only Org-mode parser scoped to Logseq OG file graphs.
-status: approved
+status: stable
 classification: active
 audience: maintainers
 owner: logseq-matryca-parser
@@ -19,6 +19,19 @@ base_commit: cf11de2fa7573b10d2555391676da3c3fbbe9f30
 ---
 
 # Logseq Org-mode reader for OG file graphs
+
+<!-- lifecycle-note:start -->
+> **Lifecycle review — 2026-11-15 (UTC): active supporting design with historical baselines.**
+> Original metadata: `status: approved`; `classification: active`.
+> The [post-merge plan](../plans/2026-09-29-logseq-org-parser.md#live-checkpoint--2026-10-01--post-merge)
+> records bounded D2 delivery; D3 graph integration remains deferred. Read the
+> [experimental status](../../internal/LOGSEQ_ORG_PARSER_EXPERIMENTAL_STATUS.md)
+> for current scope and limits. `stable` denotes accepted supporting
+> documentation, not a stable Org API, full GNU Org support, or permission to
+> expand the subset. Original approvals, baseline claims and dates remain
+> historical evidence. This review does not rerun qualification or authorize
+> replay of the original instructions.
+<!-- lifecycle-note:end -->
 
 ## Decision
 

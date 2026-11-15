@@ -19,6 +19,27 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-11-15 — Historical planning-record lifecycle
+
+- Add one supporting lifecycle index for the 26 baseline planning records,
+  with the new cleanup plan and adjacent handoff/assurance records identified
+  separately. Distinguish active supporting designs, historical checkpoints
+  and unverified completion; old instructions are not present authority.
+- Add dated notices to 12 records and limit existing metadata corrections to
+  seven status/classification pairs. Preserve original dates, approval meaning,
+  checklist states, source hashes, measurements and failed/local evidence;
+  original records must reconstruct byte-for-byte after removing the overlays
+  and restoring the explicitly recorded metadata values.
+- Keep Org D2 delivery and deferred D3 distinct, retain the wider unmet coverage
+  goal and exact-plan/publication uncertainties, and leave archived receipts
+  unchanged. A current-reference link is not blanket supersession.
+- Clarify historical v1.6 labels, route implementation readers to current
+  compatibility evidence rather than historical mldoc research, and distinguish
+  dated OKF findings from current source-profile rules. No conformance, parser,
+  runtime, benchmark, release, issue action or Knowledge projection is delivered.
+- Record local validation and independent-review results in the cleanup plan's
+  dated execution note; this chronology entry alone does not prove those gates.
+
 ## 2026-11-14 — Documentation and implementation concordance
 
 - Distinguish synthetic AST UUIDs from native Logseq IDs, describe reference

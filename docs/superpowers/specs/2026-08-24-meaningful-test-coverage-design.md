@@ -2,8 +2,8 @@
 type: DesignSpecification
 title: Meaningful test coverage campaign
 description: A quality-first campaign that raises repository coverage through stable behavioral and security tests.
-status: approved
-classification: active
+status: deprecated
+classification: historical
 audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
@@ -15,6 +15,18 @@ base_commit: 01faa3b5b66a5eda117968093a10080c67c1accf
 ---
 
 # Meaningful test coverage campaign
+
+<!-- lifecycle-note:start -->
+> **Lifecycle review — 2026-11-15 (UTC): historical approved campaign design.**
+> Original metadata: `status: approved`; `classification: active`.
+> The [Tranche A receipt](../plans/2026-08-24-local-assurance-coverage.md#completion-receipt)
+> records a bounded outcome and explicitly leaves the wider repository-wide
+> 95% criterion unmet at that checkpoint. This review establishes neither full
+> campaign completion nor a new coverage result. `deprecated` retires this
+> dated execution contract, not the goal of better tests, its original approval,
+> or an unmet proposal. This review does not rerun historical qualification or
+> authorize replay of the original instructions.
+<!-- lifecycle-note:end -->
 
 ## Purpose
 
