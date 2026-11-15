@@ -4,6 +4,17 @@ type: Document
 
 # M5 local graph assurance pre-publication handoff — 2026-08-18
 
+<!-- lifecycle-note:start -->
+> **Lifecycle review — 2026-11-15 (UTC): historical pre-publication handoff.**
+> The active-goal wording, required next sequence and issue-open statements
+> below describe the 2026-08-18 checkpoint, not current execution authority.
+> Current navigation: [local graph assurance](../reference/LOCAL_GRAPH_ASSURANCE.md)
+> and [bounded #104 acceptance](../quality/PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md).
+> These references do not prove that every M5 substep was completed or fully
+> replaced. Original decisions, dates and local-only evidence remain intact.
+> This review does not rerun qualification or authorize instruction replay.
+<!-- lifecycle-note:end -->
+
 ## Safe resume point
 
 - Repository: `MarcoPorcellato/logseq-matryca-parser`

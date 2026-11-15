@@ -25,7 +25,7 @@ Maintainer-facing triage and backlog for Clean Architecture / Clean Code work.
 |----------|---------|
 | [`PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md`](PARSER_ASSURANCE_ACCEPTANCE_2026-10-18.md) | Bounded #104 acceptance and historical crosswalk; closure is not proof of exhaustive coverage |
 | [`COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md`](COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status) | Source/release boundaries through v1.11.3 and historical checkpoints |
-| [`GRAPH_PROPERTY_ASSURANCE_2026-10-03.md`](GRAPH_PROPERTY_ASSURANCE_2026-10-03.md) | Separate bounded graph-construction model and its dated qualification |
+| [`GRAPH_PROPERTY_ASSURANCE_2026-10-03.md`](GRAPH_PROPERTY_ASSURANCE_2026-10-03.md) | Historical bounded graph-construction checkpoint; local increment evidence remains separate from its baseline CI |
 | [`OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md`](OFFICIAL_LOGSEQ_MARKDOWN_COMPATIBILITY_2026-10-10.md) | Public evidence for all 313 selected official Logseq documents, page metadata semantics and precise compatibility claims |
 | [`LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md`](LOGSEQ_MARKDOWN_DATASET_CANDIDATES_2026-10-10.md) | Research-backed candidates for broader Markdown corpus coverage, with provenance and licensing limits |
 | [`official_logseq_corpus_2026-10-10.json`](official_logseq_corpus_2026-10-10.json) | Sanitized per-document results and integrity bindings for the official corpus campaign |
@@ -34,7 +34,7 @@ Maintainer-facing triage and backlog for Clean Architecture / Clean Code work.
 | [`../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md`](../REPOSITORY_STELLAR_ROADMAP_2026-08-06.md) | Current repository-wide evidence, priorities and MKQ-4 plan |
 | [`../DOCUMENTATION_SYSTEM.md`](../DOCUMENTATION_SYSTEM.md) | Canonical documentation authority, metadata, lifecycle, and federation contract |
 | [`../CI_ASSURANCE.md`](../CI_ASSURANCE.md) | Canonical GitHub Actions and repository-settings assurance map |
-| [`GITHUB_CLEAN_ARCH_ROADMAP.md`](GITHUB_CLEAN_ARCH_ROADMAP.md) | Milestone, project board, epic + phase issues (v1.6) |
+| [`GITHUB_CLEAN_ARCH_ROADMAP.md`](GITHUB_CLEAN_ARCH_ROADMAP.md) | Historical v1.6 roadmap: milestone, project board, epic and phase issues; not current execution authority |
 | [`ISSUE_TRIAGE_2026-07.md`](ISSUE_TRIAGE_2026-07.md) | Superseded July 2026 backlog baseline |
 | [`CLEAN_ARCH_BACKLOG.md`](CLEAN_ARCH_BACKLOG.md) | Delivered v1.6 slices and residual private #108 scope after #104/#111 gates; no broad parser split |
 | [`../BUG_HUNT_REPORT.md`](../BUG_HUNT_REPORT.md) | Full bug-hunt report (2026-06) with runtime evidence |

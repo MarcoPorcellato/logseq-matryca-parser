@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Add a planning-record lifecycle index and dated historical notices while
+  preserving original dates, approvals, checklists, measurements and failure
+  evidence. Distinguish active supporting designs, archived checkpoints and
+  unverified completion without changing parser behavior or release history.
+
 ## [1.11.3] - 2026-11-14
 
 ### Fixed

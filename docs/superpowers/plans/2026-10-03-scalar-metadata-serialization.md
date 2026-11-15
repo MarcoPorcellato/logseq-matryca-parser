@@ -2,8 +2,8 @@
 type: ImplementationPlan
 title: Bounded scalar metadata serialization correction
 description: Correct metadata placement without changing parsing or complex property layouts.
-status: stable
-classification: active
+status: deprecated
+classification: historical
 audience: maintainers
 owner: logseq-matryca-parser
 authority: source_repository
@@ -18,6 +18,18 @@ superseded_by: null
 ---
 
 # Scalar Metadata Serialization Implementation Plan
+
+<!-- lifecycle-note:start -->
+> **Lifecycle review — 2026-11-15 (UTC): historical local implementation checkpoint.**
+> Original metadata: `status: stable`; `classification: active`.
+> The local completion evidence below does not establish publication of this
+> exact correction. Use the [current composite delivery record](../../quality/COMPOSITE_MARKDOWN_ASSURANCE_2026-10-03.md#current-delivery-and-release-status)
+> for present navigation, not as proof that every old plan step shipped.
+> Original dates, including `stale_after: 2026-11-03`, remain unchanged.
+> `deprecated` retires the document as current execution authority, not the
+> capability or historical approval. This review does not rerun qualification
+> or authorize replay of the original instructions.
+<!-- lifecycle-note:end -->
 
 > **For agentic workers:** Use superpowers:executing-plans for the single correction task. Steps use checkbox tracking. The controller may assign one bounded implementation worker and an independent reviewer, but owns integration and validation. No commit is authorized.
 

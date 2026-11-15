@@ -1,5 +1,15 @@
 # Graph Mutation Coherence Implementation Plan
 
+<!-- lifecycle-note:start -->
+> **Lifecycle review — 2026-11-15 (UTC): historical #103 implementation plan.**
+> The [current roadmap](../../ROADMAP_2026-2027.md#evidence-gated-improvement-decisions)
+> records #103 / merged #180 delivery in v1.8.1. This does not establish that
+> every original acceptance or publication step below ran exactly as written.
+> Unchecked boxes, draft-PR instructions and project movements remain evidence
+> of the old checkpoint, not current tasks. This review does not rerun historical
+> qualification or authorize replay of the original instructions.
+<!-- lifecycle-note:end -->
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Serialize one-process graph mutations and publish complete graph-index versions so writers, watchers, and readers cannot lose updates or observe mixed state.
