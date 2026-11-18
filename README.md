@@ -377,7 +377,7 @@ We welcome issues, pull requests, and constructive feedback.
 
 ## 📦 Release history
 
-Current source version: **v1.11.3**. This source-version label does not establish
+Current source version: **v1.11.4**. This source-version label does not establish
 publication. The [PyPI project page](https://pypi.org/project/logseq-matryca-parser/) and
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases) list available distributions.
 Security support follows the [latest-release policy](SECURITY.md).
@@ -386,7 +386,8 @@ Read the complete [release highlights](RELEASE_HIGHLIGHTS.md), the exhaustive
 [changelog](CHANGELOG.md), or the signed artifacts on
 [GitHub Releases](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases).
 
-- **v1.11.3 (source)** — Hardens agent-state and weekly-page writes, preserves existing file metadata, and refreshes development-tool security and documentation.
+- **v1.11.4 (source)** — Avoids repeated alias scans when checking for broken block references, without changing reference resolution.
+- **v1.11.3** — Hardens agent-state and weekly-page writes, preserves existing file metadata, and refreshes development-tool security and documentation.
 - **v1.11.2** — Bounds graph ownership-resolution work per read, extends focused refresh-depth tests, and consolidates assurance and PKM comparison documentation.
 - **v1.11.1** — Fixes fenced-code parsing in outline items, preserves eligible multiline scalar-metadata round trips, and adds bounded composite Markdown assurance.
 - **v1.11.0** — Adds an experimental, read-only Logseq Org reader with source retention and explicit support limits.

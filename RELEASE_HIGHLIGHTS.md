@@ -7,12 +7,33 @@ published artifacts and attestations, see
 
 ## Unreleased
 
+## v1.11.4
+
+This patch reduces repeated lookup work when checking a Logseq Markdown graph
+for broken block references. Source-version metadata is not publication
+evidence; check [PyPI](https://pypi.org/project/logseq-matryca-parser/) or the
+release listing above for availability.
+
+| Area | Change |
+| :--- | :--- |
+| **Graph reference checks** | A scan builds a block-alias index only when needed and reuses it within that scan. Registry and native block IDs, UUID normalization, fallback behavior and result ordering stay unchanged. |
+| **User workflows** | The graph API, strict graph-load validation and `matryca-parse scan --broken-refs` keep their existing behavior. No new configuration, public API or dependencies. |
+| **Documentation** | Updates the graph reference guide and cookbook; the planning lifecycle index keeps dated decisions, limits and evidence intact. |
+
+See the [graph reference contract](docs/ARCHITECTURE.md#ast-reference-linter-get_broken_references)
+and [#278](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/278).
+Regression tests bound repeated scan work; they do not establish whole-request
+performance or qualify [#111](https://github.com/MarcoPorcellato/logseq-matryca-parser/issues/111)
+or a downstream integration.
+
 ## v1.11.3
 
-This source version hardens the X-Ray alias-state and weekly-page write paths
-without changing parser behavior, graph APIs, alias JSON shape or declared
-install requirements. A documented source version is not proof of publication;
-use the distribution links above to confirm availability.
+Published on 2026-11-14:
+[GitHub Release](https://github.com/MarcoPorcellato/logseq-matryca-parser/releases/tag/v1.11.3)
+and [PyPI package](https://pypi.org/project/logseq-matryca-parser/1.11.3/).
+This patch hardens the X-Ray alias-state and weekly-page write paths without
+changing parser behavior, graph APIs, alias JSON shape or declared install
+requirements.
 
 | Area | Change |
 | :--- | :--- |

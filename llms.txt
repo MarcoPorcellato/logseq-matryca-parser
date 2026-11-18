@@ -2,9 +2,11 @@
 
 > A deterministic Python parser, typed AST, in-memory graph, RAG adapter, exporter, visualizer, and bounded agent-access layer for sovereign Logseq Markdown vaults.
 
-Current source version: v1.11.3. Source metadata is not publication evidence;
-verify availability on PyPI and GitHub Releases. This source includes bounded
-agent-file hardening, not new parser semantics or performance qualification.
+Current source version: v1.11.4. Source metadata is not publication evidence;
+verify availability on PyPI and GitHub Releases. Broken-reference scans reuse
+a temporary block-alias index for eligible lookups. This changes neither
+Markdown parsing nor reference-resolution rules and is not performance
+qualification. The bounded agent-file hardening from v1.11.3 remains in place.
 
 Logseq Markdown files are the source of truth. The parser preserves outliner
 hierarchy, block UUIDs, page aliases, backlinks, properties, tasks, timestamps,

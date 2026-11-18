@@ -103,7 +103,9 @@ for node in hits:
 **Tips:**
 
 - `graph.get_page("my page")` is case-insensitive (Datomic / Logseq parity).
-- `graph.get_broken_references()` flags `((uuid))` refs missing from the registry.
+- `graph.get_broken_references()` reports blocks with unresolved references.
+  A reference may resolve through a native block ID even when it is not an
+  exact registry key.
 - Iterate `graph.iter_canonical_pages()` when exporting or counting pages — alias keys share the same `LogseqPage` instance.
 
 ---
@@ -158,23 +160,30 @@ stable parent directories. See the
 
 ## Recipe 5 — Canonical pages & strict reference lint
 
-Avoid duplicate exports when alias keys point at the same page, and fail fast on broken block refs.
+Avoid duplicate exports when alias keys point at the same page, and fail fast
+on unresolved block references. See the [graph reference contract](ARCHITECTURE.md#ast-reference-linter-get_broken_references)
+for identity rules and the scan's temporary alias index.
 
 ```python
 from logseq_matryca_parser import LogseqGraph
 
-# Optional: raise BlockReferenceError when any ((uuid)) is missing after load
-graph = LogseqGraph.load_directory("/path/to/logseq/graph", strict_refs=True)
+# Inspect unresolved references after a normal load.
+graph = LogseqGraph.load_directory("/path/to/logseq/graph")
 
 for page in graph.iter_canonical_pages():
-    owner = graph.page_for_node(page.root_nodes[0])
-    assert owner is page
+    if page.root_nodes:
+        owner = graph.page_for_node(page.root_nodes[0])
+        assert owner is page
 
 broken = graph.get_broken_references()
 if broken:
     for node in broken:
         print("broken ref in", node.clean_text)
 ```
+
+For fail-fast validation, pass `strict_refs=True` to `load_directory()`.
+Unresolved block references then raise `BlockReferenceError` instead of
+returning a graph for inspection.
 
 **CLI tip:** `matryca-parse scan /path/to/graph --broken-refs` prints a Rich table of unresolved refs and exits `1` for CI (since v1.5.0). For programmatic checks, use `graph.get_broken_references()` as above.
 
