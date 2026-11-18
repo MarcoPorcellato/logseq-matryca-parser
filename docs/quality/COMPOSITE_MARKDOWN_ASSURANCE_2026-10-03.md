@@ -21,6 +21,11 @@ superseded_by: null
 
 ## Current delivery and release status
 
+The v1.11.4 source changes graph reference scanning
+([#278](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/278)),
+not the Markdown parser. Focused regression tests cover resolution behavior and
+repeated lookup work. They do not rerun the official corpus or complete #111.
+
 The v1.11.3 source line carries the agent-file safety correction and its native
 metadata/leaf regressions. It does not change Markdown parser semantics,
 rerun the official corpus or add a new randomized campaign. Source-version

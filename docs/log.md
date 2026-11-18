@@ -19,6 +19,15 @@ superseded_by: null
 
 # Documentation evolution log
 
+## 2026-11-18 — v1.11.4 source preparation
+
+- Describe the graph reference-scan change from #278 in the changelog,
+  release highlights, architecture and cookbook. Preserve standalone
+  resolution, legacy fallback, result ordering and the existing CLI contract.
+- Align source and citation metadata and current assurance navigation. This
+  records candidate preparation, not publication, #111 benchmark evidence or
+  downstream Plumber acceptance.
+
 ## 2026-11-15 — Historical planning-record lifecycle
 
 - Add one supporting lifecycle index for the 26 baseline planning records,

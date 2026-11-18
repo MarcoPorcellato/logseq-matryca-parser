@@ -11,7 +11,7 @@ and safely extend a vault without flattening its structure.
 Markdown files are the source of truth. The in-memory graph, registries,
 backlinks, exports, visualizations, and AI chunks are derived views.
 
-Current source version is v1.11.3. Source metadata and local validation do not
+Current source version is v1.11.4. Source metadata and local validation do not
 establish publication; check PyPI and GitHub Releases before claiming that a
 version is available. The versioned changelog and filesystem safety contract
 describe the bounded agent-write correction and its remaining limitations.

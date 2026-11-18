@@ -7,18 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.4] - 2026-11-18
+
 ### Fixed
 
-- **Block-reference validation** — reuse a temporary alias index while scanning
-  broken references, avoiding repeated registry scans for standard IDs without
-  changing standalone resolution or the fallback for custom IDs.
+- **Block-reference validation** — build a temporary alias index on demand
+  instead of repeatedly scanning published block aliases for eligible lookups.
+  Standalone resolution, legacy fallback, diagnostics and result ordering are
+  unchanged ([#278](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/278)).
+  Public APIs, install requirements and the dependency lock are unchanged.
 
 ### Documentation
+
+- Clarify graph reference resolution and align the contributor guide,
+  architecture, cookbook and current assurance navigation with the implemented
+  contracts ([#276](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/276)).
 
 - Add a planning-record lifecycle index and dated historical notices while
   preserving original dates, approvals, checklists, measurements and failure
   evidence. Distinguish active supporting designs, archived checkpoints and
-  unverified completion without changing parser behavior or release history.
+  unverified completion ([#277](https://github.com/MarcoPorcellato/logseq-matryca-parser/pull/277)).
 
 ## [1.11.3] - 2026-11-14
 

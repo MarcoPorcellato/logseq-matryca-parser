@@ -471,7 +471,23 @@ typed **`PageTitleCollisionError`** instead of accepting the winner.
 
 #### AST reference linter (`get_broken_references`)
 
-**`LogseqGraph.get_broken_references()`** scans attached nodes and checks each **`block_refs`** target through **`get_node_by_embed_ref`**. That resolver accepts synthetic registry UUIDs, native **`source_uuid`** values and **`properties["id"]`**, including supported UUID normalization. The **originating node** is collected once if any target cannot be resolved; absence from the synthetic-key registry alone does not make a native reference broken. Downstream apps (MCP servers, CI, pre-embed hooks) get **structural link validation** aligned with LOGOS identity rules — not brittle regex over raw Markdown. **KINETIC** exposes the same check via **`matryca-parse scan --broken-refs`** (v1.5.0): Rich table output and exit status **1** when any broken refs exist — suitable for vault hygiene pipelines without custom Python glue.
+**`LogseqGraph.get_broken_references()`** scans attached nodes using the same
+target-existence rules as **`get_node_by_embed_ref`**: synthetic registry UUIDs,
+native **`source_uuid`** values and **`properties["id"]`**, including supported
+UUID normalization. Absence from the synthetic-key registry alone does not
+make a native reference broken. The scan returns the **originating node**
+once if any target cannot be resolved, in the existing attached-node order.
+
+Registry hits need no alias index. For eligible alias lookups the scan builds
+one membership index on demand and discards it when the scan ends. It does
+not cache results across calls or choose an alias winner. Overridden resolvers,
+inputs the index cannot represent safely and debug diagnostics retain the
+ordered resolver path; standalone resolution is unchanged.
+
+**KINETIC** exposes the same graph check via
+**`matryca-parse scan --broken-refs`**: it prints a Rich table and exits **1**
+when it finds broken references. The check uses the parsed AST, not regular
+expressions over raw Markdown.
 
 ### 3.7 AGENT PRESS — Agent-native printing press & X-Ray mode
 
