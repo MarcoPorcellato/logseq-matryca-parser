@@ -893,6 +893,73 @@ def _reindex_incoming_page_wikilinks_in(
             )
 
 
+def _canonical_embed_uuid(value: str) -> str | None:
+    try:
+        return str(uuid.UUID(value))
+    except ValueError:
+        return None
+
+
+def _collect_embed_aliases(
+    registry: Mapping[str, LogseqNode],
+) -> tuple[set[str], set[str]] | None:
+    raw: set[str] = set()
+    canonical: set[str] = set()
+    for node in registry.values():
+        if type(node) is not LogseqNode or type(node.properties) is not dict:
+            return None
+        if any(type(key) is not str for key in node.properties):
+            return None
+        for alias in (node.source_uuid, node.properties.get("id")):
+            if alias is None:
+                continue
+            if type(alias) is not str:
+                # Keep the original ordered equality checks for arbitrary property values.
+                return None
+            raw.add(alias)
+            normalized = _canonical_embed_uuid(alias)
+            if normalized is not None:
+                canonical.add(normalized)
+    return raw, canonical
+
+
+class _BatchEmbedLookup:
+    """Local existence checks; never choose an alias winner or persist the index."""
+
+    def __init__(
+        self,
+        registry: Mapping[str, LogseqNode],
+        fallback: Callable[[str], LogseqNode | None],
+    ) -> None:
+        self._registry = registry
+        self._fallback = fallback
+        self._aliases: tuple[set[str], set[str]] | None = None
+        self._index_allowed = True
+
+    def has_target(self, ref: str) -> bool:
+        if type(ref) is not str:
+            # A custom string may run arbitrary behavior during legacy lookup.
+            self._index_allowed = False
+            self._aliases = None
+        if not self._index_allowed:
+            return self._fallback(ref) is not None
+        raw_ref = ref.strip()
+        if not raw_ref:
+            return False
+        if self._registry.get(raw_ref) is not None:
+            return True
+        canonical_ref = _canonical_embed_uuid(raw_ref)
+        if canonical_ref is not None and self._registry.get(canonical_ref) is not None:
+            return True
+        if self._aliases is None:
+            self._aliases = _collect_embed_aliases(self._registry)
+            if self._aliases is None:
+                self._index_allowed = False
+                return self._fallback(ref) is not None
+        raw, canonical = self._aliases
+        return raw_ref in raw or (canonical_ref is not None and canonical_ref in canonical)
+
+
 class LogseqGraph(BaseModel):
     """Bulk-loaded Logseq vault: pages plus O(1) node lookup by synthetic UUID."""
 
@@ -1123,12 +1190,31 @@ class LogseqGraph(BaseModel):
     def get_broken_references(self) -> list[LogseqNode]:
         """Return nodes whose ``block_refs`` point at UUIDs missing from the node registry."""
         with self._mutation_scope():
+            batch = None
+            if (
+                type(self) is LogseqGraph
+                and LogseqGraph.get_node_by_embed_ref is _ORIGINAL_EMBED_LOOKUP
+                and LogseqGraph.get_node_by_uuid is _ORIGINAL_UUID_LOOKUP
+                and "get_node_by_embed_ref" not in self.__dict__
+                and "get_node_by_uuid" not in self.__dict__
+            ):
+                batch = _BatchEmbedLookup(
+                    self._node_registry, lambda ref: self.get_node_by_embed_ref(ref)
+                )
             broken: list[LogseqNode] = []
             for node in self._iter_attached_nodes():
                 if not node.block_refs:
                     continue
                 for ref in node.block_refs:
-                    if self.get_node_by_embed_ref(ref) is None:
+                    if batch is not None and logger.isEnabledFor(logging.DEBUG):
+                        # Preserve ordered lookup and reentrant debug handler behavior.
+                        batch = None
+                    resolved = (
+                        self.get_node_by_embed_ref(ref) is not None
+                        if batch is None
+                        else batch.has_target(ref)
+                    )
+                    if not resolved:
                         broken.append(node)
                         logger.debug(
                             "get_broken_references origin=%s missing_ref=%s",
@@ -1486,6 +1572,10 @@ class LogseqGraph(BaseModel):
     ) -> LogseqGraphWatcher:
         """Start a recursive filesystem observer over the graph (requires optional ``watchdog``)."""
         return LogseqGraphWatcher(self, callback, debounce_seconds=debounce_seconds).start()
+
+
+_ORIGINAL_EMBED_LOOKUP = LogseqGraph.get_node_by_embed_ref
+_ORIGINAL_UUID_LOOKUP = LogseqGraph.get_node_by_uuid
 
 
 class LogseqGraphWatcher:

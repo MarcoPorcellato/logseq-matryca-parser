@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Block-reference validation** — reuse a temporary alias index while scanning
+  broken references, avoiding repeated registry scans for standard IDs without
+  changing standalone resolution or the fallback for custom IDs.
+
 ### Documentation
 
 - Add a planning-record lifecycle index and dated historical notices while
