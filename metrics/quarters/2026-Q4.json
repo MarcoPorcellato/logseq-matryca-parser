@@ -200,6 +200,10 @@
     "2026-11-19": {
       "count": 9,
       "uniques": 8
+    },
+    "2026-11-20": {
+      "count": 0,
+      "uniques": 0
     }
   },
   "clones": {
@@ -402,6 +406,10 @@
     "2026-11-19": {
       "count": 69,
       "uniques": 17
+    },
+    "2026-11-20": {
+      "count": 48,
+      "uniques": 28
     }
   },
   "releases": {
@@ -12946,6 +12954,308 @@
         "tag": "v0.2.0",
         "assets": []
       }
+    ],
+    "2026-11-21": [
+      {
+        "tag": "v1.11.4",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 2
+          },
+          {
+            "logseq_matryca_parser-1.11.4-py3-none-any.whl": 2
+          },
+          {
+            "logseq_matryca_parser-1.11.4.tar.gz": 2
+          },
+          {
+            "SBOM.cdx.json": 2
+          },
+          {
+            "SHA256SUMS": 2
+          }
+        ]
+      },
+      {
+        "tag": "v1.11.3",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 2
+          },
+          {
+            "logseq_matryca_parser-1.11.3-py3-none-any.whl": 2
+          },
+          {
+            "logseq_matryca_parser-1.11.3.tar.gz": 2
+          },
+          {
+            "SBOM.cdx.json": 2
+          },
+          {
+            "SHA256SUMS": 2
+          }
+        ]
+      },
+      {
+        "tag": "v1.11.2",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 3
+          },
+          {
+            "logseq_matryca_parser-1.11.2-py3-none-any.whl": 6
+          },
+          {
+            "logseq_matryca_parser-1.11.2.tar.gz": 7
+          },
+          {
+            "SBOM.cdx.json": 3
+          },
+          {
+            "SHA256SUMS": 5
+          }
+        ]
+      },
+      {
+        "tag": "v1.11.1",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 2
+          },
+          {
+            "logseq_matryca_parser-1.11.1-py3-none-any.whl": 3
+          },
+          {
+            "logseq_matryca_parser-1.11.1.tar.gz": 3
+          },
+          {
+            "SBOM.cdx.json": 2
+          },
+          {
+            "SHA256SUMS": 3
+          }
+        ]
+      },
+      {
+        "tag": "v1.11.0",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 2
+          },
+          {
+            "logseq_matryca_parser-1.11.0-py3-none-any.whl": 4
+          },
+          {
+            "logseq_matryca_parser-1.11.0.tar.gz": 4
+          },
+          {
+            "SBOM.cdx.json": 2
+          },
+          {
+            "SHA256SUMS": 4
+          }
+        ]
+      },
+      {
+        "tag": "v1.10.0",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 2
+          },
+          {
+            "logseq_matryca_parser-1.10.0-py3-none-any.whl": 3
+          },
+          {
+            "logseq_matryca_parser-1.10.0.tar.gz": 3
+          },
+          {
+            "SBOM.cdx.json": 2
+          },
+          {
+            "SHA256SUMS": 3
+          }
+        ]
+      },
+      {
+        "tag": "v1.9.0",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 5
+          },
+          {
+            "logseq_matryca_parser-1.9.0-py3-none-any.whl": 7
+          },
+          {
+            "logseq_matryca_parser-1.9.0.tar.gz": 7
+          },
+          {
+            "SBOM.cdx.json": 4
+          },
+          {
+            "SHA256SUMS": 7
+          }
+        ]
+      },
+      {
+        "tag": "v1.8.2",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 2
+          },
+          {
+            "logseq_matryca_parser-1.8.2-py3-none-any.whl": 4
+          },
+          {
+            "logseq_matryca_parser-1.8.2.tar.gz": 5
+          },
+          {
+            "SBOM.cdx.json": 2
+          },
+          {
+            "SHA256SUMS": 4
+          }
+        ]
+      },
+      {
+        "tag": "v1.8.1",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 2
+          },
+          {
+            "logseq_matryca_parser-1.8.1-py3-none-any.whl": 4
+          },
+          {
+            "logseq_matryca_parser-1.8.1.tar.gz": 5
+          },
+          {
+            "SBOM.cdx.json": 2
+          },
+          {
+            "SHA256SUMS": 4
+          }
+        ]
+      },
+      {
+        "tag": "v1.8.0",
+        "assets": [
+          {
+            "DEPENDENCY_LICENSES.json": 2
+          },
+          {
+            "logseq_matryca_parser-1.8.0-py3-none-any.whl": 3
+          },
+          {
+            "logseq_matryca_parser-1.8.0.tar.gz": 3
+          },
+          {
+            "SBOM.cdx.json": 2
+          },
+          {
+            "SHA256SUMS": 3
+          }
+        ]
+      },
+      {
+        "tag": "v1.7.1",
+        "assets": [
+          {
+            "logseq_matryca_parser-1.7.1-py3-none-any.whl": 3
+          },
+          {
+            "logseq_matryca_parser-1.7.1.tar.gz": 3
+          },
+          {
+            "SHA256SUMS": 4
+          }
+        ]
+      },
+      {
+        "tag": "v1.7.0",
+        "assets": [
+          {
+            "logseq_matryca_parser-1.7.0-py3-none-any.whl": 4
+          },
+          {
+            "logseq_matryca_parser-1.7.0.tar.gz": 5
+          },
+          {
+            "SHA256SUMS": 4
+          }
+        ]
+      },
+      {
+        "tag": "v1.6.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.4.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.2.0",
+        "assets": []
+      },
+      {
+        "tag": "v1.1.1",
+        "assets": []
+      },
+      {
+        "tag": "v1.0.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.3",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.3.0",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.2",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.1",
+        "assets": []
+      },
+      {
+        "tag": "v0.2.0",
+        "assets": []
+      }
     ]
   },
   "referrers": {
@@ -13825,6 +14135,23 @@
       }
     ],
     "2026-11-20": [
+      {
+        "referrer": "github.com",
+        "count": 3,
+        "uniques": 2
+      },
+      {
+        "referrer": "com.reddit.frontpage",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "referrer": "discuss.logseq.com",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-11-21": [
       {
         "referrer": "github.com",
         "count": 3,
@@ -16944,6 +17271,68 @@
       }
     ],
     "2026-11-20": [
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser",
+        "title": "Overview",
+        "count": 5,
+        "uniques": 5
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/releases",
+        "title": "/releases",
+        "count": 3,
+        "uniques": 3
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/ARCHITECTURE.md",
+        "title": "/blob/main/docs/ARCHITECTURE.md",
+        "count": 2,
+        "uniques": 2
+      },
+      {
+        "path": "/C:/Users/John/AppData/Local/Temp/RWBhihvgd.html",
+        "title": "ihvgd.html",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/actions/runs/39457510037",
+        "title": "/actions/runs/39457510037",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/CODEQL.md",
+        "title": "/blob/main/docs/CODEQL.md",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/COOKBOOK.md",
+        "title": "/blob/main/docs/COOKBOOK.md",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/blob/main/docs/GOOD_FIRST_ISSUES.md",
+        "title": "/blob/main/docs/GOOD_FIRST_ISSUES.md",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/19",
+        "title": "/issues/19",
+        "count": 1,
+        "uniques": 1
+      },
+      {
+        "path": "/MarcoPorcellato/logseq-matryca-parser/issues/47",
+        "title": "/issues/47",
+        "count": 1,
+        "uniques": 1
+      }
+    ],
+    "2026-11-21": [
       {
         "path": "/MarcoPorcellato/logseq-matryca-parser",
         "title": "Overview",
